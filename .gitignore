@@ -83,3 +83,14 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+assets/france.png
+assets/usa.png
+fonts/Pacifico-Regular.ttf
+*.bak
+android/app/google-services.json
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+.dart_tool/
+.idea/

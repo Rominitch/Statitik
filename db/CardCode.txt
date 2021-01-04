@@ -1,0 +1,29 @@
+P Plante
+R Feu
+E Eau
+W Electrique
+Y Psy
+C Combat
+O Obscurite
+M Metal
+I incolore
+F Fée
+D dragon
+o objet
+d Supporter
+s stade
+e energy
+
+c commune
+p peu commune
+r rare
+H holorare
+U ultra rare
+M magn
+v hr v
+V v max
+A arc en ciel
+G Gold
+
+
+PcPpPrPcPrPcPrPcPMPcPpPrPHPHPcPpPpPvPVPvRcRpRrRrRcRpRvErEcEHEcEpErEvEVEcErEpEcErWvWVWcWHWrWHWvWMWcWrWcWpWcWpWcWpWHWHWpYcYrYpYrYcYrYcYpYHYcYcYpYcYrYcYHYHYcYrYMCcCrCpCcCrCpCHCcCcCrCHCcCrCcCrCvCVCcCrCMOcOpOpOvOcOpOrOcOrMcMrMrMvMcMpMrMcMpMrMMMrMHMpMcMpMpMvMVMHMHIcIHIHIcIpIcIpIrIMIcIvIVIHIcIpIrdpdpdpdpspopopdpdHopopdpdpopopspepepepepPUPURUEUWUWUYUCUCUOUMUMUIUdUdUdUdUdUdUdUPAEAWACAMAIAdAdAdAdAdAdAOGIGoGoGoGoG

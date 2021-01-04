@@ -1,0 +1,202 @@
+import 'package:flutter/material.dart';
+import 'package:statitik_pokemon/services/models.dart';
+
+Widget createLanguage(Language l, BuildContext context, Function press)
+{
+  return Container(
+    child: FlatButton(
+      child: Image(
+        image: AssetImage('assets/${l.image}.png'),
+      ),
+      onPressed: () {
+        Navigator.push(context, MaterialPageRoute(builder: press));
+      },
+    ),
+  );
+}
+
+Widget createSubExtension(SubExtension se, BuildContext context, Function press, bool withName)
+{
+  return Card(
+    color: Colors.grey[850],
+    child: Container(
+      height: 40.0,
+      child: FlatButton(
+          child: withName ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              se.image(),
+              SizedBox(width: 10.0),
+              Text( '${se.name}' ),
+            ])
+          : se.image(),
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: press));
+          }
+        ),
+      ),
+  );
+}
+
+Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function press) {
+  return Card(
+      color: bd.isFinished() ? Colors.green[400] : Colors.grey[900],
+      child: FlatButton(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              bd.subExtension.image(),
+              SizedBox(height: 6.0),
+              Text(
+                  '${bd.id}'
+              ),
+              //bd.valid ? Icon(Icons.verified, color: Colors.green, size: 20.0,)
+              //         : Icon(Icons.edit, size: 17.0),
+          ]),
+        ),
+        onPressed: () => press(context)
+      )
+  );
+}
+
+class PokemonCard extends StatefulWidget {
+  final int idCard;
+  final PokeCard card;
+  final BoosterDraw boosterDraw;
+  final Function refresh;
+
+  PokemonCard({this.idCard, this.card, this.boosterDraw, this.refresh});
+
+  @override
+  _PokemonCardState createState() => _PokemonCardState();
+}
+
+class _PokemonCardState extends State<PokemonCard> {
+  @override
+  Widget build(BuildContext context) {
+    String cardValue = widget.boosterDraw.card[widget.idCard];
+    bool isTake = cardValue != emptyMode;
+    Mode selected = isTake ? convertMode[cardValue] : Mode.Normal;
+
+    Function update = () {
+      setState(() {});
+      widget.refresh();
+    };
+
+    return Card(
+        color: isTake ? colors[selected] : Colors.grey[900],
+        child: FlatButton(
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(  mainAxisAlignment: MainAxisAlignment.center,
+                      children: [widget.card.imageType()] + widget.card.imageRarity()),
+                  SizedBox(height: 6.0),
+                  Text('${widget.idCard+1}'),
+                ]),
+            padding: EdgeInsets.all(2.0),
+            onLongPress: () {
+              if( widget.card.hasAnotherRendering() ) {
+                setState(() {
+                  createCardType(
+                      context, widget.idCard, widget.boosterDraw, selected,
+                      update);
+                });
+              }
+            },
+            onPressed: () {
+              setState(() {
+                widget.boosterDraw.toggleCard(widget.idCard, Mode.Normal);
+                widget.refresh();
+              });
+            }
+        )
+    );
+  }
+}
+
+class EnergyButton extends StatefulWidget {
+  final BoosterDraw boosterDraw;
+  final Type type;
+  final Function refresh;
+
+  EnergyButton({this.type, this.boosterDraw, this.refresh});
+
+  @override
+  _EnergyButtonState createState() => _EnergyButtonState();
+}
+
+class _EnergyButtonState extends State<EnergyButton> {
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.boosterDraw.onEnergyChanged.stream.listen( (bool)
+      {
+        setState(() {
+          //widget.boosterDraw.setEnergy(widget.type);
+          widget.refresh();
+        });
+      }
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: FlatButton(
+        color: convertType[widget.boosterDraw.energyCode] == widget.type ? Colors.green : Colors.grey[800],
+        minWidth: 20.0,
+        child: energyImage(widget.type),
+        onPressed: () {
+          widget.boosterDraw.setEnergy(widget.type);
+        },
+      ),
+    );
+  }
+}
+
+const Map imgs   = {Mode.Normal: "normal", Mode.Reverse: "reverse", Mode.Halo: "halo"};
+const Map names  = {Mode.Normal: "Normal", Mode.Reverse: "Reverse", Mode.Halo: "Halo"};
+const Map colors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAccent, Mode.Halo: Colors.orange};
+
+Widget createIconCard(BuildContext context, int id, BoosterDraw boosterDraw, Mode mode, bool isSelected, Function refresh) {
+
+  return Card(
+    color: isSelected ? colors[mode] : Colors.grey[900],
+    child: FlatButton(
+        child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [Image(image: AssetImage('assets/${imgs[mode]}.png'), width: 75.0),
+              SizedBox(height: 6.0),
+              Text(names[mode]),
+            ]),
+        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+        onPressed: () {
+          boosterDraw.setOtherRendering(id, mode);
+          Navigator.of(context).pop();
+          refresh();
+        },
+      ),
+  );
+}
+
+void createCardType(BuildContext context, int id, BoosterDraw boosterDraw, Mode selected, Function refresh) {
+  showDialog(
+      context: context,
+      builder: (_) => new AlertDialog(
+        title: new Text("Selection du type"),
+        actions: //Row(
+          //  children:
+          [
+              createIconCard(context, id, boosterDraw, Mode.Normal, selected == Mode.Normal, refresh),
+              createIconCard(context, id, boosterDraw, Mode.Reverse, selected == Mode.Reverse, refresh),
+              createIconCard(context, id, boosterDraw, Mode.Halo, selected == Mode.Halo, refresh),
+          ]
+        //),
+      )
+  );
+}
