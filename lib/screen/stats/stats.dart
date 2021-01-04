@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:statitik_pokemon/screen/stats/filterExtension.dart';
+import 'package:statitik_pokemon/screen/languagePage.dart';
+import 'package:statitik_pokemon/services/models.dart';
 
 class StatsPage extends StatefulWidget {
   @override
@@ -7,6 +8,17 @@ class StatsPage extends StatefulWidget {
 }
 
 class _StatsPageState extends State<StatsPage> {
+  Language language;
+  SubExtension subExt;
+
+  void afterSelectExtension(BuildContext context, Language language, SubExtension subExt) {
+    Navigator.popUntil(context, ModalRoute.withName('/'));
+    setState(() {
+      this.language = language;
+      this.subExt   = subExt;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,17 +32,16 @@ class _StatsPageState extends State<StatsPage> {
                 children: [
                   Card(
                     child: FlatButton(
-                      child: Text('Langue'),
+                      child: language != null ? Row(
+                        children: [
+                          Text('Extension'),
+                          SizedBox(width: 8.0),
+                          Image(image: language.create(), height: 30),
+                          SizedBox(width: 8.0),
+                          subExt.image(),
+                      ]) : Text('Extension'),
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => FilterExtensions()));
-                      },
-                    ),
-                  ),
-                  Card(
-                    child: FlatButton(
-                      child: Text('Extension'),
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => FilterExtensions()));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension)));
                       },
                     )
                   )

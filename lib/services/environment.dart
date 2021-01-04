@@ -89,6 +89,16 @@ class Collection
         subExtensions.add(e);
     }
 
+    List getExtensions(Language language) {
+        List l = [];
+        for(Extension e in extensions) {
+            if (e.idLanguage == language.id) {
+                l.add(e);
+            }
+        }
+        return l;
+    }
+
     List getSubExtensions(Extension e) {
         List l = [];
         for(SubExtension se in subExtensions) {
@@ -128,6 +138,7 @@ class Environment
     // State
     bool isInitialized=false;
     bool startDB=false;
+    bool showExtensionName = false;
 
     // Cached data
     Collection collection = Collection();
@@ -157,6 +168,10 @@ class Environment
             isInitialized = true;
         }
         onInitialize.add(isInitialized);
+    }
+
+    void toggleShowExtensionName() {
+        showExtensionName = ! showExtensionName;
     }
 
     Future<void> readStaticData() async

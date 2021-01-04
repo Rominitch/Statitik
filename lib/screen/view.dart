@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitik_pokemon/services/environment.dart';
 import 'package:statitik_pokemon/services/models.dart';
 
 Widget createLanguage(Language l, BuildContext context, Function press)
@@ -15,25 +16,65 @@ Widget createLanguage(Language l, BuildContext context, Function press)
   );
 }
 
+class ExtensionButton extends StatefulWidget {
+  Function     press;
+  SubExtension subExtension;
+
+  ExtensionButton({this.subExtension, this.press});
+
+  @override
+  _ExtensionButtonState createState() => _ExtensionButtonState();
+}
+
+class _ExtensionButtonState extends State<ExtensionButton> {
+  @override
+  void initState() {
+    super.initState();
+    // Catch event
+    //Environment.instance.onShowExtensionsName.stream.listen((bool)
+    //  {
+    //    setState( () {});
+    //  }
+    //);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.grey[850],
+      child: FlatButton(
+        height: 40.0,
+        minWidth: 30.0,
+        child: Environment.instance.showExtensionName
+            ? Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [widget.subExtension.image(),
+                           SizedBox(width: 8.0),
+                           Text(widget.subExtension.name)
+                          ]
+            )
+            : widget.subExtension.image(),
+        onPressed: widget.press,
+      ),
+    );
+  }
+}
+
 Widget createSubExtension(SubExtension se, BuildContext context, Function press, bool withName)
 {
   return Card(
     color: Colors.grey[850],
-    child: Container(
+    child: FlatButton(
       height: 40.0,
-      child: FlatButton(
-          child: withName ? Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              se.image(),
-              SizedBox(width: 10.0),
-              Text( '${se.name}' ),
-            ])
-          : se.image(),
-          onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: press));
-          }
-        ),
+        child: withName ? Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            se.image(),
+            SizedBox(width: 10.0),
+            Text( '${se.name}' ),
+          ])
+        : se.image(),
+        onPressed: press,
       ),
   );
 }
@@ -51,8 +92,6 @@ Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function pre
               Text(
                   '${bd.id}'
               ),
-              //bd.valid ? Icon(Icons.verified, color: Colors.green, size: 20.0,)
-              //         : Icon(Icons.edit, size: 17.0),
           ]),
         ),
         onPressed: () => press(context)

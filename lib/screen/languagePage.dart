@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:statitik_pokemon/screen/tirage/tirage_extension.dart';
+import 'package:statitik_pokemon/screen/extensionPage.dart';
 import 'package:statitik_pokemon/screen/view.dart';
 import 'package:statitik_pokemon/services/models.dart';
 import 'package:statitik_pokemon/services/environment.dart';
 
-class Tirage extends StatefulWidget {
+class LanguagePage extends StatefulWidget {
+  final Function afterSelected;
+
+  LanguagePage({this.afterSelected});
+
   @override
-  _TirageState createState() => _TirageState();
+  _LanguagePageState createState() => _LanguagePageState();
 }
 
-class _TirageState extends State<Tirage> {
+class _LanguagePageState extends State<LanguagePage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> widgetLanguage = [];
     for( Language l in Environment.instance.collection.languages)
     {
       Function press = (ctx) {
-        return ProductExtFilter(language: l);
+        return ExtensionPage(language: l, afterSelected: widget.afterSelected);
       };
       widgetLanguage.add(createLanguage(l, context, press));
     }

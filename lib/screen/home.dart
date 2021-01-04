@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:statitik_pokemon/screen/tirage/tirage_langue.dart';
+import 'package:statitik_pokemon/screen/languagePage.dart';
 import 'package:statitik_pokemon/screen/stats/stats.dart';
 import 'package:statitik_pokemon/screen/options.dart';
+import 'package:statitik_pokemon/screen/tirage/tirage_produit.dart';
+import 'package:statitik_pokemon/services/models.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -10,11 +12,22 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _selectedIndex = 1;
-  static List<Widget> _widgetOptions = <Widget>[
-    Tirage(),
-    StatsPage(),
-    OptionsPage(),
-  ];
+  List<Widget> _widgetOptions;
+
+  void goToProductPage(BuildContext context, Language language, SubExtension subExt) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(language: language, subExt: subExt) ));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _widgetOptions = [
+      LanguagePage(afterSelected: goToProductPage),
+      StatsPage(),
+      OptionsPage(),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
