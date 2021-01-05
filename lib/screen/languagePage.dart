@@ -32,7 +32,7 @@ class _LanguagePageState extends State<LanguagePage> {
         body: SafeArea(
         child: GridView.count(
           primary: false,
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(10),
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           crossAxisCount: 2,

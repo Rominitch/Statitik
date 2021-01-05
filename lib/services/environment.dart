@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:statitik_pokemon/services/models.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:statitik_pokemon/services/connection.dart';
@@ -132,8 +134,8 @@ class Environment
     Database db = Database();
 
     // Const data
-    final String nameApp = 'Statitik Pokemon';
-    final String version = 'v0.1';
+    final String nameApp = 'StatitikCard';
+    final String version = '0.1.0';
 
     // State
     bool isInitialized=false;
@@ -156,6 +158,7 @@ class Environment
                     [
                         credential.initialize(),
                         readStaticData(),
+                        initializeLicenses(),
                     ]);
             } catch (e) {
                 print("Error of init");
@@ -169,6 +172,20 @@ class Environment
         }
         onInitialize.add(isInitialized);
     }
+
+    Future<void> initializeLicenses() async {
+        /*
+        LicenseRegistry.addLicense(() async* {
+            yield LicenseEntryWithLineBreaks(
+                ['Disclaimer'],
+                '$nameApp n\'est pas une application officielle Pokémon, elle n\'est en aucun cas affiliée, approuvée ou supportée par Nintendo, GAME FREAK ou The Pokémon Company.'
+                'Les images et illustrations utilisées sont la propriété de leurs auteurs respectifs.'
+                '© 2020 Pokémon. © 1995–2020 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.',
+            );
+        });
+        */
+    }
+
 
     void toggleShowExtensionName() {
         showExtensionName = ! showExtensionName;
@@ -259,6 +276,21 @@ class Environment
             print("Database error $e");
         }
         return false;
+    }
+
+    void showAbout(context) {
+        showAboutDialog(
+            context: context,
+            applicationVersion: version,
+            //applicationIcon:
+            applicationLegalese: 'Copyright (c) 2021 Rominitch',
+            applicationName: nameApp,
+            children:
+            [Text(  '\n$nameApp n\'est pas une application officielle Pokémon, elle n\'est en aucun cas affiliée, approuvée ou supportée par Nintendo, GAME FREAK ou The Pokémon Company.\n'
+                    'Les images et illustrations utilisées sont la propriété de leurs auteurs respectifs.\n'
+                    '© 2020 Pokémon. © 1995–2020 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.',),
+            ]
+        );
     }
 }
 

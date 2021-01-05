@@ -71,10 +71,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
                 children:[
                   Text('Selection d\'une extension'),
                   SizedBox(width: 10.0),
-                  Image(
-                    image: widget.language.create(),
-                    height: AppBar().preferredSize.height * 0.6,
-                  ),
+                  widget.language.barIcon(),
                 ],
               ),
             ),

@@ -15,7 +15,14 @@ class OptionsPage extends StatelessWidget {
               Environment.instance.startDB=false;
               Environment.instance.readStaticData();
             },
-            child: Text('Actualiser'))
+            child: Text('Actualiser')
+        ),
+        FlatButton(
+            onPressed: () {
+              Environment.instance.showAbout(context);
+            },
+            child: Text('Info')
+        ),
       ],
     );
   }

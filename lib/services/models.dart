@@ -23,6 +23,13 @@ class Language
   {
     return AssetImage('assets/$image.png');
   }
+
+  Image barIcon() {
+    return Image(
+    image: create(),
+    height: AppBar().preferredSize.height * 0.4,
+    );
+  }
 }
 
 class Extension

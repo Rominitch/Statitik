@@ -61,10 +61,7 @@ class _ProductPageState extends State<ProductPage> {
                   children:[
                     Text('Produits'),
                     SizedBox(width: 10.0),
-                    Image(
-                      image: widget.language.create(),
-                      height: AppBar().preferredSize.height * 0.6,
-                    ),
+                    widget.language.barIcon(),
                     SizedBox(width: 10.0),
                     widget.subExt.image(),
                   ],
