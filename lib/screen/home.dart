@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:statitik_pokemon/screen/languagePage.dart';
-import 'package:statitik_pokemon/screen/stats/stats.dart';
-import 'package:statitik_pokemon/screen/options.dart';
-import 'package:statitik_pokemon/screen/tirage/tirage_produit.dart';
-import 'package:statitik_pokemon/services/models.dart';
+import 'package:statitikcard/screen/languagePage.dart';
+import 'package:statitikcard/screen/stats/stats.dart';
+import 'package:statitikcard/screen/options.dart';
+import 'package:statitikcard/screen/tirage/tirage_produit.dart';
+import 'package:statitikcard/services/models.dart';
 
 class Home extends StatefulWidget {
   @override

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:statitik_pokemon/screen/loading.dart';
-import 'package:statitik_pokemon/screen/home.dart';
-import 'package:statitik_pokemon/services/environment.dart';
+import 'package:statitikcard/screen/loading.dart';
+import 'package:statitikcard/screen/home.dart';
+import 'package:statitikcard/services/environment.dart';
 
 class ApplicationWidget extends StatelessWidget {
   // This widget is the root of your application.

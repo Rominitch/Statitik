@@ -3,9 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:statitik_pokemon/services/models.dart';
+import 'package:statitikcard/services/models.dart';
 import 'package:mysql1/mysql1.dart';
-import 'package:statitik_pokemon/services/connection.dart';
+import 'package:statitikcard/services/connection.dart';
 
 class Credential
 {

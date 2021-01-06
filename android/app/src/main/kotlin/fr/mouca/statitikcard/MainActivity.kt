@@ -1,4 +1,4 @@
-package StatitikPokemon.statitik_pokemon
+package fr.mouca.statitikcard
 
 import io.flutter.embedding.android.FlutterActivity
 

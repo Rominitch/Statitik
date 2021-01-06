@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:statitik_pokemon/screen/extensionPage.dart';
-import 'package:statitik_pokemon/screen/view.dart';
-import 'package:statitik_pokemon/services/models.dart';
-import 'package:statitik_pokemon/services/environment.dart';
+import 'package:statitikcard/screen/extensionPage.dart';
+import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/environment.dart';
 
 class LanguagePage extends StatefulWidget {
   final Function afterSelected;

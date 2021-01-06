@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:statitik_pokemon/screen/languagePage.dart';
-import 'package:statitik_pokemon/services/models.dart';
+import 'package:statitikcard/screen/languagePage.dart';
+import 'package:statitikcard/services/models.dart';
 
 class StatsPage extends StatefulWidget {
   @override

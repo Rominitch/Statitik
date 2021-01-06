@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:statitik_pokemon/services/environment.dart';
+import 'package:statitikcard/services/environment.dart';
 
 class OptionsPage extends StatelessWidget {
   @override

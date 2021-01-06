@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:statitik_pokemon/screen/Wrapper.dart';
-import 'package:statitik_pokemon/screen/stats/stats.dart';
-import 'package:statitik_pokemon/services/environment.dart';
+import 'package:statitikcard/screen/Wrapper.dart';
+import 'package:statitikcard/screen/stats/stats.dart';
+import 'package:statitikcard/services/environment.dart';
 
 void main() {
   // Build instance for first time
@@ -26,7 +26,7 @@ class StatitikApp extends StatelessWidget {
           headline5: TextStyle( fontFamily: 'Pacifico', fontSize: 20.0,),
         ),
       ),
-      title: 'Statitik Pokemon',
+      title: 'StatitikCard',
       initialRoute: '/',
       routes: {
         '/': (context) => ApplicationWidget(),

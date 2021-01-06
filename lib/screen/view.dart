@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:statitik_pokemon/services/environment.dart';
-import 'package:statitik_pokemon/services/models.dart';
+import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/models.dart';
 
 Widget createLanguage(Language l, BuildContext context, Function press)
 {

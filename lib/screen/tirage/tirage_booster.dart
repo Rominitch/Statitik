@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:statitik_pokemon/screen/view.dart';
-import 'package:statitik_pokemon/services/models.dart';
+import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/models.dart';
 
 class BoosterPage extends StatefulWidget {
   final BoosterDraw boosterDraw;
