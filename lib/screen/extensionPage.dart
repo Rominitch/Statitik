@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/screen/tirage/tirage_produit.dart';
 
 class ExtensionPage extends StatefulWidget {
   final Language language;

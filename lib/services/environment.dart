@@ -1,44 +1,61 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
 import 'package:mysql1/mysql1.dart';
+
+import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/connection.dart';
+
+class StatitikException implements Exception {
+    String msg;
+    StatitikException(this.msg);
+}
 
 class Credential
 {
-    FirebaseAuth _auth;
-    String userId;
-    FirebaseApp _initialization;
+    final GoogleSignIn googleSignIn = GoogleSignIn();
 
     Future<void> initialize() async
     {
-        print("Start firebase");
-        _initialization = await Firebase.initializeApp();
-
-        print("Launch Auth");
-        _auth = FirebaseAuth.instance;
-
-        print("Ready to work");
-    }
-    /*
-    // auth change user stream
-    Stream<String> get user {
-        return _auth.authStateChanges().map( (User user) => userId = user.uid );
-    }
-
-    // sign in anon
-    Future signInAnon() async {
         try {
-            return null;
-        } catch (e) {
-            print(e.toString());
-            return null;
+            await Firebase.initializeApp();
+        } catch(e) {
+            Environment.instance.user = null;
         }
     }
-    */
+
+    Future<String> signInWithGoogle() async {
+        try {
+            FirebaseAuth _auth = FirebaseAuth.instance;
+
+            final GoogleSignInAccount googleSignInAccount = await googleSignIn
+                .signIn();
+            final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount
+                .authentication;
+            final AuthCredential credential = GoogleAuthProvider.credential(
+                accessToken: googleSignInAuthentication.accessToken,
+                idToken: googleSignInAuthentication.idToken,
+            );
+
+            final UserCredential authResult = await _auth.signInWithCredential(
+                credential);
+
+            return "google-" + authResult.user.uid;
+
+        } catch(e) {
+            Environment.instance.user = null;
+        }
+        return null;
+    }
+
+    Future<void> signOutGoogle() async {
+        Environment.instance.user = null;
+        await googleSignIn.signOut();
+    }
 }
 
 class Database
@@ -52,16 +69,12 @@ class Database
         {
             connection = await MySqlConnection.connect(settings);
         } catch( e ) {
-            print("Impossible to connect to DB: $e");
-            throw e;
+            throw StatitikException("Impossible de se connecter à la base de données.");
         }
 
         // Execute request
         try {
             await connection.transaction(queries);
-        } catch( e ) {
-            print("Query error: $e");
-            throw e;
         } finally {
             connection.close();
         }
@@ -154,38 +167,20 @@ class Environment
         if(!isInitialized) {
             // Sync event
             try {
-                List responses = await Future.wait(
+                await Future.wait(
                     [
                         credential.initialize(),
                         readStaticData(),
-                        initializeLicenses(),
                     ]);
             } catch (e) {
                 print("Error of init");
             }
-
-            // Debug user
-            user = new UserPoke(idDB: 1);
 
             // Send event
             isInitialized = true;
         }
         onInitialize.add(isInitialized);
     }
-
-    Future<void> initializeLicenses() async {
-        /*
-        LicenseRegistry.addLicense(() async* {
-            yield LicenseEntryWithLineBreaks(
-                ['Disclaimer'],
-                '$nameApp n\'est pas une application officielle Pokémon, elle n\'est en aucun cas affiliée, approuvée ou supportée par Nintendo, GAME FREAK ou The Pokémon Company.'
-                'Les images et illustrations utilisées sont la propriété de leurs auteurs respectifs.'
-                '© 2020 Pokémon. © 1995–2020 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.',
-            );
-        });
-        */
-    }
-
 
     void toggleShowExtensionName() {
         showExtensionName = ! showExtensionName;
@@ -209,8 +204,8 @@ class Environment
                     collection.addExtension(Extension(id: row[0], name: row[2], idLanguage: row[1]));
                 }
 
-                var sub_exts = await connection.query("SELECT * FROM `SousExtension` ORDER BY `code` DESC");
-                for (var row in sub_exts) {
+                var subExts = await connection.query("SELECT * FROM `SousExtension` ORDER BY `code` DESC");
+                for (var row in subExts) {
                     SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1]);
                     try {
                         se.extractCard(row[4]);
@@ -245,7 +240,38 @@ class Environment
         return produits;
     }
 
+    Future<void> registerUser(String uid) async {
+        if (user == null) {
+            await db.transactionR( (connection) async {
+                // Check user data exists into database
+                int idNewID;
+                var reqCountUser = await connection.query(
+                    'SELECT count(`idUtilisateur`) FROM `Utilisateur`;');
+                for (var row in reqCountUser) {
+                    idNewID = row[0] + 1;
+                }
+
+                String query = 'SELECT `idUtilisateur`, `ban` FROM `Utilisateur` WHERE `identifiant` = \'$uid\';';
+                var reqUser = await connection.query(query);
+                if( reqUser.length == 1 ) {
+                    for (var row in reqUser) {
+                        if(row[1] != 0)
+                            throw StatitikException("Utilisateur banni pour non respect des règles.");
+                        user = UserPoke(idDB: row[0]);
+                    }
+                } else {
+                    await connection.query('INSERT INTO `Utilisateur` (idUtilisateur, identifiant, ban) VALUES ($idNewID, \'$uid\', 0);');
+                    user = UserPoke(idDB: idNewID);
+                }
+                user.uid = uid;
+            });
+        }
+    }
+
     Future<bool> sendDraw(Product product, bool productAnomaly) async {
+        if( !isLogged() )
+            return false;
+
         try {
             await db.transactionR( (connection) async {
                 int idAchat;
@@ -254,11 +280,7 @@ class Environment
                     idAchat = row[0] + 1;
                 }
 
-                //print("Achat id is $idAchat");
-
                 await connection.query('INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user.idDB}, ${product.idDB}, ${productAnomaly ? 0 : 1});');
-
-                //print("Insert produit");
 
                 // Prepare data
                 List<List<dynamic>> draw = [];
@@ -266,14 +288,12 @@ class Environment
                     draw.add(booster.buildQuery(idAchat));
                 }
                 // Send data
-                connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, cartes, anomalie, energie) VALUES (?, ?, ?, ?, ?);',
-                    draw);
-
-                print("Insert draw");
+                await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, cartes, anomalie, energie) VALUES (?, ?, ?, ?, ?);',
+                                            draw);
             });
             return true;
         } catch( e ) {
-            print("Database error $e");
+            //print("Database error $e");
         }
         return false;
     }
@@ -292,6 +312,35 @@ class Environment
             ]
         );
     }
+
+    bool isLogged() {
+        return user != null;
+    }
+
+    Future<String> login(int mode) async {
+        try {
+            String uid;
+
+            // Log system
+            if(mode==0) {
+                uid = await credential.signInWithGoogle();
+            }
+
+            // Register and check access
+            if(uid != null) {
+                await registerUser(uid);
+            }
+        } catch(e) {
+            Environment.instance.user = null;
+            if( e is StatitikException) {
+                return e.msg;
+            } else {
+                return "Une erreur interne est apparue !";
+            }
+        }
+        return null;
+    }
+
 }
 
 // import 'services/environment.dart' as G;

@@ -17,8 +17,8 @@ Widget createLanguage(Language l, BuildContext context, Function press)
 }
 
 class ExtensionButton extends StatefulWidget {
-  Function     press;
-  SubExtension subExtension;
+  final Function     press;
+  final SubExtension subExtension;
 
   ExtensionButton({this.subExtension, this.press});
 
@@ -27,17 +27,6 @@ class ExtensionButton extends StatefulWidget {
 }
 
 class _ExtensionButtonState extends State<ExtensionButton> {
-  @override
-  void initState() {
-    super.initState();
-    // Catch event
-    //Environment.instance.onShowExtensionsName.stream.listen((bool)
-    //  {
-    //    setState( () {});
-    //  }
-    //);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -228,14 +217,61 @@ void createCardType(BuildContext context, int id, BoosterDraw boosterDraw, Mode 
       context: context,
       builder: (_) => new AlertDialog(
         title: new Text("Selection du type"),
-        actions: //Row(
-          //  children:
-          [
-              createIconCard(context, id, boosterDraw, Mode.Normal, selected == Mode.Normal, refresh),
-              createIconCard(context, id, boosterDraw, Mode.Reverse, selected == Mode.Reverse, refresh),
-              createIconCard(context, id, boosterDraw, Mode.Halo, selected == Mode.Halo, refresh),
-          ]
-        //),
+        content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children:
+            [
+                createIconCard(context, id, boosterDraw, Mode.Normal, selected == Mode.Normal, refresh),
+                createIconCard(context, id, boosterDraw, Mode.Reverse, selected == Mode.Reverse, refresh),
+                createIconCard(context, id, boosterDraw, Mode.Halo, selected == Mode.Halo, refresh),
+            ]
+        ),
       )
+  );
+}
+
+Widget signInButton(Function press) {
+  return  Card(
+    child: FlatButton(
+        onPressed: () {
+          // Login
+          Environment.instance.login(0).then((result) {
+              press(result);
+          });
+        },
+        child:Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: Text(
+            'Connexion avec Google',
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.grey,
+            ),
+          ),
+        )
+    ),
+  );
+}
+
+Widget signOutButton(Function press) {
+  return  Card(
+    child: FlatButton(
+        onPressed: () {
+          Environment.instance.credential.signOutGoogle().then((result) {
+            press();
+          });
+        },
+        child:Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: Text(
+            'Deconnexion',
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.grey,
+            ),
+          ),
+        )
+    ),
   );
 }

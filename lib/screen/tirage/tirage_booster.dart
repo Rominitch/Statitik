@@ -31,7 +31,7 @@ class _BoosterPageState extends State<BoosterPage> {
     widgetEnergies = [];
     for(Type type in energies) {
       widgetEnergies.add(EnergyButton(
-          type: type, boosterDraw: widget.boosterDraw, refresh: refresh));
+          type: type, boosterDraw: widget.boosterDraw, refresh: refresh ));
     }
   }
 

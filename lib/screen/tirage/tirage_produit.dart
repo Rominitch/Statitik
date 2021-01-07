@@ -28,10 +28,7 @@ class _ProductPageState extends State<ProductPage> {
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Image(
-                      image: prod.image(),
-                        height: 70,
-                    ),
+                    prod.image(),
                     Text( prod.name, softWrap: true, ),
                   ]
               ),

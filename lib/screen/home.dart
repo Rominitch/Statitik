@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/screen/languagePage.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/options.dart';
-import 'package:statitikcard/screen/tirage/tirage_produit.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/screen/tirage/drawHome.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -14,16 +12,12 @@ class _HomeState extends State<Home> {
   int _selectedIndex = 1;
   List<Widget> _widgetOptions;
 
-  void goToProductPage(BuildContext context, Language language, SubExtension subExt) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(language: language, subExt: subExt) ));
-  }
-
   @override
   void initState() {
     super.initState();
 
     _widgetOptions = [
-      LanguagePage(afterSelected: goToProductPage),
+      DrawHomePage(),
       StatsPage(),
       OptionsPage(),
     ];

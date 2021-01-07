@@ -8,6 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class UserPoke {
   int idDB;
+  String uid;
 
   UserPoke({this.idDB});
 }
@@ -271,9 +272,13 @@ class Product
 
   Product({this.idDB, this.name, this.imageURL, this.boosters});
 
-  NetworkImage image()
+  CachedNetworkImage image()
   {
-    return NetworkImage('$imageURL');
+    return CachedNetworkImage(imageUrl: '$imageURL',
+      errorWidget: (context, url, error) => Icon(Icons.error),
+      placeholder: (context, url) => CircularProgressIndicator(),
+      height: 70,
+    );
   }
 
   List buildBoosterDraw() {

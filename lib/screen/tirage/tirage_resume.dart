@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:statitikcard/screen/Wrapper.dart';
 import 'package:statitikcard/screen/tirage/tirage_booster.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/environment.dart';
