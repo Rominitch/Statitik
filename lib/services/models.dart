@@ -65,10 +65,10 @@ enum Rarity {
   PeuCommune,
   Rare,
   HoloRare,
-  UltraRare,
   Magnifique,
   V,
   VMax,
+  UltraRare,
   ArcEnCiel,
   Gold,
 }
@@ -159,6 +159,35 @@ String typeToString(Type type) {
           (k) => convertType[k] == type, orElse: () => emptyMode);
 }
 
+List<Widget> getImageRarity(Rarity rarity) {
+  //star_border
+  switch(rarity) {
+    case Rarity.Commune:
+      return [Icon(Icons.circle)];
+    case Rarity.PeuCommune:
+      return [Transform.rotate(
+          angle: pi / 4.0,
+          child: Icon(Icons.stop))];
+    case Rarity.Rare:
+      return [Icon(Icons.star)];
+    case Rarity.V:
+      return [Icon(Icons.star_border)];
+    case Rarity.VMax:
+      return [Icon(Icons.star), Text('X', style: TextStyle(fontSize: 12.0))];
+    case Rarity.HoloRare:
+      return [Icon(Icons.star), Text('H', style: TextStyle(fontSize: 12.0))];
+    case Rarity.UltraRare:
+      return [Icon(Icons.star), Text('U', style: TextStyle(fontSize: 12.0))];
+    case Rarity.Magnifique:
+      return [Icon(Icons.star), Text('M', style: TextStyle(fontSize: 12.0))];
+    case Rarity.ArcEnCiel:
+      return [Icon(Icons.looks)];
+    case Rarity.Gold:
+      return [Icon(Icons.local_play, color: Colors.yellow[300])];
+  }
+  throw Exception("Unknown rarity: $rarity");
+}
+
 class PokeCard
 {
   Type   type;
@@ -167,32 +196,7 @@ class PokeCard
   PokeCard({this.type, this.rarity});
 
   List<Widget> imageRarity() {
-    //star_border
-    switch(rarity) {
-      case Rarity.Commune:
-        return [Icon(Icons.circle)];
-      case Rarity.PeuCommune:
-        return [Transform.rotate(
-            angle: pi / 4.0,
-            child: Icon(Icons.stop))];
-      case Rarity.Rare:
-        return [Icon(Icons.star)];
-      case Rarity.V:
-        return [Icon(Icons.star_border)];
-      case Rarity.VMax:
-        return [Icon(Icons.star), Text('X', style: TextStyle(fontSize: 12.0))];
-      case Rarity.HoloRare:
-        return [Icon(Icons.star), Text('H', style: TextStyle(fontSize: 12.0))];
-      case Rarity.UltraRare:
-        return [Icon(Icons.star), Text('U', style: TextStyle(fontSize: 12.0))];
-      case Rarity.Magnifique:
-        return [Icon(Icons.star), Text('M', style: TextStyle(fontSize: 12.0))];
-      case Rarity.ArcEnCiel:
-        return [Icon(Icons.looks)];
-      case Rarity.Gold:
-        return [Icon(Icons.local_play, color: Colors.yellow[300])];
-    }
-    throw Exception("Unknown rarity: $rarity");
+    return getImageRarity(rarity);
   }
 
   Widget imageType()
@@ -255,7 +259,8 @@ class SubExtension
   CachedNetworkImage image()
   {
     return CachedNetworkImage(
-        imageUrl: 'https://assets.pokemon.com/assets/cms-fr-fr/img/tcg/expansion-symbols/$icon-expansion-symbol.png',
+        imageUrl: 'https://www.pokecardex.com/assets/images/symboles/$icon.png',
+        //imageUrl: 'https://assets.pokemon.com/assets/cms-fr-fr/img/tcg/expansion-symbols/$icon-expansion-symbol.png',
         errorWidget: (context, url, error) => Icon(Icons.error),
         placeholder: (context, url) => CircularProgressIndicator(),
         width: 20
@@ -349,4 +354,52 @@ class BoosterDraw {
   List buildQuery(int idAchat) {
     return [idAchat, subExtension.id, card.join(), abnormal ? 1 : 0, energyCode];
   }
+}
+
+class Stats {
+  final SubExtension subExt;
+  int nbBoosters = 0;
+  int cardByBooster = 0;
+  int anomaly = 0;
+  List<int> count;
+
+  // Cached
+  List<int> countByType;
+  List<int> countByRarity;
+  List<int> countByMode;
+
+  List<int> countEnergy;
+
+  Stats({this.subExt}) {
+    count         = List<int>.filled(subExt.cards.length, 0);
+    countByType   = List<int>.filled(Type.values.length, 0);
+    countByRarity = List<int>.filled(Rarity.values.length, 0);
+    countByMode   = List<int>.filled(Mode.values.length, 0);
+    countEnergy   = List<int>.filled(energies.length, 0);
+  }
+
+  void addBoosterDraw(String draw, String energy, int anomaly) {
+    if( draw.length != subExt.cards.length)
+      throw StatitikException('Corruption des données de tirages');
+
+    this.anomaly += anomaly;
+    nbBoosters += 1;
+
+    countEnergy[convertType[energy].index] += 1;
+
+    for(int cardI=0; cardI < draw.length; cardI +=1) {
+      String c = draw[cardI];
+      if( c != emptyMode) {
+        cardByBooster += 1;
+        // Count
+        countByType[subExt.cards[cardI].type.index] += 1;
+        countByRarity[subExt.cards[cardI].rarity.index] += 1;
+        count[cardI] += 1;
+        countByMode[convertMode[c].index] += 1;
+      }
+    }
+  }
+
+
+
 }

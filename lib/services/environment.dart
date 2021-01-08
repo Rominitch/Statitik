@@ -280,7 +280,7 @@ class Environment
                     idAchat = row[0] + 1;
                 }
 
-                await connection.query('INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user.idDB}, ${product.idDB}, ${productAnomaly ? 0 : 1});');
+                await connection.query('INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user.idDB}, ${product.idDB}, ${productAnomaly ? 1 : 0});');
 
                 // Prepare data
                 List<List<dynamic>> draw = [];
@@ -298,6 +298,40 @@ class Environment
         return false;
     }
 
+    Future<void> removeUser() async {
+        if( !isLogged() )
+            return;
+
+        try {
+            await db.transactionR( (connection) async {
+                await connection.query('UPDATE `Utilisateur` SET `identifiant` = \'unregistred\' WHERE `identifiant` = \'${user.uid}\';');
+
+                user = null;
+            });
+        }
+        catch( e ) {
+        }
+    }
+
+    Future<Stats> getStats(SubExtension subExt, Product product) async {
+        Stats stats = new Stats(subExt: subExt);
+        try {
+            await db.transactionR( (connection) async {
+                //String productQ = product == null ? "" : " AND product";
+                String query = 'SELECT `cartes`, `energie`, `anomalie` FROM `TirageBooster` WHERE `idSousExtension` = ${subExt.id};';
+                var req = await connection.query(query);
+                for (var row in req) {
+                    stats.addBoosterDraw(row[0], row[1], row[2]);
+                }
+            });
+        }
+        catch( e ) {
+            if( e is StatitikException)
+                print(e);
+        }
+        return stats;
+    }
+
     void showAbout(context) {
         showAboutDialog(
             context: context,
@@ -306,9 +340,13 @@ class Environment
             applicationLegalese: 'Copyright (c) 2021 Rominitch',
             applicationName: nameApp,
             children:
-            [Text(  '\n$nameApp n\'est pas une application officielle Pokémon, elle n\'est en aucun cas affiliée, approuvée ou supportée par Nintendo, GAME FREAK ou The Pokémon Company.\n'
-                    'Les images et illustrations utilisées sont la propriété de leurs auteurs respectifs.\n'
-                    '© 2020 Pokémon. © 1995–2020 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.',),
+            [Text( '''\n$nameApp n\'est pas une application officielle Pokémon, elle n\'est en aucun cas affiliée, approuvée ou supportée par Nintendo, GAME FREAK ou The Pokémon Company.
+Elle est à but non-lucratif, créé par et pour des fans de Pokémon.
+
+Les personnages, le thème "Pokémon ®" et ses marques dérivées sont propriétés de © Nintendo, The Pokémon Company, Game Freak, Creatures.
+Les images et illustrations utilisées sont la propriété de leurs auteurs respectifs.
+© 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.''',
+                textAlign: TextAlign.justify),
             ]
         );
     }
