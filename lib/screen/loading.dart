@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/environment.dart';
 
-class Loading extends StatelessWidget {
-
+class Loading extends StatefulWidget {
   Loading() : super()
   {
     // Make long operation
@@ -10,6 +9,23 @@ class Loading extends StatelessWidget {
     env.initialize();
   }
 
+  @override
+  _LoadingState createState() => _LoadingState();
+}
+
+class _LoadingState extends State<Loading> {
+  bool error = false;
+
+  @override
+  void initState() {
+    Environment.instance.onServerError.stream.listen((event) {
+      setState(() {
+        error = true;
+      });
+    });
+
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     Environment env = Environment.instance;
@@ -32,6 +48,31 @@ class Loading extends StatelessWidget {
                   env.version,
                 ),
               ),
+              if(error)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(height: 80.0),
+                      Text('Connexion à la base de données impossible.\nVérifier votre connexion.',
+                        style: TextStyle(color: Colors.red)
+                      ),
+                      SizedBox(height: 10.0),
+                      Card(
+                        child: FlatButton(
+                            child: Text('Réessayer'),
+                            onPressed:() {
+                              setState(() {
+                                error=false;
+                                Environment.instance.initialize();
+                              });
+                            }),
+                      ),
+                    ],
+                  ),
+                )
             ],
           ),
         ),

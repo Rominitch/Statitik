@@ -141,6 +141,7 @@ class Environment
 
     // Event
     final StreamController<bool> onInitialize = StreamController<bool>();
+    final StreamController<bool> onServerError = StreamController<bool>();
 
     // Manager
     Credential credential = Credential();
@@ -172,14 +173,14 @@ class Environment
                         credential.initialize(),
                         readStaticData(),
                     ]);
-            } catch (e) {
-                print("Error of init");
-            }
 
-            // Send event
-            isInitialized = true;
+                isInitialized = true;
+                onInitialize.add(isInitialized);
+            } catch (e) {
+                isInitialized = false;
+                onServerError.add(true);
+            }
         }
-        onInitialize.add(isInitialized);
     }
 
     void toggleShowExtensionName() {
@@ -190,7 +191,6 @@ class Environment
     {
         if(!startDB) {
             // Avoid reentrance
-            startDB = true;
             collection.clear();
 
             await db.transactionR( (connection) async {
@@ -211,10 +211,12 @@ class Environment
                         se.extractCard(row[4]);
                         collection.addSubExtension(se);
                     } catch(e) {
-                        print("Bad Subextension: $e");
+                        print("Bad Subextension: ${se.name} $e");
                     }
                 }
             });
+
+            startDB = true;
         }
     }
 

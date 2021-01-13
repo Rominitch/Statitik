@@ -30,9 +30,10 @@ class _WrapperState extends State<Wrapper> {
   @override
   Widget build(BuildContext context) {
     final bool isInitialized = Provider.of<bool>(context);
-    if( Environment.instance.isInitialized )
+    if( Environment.instance.isInitialized ) {
       return Home();
-    else
+    } else {
       return Loading();
+    }
   }
 }

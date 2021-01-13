@@ -145,6 +145,11 @@ const List<Type> energies = [Type.Plante,  Type.Feu,  Type.Eau,
   Type.Electrique,  Type.Psy,  Type.Combat,  Type.Obscurite,  Type.Metal,
   Type.Incolore,  Type.Fee,  Type.Dragon];
 
+List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
+  Colors.yellow, Colors.purple[800], Colors.deepOrange[800], Colors.deepPurple[900], Colors.white12,
+  Colors.white70, Colors.pinkAccent, Colors.orange
+];
+
 Widget energyImage(Type type) {
   return CachedNetworkImage(
       imageUrl: 'https://www.pokecardex.com/forums/images/smilies/energy-types_${imageCode[type]}.png',
