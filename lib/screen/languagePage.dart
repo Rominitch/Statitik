@@ -27,7 +27,7 @@ class _LanguagePageState extends State<LanguagePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sélection de la langue'),
+        title: Text('Langue'),
        ),
         body: SafeArea(
         child: GridView.count(

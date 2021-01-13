@@ -23,23 +23,25 @@ class PieChartGenericState extends State<PieChartGeneric> {
   }
 
   void createPie() {
+    sections.clear();
     for(var energy in energies) {
       final isTouched = energy.index == touchedIndex;
       final double fontSize = isTouched ? 20 : 16;
-      final double radius = isTouched ? 110 : 100;
-      final double widgetSize = isTouched ? 55 : 40;
+      final double radius = isTouched ? 50 : 30;
+      final double widgetSize = isTouched ? 55 : 0;
       int count = widget.allStats.countEnergy[energy.index];
-
-      sections.add( PieChartSectionData(
-        color: energiesColors[energy.index],
-        value: count.toDouble(),
-        title: '',
-        radius: radius,
-        //titleStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
-        badgeWidget: energyImage(energy),
-        badgePositionPercentageOffset: .98,
-      )
-      );
+      if(count > 0) {
+        sections.add( PieChartSectionData(
+          color: energiesColors[energy.index],
+          value: count.toDouble(),
+          title: '',
+          radius: radius,
+          //titleStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
+          badgeWidget: energyImage(energy),
+          badgePositionPercentageOffset: .98,
+          )
+        );
+      }
     }
   }
 
@@ -52,6 +54,7 @@ class PieChartGenericState extends State<PieChartGeneric> {
         aspectRatio: 1.5,
         child: PieChart(
           PieChartData(
+              /*
               pieTouchData: PieTouchData(touchCallback: (pieTouchResponse) {
                 setState(() {
                   if (pieTouchResponse.touchInput is FlLongPressEnd ||
@@ -62,11 +65,12 @@ class PieChartGenericState extends State<PieChartGeneric> {
                   }
                 });
               }),
+              */
               borderData: FlBorderData(
                 show: false,
               ),
-              sectionsSpace: 0,
-              centerSpaceRadius: 0,
+              sectionsSpace: 2,
+              centerSpaceRadius: 70,
               sections: sections),
         ),
       ),

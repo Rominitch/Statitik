@@ -7,21 +7,22 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 
 class StatsPage extends StatefulWidget {
-  @override
-  _StatsPageState createState() => _StatsPageState();
-}
-
-class _StatsPageState extends State<StatsPage> {
   Language language;
   SubExtension subExt;
   Product      product;
   Stats        stats;
 
+  @override
+  _StatsPageState createState() => _StatsPageState();
+}
+
+class _StatsPageState extends State<StatsPage> {
+
   void afterSelectExtension(BuildContext context, Language language, SubExtension subExt) {
     Navigator.popUntil(context, ModalRoute.withName('/'));
     setState(() {
-      this.language = language;
-      this.subExt   = subExt;
+      widget.language = language;
+      widget.subExt   = subExt;
     });
 
     //Launch compute stats
@@ -29,8 +30,8 @@ class _StatsPageState extends State<StatsPage> {
   }
 
   Future<void> waitStats() async {
-    Environment.instance.getStats(subExt, product).then( (stats) {
-      this.stats = stats;
+    Environment.instance.getStats(widget.subExt, widget.product).then( (stats) {
+      widget.stats = stats;
       setState(() {});
     });
   }
@@ -51,13 +52,13 @@ class _StatsPageState extends State<StatsPage> {
                   children: [
                     Card(
                       child: FlatButton(
-                        child: language != null ? Row(
+                        child: widget.language != null ? Row(
                           children: [
                             Text('Extension'),
                             SizedBox(width: 8.0),
-                            Image(image: language.create(), height: 30),
+                            Image(image: widget.language.create(), height: 30),
                             SizedBox(width: 8.0),
-                            subExt.image(),
+                            widget.subExt.image(),
                         ]) : Text('Extension'),
                         onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension)));
@@ -66,15 +67,15 @@ class _StatsPageState extends State<StatsPage> {
                     ),
                     Card(
                       child: FlatButton(
-                      child: product == null ? Text('Tous les produits')
-                          : Text(product.name),
+                      child: widget.product == null ? Text('Tous les produits')
+                          : Text(widget.product.name),
                       onPressed: () {}
                       ),
                     ),
                   ],
                 ),
-                stats != null
-                ? (stats.nbBoosters > 0 ? buildStatsView()
+                widget.stats != null
+                ? (widget.stats.nbBoosters > 0 ? buildStatsView()
                 : Container( child: Center(child: Text('Aucun résultat'),)))
                 : Container( child: Center(child: Text('Sélectionner une extension'),)),
               ],
@@ -84,22 +85,31 @@ class _StatsPageState extends State<StatsPage> {
     );
   }
 
+  Widget buildLine(label, luck) {
+    return Row(
+      children: [
+        Container(child: Row( children: label), width: 50,),
+        Expanded(child: LinearPercentIndicator(
+        lineHeight: 8.0,
+        percent: (luck / 10.0).clamp(0.0, 1.0),
+        progressColor: Colors.blue,
+        )),
+        Container(child:Text('${luck.toStringAsFixed(3)}'), width: 40)
+    ]);
+  }
+
   Widget buildStatsView() {
     List<Widget> rarity = [];
     for( var rare in Rarity.values ) {
-      double luck = stats.countByRarity[rare.index] / stats.nbBoosters;
-      rarity.add( Row(
-            children: [
-              Container(child: Row( children: getImageRarity(rare),), width: 50,),
-              Expanded(child: LinearPercentIndicator(
-                lineHeight: 8.0,
-                percent: (luck / 10.0).clamp(0.0, 1.0),
-                progressColor: Colors.blue,
-              )),
-                Container(child:Text('${luck.toStringAsFixed(3)}'), width: 40)
-            ]
-          ));
+      double luck = widget.stats.countByRarity[rare.index] / widget.stats.nbBoosters;
+      rarity.add( buildLine(getImageRarity(rare), luck) );
     }
+    double sum=0;
+    widget.stats.countEnergy.forEach((number) {sum += number.toDouble(); });
+    double luck = sum / widget.stats.nbBoosters;
+    rarity.add( buildLine([Icon(Icons.battery_charging_full),],
+                          luck)
+    );
 
     return Container(
       child: Card(
@@ -110,7 +120,7 @@ class _StatsPageState extends State<StatsPage> {
             children: [
               Row(children: [Text('Booster   ', style: Theme.of(context).textTheme.headline5 ),
                 Expanded(child: SizedBox()),
-                Text('${stats.nbBoosters} dont ${stats.anomaly} avec anomalie')
+                Text('${widget.stats.nbBoosters} dont ${widget.stats.anomaly} avec anomalie')
               ]),
               SizedBox(height: 8.0,),
               Text('Répartition pour 10 cartes'),
@@ -119,7 +129,7 @@ class _StatsPageState extends State<StatsPage> {
                 shrinkWrap: true,
                 children: rarity,
               ),
-              PieChartGeneric(allStats: stats),
+              PieChartGeneric(allStats: widget.stats),
             ]
           ),
         ),

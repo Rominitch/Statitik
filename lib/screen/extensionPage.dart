@@ -68,7 +68,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
             title: Container(
               child: Row(
                 children:[
-                  Text('Selection d\'une extension'),
+                  Text('Extension'),
                   SizedBox(width: 10.0),
                   widget.language.barIcon(),
                 ],
