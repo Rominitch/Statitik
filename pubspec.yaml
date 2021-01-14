@@ -60,12 +60,15 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/france.png
-    - assets/usa.png
-    - assets/japan.png
-    - assets/normal.png
-    - assets/reverse.png
-    - assets/halo.png
+    - assets/langue/france.png
+    - assets/langue/usa.png
+    - assets/langue/japan.png
+    - assets/carte/normal.png
+    - assets/carte/reverse.png
+    - assets/carte/halo.png
+    - assets/energie/plante.png
+    - assets/energie/feu.png
+    - assets/extensions/SWSH4.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

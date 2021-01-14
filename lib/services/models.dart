@@ -3,6 +3,7 @@ import 'dart:core';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -22,7 +23,7 @@ class Language
 
   AssetImage create()
   {
-    return AssetImage('assets/$image.png');
+    return AssetImage('assets/langue/$image.png');
   }
 
   Image barIcon() {
@@ -124,6 +125,24 @@ String modeToString(Mode mode) {
           (k) => convertMode[k] == mode, orElse: () => emptyMode);
 }
 
+Map imageName = {
+  Type.Plante: 'plante',
+  Type.Feu: 'feu',
+  Type.Eau: '',
+  Type.Electrique: '',
+  Type.Psy: '',
+  Type.Combat: '',
+  Type.Obscurite: '',
+  Type.Metal: '',
+  Type.Incolore: '',
+  Type.Fee: '',
+  Type.Dragon: '',
+  Type.Objet: '',
+  Type.Supporter: '',
+  Type.Stade: '',
+  Type.Energy: ''
+};
+
 Map imageCode = {
   Type.Plante: '10',
   Type.Feu: '01',
@@ -151,12 +170,19 @@ List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
 ];
 
 Widget energyImage(Type type) {
-  return CachedNetworkImage(
-      imageUrl: 'https://www.pokecardex.com/forums/images/smilies/energy-types_${imageCode[type]}.png',
-      errorWidget: (context, url, error) => Icon(Icons.error),
-      placeholder: (context, url) => CircularProgressIndicator(),
-      width: 20
-  );
+  if(imageName[type].isEmpty) {
+    return Image(
+        image: AssetImage('asset/energie/${imageName[type]}.png'),
+        width: 20
+    );
+  } else {
+    return CachedNetworkImage(
+        imageUrl: 'https://www.pokecardex.com/forums/images/smilies/energy-types_${imageCode[type]}.png',
+        errorWidget: (context, url, error) => Icon(Icons.error),
+        placeholder: (context, url) => CircularProgressIndicator(),
+        width: 20
+    );
+  }
 }
 
 String typeToString(Type type) {
@@ -217,12 +243,7 @@ class PokeCard
       case Type.Energy:
         return Icon(Icons.battery_charging_full);
       default:
-        return CachedNetworkImage(
-            imageUrl: 'https://www.pokecardex.com/forums/images/smilies/energy-types_${imageCode[type]}.png',
-            errorWidget: (context, url, error) => Icon(Icons.error),
-            placeholder: (context, url) => CircularProgressIndicator(),
-            width: 20
-        );
+        return energyImage(type);
     }
   }
 
@@ -261,15 +282,24 @@ class SubExtension
       }
   }
 
-  CachedNetworkImage image()
+  Widget image()
   {
-    return CachedNetworkImage(
-        imageUrl: 'https://www.pokecardex.com/assets/images/symboles/$icon.png',
-        //imageUrl: 'https://assets.pokemon.com/assets/cms-fr-fr/img/tcg/expansion-symbols/$icon-expansion-symbol.png',
-        errorWidget: (context, url, error) => Icon(Icons.error),
-        placeholder: (context, url) => CircularProgressIndicator(),
-        width: 20
-    );
+    try {
+      String path = 'assets/extensions/$icon.png';
+      rootBundle.loadString(path);
+      return Image(
+          image: AssetImage(path),
+          width: 20
+      );
+    } catch (Exception) {
+      return CachedNetworkImage(
+          imageUrl: 'https://www.pokecardex.com/assets/images/symboles/$icon.png',
+          //imageUrl: 'https://assets.pokemon.com/assets/cms-fr-fr/img/tcg/expansion-symbols/$icon-expansion-symbol.png',
+          errorWidget: (context, url, error) => Icon(Icons.error),
+          placeholder: (context, url) => CircularProgressIndicator(),
+          width: 20
+      );
+    }
   }
 }
 

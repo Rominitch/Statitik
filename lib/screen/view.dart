@@ -7,7 +7,7 @@ Widget createLanguage(Language l, BuildContext context, Function press)
   return Container(
     child: FlatButton(
       child: Image(
-        image: AssetImage('assets/${l.image}.png'),
+        image: AssetImage('assets/langue/${l.image}.png'),
       ),
       onPressed: () {
         Navigator.push(context, MaterialPageRoute(builder: press));
@@ -198,7 +198,7 @@ Widget createIconCard(BuildContext context, int id, BoosterDraw boosterDraw, Mod
     child: FlatButton(
         child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [Image(image: AssetImage('assets/${imgs[mode]}.png'), width: 75.0),
+            children: [Image(image: AssetImage('assets/carte/${imgs[mode]}.png'), width: 75.0),
               SizedBox(height: 6.0),
               Text(names[mode]),
             ]),
