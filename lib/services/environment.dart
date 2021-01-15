@@ -161,7 +161,7 @@ class Environment
 
     // Current draw
     UserPoke user;
-    List boosterDraws;
+    SessionDraw currentDraw;
 
     void initialize() async
     {
@@ -270,7 +270,7 @@ class Environment
         }
     }
 
-    Future<bool> sendDraw(Product product, bool productAnomaly) async {
+    Future<bool> sendDraw() async {
         if( !isLogged() )
             return false;
 
@@ -282,11 +282,11 @@ class Environment
                     idAchat = row[0] + 1;
                 }
 
-                await connection.query('INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user.idDB}, ${product.idDB}, ${productAnomaly ? 1 : 0});');
+                await connection.query('INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user.idDB}, ${currentDraw.product.idDB}, ${currentDraw.productAnomaly ? 1 : 0});');
 
                 // Prepare data
                 List<List<dynamic>> draw = [];
-                for(BoosterDraw booster in boosterDraws) {
+                for(BoosterDraw booster in currentDraw.boosterDraws) {
                     draw.add(booster.buildQuery(idAchat));
                 }
                 // Send data

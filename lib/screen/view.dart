@@ -68,7 +68,9 @@ Widget createSubExtension(SubExtension se, BuildContext context, Function press,
   );
 }
 
-Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function press) {
+Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function press, Function update) {
+  SessionDraw current = Environment.instance.currentDraw;
+
   return Card(
       color: bd.isFinished() ? Colors.green[400] : Colors.grey[900],
       child: FlatButton(
@@ -78,12 +80,44 @@ Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function pre
             children: [
               bd.subExtension.image(),
               SizedBox(height: 6.0),
-              Text(
-                  '${bd.id}'
-              ),
+              Text('${bd.id}'),
           ]),
         ),
-        onPressed: () => press(context)
+        onPressed: () => press(context),
+        onLongPress: () {
+          if(current.productAnomaly || current.randomBooster)
+          showDialog(
+              context: context,
+              builder: (_) => new AlertDialog(
+                title: new Text("Edition du booster"),
+                actions: [
+                  /*
+                  Card(
+
+                    child: FlatButton(
+                      child: Text('Changer l\'extensions'),
+                      onPressed: () {
+
+                      }
+                    ),
+                  ),
+                  */
+
+                  if( current.productAnomaly && current.canDelete() ) Card(
+                    color: Colors.red,
+                    child: FlatButton(
+                      child: Text('Supprimer', style: TextStyle(color: Colors.white),),
+                        onPressed: () {
+                          current.deleteBooster(bd.id-1);
+                          Navigator.of(context).pop();
+                          update();
+                        }
+                      ),
+                    ),
+                ],
+              )
+          );
+        },
       )
   );
 }

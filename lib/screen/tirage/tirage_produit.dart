@@ -32,9 +32,11 @@ class _ProductPageState extends State<ProductPage> {
                     Text( prod.name, softWrap: true, ),
                   ]
               ),
-              onPressed: (){
-                Environment.instance.boosterDraws = prod.buildBoosterDraw();
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ResumePage(product: prod)));
+              onPressed: () {
+                // Build new session of draw
+                Environment.instance.currentDraw = SessionDraw(product: prod);
+                // Go to page
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ResumePage()));
               },
             )
         ));

@@ -469,7 +469,37 @@ class Stats {
       }
     }
   }
+}
 
+class SessionDraw
+{
+  Product product;
+  bool productAnomaly=false;
+  List boosterDraws;
+  bool randomBooster=false;
 
+  SessionDraw({this.product})
+  {
+    boosterDraws = product.buildBoosterDraw();
+  }
 
+  void addNewBooster() {
+    BoosterDraw booster = boosterDraws.last;
+
+    boosterDraws.add(new BoosterDraw(subExtension: booster.subExtension, id: booster.id+1) );
+  }
+
+  void deleteBooster(int id) {
+    if( id >= boosterDraws.length || id < 0 )
+      throw StatitikException("Impossible de trouver le booster $id");
+    // Delete
+    boosterDraws.removeAt(id);
+    // Change Label ID
+    id = 1;
+    boosterDraws.forEach((element) {element.id = id; id += 1; });
+  }
+
+  bool canDelete() {
+    return boosterDraws.length > 1;
+  }
 }
