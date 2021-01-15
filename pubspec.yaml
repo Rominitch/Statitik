@@ -68,6 +68,8 @@ flutter:
     - assets/carte/halo.png
     - assets/energie/plante.png
     - assets/energie/feu.png
+    - assets/energie/electrique.png
+    - assets/energie/eau.png
     - assets/extensions/SWSH4.png
 
   # An image asset can refer to one or more resolution-specific "variants", see

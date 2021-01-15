@@ -14,9 +14,11 @@ class LanguagePage extends StatefulWidget {
 }
 
 class _LanguagePageState extends State<LanguagePage> {
+  List<Widget> widgetLanguage;
+
   @override
-  Widget build(BuildContext context) {
-    List<Widget> widgetLanguage = [];
+  void initState() {
+    widgetLanguage = [];
     for( Language l in Environment.instance.collection.languages)
     {
       Function press = (ctx) {
@@ -24,7 +26,11 @@ class _LanguagePageState extends State<LanguagePage> {
       };
       widgetLanguage.add(createLanguage(l, context, press));
     }
+    super.initState();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Langue'),

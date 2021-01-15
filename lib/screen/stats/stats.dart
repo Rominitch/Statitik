@@ -65,6 +65,7 @@ class _StatsPageState extends State<StatsPage> {
                         },
                       )
                     ),
+                    /*
                     Card(
                       child: FlatButton(
                       child: widget.product == null ? Text('Tous les produits')
@@ -72,6 +73,7 @@ class _StatsPageState extends State<StatsPage> {
                       onPressed: () {}
                       ),
                     ),
+                     */
                   ],
                 ),
                 widget.stats != null
@@ -100,9 +102,13 @@ class _StatsPageState extends State<StatsPage> {
 
   Widget buildStatsView() {
     List<Widget> rarity = [];
-    for( var rare in Rarity.values ) {
-      double luck = widget.stats.countByRarity[rare.index] / widget.stats.nbBoosters;
-      rarity.add( buildLine(getImageRarity(rare), luck) );
+    if( widget.subExt.validCard ) {
+      for( var rare in Rarity.values ) {
+        double luck = widget.stats.countByRarity[rare.index] / widget.stats.nbBoosters;
+        rarity.add( buildLine(getImageRarity(rare), luck) );
+      }
+    } else {
+      rarity.add(Text('Les données de l\'extensions ne sont pas encore présentes: les statistiques sont limitées.'));
     }
     double sum=0;
     widget.stats.countEnergy.forEach((number) {sum += number.toDouble(); });

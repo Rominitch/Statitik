@@ -328,8 +328,8 @@ class Environment
             });
         }
         catch( e ) {
-            if( e is StatitikException)
-                print(e);
+            //if( e is StatitikException)
+            //    print(e.msg);
         }
         return stats;
     }

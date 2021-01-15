@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+double iconSize = 25.0;
+
 class UserPoke {
   int idDB;
   String uid;
@@ -60,6 +62,7 @@ enum Type {
   Supporter,
   Stade,
   Energy,
+  Unknown,
 }
 enum Rarity {
   Commune,
@@ -72,6 +75,7 @@ enum Rarity {
   UltraRare,
   ArcEnCiel,
   Gold,
+  Unknown,
 }
 
 const Map convertType =
@@ -128,8 +132,8 @@ String modeToString(Mode mode) {
 Map imageName = {
   Type.Plante: 'plante',
   Type.Feu: 'feu',
-  Type.Eau: '',
-  Type.Electrique: '',
+  Type.Eau: 'eau',
+  Type.Electrique: 'electrique',
   Type.Psy: '',
   Type.Combat: '',
   Type.Obscurite: '',
@@ -140,7 +144,8 @@ Map imageName = {
   Type.Objet: '',
   Type.Supporter: '',
   Type.Stade: '',
-  Type.Energy: ''
+  Type.Energy: '',
+  Type.Unknown: '',
 };
 
 Map imageCode = {
@@ -158,7 +163,8 @@ Map imageCode = {
   Type.Objet: '',
   Type.Supporter: '',
   Type.Stade: '',
-  Type.Energy: ''
+  Type.Energy: '',
+  Type.Unknown: '',
 };
 const List<Type> energies = [Type.Plante,  Type.Feu,  Type.Eau,
   Type.Electrique,  Type.Psy,  Type.Combat,  Type.Obscurite,  Type.Metal,
@@ -170,17 +176,19 @@ List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
 ];
 
 Widget energyImage(Type type) {
-  if(imageName[type].isEmpty) {
+  if( type == Type.Unknown)
+    return Icon(Icons.help_outline);
+  if(imageName[type].isNotEmpty) {
     return Image(
-        image: AssetImage('asset/energie/${imageName[type]}.png'),
-        width: 20
+        image: AssetImage('assets/energie/${imageName[type]}.png'),
+        width: iconSize,
     );
   } else {
     return CachedNetworkImage(
         imageUrl: 'https://www.pokecardex.com/forums/images/smilies/energy-types_${imageCode[type]}.png',
         errorWidget: (context, url, error) => Icon(Icons.error),
         placeholder: (context, url) => CircularProgressIndicator(),
-        width: 20
+        width: iconSize,
     );
   }
 }
@@ -215,6 +223,8 @@ List<Widget> getImageRarity(Rarity rarity) {
       return [Icon(Icons.looks)];
     case Rarity.Gold:
       return [Icon(Icons.local_play, color: Colors.yellow[300])];
+    case Rarity.Unknown:
+      return [Icon(Icons.help_outline)];
   }
   throw Exception("Unknown rarity: $rarity");
 }
@@ -260,46 +270,64 @@ class SubExtension
   String icon;
   List<PokeCard> cards = [];
   int    idExtension;
+  bool   validCard = true;
 
   SubExtension({ this.id, this.name, this.icon, this.idExtension });
 
   void extractCard(String code)
   {
-      if(code.length % 2 == 1)
-      {
-        throw Exception('Corrupt database code');
-      }
-
       cards.clear();
-      for(int i=0; i<code.length; i+=2) {
+      validCard = true;
+
+      if(code.isEmpty) {
+        validCard=false;
+        // Build pre-publication: 300 card max
+        for (int i = 0; i < 300; i += 1) {
+          cards.add(PokeCard(type: Type.Unknown, rarity: Rarity.Unknown));
+        }
+      } else {
+        if (code.length % 2 == 1) {
+          throw Exception('Corrupt database code');
+        }
+
+        for (int i = 0; i < code.length; i += 2) {
           Type t = convertType[code[i]];
-          if( t == null)
-            throw Exception('"Data card list corruption: $i was found with type ${code[i]}');
+          if (t == null)
+            throw Exception(
+                '"Data card list corruption: $i was found with type ${code[i]}');
           Rarity r = convertRarity[code[i + 1]];
-          if( r == null)
-            throw Exception('Data card list corruption: $i was found with rarity ${code[i+1]}');
+          if (r == null)
+            throw Exception(
+                'Data card list corruption: $i was found with rarity ${code[i +
+                    1]}');
           cards.add(PokeCard(type: t, rarity: r));
+        }
       }
   }
 
   Widget image()
   {
+    bool network = true;
+
+    String path = 'assets/extensions/$icon.png';
     try {
-      String path = 'assets/extensions/$icon.png';
       rootBundle.loadString(path);
-      return Image(
-          image: AssetImage(path),
-          width: 20
-      );
     } catch (Exception) {
-      return CachedNetworkImage(
-          imageUrl: 'https://www.pokecardex.com/assets/images/symboles/$icon.png',
-          //imageUrl: 'https://assets.pokemon.com/assets/cms-fr-fr/img/tcg/expansion-symbols/$icon-expansion-symbol.png',
-          errorWidget: (context, url, error) => Icon(Icons.error),
-          placeholder: (context, url) => CircularProgressIndicator(),
-          width: 20
-      );
+      network = true;
     }
+
+    if(!network)
+      return Image(
+        image: AssetImage(path),
+        width: iconSize,
+      );
+    else
+      return CachedNetworkImage(
+        imageUrl: 'https://www.pokecardex.com/assets/images/symboles/$icon.png',
+        errorWidget: (context, url, error) => Icon(Icons.error),
+        placeholder: (context, url) => CircularProgressIndicator(),
+        width: iconSize,
+      );
   }
 }
 
@@ -387,7 +415,12 @@ class BoosterDraw {
   }
 
   List buildQuery(int idAchat) {
-    return [idAchat, subExtension.id, card.join(), abnormal ? 1 : 0, energyCode];
+    // Clean code to minimal string
+    var newCard = new List<String>.from(card);
+    while(newCard.last == emptyMode) {
+      newCard.removeLast();
+    }
+    return [idAchat, subExtension.id, newCard.join(), abnormal ? 1 : 0, energyCode];
   }
 }
 
@@ -414,7 +447,7 @@ class Stats {
   }
 
   void addBoosterDraw(String draw, String energy, int anomaly) {
-    if( draw.length != subExt.cards.length)
+    if( draw.length > subExt.cards.length)
       throw StatitikException('Corruption des données de tirages');
 
     this.anomaly += anomaly;
@@ -426,9 +459,11 @@ class Stats {
       String c = draw[cardI];
       if( c != emptyMode) {
         cardByBooster += 1;
-        // Count
-        countByType[subExt.cards[cardI].type.index] += 1;
-        countByRarity[subExt.cards[cardI].rarity.index] += 1;
+        if(subExt.validCard) {
+          // Count
+          countByType[subExt.cards[cardI].type.index] += 1;
+          countByRarity[subExt.cards[cardI].rarity.index] += 1;
+        }
         count[cardI] += 1;
         countByMode[convertMode[c].index] += 1;
       }
