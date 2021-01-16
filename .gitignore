@@ -94,3 +94,4 @@ android/app/google-services.json
 pubspec.lock
 .dart_tool/
 .idea/
+private/

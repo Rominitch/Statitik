@@ -35,11 +35,11 @@ class _ExtensionButtonState extends State<ExtensionButton> {
         height: 40.0,
         minWidth: 30.0,
         child: Environment.instance.showExtensionName
-            ? Row(
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
-                children: [widget.subExtension.image(),
-                           SizedBox(width: 8.0),
-                           Text(widget.subExtension.name)
+                children: [widget.subExtension.image(hSize: iconSize),
+                           Text(widget.subExtension.name, textAlign: TextAlign.center,)
                           ]
             )
             : widget.subExtension.image(),
@@ -78,31 +78,30 @@ Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function pre
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              bd.subExtension.image(),
+              (bd.subExtension != null) ? bd.subExtension.image(hSize: iconSize) : Icon(Icons.add_to_photos),
               SizedBox(height: 6.0),
               Text('${bd.id}'),
           ]),
         ),
         onPressed: () => press(context),
         onLongPress: () {
-          if(current.productAnomaly || current.randomBooster)
+          if(current.productAnomaly || bd.isRandom())
           showDialog(
               context: context,
               builder: (_) => new AlertDialog(
                 title: new Text("Edition du booster"),
                 actions: [
-                  /*
                   Card(
-
+                    color: Colors.grey[700],
                     child: FlatButton(
-                      child: Text('Changer l\'extensions'),
+                      child: Text('Changer l\'extension'),
                       onPressed: () {
-
+                        Navigator.of(context).pop();
+                        bd.resetExtensions();
+                        press(context);
                       }
                     ),
                   ),
-                  */
-
                   if( current.productAnomaly && current.canDelete() ) Card(
                     color: Colors.red,
                     child: FlatButton(
@@ -147,15 +146,16 @@ class _PokemonCardState extends State<PokemonCard> {
     };
 
     return Card(
-        color: isTake ? colors[selected] : Colors.grey[900],
+        color: isTake ? modeColors[selected] : Colors.grey[900],
         child: FlatButton(
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Row(  mainAxisAlignment: MainAxisAlignment.center,
+                  if(widget.card.isValid())
+                  Row( mainAxisAlignment: MainAxisAlignment.center,
                       children: [widget.card.imageType()] + widget.card.imageRarity()),
-                  SizedBox(height: 6.0),
+                  if(widget.card.isValid()) SizedBox(height: 6.0),
                   Text('${widget.idCard+1}'),
                 ]),
             padding: EdgeInsets.all(2.0),
@@ -221,20 +221,17 @@ class _EnergyButtonState extends State<EnergyButton> {
   }
 }
 
-const Map imgs   = {Mode.Normal: "normal", Mode.Reverse: "reverse", Mode.Halo: "halo"};
-const Map names  = {Mode.Normal: "Normal", Mode.Reverse: "Reverse", Mode.Halo: "Halo"};
-const Map colors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAccent, Mode.Halo: Colors.orange};
 
 Widget createIconCard(BuildContext context, int id, BoosterDraw boosterDraw, Mode mode, bool isSelected, Function refresh) {
 
   return Card(
-    color: isSelected ? colors[mode] : Colors.grey[900],
+    color: isSelected ? modeColors[mode] : Colors.grey[900],
     child: FlatButton(
         child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [Image(image: AssetImage('assets/carte/${imgs[mode]}.png'), width: 75.0),
+            children: [Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), width: 75.0),
               SizedBox(height: 6.0),
-              Text(names[mode]),
+              Text(modeNames[mode]),
             ]),
         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
         onPressed: () {

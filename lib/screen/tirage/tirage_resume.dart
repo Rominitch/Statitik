@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/extensionPage.dart';
 import 'package:statitikcard/screen/tirage/tirage_booster.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -27,7 +28,7 @@ class _ResumePageState extends State<ResumePage> {
     bool allFinished = true;
     bool sameExt = true;
     for( var boosterDraw in current.boosterDraws) {
-      Function navigateAndDisplaySelection = (BuildContext context) async {
+      Function fillBoosterInfo = (BuildContext context) async {
         final result = await Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => BoosterPage(boosterDraw: boosterDraw)),
@@ -40,11 +41,36 @@ class _ResumePageState extends State<ResumePage> {
           setState(() {});
         }
       };
+      Function afterSelectExtension = (BuildContext context, Language language, SubExtension subExt) async
+      {
+        // Quit page
+        Navigator.of(context).pop();
+        if(subExt != null) {
+          boosterDraw.subExtension = subExt;
+          boosterDraw.fillCard();
+          // Go to booster fill
+          await fillBoosterInfo(context);
+        }
+      };
+
+      Function navigateAndDisplaySelection = (BuildContext context) async {
+        // First fill extension is not the case
+        if(!boosterDraw.hasSubExtension()) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ExtensionPage(language: current.language, afterSelected: afterSelectExtension)),
+          );
+        }
+        else {
+          await fillBoosterInfo(context);
+        }
+      };
 
       boosters.add(createBoosterDrawTitle(boosterDraw, context, navigateAndDisplaySelection, update));
 
       allFinished &= boosterDraw.isFinished();
-      sameExt &= (current.boosterDraws.first.subExtension.idExtension == boosterDraw.subExtension.idExtension);
+      if( current.boosterDraws.first.subExtension != null && boosterDraw.subExtension != null)
+        sameExt &= (current.boosterDraws.first.subExtension.idExtension == boosterDraw.subExtension.idExtension);
     }
 
     // Add booster button
@@ -92,7 +118,7 @@ class _ResumePageState extends State<ResumePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tirage'),
+        title: Text(current.product.name, style: TextStyle(fontSize: 15)),
         actions: actions,
       ),
       body: SingleChildScrollView(
@@ -114,7 +140,15 @@ class _ResumePageState extends State<ResumePage> {
                 value: current.productAnomaly,
                 onChanged: (newValue) {
                   setState(() {
-                    current.productAnomaly = !current.productAnomaly;
+                    if(current.productAnomaly && current.needReset())
+                    {
+                      showDialog<void>(
+                      context: context,
+                      barrierDismissible: false, // user must tap button!
+                      builder: (BuildContext context) { return showAlert(context, current); });
+                    }
+                    else // Toggle
+                     current.productAnomaly = !current.productAnomaly;
                   });
                 },
               ),
@@ -130,5 +164,36 @@ class _ResumePageState extends State<ResumePage> {
         ),
       ),
     );
+  }
+
+  AlertDialog showAlert(BuildContext context, SessionDraw current) {
+      return AlertDialog(
+        title: Text('Attention'),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('Les données seront réinitialisées.'),
+              Text('Voulez-vous continuer ?'),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Oui'),
+            onPressed: () {
+              Navigator.of(context).pop();
+              setState(() {
+                current.revertAnomaly();
+              });
+            },
+          ),
+          TextButton(
+            child: Text('Annuler'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
   }
 }

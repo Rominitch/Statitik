@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/options.dart';
-import 'package:statitikcard/screen/tirage/drawHome.dart';
+import 'package:statitikcard/screen/tirage/draw_connexion.dart';
 
 class Home extends StatefulWidget {
   @override

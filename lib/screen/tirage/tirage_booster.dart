@@ -50,7 +50,7 @@ class _BoosterPageState extends State<BoosterPage> {
               children:[
                 Text('Booster ${widget.boosterDraw.id}'),
                 SizedBox(width: 10.0),
-                widget.boosterDraw.subExtension.image(),
+                widget.boosterDraw.subExtension.image(hSize: iconSize),
                 SizedBox(width: 10.0),
                 Text('${widget.boosterDraw.count}/${widget.boosterDraw.nbCards}'),
               ],

@@ -223,12 +223,8 @@ class Environment
     Future<List> readProducts(Language l, SubExtension se) async
     {
         List produits = [];
-        await db.transactionR( (connection) async {
-            var exts = await connection.query("SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone` FROM `Produit`, `ProduitBooster`"
-                " WHERE `Produit`.`approuve` = 1"
-                " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
-                " AND `ProduitBooster`.`idSousExtension` = ${se.id}"
-                " ORDER BY `Produit`.`nom` ASC");
+
+        Function fillProd = (connection, exts) async {
             for (var row in exts) {
                 Map boosters = {};
                 var reqBoosters = await connection.query("SELECT `ProduitBooster`.idSousExtension, `ProduitBooster`.nombre FROM `ProduitBooster`"
@@ -238,6 +234,22 @@ class Environment
                 }
                 produits.add(Product(idDB: row[0], name: row[1], imageURL: row[2], boosters: boosters ));
             }
+        };
+
+        await db.transactionR( (connection) async {
+            var exts = await connection.query("SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone` FROM `Produit`, `ProduitBooster`"
+                " WHERE `Produit`.`approuve` = 1"
+                " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
+                " AND `ProduitBooster`.`idSousExtension` = ${se.id}"
+                " ORDER BY `Produit`.`nom` ASC");
+            await fillProd(connection, exts);
+
+            exts = await connection.query("SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone` FROM `Produit`, `ProduitBooster`"
+                " WHERE `Produit`.`approuve` = 1"
+                " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
+                " AND `ProduitBooster`.`idSousExtension` IS NULL"
+                " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC");
+            await fillProd(connection, exts);
         });
         return produits;
     }
@@ -342,14 +354,14 @@ class Environment
             applicationLegalese: 'Copyright (c) 2021 Rominitch',
             applicationName: nameApp,
             children:
-            [Text( '''\n$nameApp n\'est pas une application officielle Pokémon, elle n\'est en aucun cas affiliée, approuvée ou supportée par Nintendo, GAME FREAK ou The Pokémon Company.
+            [ SingleChildScrollView( child: Text( '''\n$nameApp n\'est pas une application officielle Pokémon, elle n\'est en aucun cas affiliée, approuvée ou supportée par Nintendo, GAME FREAK ou The Pokémon Company.
 Elle est à but non-lucratif, créé par et pour des fans de Pokémon.
 
 Les personnages, le thème "Pokémon ®" et ses marques dérivées sont propriétés de © Nintendo, The Pokémon Company, Game Freak, Creatures.
 Les images et illustrations utilisées sont la propriété de leurs auteurs respectifs.
 © 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.''',
                 textAlign: TextAlign.justify),
-            ]
+            )]
         );
     }
 

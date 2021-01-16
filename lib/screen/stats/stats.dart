@@ -102,20 +102,30 @@ class _StatsPageState extends State<StatsPage> {
 
   Widget buildStatsView() {
     List<Widget> rarity = [];
+    {
+      double sum=0;
+      widget.stats.countEnergy.forEach((number) {sum += number.toDouble(); });
+      double luck = sum / widget.stats.nbBoosters;
+      rarity.add( buildLine([Icon(Icons.battery_charging_full),],
+                  luck));
+    }
+
     if( widget.subExt.validCard ) {
       for( var rare in Rarity.values ) {
+        if(rare == Rarity.Unknown)
+          continue;
         double luck = widget.stats.countByRarity[rare.index] / widget.stats.nbBoosters;
         rarity.add( buildLine(getImageRarity(rare), luck) );
+      }
+
+      for( var mode in [Mode.Reverse, Mode.Halo] ) {
+        double luck = widget.stats.countByMode[mode.index] / widget.stats.nbBoosters;
+        rarity.add( buildLine([Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), height: 30.0)], luck) );
       }
     } else {
       rarity.add(Text('Les données de l\'extensions ne sont pas encore présentes: les statistiques sont limitées.'));
     }
-    double sum=0;
-    widget.stats.countEnergy.forEach((number) {sum += number.toDouble(); });
-    double luck = sum / widget.stats.nbBoosters;
-    rarity.add( buildLine([Icon(Icons.battery_charging_full),],
-                          luck)
-    );
+
 
     return Container(
       child: Card(
@@ -133,6 +143,7 @@ class _StatsPageState extends State<StatsPage> {
               SizedBox(height: 8.0,),
               ListView(
                 shrinkWrap: true,
+                primary: false,
                 children: rarity,
               ),
               PieChartGeneric(allStats: widget.stats),

@@ -122,6 +122,11 @@ const Map convertMode =
   'r': Mode.Reverse,
   'h': Mode.Halo,
 };
+
+const Map modeImgs   = {Mode.Normal: "normal", Mode.Reverse: "reverse", Mode.Halo: "halo"};
+const Map modeNames  = {Mode.Normal: "Normal", Mode.Reverse: "Reverse", Mode.Halo: "Halo"};
+const Map modeColors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAccent, Mode.Halo: Colors.orange};
+
 const String emptyMode = '_';
 
 String modeToString(Mode mode) {
@@ -236,6 +241,10 @@ class PokeCard
 
   PokeCard({this.type, this.rarity});
 
+  bool isValid() {
+    return type!= Type.Unknown && rarity != Rarity.Unknown;
+  }
+
   List<Widget> imageRarity() {
     return getImageRarity(rarity);
   }
@@ -258,7 +267,7 @@ class PokeCard
   }
 
   bool hasAnotherRendering() {
-    return rarity == Rarity.Commune || rarity == Rarity.PeuCommune || rarity == Rarity.Rare;
+    return !isValid() || rarity == Rarity.Commune || rarity == Rarity.PeuCommune || rarity == Rarity.Rare;
   }
 
 }
@@ -305,7 +314,7 @@ class SubExtension
       }
   }
 
-  Widget image()
+  Widget image({double wSize, double hSize})
   {
     bool network = true;
 
@@ -319,14 +328,16 @@ class SubExtension
     if(!network)
       return Image(
         image: AssetImage(path),
-        width: iconSize,
+        width: wSize,
+        height: hSize,
       );
     else
       return CachedNetworkImage(
         imageUrl: 'https://www.pokecardex.com/assets/images/symboles/$icon.png',
         errorWidget: (context, url, error) => Icon(Icons.error),
         placeholder: (context, url) => CircularProgressIndicator(),
-        width: iconSize,
+        width: wSize,
+        height: hSize,
       );
   }
 }
@@ -349,12 +360,19 @@ class Product
     );
   }
 
+  int countBoosters() {
+    int count=0;
+    boosters.forEach((key, value) { count += value; });
+    return count;
+  }
+
   List buildBoosterDraw() {
     List list = [];
     int id=1;
     boosters.forEach((key, value) {
       for( int i=0; i < value; i+=1) {
-        list.add(new BoosterDraw(subExtension: Environment.instance.collection.getSubExtensionID(key), id: id));
+        SubExtension se = key != null ? Environment.instance.collection.getSubExtensionID(key) : null;
+        list.add(new BoosterDraw(creation: se, id: id));
         id += 1;
       }
     });
@@ -364,9 +382,11 @@ class Product
 
 class BoosterDraw {
   int id;
+  SubExtension creation;          ///< Keep product extension.
+
   String energyCode = emptyMode;  ///< Code of energy inside booster.
   List<String> card;              ///< All card select by extension.
-  SubExtension subExtension;
+  SubExtension subExtension;      ///< Current extensions.
   int count = 0;
   int nbCards = 10;               ///< Number of cards inside booster
   bool abnormal = false;          ///< Packaging error
@@ -374,13 +394,36 @@ class BoosterDraw {
   // Event
   final StreamController onEnergyChanged = new StreamController.broadcast();
 
-  BoosterDraw({this.subExtension, this.id })
+  BoosterDraw({this.creation, this.id })
   {
-    card = new List<String>.filled(subExtension.cards.length, emptyMode);
+    subExtension = creation;
+    if(hasSubExtension()) {
+      fillCard();
+    }
+  }
+  bool isRandom() {
+    return creation == null;
+  }
+
+  void resetExtensions() {
+    energyCode = emptyMode;
+    count    = 0;
+    nbCards  = 10;
+    abnormal = false;
+    card = null;
+    subExtension = null;
+  }
+
+  void fillCard() {
+      card = new List<String>.filled(subExtension.cards.length, emptyMode);
   }
 
   bool isFinished() {
     return count >= nbCards;
+  }
+
+  bool hasSubExtension() {
+    return subExtension != null;
   }
 
   bool hasAllCards() {
@@ -473,12 +516,12 @@ class Stats {
 
 class SessionDraw
 {
+  Language language;
   Product product;
   bool productAnomaly=false;
   List boosterDraws;
-  bool randomBooster=false;
 
-  SessionDraw({this.product})
+  SessionDraw({this.product, this.language})
   {
     boosterDraws = product.buildBoosterDraw();
   }
@@ -486,7 +529,7 @@ class SessionDraw
   void addNewBooster() {
     BoosterDraw booster = boosterDraws.last;
 
-    boosterDraws.add(new BoosterDraw(subExtension: booster.subExtension, id: booster.id+1) );
+    boosterDraws.add(new BoosterDraw(creation: booster.subExtension, id: booster.id+1) );
   }
 
   void deleteBooster(int id) {
@@ -501,5 +544,22 @@ class SessionDraw
 
   bool canDelete() {
     return boosterDraws.length > 1;
+  }
+
+  void revertAnomaly()
+  {
+    //Brutal reset
+    boosterDraws = product.buildBoosterDraw();
+    productAnomaly = false;
+  }
+
+  bool needReset() {
+    bool editedBooster = false;
+    for(BoosterDraw b in boosterDraws){
+      if(b.creation != null && b.creation != b.subExtension)
+        editedBooster |= true;
+    }
+
+    return editedBooster || boosterDraws.length != product.countBoosters();
   }
 }

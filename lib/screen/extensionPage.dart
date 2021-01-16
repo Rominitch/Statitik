@@ -26,10 +26,12 @@ class _ExtensionPageState extends State<ExtensionPage> {
         };
         subExtensions.add(ExtensionButton(subExtension: se, press: press));
       }
+      if(subExtensions.isNotEmpty)
       ext.add(Container(
         color: Colors.grey[800],
         padding: EdgeInsets.all(5.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
@@ -41,13 +43,12 @@ class _ExtensionPageState extends State<ExtensionPage> {
                     .headline5,
               ),
             ),
-            Container(
-              height: 60.0,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
+            GridView.count(
+                crossAxisCount: Environment.instance.showExtensionName ? 3 : 5,
+                shrinkWrap: true,
                 children: subExtensions,
+                primary: false,
               ),
-            ),
           ],
         ),
       ),
@@ -58,8 +59,6 @@ class _ExtensionPageState extends State<ExtensionPage> {
 
   @override
   Widget build(BuildContext context) {
-    //80% of screen width
-    double cWidth = MediaQuery.of(context).size.width;
     List<Widget> ext = buildExts();
 
     return Container(
@@ -75,9 +74,8 @@ class _ExtensionPageState extends State<ExtensionPage> {
               ),
             ),
           ),
-          body: Container(
+          body: SingleChildScrollView(
               padding: const EdgeInsets.all(10.0),
-              width: cWidth,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -91,9 +89,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
                       });
                     },
                   ),
-                  ListView( shrinkWrap: true,
-                      scrollDirection: Axis.vertical,
-                      children: ext ),
+                  Column( children: ext ),
                 ],
               )
           ),

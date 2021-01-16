@@ -3,6 +3,8 @@ import 'package:statitikcard/screen/tirage/tirage_resume.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/environment.dart';
 
+const bool imageRight = false; // Waiting autorization
+
 class ProductPage extends StatefulWidget {
   final Language language;
   final SubExtension subExt;
@@ -28,13 +30,13 @@ class _ProductPageState extends State<ProductPage> {
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    prod.image(),
-                    Text( prod.name, softWrap: true, ),
+                    if(imageRight) prod.image(),
+                    Text( prod.name, textAlign: TextAlign.center, softWrap: true, ),
                   ]
               ),
               onPressed: () {
                 // Build new session of draw
-                Environment.instance.currentDraw = SessionDraw(product: prod);
+                Environment.instance.currentDraw = SessionDraw(product: prod, language:widget.language);
                 // Go to page
                 Navigator.push(context, MaterialPageRoute(builder: (context) => ResumePage()));
               },
@@ -62,24 +64,22 @@ class _ProductPageState extends State<ProductPage> {
                     SizedBox(width: 10.0),
                     widget.language.barIcon(),
                     SizedBox(width: 10.0),
-                    widget.subExt.image(),
+                    widget.subExt.image( wSize: iconSize ),
                   ],
                 ),
               ),
             ),
-            body: Container(
-              child:
+            body:
                 widgetProd == null
-                    ? Center( child: Text("Chargement...", style: Theme.of(context).textTheme.headline1))
-                    : (widgetProd.isEmpty ? Center( child: Text("Aucun produit n'est disponible", style: Theme.of(context).textTheme.headline1))
+                    ? Center( child: Text("Chargement...", textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
+                    : (widgetProd.isEmpty ? Center( child: Text("Aucun produit n'est disponible", textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
                       : GridView.count(
                           crossAxisCount: 3,
                           scrollDirection: Axis.vertical,
                           primary: false,
                           children: widgetProd,
                         )
-                  ),
-            )
+              )
     );
   }
 }
