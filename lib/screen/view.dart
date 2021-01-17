@@ -134,6 +134,20 @@ class PokemonCard extends StatefulWidget {
 }
 
 class _PokemonCardState extends State<PokemonCard> {
+  List<Widget> icons;
+  @override
+  void initState() {
+    icons =
+    [
+      if(widget.card.isValid())
+        Row( mainAxisAlignment: MainAxisAlignment.center,
+            children: [widget.card.imageType()] + widget.card.imageRarity()),
+      if(widget.card.isValid()) SizedBox(height: 6.0),
+      Text('${widget.idCard+1}'),
+    ];
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     String cardValue = widget.boosterDraw.card[widget.idCard];
@@ -151,13 +165,7 @@ class _PokemonCardState extends State<PokemonCard> {
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  if(widget.card.isValid())
-                  Row( mainAxisAlignment: MainAxisAlignment.center,
-                      children: [widget.card.imageType()] + widget.card.imageRarity()),
-                  if(widget.card.isValid()) SizedBox(height: 6.0),
-                  Text('${widget.idCard+1}'),
-                ]),
+                children: icons),
             padding: EdgeInsets.all(2.0),
             onLongPress: () {
               if( widget.card.hasAnotherRendering() ) {
@@ -196,14 +204,12 @@ class _EnergyButtonState extends State<EnergyButton> {
   void initState() {
     super.initState();
 
-    widget.boosterDraw.onEnergyChanged.stream.listen( (bool)
-      {
-        setState(() {
-          //widget.boosterDraw.setEnergy(widget.type);
-          widget.refresh();
-        });
-      }
-    );
+    widget.boosterDraw.onEnergyChanged.stream.listen( (bool) {
+      if (!mounted) return;
+      setState(() {
+        widget.refresh();
+      });
+    });
   }
 
   @override

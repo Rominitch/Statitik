@@ -7,7 +7,7 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 
 class StatsPage extends StatefulWidget {
-  Language language;
+  Language     language;
   SubExtension subExt;
   Product      product;
   Stats        stats;

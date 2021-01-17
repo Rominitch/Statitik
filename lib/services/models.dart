@@ -180,22 +180,27 @@ List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
   Colors.white70, Colors.pinkAccent, Colors.orange
 ];
 
+List<Widget> cachedEnergies = List.filled(energies.length, null);
+
 Widget energyImage(Type type) {
-  if( type == Type.Unknown)
-    return Icon(Icons.help_outline);
-  if(imageName[type].isNotEmpty) {
-    return Image(
+  if(cachedEnergies[type.index] == null) {
+    if (type == Type.Unknown)
+      cachedEnergies[type.index] = Icon(Icons.help_outline);
+    if (imageName[type].isNotEmpty) {
+      cachedEnergies[type.index] = Image(
         image: AssetImage('assets/energie/${imageName[type]}.png'),
         width: iconSize,
-    );
-  } else {
-    return CachedNetworkImage(
+      );
+    } else {
+      cachedEnergies[type.index] = CachedNetworkImage(
         imageUrl: 'https://www.pokecardex.com/forums/images/smilies/energy-types_${imageCode[type]}.png',
         errorWidget: (context, url, error) => Icon(Icons.error),
         placeholder: (context, url) => CircularProgressIndicator(),
         width: iconSize,
-    );
+      );
+    }
   }
+  return cachedEnergies[type.index];
 }
 
 String typeToString(Type type) {
@@ -203,36 +208,56 @@ String typeToString(Type type) {
           (k) => convertType[k] == type, orElse: () => emptyMode);
 }
 
+List<List<Widget>> cachedImageRarity = List.filled(Rarity.values.length, null);
+
+
 List<Widget> getImageRarity(Rarity rarity) {
-  //star_border
-  switch(rarity) {
-    case Rarity.Commune:
-      return [Icon(Icons.circle)];
-    case Rarity.PeuCommune:
-      return [Transform.rotate(
-          angle: pi / 4.0,
-          child: Icon(Icons.stop))];
-    case Rarity.Rare:
-      return [Icon(Icons.star)];
-    case Rarity.V:
-      return [Icon(Icons.star_border)];
-    case Rarity.VMax:
-      return [Icon(Icons.star), Text('X', style: TextStyle(fontSize: 12.0))];
-    case Rarity.HoloRare:
-      return [Icon(Icons.star), Text('H', style: TextStyle(fontSize: 12.0))];
-    case Rarity.UltraRare:
-      return [Icon(Icons.star), Text('U', style: TextStyle(fontSize: 12.0))];
-    case Rarity.Magnifique:
-      return [Icon(Icons.star), Text('M', style: TextStyle(fontSize: 12.0))];
-    case Rarity.ArcEnCiel:
-      return [Icon(Icons.looks)];
-    case Rarity.Gold:
-      return [Icon(Icons.local_play, color: Colors.yellow[300])];
-    case Rarity.Unknown:
-      return [Icon(Icons.help_outline)];
+  if(cachedImageRarity[rarity.index] == null) {
+    //star_border
+    switch(rarity) {
+      case Rarity.Commune:
+        cachedImageRarity[rarity.index] = [Icon(Icons.circle)];
+        break;
+      case Rarity.PeuCommune:
+        cachedImageRarity[rarity.index] = [Transform.rotate(
+            angle: pi / 4.0,
+            child: Icon(Icons.stop))];
+        break;
+      case Rarity.Rare:
+        cachedImageRarity[rarity.index] = [Icon(Icons.star)];
+        break;
+      case Rarity.V:
+        cachedImageRarity[rarity.index] = [Icon(Icons.star_border)];
+        break;
+      case Rarity.VMax:
+        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('X', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.HoloRare:
+        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('H', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.UltraRare:
+        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('U', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.Magnifique:
+        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('M', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.ArcEnCiel:
+        cachedImageRarity[rarity.index] = [Icon(Icons.looks)];
+        break;
+      case Rarity.Gold:
+        cachedImageRarity[rarity.index] = [Icon(Icons.local_play, color: Colors.yellow[300])];
+        break;
+      case Rarity.Unknown:
+        cachedImageRarity[rarity.index] = [Icon(Icons.help_outline)];
+        break;
+      default:
+        throw Exception("Unknown rarity: $rarity");
+    }
   }
-  throw Exception("Unknown rarity: $rarity");
+  return cachedImageRarity[rarity.index];
 }
+
+List<Widget> cachedImageType = List.filled(Type.values.length, null);
 
 class PokeCard
 {
@@ -251,19 +276,25 @@ class PokeCard
 
   Widget imageType()
   {
-    //star_border
-    switch(type) {
-      case Type.Objet:
-        return Icon(Icons.build);
-      case Type.Stade:
-        return Icon(Icons.landscape);
-      case Type.Supporter:
-        return Icon(Icons.accessibility_new);
-      case Type.Energy:
-        return Icon(Icons.battery_charging_full);
-      default:
-        return energyImage(type);
+    if(cachedImageType[type.index] == null) {
+      switch(type) {
+        case Type.Objet:
+          cachedImageType[type.index] = Icon(Icons.build);
+          break;
+        case Type.Stade:
+          cachedImageType[type.index] = Icon(Icons.landscape);
+          break;
+        case Type.Supporter:
+          cachedImageType[type.index] = Icon(Icons.accessibility_new);
+          break;
+        case Type.Energy:
+          cachedImageType[type.index] = Icon(Icons.battery_charging_full);
+          break;
+        default:
+          cachedImageType[type.index] = energyImage(type);
+      }
     }
+    return cachedImageType[type.index];
   }
 
   bool hasAnotherRendering() {

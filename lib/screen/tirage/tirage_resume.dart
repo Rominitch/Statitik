@@ -1,4 +1,3 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/extensionPage.dart';
 import 'package:statitikcard/screen/tirage/tirage_booster.dart';

@@ -26,9 +26,9 @@ class PieChartGenericState extends State<PieChartGeneric> {
     sections.clear();
     for(var energy in energies) {
       final isTouched = energy.index == touchedIndex;
-      final double fontSize = isTouched ? 20 : 16;
+      //final double fontSize = isTouched ? 20 : 16;
       final double radius = isTouched ? 50 : 30;
-      final double widgetSize = isTouched ? 55 : 0;
+      //final double widgetSize = isTouched ? 55 : 0;
       int count = widget.allStats.countEnergy[energy.index];
       if(count > 0) {
         sections.add( PieChartSectionData(
