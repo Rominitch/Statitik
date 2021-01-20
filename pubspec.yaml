@@ -40,6 +40,9 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
+  flutter_driver:
+    sdk: flutter
+  test: any
   flutter_launcher_icons: "^0.8.0"
 
 flutter_icons:
