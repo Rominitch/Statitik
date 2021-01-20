@@ -73,7 +73,13 @@ flutter:
     - assets/energie/feu.png
     - assets/energie/electrique.png
     - assets/energie/eau.png
-    - assets/extensions/SWSH4.png
+    - assets/energie/fee.png
+    - assets/energie/dragon.png
+    - assets/energie/incolore.png
+    - assets/energie/metal.png
+    - assets/energie/obscure.png
+    - assets/energie/combat.png
+    - assets/energie/psy.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

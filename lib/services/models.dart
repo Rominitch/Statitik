@@ -3,7 +3,7 @@ import 'dart:core';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -153,38 +153,15 @@ Map imageName = {
   Type.Feu: 'feu',
   Type.Eau: 'eau',
   Type.Electrique: 'electrique',
-  Type.Psy: '',
-  Type.Combat: '',
-  Type.Obscurite: '',
-  Type.Metal: '',
-  Type.Incolore: '',
-  Type.Fee: '',
-  Type.Dragon: '',
-  Type.Objet: '',
-  Type.Supporter: '',
-  Type.Stade: '',
-  Type.Energy: '',
-  Type.Unknown: '',
+  Type.Psy: 'psy',
+  Type.Combat: 'combat',
+  Type.Obscurite: 'obscure',
+  Type.Metal: 'metal',
+  Type.Incolore: 'incolore',
+  Type.Fee: 'fee',
+  Type.Dragon: 'dragon',
 };
 
-Map imageCode = {
-  Type.Plante: '10',
-  Type.Feu: '01',
-  Type.Eau: '12',
-  Type.Electrique: '06',
-  Type.Psy: '08',
-  Type.Combat: '07',
-  Type.Obscurite: '09',
-  Type.Metal: '04',
-  Type.Incolore: '02',
-  Type.Fee: '03',
-  Type.Dragon: '05',
-  Type.Objet: '',
-  Type.Supporter: '',
-  Type.Stade: '',
-  Type.Energy: '',
-  Type.Unknown: '',
-};
 const List<Type> energies = [Type.Plante,  Type.Feu,  Type.Eau,
   Type.Electrique,  Type.Psy,  Type.Combat,  Type.Obscurite,
   Type.Metal, Type.Fee,  Type.Dragon, Type.Incolore];
@@ -203,13 +180,6 @@ Widget energyImage(Type type) {
     if (imageName[type].isNotEmpty) {
       cachedEnergies[type.index] = Image(
         image: AssetImage('assets/energie/${imageName[type]}.png'),
-        width: iconSize,
-      );
-    } else {
-      cachedEnergies[type.index] = CachedNetworkImage(
-        imageUrl: 'https://www.pokecardex.com/forums/images/smilies/energy-types_${imageCode[type]}.png',
-        errorWidget: (context, url, error) => Icon(Icons.error),
-        placeholder: (context, url) => CircularProgressIndicator(),
         width: iconSize,
       );
     }
@@ -373,29 +343,12 @@ class SubExtension
 
   Widget image({double wSize, double hSize})
   {
-    bool network = true;
-
-    String path = 'assets/extensions/$icon.png';
-    try {
-      rootBundle.loadString(path);
-    } catch (Exception) {
-      network = true;
-    }
-
-    if(!network)
-      return Image(
-        image: AssetImage(path),
-        width: wSize,
-        height: hSize,
-      );
-    else
-      return CachedNetworkImage(
-        imageUrl: 'https://www.pokecardex.com/assets/images/symboles/$icon.png',
-        errorWidget: (context, url, error) => Icon(Icons.error),
-        placeholder: (context, url) => CircularProgressIndicator(),
-        width: wSize,
-        height: hSize,
-      );
+    return CachedNetworkImage(imageUrl: '$adresseHTML/StatitikCard/extensions/$icon.png',
+      errorWidget: (context, url, error) => Icon(Icons.help_outline),
+      placeholder: (context, url) => CircularProgressIndicator(),
+      width:  wSize,
+      height: hSize,
+    );
   }
 }
 
