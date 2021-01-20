@@ -87,14 +87,14 @@ class _StatsPageState extends State<StatsPage> {
     );
   }
 
-  Widget buildLine(label, luck) {
+  Widget buildLine(label, luck, color) {
     return Row(
       children: [
         Container(child: Row( children: label), width: 50,),
         Expanded(child: LinearPercentIndicator(
         lineHeight: 8.0,
         percent: (luck / 10.0).clamp(0.0, 1.0),
-        progressColor: Colors.blue,
+        progressColor: color,
         )),
         Container(child:Text('${luck.toStringAsFixed(3)}'), width: 40)
     ]);
@@ -106,8 +106,9 @@ class _StatsPageState extends State<StatsPage> {
       double sum=0;
       widget.stats.countEnergy.forEach((number) {sum += number.toDouble(); });
       double luck = sum / widget.stats.nbBoosters;
-      rarity.add( buildLine([Icon(Icons.battery_charging_full),],
-                  luck));
+      if(luck > 0)
+        rarity.add( buildLine([Icon(Icons.battery_charging_full),],
+                    luck, Colors.yellowAccent));
     }
 
     if( widget.subExt.validCard ) {
@@ -115,12 +116,14 @@ class _StatsPageState extends State<StatsPage> {
         if(rare == Rarity.Unknown)
           continue;
         double luck = widget.stats.countByRarity[rare.index] / widget.stats.nbBoosters;
-        rarity.add( buildLine(getImageRarity(rare), luck) );
+        if(luck > 0)
+          rarity.add( buildLine(getImageRarity(rare), luck, rarityColors[rare.index]) );
       }
 
       for( var mode in [Mode.Reverse, Mode.Halo] ) {
         double luck = widget.stats.countByMode[mode.index] / widget.stats.nbBoosters;
-        rarity.add( buildLine([Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), height: 30.0)], luck) );
+        if(luck > 0)
+          rarity.add( buildLine([Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), height: 30.0)], luck, modeColors[mode.index]) );
       }
     } else {
       rarity.add(Text('Les données de l\'extensions ne sont pas encore présentes: les statistiques sont limitées.'));

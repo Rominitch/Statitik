@@ -55,9 +55,9 @@ enum Type {
   Combat,
   Obscurite,
   Metal,
-  Incolore,
   Fee,
   Dragon,
+  Incolore,
   Objet,
   Supporter,
   Stade,
@@ -70,13 +70,23 @@ enum Rarity {
   Rare,
   HoloRare,
   Magnifique,
+  Prism,
+  Chromatique,
+  ChromatiqueRare,
   V,
   VMax,
   UltraRare,
+  Secret,
   ArcEnCiel,
   Gold,
   Unknown,
 }
+
+List<Color> rarityColors = [Colors.green, Colors.green, Colors.green,
+  Colors.blue, Colors.blue, Colors.blue, Colors.blue, Colors.blue,
+  Colors.purple, Colors.purple, Colors.purple,
+  Colors.yellow, Colors.yellow, Colors.yellow
+];
 
 const Map convertType =
 {
@@ -105,8 +115,12 @@ const Map convertRarity =
   'H': Rarity.HoloRare,
   'U': Rarity.UltraRare,
   'M': Rarity.Magnifique,
-  'v': Rarity.V,
+  'P': Rarity.Prism,
+  'q': Rarity.Chromatique,
+  'Q': Rarity.ChromatiqueRare,
+  'v': Rarity.V, // or GX
   'V': Rarity.VMax,
+  'S': Rarity.Secret,
   'A': Rarity.ArcEnCiel,
   'G': Rarity.Gold,
 };
@@ -125,7 +139,7 @@ const Map convertMode =
 
 const Map modeImgs   = {Mode.Normal: "normal", Mode.Reverse: "reverse", Mode.Halo: "halo"};
 const Map modeNames  = {Mode.Normal: "Normal", Mode.Reverse: "Reverse", Mode.Halo: "Halo"};
-const Map modeColors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAccent, Mode.Halo: Colors.orange};
+const Map modeColors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAccent, Mode.Halo: Colors.purple};
 
 const String emptyMode = '_';
 
@@ -172,12 +186,12 @@ Map imageCode = {
   Type.Unknown: '',
 };
 const List<Type> energies = [Type.Plante,  Type.Feu,  Type.Eau,
-  Type.Electrique,  Type.Psy,  Type.Combat,  Type.Obscurite,  Type.Metal,
-  Type.Incolore,  Type.Fee,  Type.Dragon];
+  Type.Electrique,  Type.Psy,  Type.Combat,  Type.Obscurite,
+  Type.Metal, Type.Fee,  Type.Dragon, Type.Incolore];
 
 List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
-  Colors.yellow, Colors.purple[800], Colors.deepOrange[800], Colors.deepPurple[900], Colors.white12,
-  Colors.white70, Colors.pinkAccent, Colors.orange
+  Colors.yellow, Colors.purple[600], Colors.deepOrange[800], Colors.deepPurple[900],
+  Colors.grey[400],  Colors.pinkAccent, Colors.orange, Colors.white70,
 ];
 
 List<Widget> cachedEnergies = List.filled(energies.length, null);
@@ -226,6 +240,15 @@ List<Widget> getImageRarity(Rarity rarity) {
       case Rarity.Rare:
         cachedImageRarity[rarity.index] = [Icon(Icons.star)];
         break;
+      case Rarity.Prism:
+        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('P', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.Chromatique:
+        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('CH', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.ChromatiqueRare:
+        cachedImageRarity[rarity.index] = [Icon(Icons.star_border), Text('CH', style: TextStyle(fontSize: 12.0))];
+        break;
       case Rarity.V:
         cachedImageRarity[rarity.index] = [Icon(Icons.star_border)];
         break;
@@ -240,6 +263,9 @@ List<Widget> getImageRarity(Rarity rarity) {
         break;
       case Rarity.Magnifique:
         cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('M', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.Secret:
+        cachedImageRarity[rarity.index] = [Icon(Icons.star_border), Text('S', style: TextStyle(fontSize: 12.0))];
         break;
       case Rarity.ArcEnCiel:
         cachedImageRarity[rarity.index] = [Icon(Icons.looks)];
