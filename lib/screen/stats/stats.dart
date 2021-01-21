@@ -58,7 +58,7 @@ class _StatsPageState extends State<StatsPage> {
                             SizedBox(width: 8.0),
                             Image(image: widget.language.create(), height: 30),
                             SizedBox(width: 8.0),
-                            widget.subExt.image(),
+                            widget.subExt.image(hSize: 30),
                         ]) : Text('Extension'),
                         onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension)));
