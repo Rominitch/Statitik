@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -302,12 +303,13 @@ class Environment
                     draw.add(booster.buildQuery(idAchat));
                 }
                 // Send data
-                await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, cartes, anomalie, energie) VALUES (?, ?, ?, ?, ?);',
+                await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, energie, cartesBin) VALUES (?, ?, ?, ?, ?);',
                                             draw);
             });
             return true;
         } catch( e ) {
-            //print("Database error $e");
+            if(!kReleaseMode)
+                print("Database error $e");
         }
         return false;
     }
@@ -332,10 +334,10 @@ class Environment
         try {
             await db.transactionR( (connection) async {
                 //String productQ = product == null ? "" : " AND product";
-                String query = 'SELECT `cartes`, `energie`, `anomalie` FROM `TirageBooster` WHERE `idSousExtension` = ${subExt.id};';
+                String query = 'SELECT `cartesBin`, `energie`, `anomalie` FROM `TirageBooster` WHERE `idSousExtension` = ${subExt.id};';
                 var req = await connection.query(query);
                 for (var row in req) {
-                    stats.addBoosterDraw(row[0], row[1], row[2]);
+                    stats.addBoosterDraw((row[0] as Blob).toBytes(), row[1], row[2]);
                 }
             });
         }

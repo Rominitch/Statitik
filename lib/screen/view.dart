@@ -150,9 +150,7 @@ class _PokemonCardState extends State<PokemonCard> {
 
   @override
   Widget build(BuildContext context) {
-    String cardValue = widget.boosterDraw.card[widget.idCard];
-    bool isTake = cardValue != emptyMode;
-    Mode selected = isTake ? convertMode[cardValue] : Mode.Normal;
+    CodeDraw cardValue = widget.boosterDraw.cardBin[widget.idCard];
 
     Function update = () {
       setState(() {});
@@ -160,7 +158,7 @@ class _PokemonCardState extends State<PokemonCard> {
     };
 
     return Card(
-        color: isTake ? modeColors[selected] : Colors.grey[900],
+        color: cardValue.color(),
         child: FlatButton(
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -169,10 +167,12 @@ class _PokemonCardState extends State<PokemonCard> {
             padding: EdgeInsets.all(2.0),
             onLongPress: () {
               if( widget.card.hasAnotherRendering() ) {
-                setState(() {
-                  createCardType(
-                      context, widget.idCard, widget.boosterDraw, selected,
-                      update);
+                setState(() async {
+                  await showDialog(
+                      context: context,
+                      builder: (BuildContext context) { return CardSelector(widget.idCard, widget.boosterDraw, update); }
+                  );
+                  widget.refresh();
                 });
               }
             },
@@ -228,45 +228,103 @@ class _EnergyButtonState extends State<EnergyButton> {
 }
 
 
-Widget createIconCard(BuildContext context, int id, BoosterDraw boosterDraw, Mode mode, bool isSelected, Function refresh) {
+Widget createIconCard(BuildContext context, int id, BoosterDraw boosterDraw, Mode mode, int count, Function refresh, Function localRefresh) {
 
   return Card(
-    color: isSelected ? modeColors[mode] : Colors.grey[900],
-    child: FlatButton(
-        child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), width: 75.0),
-              SizedBox(height: 6.0),
-              Text(modeNames[mode]),
-            ]),
-        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-        onPressed: () {
-          boosterDraw.setOtherRendering(id, mode);
-          Navigator.of(context).pop();
-          refresh();
-        },
-      ),
-  );
-}
-
-void createCardType(BuildContext context, int id, BoosterDraw boosterDraw, Mode selected, Function refresh) {
-  showDialog(
-      context: context,
-      builder: (_) => new AlertDialog(
-        title: new Text("Selection du type"),
-        content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children:
-            [
-                createIconCard(context, id, boosterDraw, Mode.Normal, selected == Mode.Normal, refresh),
-                createIconCard(context, id, boosterDraw, Mode.Reverse, selected == Mode.Reverse, refresh),
-                createIconCard(context, id, boosterDraw, Mode.Halo, selected == Mode.Halo, refresh),
-            ]
+      child: Row(
+      children: [
+        Card(
+          color: count > 0 ? modeColors[mode] : Colors.grey[900],
+          child: FlatButton(
+              child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), width: 75.0),
+                    SizedBox(height: 6.0),
+                    Text(modeNames[mode]),
+                  ]),
+              padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+              onPressed: () {
+                boosterDraw.setOtherRendering(id, mode);
+                Navigator.of(context).pop();
+                refresh();
+              },
+            ),
         ),
+        SizedBox(width: 10),
+        Column(
+          children: [
+            RaisedButton(
+              onPressed: () {},
+              color: Colors.grey[700],
+              child: Container(
+                child: Text('+', style: TextStyle(fontSize: 20)),
+              )
+            ),
+            Container(
+              child: Text('$count', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),)
+            ),
+            RaisedButton(
+              onPressed: () {
+                if( mode == Mode.Normal)
+                  boosterDraw.cardBin[id].countNormal +=1;
+                else if( mode == Mode.Reverse)
+                  boosterDraw.cardBin[id].countReverse +=1;
+                else
+                  boosterDraw.cardBin[id].countHalo +=1;
+                localRefresh();
+              },
+              color: Colors.grey[700],
+              child: Container(
+                child: Text('-', style: TextStyle(fontSize: 20)),
+              )
+            ),
+          ],
+        )
+        ],
       )
   );
 }
+
+void createCardType(BuildContext context, int id, BoosterDraw boosterDraw, Function refresh) {
+  showDialog(
+      context: context,
+      builder: (BuildContext context) { return CardSelector(id, boosterDraw, refresh); }
+  );
+}
+
+class CardSelector extends StatefulWidget {
+  @override
+  _CardSelectorState createState() => _CardSelectorState();
+
+  int id;
+  BoosterDraw boosterDraw;
+  Function refresh;
+
+  CardSelector(this.id, this.boosterDraw, this.refresh);
+}
+
+class _CardSelectorState extends State<CardSelector> {
+  @override
+  Widget build(BuildContext context) {
+    Function r = () {setState((){});};
+
+    return SimpleDialog(
+      title: Text("Selection du type"),
+      children: [Column(
+          //mainAxisSize: MainAxisSize.min,
+          //mainAxisAlignment: MainAxisAlignment.center,
+          //crossAxisAlignment: CrossAxisAlignment.stretch,
+          children:
+          [
+            createIconCard(context, widget.id, widget.boosterDraw, Mode.Normal,  widget.boosterDraw.cardBin[widget.id].countNormal , widget.refresh, r),
+            createIconCard(context, widget.id, widget.boosterDraw, Mode.Reverse, widget.boosterDraw.cardBin[widget.id].countReverse, widget.refresh, r),
+            createIconCard(context, widget.id, widget.boosterDraw, Mode.Halo,    widget.boosterDraw.cardBin[widget.id].countHalo   , widget.refresh, r),
+          ]
+      ),]
+    );
+  }
+}
+
 
 Widget signInButton(Function press) {
   return  Card(

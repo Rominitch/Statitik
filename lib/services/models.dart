@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:core';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/connection.dart';
@@ -130,23 +131,12 @@ enum Mode {
   Reverse,
   Halo,
 }
-const Map convertMode =
-{
-  'n': Mode.Normal,
-  'r': Mode.Reverse,
-  'h': Mode.Halo,
-};
 
 const Map modeImgs   = {Mode.Normal: "normal", Mode.Reverse: "reverse", Mode.Halo: "halo"};
 const Map modeNames  = {Mode.Normal: "Normal", Mode.Reverse: "Reverse", Mode.Halo: "Halo"};
 const Map modeColors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAccent, Mode.Halo: Colors.purple};
 
 const String emptyMode = '_';
-
-String modeToString(Mode mode) {
-  return convertMode.keys.firstWhere(
-          (k) => convertMode[k] == mode, orElse: () => emptyMode);
-}
 
 Map imageName = {
   Type.Plante: 'plante',
@@ -390,12 +380,54 @@ class Product
   }
 }
 
+class CodeDraw {
+  int countNormal;
+  int countReverse;
+  int countHalo;
+
+  CodeDraw(this.countNormal, this.countReverse, this.countHalo){
+    assert(this.countNormal <= 7);
+    assert(this.countReverse <= 7);
+    assert(this.countHalo <= 7);
+  }
+
+  CodeDraw.fromInt(int code) {
+    countNormal  = code & 0x07;
+    countReverse = (code>>3) & 0x07;
+    countHalo    = (code>>6) & 0x07;
+  }
+
+  int toInt() {
+    int code = countNormal
+             + (countReverse<<3)
+             + (countHalo   <<6);
+    return code;
+  }
+  int count() {
+    return countNormal+countReverse+countHalo;
+  }
+
+  bool isEmpty() {
+    return count()==0;
+  }
+
+  Color color() {
+    return countHalo > 0
+          ? modeColors[Mode.Halo]
+          : (countReverse > 0
+              ?modeColors[Mode.Reverse]
+              : (countNormal > 0
+                 ? modeColors[Mode.Normal]
+                 : Colors.grey[900]));
+  }
+}
+
 class BoosterDraw {
   int id;
   SubExtension creation;          ///< Keep product extension.
 
   String energyCode = emptyMode;  ///< Code of energy inside booster.
-  List<String> card;              ///< All card select by extension.
+  List<CodeDraw> cardBin;         ///< All card select by extension.
   SubExtension subExtension;      ///< Current extensions.
   int count = 0;
   int nbCards = 10;               ///< Number of cards inside booster
@@ -420,12 +452,14 @@ class BoosterDraw {
     count    = 0;
     nbCards  = 10;
     abnormal = false;
-    card = null;
+    cardBin  = null;
     subExtension = null;
   }
 
   void fillCard() {
-      card = new List<String>.filled(subExtension.cards.length, emptyMode);
+      cardBin = [];
+      for(int i=0; i < subExtension.cards.length; i+=1 )
+        cardBin.add(new CodeDraw(0,0,0));
   }
 
   bool isFinished() {
@@ -441,21 +475,31 @@ class BoosterDraw {
   }
 
   void toggleCard(int id, Mode mode) {
-    if(card[id] == emptyMode) {
+    int cc = cardBin[id].count();
+    if(cardBin[id].isEmpty()) {
       if(!hasAllCards()) {
-        card[id] = modeToString(mode);
+        count -= cc;
+        cardBin[id].countNormal  = mode==Mode.Normal  ? 1 : 0;
+        cardBin[id].countReverse = mode==Mode.Reverse ? 1 : 0;
+        cardBin[id].countHalo    = mode==Mode.Halo    ? 1 : 0;
         count += 1;
       }
     } else {
-      card[id] = emptyMode;
-      count -= 1;
+      cardBin[id].countNormal  = 0;
+      cardBin[id].countReverse = 0;
+      cardBin[id].countHalo    = 0;
+
+      count -= cc;
     }
   }
 
   void setOtherRendering(int id, Mode mode) {
     if(!hasAllCards()) {
-      count += card[id] == emptyMode ? 1 : 0;
-      card[id] = modeToString(mode);
+      count += cardBin[id].isEmpty() ? 1 : 0;
+
+      cardBin[id].countNormal  = mode==Mode.Normal  ? 1 : 0;
+      cardBin[id].countReverse = mode==Mode.Reverse ? 1 : 0;
+      cardBin[id].countHalo    = mode==Mode.Halo    ? 1 : 0;
     }
   }
 
@@ -468,12 +512,16 @@ class BoosterDraw {
   }
 
   List buildQuery(int idAchat) {
-    // Clean code to minimal string
-    var newCard = new List<String>.from(card);
-    while(newCard.last == emptyMode) {
-      newCard.removeLast();
+    // Clean code to minimal binary data
+    //Int8List bin = new Int8List(cardBin.length);
+    List<int> elements = [];
+    for(CodeDraw c in cardBin) {
+      elements.add(c.toInt());
     }
-    return [idAchat, subExtension.id, newCard.join(), abnormal ? 1 : 0, energyCode];
+    while(elements.last == 0) {
+      elements.removeLast();
+    }
+    return [idAchat, subExtension.id, abnormal ? 1 : 0, energyCode, Int8List.fromList(elements)];
   }
 }
 
@@ -499,26 +547,29 @@ class Stats {
     countEnergy   = List<int>.filled(energies.length, 0);
   }
 
-  void addBoosterDraw(String draw, String energy, int anomaly) {
+  void addBoosterDraw(List<int> draw, String energy, int anomaly) {
     if( draw.length > subExt.cards.length)
       throw StatitikException('Corruption des données de tirages');
 
-    this.anomaly += anomaly;
+    anomaly += anomaly;
     nbBoosters += 1;
 
     countEnergy[convertType[energy].index] += 1;
 
     for(int cardI=0; cardI < draw.length; cardI +=1) {
-      String c = draw[cardI];
-      if( c != emptyMode) {
-        cardByBooster += 1;
+      CodeDraw c = CodeDraw.fromInt(draw[cardI]);
+      int nbCard = c.count();
+      if( nbCard > 0 ) {
+        cardByBooster += nbCard;
         if(subExt.validCard) {
           // Count
-          countByType[subExt.cards[cardI].type.index] += 1;
-          countByRarity[subExt.cards[cardI].rarity.index] += 1;
+          countByType[subExt.cards[cardI].type.index] += nbCard;
+          countByRarity[subExt.cards[cardI].rarity.index] += nbCard;
         }
-        count[cardI] += 1;
-        countByMode[convertMode[c].index] += 1;
+        count[cardI] += nbCard;
+        countByMode[Mode.Normal.index]  += c.countNormal;
+        countByMode[Mode.Reverse.index] += c.countReverse;
+        countByMode[Mode.Halo.index]    += c.countHalo;
       }
     }
   }
