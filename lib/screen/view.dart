@@ -135,6 +135,7 @@ class PokemonCard extends StatefulWidget {
 
 class _PokemonCardState extends State<PokemonCard> {
   List<Widget> icons;
+
   @override
   void initState() {
     icons =
@@ -143,7 +144,6 @@ class _PokemonCardState extends State<PokemonCard> {
         Row( mainAxisAlignment: MainAxisAlignment.center,
             children: [widget.card.imageType()] + widget.card.imageRarity()),
       if(widget.card.isValid()) SizedBox(height: 6.0),
-      Text('${widget.idCard+1}'),
     ];
     super.initState();
   }
@@ -151,7 +151,7 @@ class _PokemonCardState extends State<PokemonCard> {
   @override
   Widget build(BuildContext context) {
     CodeDraw cardValue = widget.boosterDraw.cardBin[widget.idCard];
-
+    int nbCard = cardValue.count();
     Function update = () {
       setState(() {});
       widget.refresh();
@@ -163,14 +163,19 @@ class _PokemonCardState extends State<PokemonCard> {
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: icons),
+                children: icons+[
+                  if( nbCard > 1)
+                    Text('${widget.idCard+1} ($nbCard)')
+                  else
+                    Text('${widget.idCard+1}')
+                ]),
             padding: EdgeInsets.all(2.0),
             onLongPress: () {
               if( widget.card.hasAnotherRendering() ) {
-                setState(() async {
-                  await showDialog(
+                setState(() {
+                  showDialog(
                       context: context,
-                      builder: (BuildContext context) { return CardSelector(widget.idCard, widget.boosterDraw, update); }
+                      builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.idCard, update); }
                   );
                   widget.refresh();
                 });
@@ -227,68 +232,10 @@ class _EnergyButtonState extends State<EnergyButton> {
   }
 }
 
-
-Widget createIconCard(BuildContext context, int id, BoosterDraw boosterDraw, Mode mode, int count, Function refresh, Function localRefresh) {
-
-  return Card(
-      child: Row(
-      children: [
-        Card(
-          color: count > 0 ? modeColors[mode] : Colors.grey[900],
-          child: FlatButton(
-              child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), width: 75.0),
-                    SizedBox(height: 6.0),
-                    Text(modeNames[mode]),
-                  ]),
-              padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-              onPressed: () {
-                boosterDraw.setOtherRendering(id, mode);
-                Navigator.of(context).pop();
-                refresh();
-              },
-            ),
-        ),
-        SizedBox(width: 10),
-        Column(
-          children: [
-            RaisedButton(
-              onPressed: () {},
-              color: Colors.grey[700],
-              child: Container(
-                child: Text('+', style: TextStyle(fontSize: 20)),
-              )
-            ),
-            Container(
-              child: Text('$count', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),)
-            ),
-            RaisedButton(
-              onPressed: () {
-                if( mode == Mode.Normal)
-                  boosterDraw.cardBin[id].countNormal +=1;
-                else if( mode == Mode.Reverse)
-                  boosterDraw.cardBin[id].countReverse +=1;
-                else
-                  boosterDraw.cardBin[id].countHalo +=1;
-                localRefresh();
-              },
-              color: Colors.grey[700],
-              child: Container(
-                child: Text('-', style: TextStyle(fontSize: 20)),
-              )
-            ),
-          ],
-        )
-        ],
-      )
-  );
-}
-
 void createCardType(BuildContext context, int id, BoosterDraw boosterDraw, Function refresh) {
   showDialog(
       context: context,
-      builder: (BuildContext context) { return CardSelector(id, boosterDraw, refresh); }
+      builder: (BuildContext context) { return CardSelector(boosterDraw, id, refresh); }
   );
 }
 
@@ -296,16 +243,17 @@ class CardSelector extends StatefulWidget {
   @override
   _CardSelectorState createState() => _CardSelectorState();
 
-  int id;
-  BoosterDraw boosterDraw;
-  Function refresh;
+  final BoosterDraw boosterDraw;
+  final int      id;
+  final Function refresh;
 
-  CardSelector(this.id, this.boosterDraw, this.refresh);
+  CardSelector(this.boosterDraw, this.id, this.refresh);
 }
 
 class _CardSelectorState extends State<CardSelector> {
   @override
   Widget build(BuildContext context) {
+    CodeDraw code = widget.boosterDraw.cardBin[widget.id];
     Function r = () {setState((){});};
 
     return SimpleDialog(
@@ -316,11 +264,68 @@ class _CardSelectorState extends State<CardSelector> {
           //crossAxisAlignment: CrossAxisAlignment.stretch,
           children:
           [
-            createIconCard(context, widget.id, widget.boosterDraw, Mode.Normal,  widget.boosterDraw.cardBin[widget.id].countNormal , widget.refresh, r),
-            createIconCard(context, widget.id, widget.boosterDraw, Mode.Reverse, widget.boosterDraw.cardBin[widget.id].countReverse, widget.refresh, r),
-            createIconCard(context, widget.id, widget.boosterDraw, Mode.Halo,    widget.boosterDraw.cardBin[widget.id].countHalo   , widget.refresh, r),
+            createIconCard(context, Mode.Normal,  code.countNormal , widget.refresh, r),
+            createIconCard(context, Mode.Reverse, code.countReverse, widget.refresh, r),
+            createIconCard(context, Mode.Halo,    code.countHalo   , widget.refresh, r),
           ]
       ),]
+    );
+  }
+
+  Widget createIconCard(BuildContext context, Mode mode, int count, Function refresh, Function localRefresh) {
+    CodeDraw code = widget.boosterDraw.cardBin[widget.id];
+    return Card(
+        child: Row(
+          children: [
+            Card(
+              color: count > 0 ? modeColors[mode] : Colors.grey[900],
+              child: FlatButton(
+                child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), width: 75.0),
+                      SizedBox(height: 6.0),
+                      Text(modeNames[mode]),
+                    ]),
+                padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                onPressed: () {
+                  widget.boosterDraw.setOtherRendering(widget.id, mode);
+                  Navigator.of(context).pop();
+                  refresh();
+                },
+              ),
+            ),
+            SizedBox(width: 10),
+            Column(
+              children: [
+                RaisedButton(
+                    onPressed: () {
+                      widget.boosterDraw.increase(code, mode);
+                      localRefresh();
+                      refresh();
+                    },
+                    color: Colors.grey[700],
+                    child: Container(
+                      child: Text('+', style: TextStyle(fontSize: 20)),
+                    )
+                ),
+                Container(
+                    child: Text('$count', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),)
+                ),
+                RaisedButton(
+                    onPressed: () {
+                      widget.boosterDraw.decrease(code, mode);
+                      localRefresh();
+                      refresh();
+                    },
+                    color: Colors.grey[700],
+                    child: Container(
+                      child: Text('-', style: TextStyle(fontSize: 20)),
+                    )
+                ),
+              ],
+            )
+          ],
+        )
     );
   }
 }

@@ -420,6 +420,24 @@ class CodeDraw {
                  ? modeColors[Mode.Normal]
                  : Colors.grey[900]));
   }
+
+  void increase(Mode mode) {
+    if( mode == Mode.Normal)
+      countNormal = min(countNormal + 1, 7);
+    else if( mode == Mode.Reverse)
+      countReverse = min(countReverse + 1, 7);
+    else
+      countHalo = min(countHalo + 1, 7);
+  }
+
+  void decrease(Mode mode) {
+    if( mode == Mode.Normal)
+      countNormal = max(countNormal - 1, 0);
+    else if( mode == Mode.Reverse)
+      countReverse = max(countReverse - 1, 0);
+    else
+      countHalo = max(countHalo - 1, 0);
+  }
 }
 
 class BoosterDraw {
@@ -490,6 +508,22 @@ class BoosterDraw {
       cardBin[id].countHalo    = 0;
 
       count -= cc;
+    }
+  }
+
+  void increase(CodeDraw code, Mode mode) {
+    if(!hasAllCards()) {
+      count -= code.count();
+      code.increase(mode);
+      count += code.count();
+    }
+  }
+
+  void decrease(CodeDraw code, Mode mode) {
+    if(count > 0) {
+      count -= code.count();
+      code.decrease(mode);
+      count += code.count();
     }
   }
 

@@ -31,7 +31,9 @@ class _ProductPageState extends State<ProductPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     if(imageRight) prod.image(),
-                    Text( prod.name, textAlign: TextAlign.center, softWrap: true, ),
+                    if(imageRight) Text( prod.name, textAlign: TextAlign.center, softWrap: true, style: TextStyle(fontSize: ((prod.name.length > 15) ? 8 : 13)  ) )
+                    else           Text( prod.name, textAlign: TextAlign.center, softWrap: true, ),
+
                   ]
               ),
               onPressed: () {
