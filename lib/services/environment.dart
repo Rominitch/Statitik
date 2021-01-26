@@ -303,7 +303,7 @@ class Environment
                     draw.add(booster.buildQuery(idAchat));
                 }
                 // Send data
-                await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, energie, cartesBin) VALUES (?, ?, ?, ?, ?);',
+                await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, energieBin, cartesBin) VALUES (?, ?, ?, ?, ?);',
                                             draw);
             });
             return true;
@@ -334,10 +334,10 @@ class Environment
         try {
             await db.transactionR( (connection) async {
                 //String productQ = product == null ? "" : " AND product";
-                String query = 'SELECT `cartesBin`, `energie`, `anomalie` FROM `TirageBooster` WHERE `idSousExtension` = ${subExt.id};';
+                String query = 'SELECT `cartesBin`, `energieBin`, `anomalie` FROM `TirageBooster` WHERE `idSousExtension` = ${subExt.id};';
                 var req = await connection.query(query);
                 for (var row in req) {
-                    stats.addBoosterDraw((row[0] as Blob).toBytes(), row[1], row[2]);
+                    stats.addBoosterDraw((row[0] as Blob).toBytes(), (row[1] as Blob).toBytes(), row[2]);
                 }
             });
         }

@@ -137,18 +137,22 @@ class _ResumePageState extends State<ResumePage> {
                 title: Text('Le produit n\'est pas conforme'),
                 subtitle: Text('Exemple: il n\'y a pas le bon nombre de boosters'),
                 value: current.productAnomaly,
-                onChanged: (newValue) {
-                  setState(() {
+                onChanged: (newValue) async {
                     if(current.productAnomaly && current.needReset())
                     {
-                      showDialog<void>(
+                      bool reset = await showDialog(
                       context: context,
                       barrierDismissible: false, // user must tap button!
-                      builder: (BuildContext context) { return showAlert(context, current); });
+                      builder: (BuildContext context) { return showAlert(context); });
+
+                      if(reset) {
+                        setState(() {
+                          current.revertAnomaly();
+                        });
+                      }
+                    } else { // Toggle
+                      setState(() { current.productAnomaly = !current.productAnomaly; });
                     }
-                    else // Toggle
-                     current.productAnomaly = !current.productAnomaly;
-                  });
                 },
               ),
               GridView.count(
@@ -163,36 +167,5 @@ class _ResumePageState extends State<ResumePage> {
         ),
       ),
     );
-  }
-
-  AlertDialog showAlert(BuildContext context, SessionDraw current) {
-      return AlertDialog(
-        title: Text('Attention'),
-        content: SingleChildScrollView(
-          child: ListBody(
-            children: <Widget>[
-              Text('Les données seront réinitialisées.'),
-              Text('Voulez-vous continuer ?'),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: Text('Oui'),
-            onPressed: () {
-              Navigator.of(context).pop();
-              setState(() {
-                current.revertAnomaly();
-              });
-            },
-          ),
-          TextButton(
-            child: Text('Annuler'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
   }
 }

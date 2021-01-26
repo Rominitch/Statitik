@@ -375,3 +375,31 @@ Widget signOutButton(Function press) {
     ),
   );
 }
+
+AlertDialog showAlert(BuildContext context) {
+  return AlertDialog(
+    title: Text('Attention'),
+    content: SingleChildScrollView(
+      child: ListBody(
+        children: <Widget>[
+          Text('Les données seront réinitialisées.'),
+          Text('Voulez-vous continuer ?'),
+        ],
+      ),
+    ),
+    actions: <Widget>[
+      TextButton(
+        child: Text('Oui'),
+        onPressed: () {
+          Navigator.of(context).pop(true);
+        },
+      ),
+      TextButton(
+        child: Text('Annuler'),
+        onPressed: () {
+          Navigator.of(context).pop(false);
+        },
+      ),
+    ],
+  );
+}

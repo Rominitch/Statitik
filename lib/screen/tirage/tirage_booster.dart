@@ -69,6 +69,28 @@ class _BoosterPageState extends State<BoosterPage> {
                   children: widgetEnergies,
                 ),
               ),
+              CheckboxListTile(
+                title: Text('Le booster n\'est pas conforme'),
+                subtitle: Text('Exemple: le nombre de cartes n\'est pas correct'),
+                value: widget.boosterDraw.abnormal,
+                onChanged: (newValue) async {
+
+                    if(widget.boosterDraw.abnormal && widget.boosterDraw.needReset())
+                    {
+                      bool reset = await showDialog(
+                          context: context,
+                          barrierDismissible: false, // user must tap button!
+                          builder: (BuildContext context) { return showAlert(context); });
+
+                      if(reset)
+                      {
+                        setState(() { widget.boosterDraw.revertAnomaly();});
+                      }
+                    } else { // Toggle
+                      setState(() { widget.boosterDraw.abnormal = !widget.boosterDraw.abnormal; });
+                    }
+                },
+              ),
               GridView.count(
                 crossAxisCount: 5,
                 shrinkWrap: true,

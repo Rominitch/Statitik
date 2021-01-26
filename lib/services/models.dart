@@ -444,6 +444,7 @@ class BoosterDraw {
   int id;
   SubExtension creation;          ///< Keep product extension.
 
+  List<bool> energies;
   String energyCode = emptyMode;  ///< Code of energy inside booster.
   List<CodeDraw> cardBin;         ///< All card select by extension.
   SubExtension subExtension;      ///< Current extensions.
@@ -489,7 +490,7 @@ class BoosterDraw {
   }
 
   bool hasAllCards() {
-    return count >= (nbCards-((energyCode == emptyMode) ? 1 : 0));
+    return !abnormal && count >= (nbCards-((energyCode == emptyMode) ? 1 : 0));
   }
 
   void toggleCard(int id, Mode mode) {
@@ -545,6 +546,15 @@ class BoosterDraw {
     onEnergyChanged.add(true);
   }
 
+  bool needReset() {
+    return true;
+  }
+
+  void revertAnomaly() {
+    resetExtensions();
+    fillCard();
+  }
+
   List buildQuery(int idAchat) {
     // Clean code to minimal binary data
     //Int8List bin = new Int8List(cardBin.length);
@@ -555,7 +565,15 @@ class BoosterDraw {
     while(elements.last == 0) {
       elements.removeLast();
     }
-    return [idAchat, subExtension.id, abnormal ? 1 : 0, energyCode, Int8List.fromList(elements)];
+
+    List<int> energyCode = [0, 0];
+    int i=0;
+    for(bool e in energies) {
+      energyCode[i~/8] += (e ? 1 : 0)<<i;
+      i += 1;
+    }
+
+    return [idAchat, subExtension.id, abnormal ? 1 : 0, Int8List.fromList(energyCode), Int8List.fromList(elements)];
   }
 }
 
@@ -581,7 +599,7 @@ class Stats {
     countEnergy   = List<int>.filled(energies.length, 0);
   }
 
-  void addBoosterDraw(List<int> draw, String energy, int anomaly) {
+  void addBoosterDraw(List<int> draw, List<int> energy, int anomaly) {
     if( draw.length > subExt.cards.length)
       throw StatitikException('Corruption des données de tirages');
 
