@@ -136,7 +136,7 @@ class _ResumePageState extends State<ResumePage> {
                   ),
               ),
               CheckboxListTile(
-                title: Text('Le produit n\'est pas conforme'),
+                title: Text('Le produit n\'est pas conforme ?'),
                 subtitle: Text('Exemple: il n\'y a pas le bon nombre de boosters'),
                 value: current.productAnomaly,
                 onChanged: (newValue) async {

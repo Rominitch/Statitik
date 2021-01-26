@@ -81,7 +81,7 @@ class _BoosterPageState extends State<BoosterPage> {
                 ),
               ),
               CheckboxListTile(
-                title: Text('Le booster n\'est pas conforme'),
+                title: Text('Le booster n\'est pas conforme ?'),
                 subtitle: Text('Exemple: le nombre de cartes n\'est pas correct'),
                 value: widget.boosterDraw.abnormal,
                 onChanged: (newValue) async {
