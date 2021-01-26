@@ -219,13 +219,14 @@ class _EnergyButtonState extends State<EnergyButton> {
 
   @override
   Widget build(BuildContext context) {
+    bool enabled = widget.boosterDraw.isEnergy(widget.type);
     return Card(
       child: FlatButton(
-        color: convertType[widget.boosterDraw.energyCode] == widget.type ? Colors.green : Colors.grey[800],
+        color: enabled ? Colors.green : Colors.grey[800],
         minWidth: 20.0,
         child: energyImage(widget.type),
         onPressed: () {
-          widget.boosterDraw.setEnergy(widget.type);
+          widget.boosterDraw.setEnergy(widget.type, enabled);
         },
       ),
     );

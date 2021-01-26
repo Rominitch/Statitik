@@ -93,7 +93,9 @@ class _ResumePageState extends State<ResumePage> {
     List<Widget> actions = [];
     if(allFinished) {
       actions.add(
-          Card( child: FlatButton(
+          Card(
+              color: Colors.green[400],
+              child: FlatButton(
               child: Text("Envoyer"),
               onPressed: () async {
                 Environment env = Environment.instance;

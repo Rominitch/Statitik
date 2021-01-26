@@ -56,6 +56,17 @@ class _BoosterPageState extends State<BoosterPage> {
               ],
             ),
           ),
+          actions: [
+            if(widget.boosterDraw.isFinished()) Card(
+              color: Colors.green[400],
+              child: FlatButton(
+              child: Text('Ok'),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              ),
+            )
+          ],
         ),
         body:
          ListView(

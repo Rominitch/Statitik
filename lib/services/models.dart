@@ -444,8 +444,7 @@ class BoosterDraw {
   int id;
   SubExtension creation;          ///< Keep product extension.
 
-  List<bool> energies;
-  String energyCode = emptyMode;  ///< Code of energy inside booster.
+  List<bool> energiesBin;            ///< Energy inside booster.
   List<CodeDraw> cardBin;         ///< All card select by extension.
   SubExtension subExtension;      ///< Current extensions.
   int count = 0;
@@ -457,6 +456,7 @@ class BoosterDraw {
 
   BoosterDraw({this.creation, this.id })
   {
+    energiesBin = List<bool>.filled(energies.length, false);
     subExtension = creation;
     if(hasSubExtension()) {
       fillCard();
@@ -466,11 +466,16 @@ class BoosterDraw {
     return creation == null;
   }
 
-  void resetExtensions() {
-    energyCode = emptyMode;
+  void resetBooster() {
     count    = 0;
     nbCards  = 10;
     abnormal = false;
+    cardBin  = null;
+    energiesBin = List<bool>.filled(energies.length, false);
+  }
+
+  void resetExtensions() {
+    resetBooster();
     cardBin  = null;
     subExtension = null;
   }
@@ -482,7 +487,7 @@ class BoosterDraw {
   }
 
   bool isFinished() {
-    return count >= nbCards;
+    return abnormal || count == nbCards;
   }
 
   bool hasSubExtension() {
@@ -490,7 +495,15 @@ class BoosterDraw {
   }
 
   bool hasAllCards() {
-    return !abnormal && count >= (nbCards-((energyCode == emptyMode) ? 1 : 0));
+    return abnormal || count >= (nbCards + (countEnergy()-1));
+  }
+
+  int countEnergy() {
+    int count=0;
+    for( bool e in energiesBin ){
+      count += e ? 1 : 0;
+    }
+    return count;
   }
 
   void toggleCard(int id, Mode mode) {
@@ -538,10 +551,35 @@ class BoosterDraw {
     }
   }
 
-  void setEnergy(Type type) {
-    int state = energyCode == emptyMode ? 1 : 0;
-    energyCode = convertType[energyCode] == type ? emptyMode : typeToString(type);
-    count += energyCode == emptyMode ? -1 : state;
+  bool isEnergy(Type type) {
+    return energiesBin[type.index];
+  }
+
+  void setEnergy(Type type, bool enable) {
+    if(!abnormal) {
+      toggleEnergy(type);
+    } else {
+    // Reset
+    count -= countEnergy();
+
+    energiesBin[type.index] = enable;
+
+    count += countEnergy();
+
+    onEnergyChanged.add(true);
+    }
+  }
+
+  void toggleEnergy(Type type) {
+    // Reset
+    count -= countEnergy();
+
+    bool newState = !energiesBin[type.index];
+    energiesBin.fillRange(0, energiesBin.length, false);
+
+    // Set new
+    energiesBin[type.index] = newState;
+    count += countEnergy();
 
     onEnergyChanged.add(true);
   }
@@ -551,7 +589,7 @@ class BoosterDraw {
   }
 
   void revertAnomaly() {
-    resetExtensions();
+    resetBooster();
     fillCard();
   }
 
@@ -568,7 +606,7 @@ class BoosterDraw {
 
     List<int> energyCode = [0, 0];
     int i=0;
-    for(bool e in energies) {
+    for(bool e in energiesBin) {
       energyCode[i~/8] += (e ? 1 : 0)<<i;
       i += 1;
     }
@@ -606,7 +644,9 @@ class Stats {
     anomaly += anomaly;
     nbBoosters += 1;
 
-    countEnergy[convertType[energy].index] += 1;
+    for(int energyI=0; energyI < countEnergy.length; energyI +=1) {
+      countEnergy[energyI] += ((energy[energyI~/8] >> energyI) & 0x1 == 0x1) ? 1 : 0;
+    }
 
     for(int cardI=0; cardI < draw.length; cardI +=1) {
       CodeDraw c = CodeDraw.fromInt(draw[cardI]);
