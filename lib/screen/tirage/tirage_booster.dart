@@ -52,7 +52,9 @@ class _BoosterPageState extends State<BoosterPage> {
                 SizedBox(width: 10.0),
                 widget.boosterDraw.subExtension.image(hSize: iconSize),
                 SizedBox(width: 10.0),
-                Text('${widget.boosterDraw.count}/${widget.boosterDraw.nbCards}'),
+                widget.boosterDraw.abnormal
+                ? Text('${widget.boosterDraw.count}')
+                : Text('${widget.boosterDraw.count}/${widget.boosterDraw.nbCards}'),
               ],
             ),
           ),
