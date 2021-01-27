@@ -13,6 +13,7 @@ double iconSize = 25.0;
 class UserPoke {
   int idDB;
   String uid;
+  bool admin = false;
 
   UserPoke({this.idDB});
 }

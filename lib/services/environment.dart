@@ -266,13 +266,14 @@ class Environment
                     idNewID = row[0] + 1;
                 }
 
-                String query = 'SELECT `idUtilisateur`, `ban` FROM `Utilisateur` WHERE `identifiant` = \'$uid\';';
+                String query = 'SELECT `idUtilisateur`, `ban`, `su` FROM `Utilisateur` WHERE `identifiant` = \'$uid\';';
                 var reqUser = await connection.query(query);
                 if( reqUser.length == 1 ) {
                     for (var row in reqUser) {
                         if(row[1] != 0)
                             throw StatitikException("Utilisateur banni pour non respect des règles.");
                         user = UserPoke(idDB: row[0]);
+                        user.admin = row[2] == 1 ? true : false;
                     }
                 } else {
                     await connection.query('INSERT INTO `Utilisateur` (idUtilisateur, identifiant, ban) VALUES ($idNewID, \'$uid\', 0);');

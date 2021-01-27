@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';
 
 class OptionsPage extends StatefulWidget {
@@ -20,29 +21,15 @@ class _OptionsPageState extends State<OptionsPage> {
     Function refresh = () {
       setState(() {});
     };
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Center(
-          child: Text(
-            'Options', style: Theme.of(context).textTheme.headline1,
-          ),
-        ),
-        !Environment.instance.isLogged() ? signInButton(refreshWithError) : signOutButton(refresh),
-        if(this.message != null) Text(this.message),
+
+    List<Widget> buttons = [];
+    if(Environment.instance.isLogged())
+    {
+      buttons = [
+        signOutButton(refresh),
         Expanded(child: SizedBox()),
-        /*
         FlatButton(
-            onPressed: () {
-              Environment.instance.startDB=false;
-              Environment.instance.readStaticData();
-            },
-            child: Text('Actualiser la base de données')
-        ),
-         */
-        SizedBox(height: 10),
-        if(Environment.instance.isLogged()) FlatButton(
-          color: Colors.red[800],
+            color: Colors.red[800],
             onPressed: () {
               setState(()
               {
@@ -55,6 +42,49 @@ class _OptionsPageState extends State<OptionsPage> {
             child: Text('Suppression du compte')
         ),
         SizedBox(height: 10),
+      ];
+
+      if(Environment.instance.user.admin) {
+        buttons += [
+          FlatButton(
+              onPressed: () {
+                Environment.instance.startDB=false;
+                Environment.instance.readStaticData();
+              },
+              child: Text('Actualiser la base de données')
+          ),
+          SizedBox(height: 10),
+          CheckboxListTile(value: useDebug,
+              title: Text('Mode debug'),
+              onChanged: (newValue) {
+                setState(() {
+                  useDebug = newValue;
+                });
+                Environment.instance.startDB=false;
+                Environment.instance.db = Database();
+                Environment.instance.readStaticData();
+
+          }),
+          SizedBox(height: 10),
+        ];
+      }
+
+    } else {
+      buttons = [
+        signInButton(refreshWithError),
+        Expanded(child: SizedBox()),
+      ];
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Center(
+          child: Text(
+            'Options', style: Theme.of(context).textTheme.headline1,
+          ),
+        ),
+        ] + buttons + <Widget>[
         FlatButton(
             onPressed: () {
               Environment.instance.showAbout(context);
