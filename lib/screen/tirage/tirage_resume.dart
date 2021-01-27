@@ -94,13 +94,20 @@ class _ResumePageState extends State<ResumePage> {
     if(allFinished) {
       actions.add(
           Card(
-              color: Colors.green[400],
+              color: greenValid,
               child: FlatButton(
               child: Text("Envoyer"),
               onPressed: () async {
                 Environment env = Environment.instance;
                 bool valid = await env.sendDraw();
                 if( valid ) {
+                  await showDialog(
+                      context: context,
+                      builder: (_) => new AlertDialog(
+                        title: new Text("Enregistrement validé"),
+                        content: Text('Merci pour votre participation !'),
+                      )
+                  );
                   Navigator.popUntil(context, ModalRoute.withName('/'));
                 } else {
                   showDialog(

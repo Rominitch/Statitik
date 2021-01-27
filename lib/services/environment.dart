@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:mysql1/mysql1.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/connection.dart';
@@ -24,6 +25,12 @@ class Credential
     {
         try {
             await Firebase.initializeApp();
+
+            // Auto login
+            var prefs = await SharedPreferences.getInstance();
+            if( prefs.getString('uid') != null ) {
+                await Environment.instance.login(1);
+            }
         } catch(e) {
             Environment.instance.user = null;
         }
@@ -56,6 +63,9 @@ class Credential
     Future<void> signOutGoogle() async {
         Environment.instance.user = null;
         await googleSignIn.signOut();
+
+        var prefs = await SharedPreferences.getInstance();
+        prefs.remove('uid');
     }
 }
 
@@ -150,7 +160,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.1.0';
+    final String version = '0.2.0';
 
     // State
     bool isInitialized=false;
@@ -356,15 +366,44 @@ class Environment
             //applicationIcon:
             applicationLegalese: 'Copyright (c) 2021 Rominitch',
             applicationName: nameApp,
-            children:
-            [ SingleChildScrollView( child: Text( '''\n$nameApp n\'est pas une application officielle Pokémon, elle n\'est en aucun cas affiliée, approuvée ou supportée par Nintendo, GAME FREAK ou The Pokémon Company.
+            children:[]
+        );
+    }
+
+    void showDisclaimer(context) {
+        showDialog(
+            context: context,
+            builder: (_) => new AlertDialog(
+                title: new Text("Disclaimer"),
+                content: SingleChildScrollView( child:Text('''\n$nameApp n\'est pas une application officielle Pokémon, elle n\'est en aucun cas affiliée, approuvée ou supportée par Nintendo, GAME FREAK ou The Pokémon Company.
 Elle est à but non-lucratif, créé par et pour des fans de Pokémon.
 
 Les personnages, le thème "Pokémon ®" et ses marques dérivées sont propriétés de © Nintendo, The Pokémon Company, Game Freak, Creatures.
 Les images et illustrations utilisées sont la propriété de leurs auteurs respectifs.
 © 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.''',
                 textAlign: TextAlign.justify),
-            )]
+            ), )
+        );
+    }
+
+    void showThanks(context) {
+        showDialog(
+            context: context,
+            builder: (_) => new AlertDialog(
+            title: new Text("Remerciement"),
+            content: Text('Un grand merci aux membres de Pokécardex (Kyuubi, 3l3ktr0) pour leur aide et soutien.'),
+        )
+        );
+    }
+
+    void showSupport(context) {
+        showDialog(
+            context: context,
+            builder: (_) => new AlertDialog(
+                title: new Text("Support et soutien"),
+                //content: Text('Demande d\'améliorations et bugs: rominitch@gmail.com.\nVous pouvez me soutenir financièrement sur :'),
+                content: Text('Demande d\'améliorations et bugs: rominitch@gmail.com.'),
+            )
         );
     }
 
@@ -375,10 +414,14 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
     Future<String> login(int mode) async {
         try {
             String uid;
+            var prefs = await SharedPreferences.getInstance();
 
             // Log system
             if(mode==0) {
                 uid = await credential.signInWithGoogle();
+                prefs.setString('uid', uid);
+            } else {
+                uid = prefs.getString('uid');
             }
 
             // Register and check access

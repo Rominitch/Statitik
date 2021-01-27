@@ -17,17 +17,50 @@ class _DrawHomePageState extends State<DrawHomePage> {
   @override
   Widget build(BuildContext context) {
     if( Environment.instance.isLogged() ) {
-      return LanguagePage(afterSelected: goToProductPage);
+      return Scaffold(
+          appBar: AppBar(
+          title: Center(
+          child: Text( 'Tirage', style: Theme.of(context).textTheme.headline3, ),
+         ),
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('Bienvenue sur l\'enregistrement des tirages.\n\nMerci de rentrer les informations les plus justes possibles afin d\'aider la communauté.'),
+                Expanded(child: SizedBox()),
+                Card( color: greenValid, child: FlatButton(child: Text('Commencer', style: TextStyle(color: Colors.grey[800]) ),
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage)));
+                  },
+                )),
+                Expanded(child: SizedBox()),
+                Text('Astuces:', style: TextStyle( decoration: TextDecoration.underline, )),
+                SizedBox(height: 8.0,),
+                Row(children: [
+                  Icon(Icons.help_outline),
+                  Flexible(child: Text('Le clique long vous offre plus d\'options pour vos cartes ou boosters !')),]),
+              ]
+            ),
+          ),
+        ),
+      );
     } else {
       Function refresh = (String message) {
         setState( () { this.message = message;} );
       };
       String bullet = String.fromCharCode(0x2022);
-      return Column(
+      return Scaffold(
+        appBar: AppBar(
+          title: Center(
+            child: Text( 'Connexion', style: Theme.of(context).textTheme.headline3, ),
+          ),
+        ),
+        body:Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center( child: Text('Connexion', style: Theme.of(context).textTheme.headline1,),),
-          SizedBox(height: 20.0,),
           Container(
             child: signInButton(refresh)
           ),
@@ -42,6 +75,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
           ),
           SizedBox(height: 10.0,),
         ],
+        ),
       );
     }
   }

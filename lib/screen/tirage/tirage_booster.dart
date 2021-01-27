@@ -60,7 +60,7 @@ class _BoosterPageState extends State<BoosterPage> {
           ),
           actions: [
             if(widget.boosterDraw.isFinished()) Card(
-              color: Colors.green[400],
+              color: greenValid,
               child: FlatButton(
               child: Text('Ok'),
               onPressed: () {

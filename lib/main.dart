@@ -23,6 +23,7 @@ class StatitikApp extends StatelessWidget {
         backgroundColor: Colors.grey[900],
         textTheme: TextTheme(
           headline1: TextStyle( color: Colors.grey[400], fontFamily: 'Pacifico', fontSize: 50.0,),
+          headline3: TextStyle( fontFamily: 'Pacifico', fontSize: 30.0,),
           headline5: TextStyle( fontFamily: 'Pacifico', fontSize: 20.0,),
         ),
       ),

@@ -40,10 +40,14 @@ class _StatsPageState extends State<StatsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Statistiques'),
+          title: Center(
+            child: Text(
+              'Statistiques', style: Theme.of(context).textTheme.headline3,
+            ),
+          ),
         ),
         body: SafeArea(
-          child:SingleChildScrollView(
+          child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,

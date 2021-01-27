@@ -10,6 +10,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 double iconSize = 25.0;
 
+final Color greenValid = Colors.green[500];
+
 class UserPoke {
   int idDB;
   String uid;
@@ -445,7 +447,7 @@ class BoosterDraw {
   int id;
   SubExtension creation;          ///< Keep product extension.
 
-  List<bool> energiesBin;            ///< Energy inside booster.
+  List<bool> energiesBin;         ///< Energy inside booster.
   List<CodeDraw> cardBin;         ///< All card select by extension.
   SubExtension subExtension;      ///< Current extensions.
   int count = 0;
@@ -488,7 +490,7 @@ class BoosterDraw {
   }
 
   bool isFinished() {
-    return abnormal || count == nbCards;
+    return abnormal ? count >=1 : count == nbCards;
   }
 
   bool hasSubExtension() {
@@ -496,7 +498,7 @@ class BoosterDraw {
   }
 
   bool hasAllCards() {
-    return abnormal || count >= (nbCards + (countEnergy()-1));
+    return abnormal ? false : count >= (nbCards + (countEnergy()-1));
   }
 
   int countEnergy() {
@@ -563,7 +565,7 @@ class BoosterDraw {
     // Reset
     count -= countEnergy();
 
-    energiesBin[type.index] = enable;
+    energiesBin[type.index] = !enable;
 
     count += countEnergy();
 

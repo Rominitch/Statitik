@@ -72,7 +72,7 @@ Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function pre
   SessionDraw current = Environment.instance.currentDraw;
 
   return Card(
-      color: bd.isFinished() ? Colors.green[400] : Colors.grey[900],
+      color: bd.isFinished() ? greenValid : Colors.grey[900],
       child: FlatButton(
         child: Center(
           child: Column(
@@ -222,7 +222,7 @@ class _EnergyButtonState extends State<EnergyButton> {
     bool enabled = widget.boosterDraw.isEnergy(widget.type);
     return Card(
       child: FlatButton(
-        color: enabled ? Colors.green : Colors.grey[800],
+        color: enabled ? greenValid : Colors.grey[800],
         minWidth: 20.0,
         child: energyImage(widget.type),
         onPressed: () {

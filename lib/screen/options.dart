@@ -76,22 +76,58 @@ class _OptionsPageState extends State<OptionsPage> {
       ];
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Center(
-          child: Text(
-            'Options', style: Theme.of(context).textTheme.headline1,
+    return Scaffold(
+        appBar: AppBar(
+        title: Center(
+          child: Text( 'Options', style: Theme.of(context).textTheme.headline3, ),
+        ),
+      ),
+    body: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: buttons + <Widget>[
+          Card(
+            child: FlatButton(
+                onPressed: () {
+                  Environment.instance.showThanks(context);
+                },
+                child: Text('Remerciement')
+            ),
           ),
-        ),
-        ] + buttons + <Widget>[
-        FlatButton(
-            onPressed: () {
-              Environment.instance.showAbout(context);
-            },
-            child: Text('A propos')
-        ),
-      ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Card(
+                child: FlatButton(
+                    onPressed: () {
+                      Environment.instance.showDisclaimer(context);
+                    },
+                    child: Text('Disclaimer')
+                ),
+              ),
+              Card(
+                child: FlatButton(
+                    onPressed: () {
+                      Environment.instance.showSupport(context);
+                    },
+                    child: Text('Support')
+                ),
+              ),
+              Card(
+                child: FlatButton(
+                    onPressed: () {
+                      Environment.instance.showAbout(context);
+                    },
+                    child: Text('A propos')
+                ),
+              ),
+            ],
+          ),
+
+        ],
+      ),
+    ),
     );
   }
 

@@ -33,7 +33,7 @@ class _LanguagePageState extends State<LanguagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Langue'),
+        title: Text("Langue"),
        ),
         body: SafeArea(
         child: GridView.count(
