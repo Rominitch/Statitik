@@ -164,6 +164,8 @@ List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
   Colors.grey[400],  Colors.pinkAccent, Colors.orange, Colors.white70,
 ];
 
+List<Color> typeColors = energiesColors + [Colors.blue[700], Colors.red[800], Colors.greenAccent[100], Colors.yellowAccent[100]];
+
 List<Widget> cachedEnergies = List.filled(energies.length, null);
 
 Widget energyImage(Type type) {
@@ -248,6 +250,29 @@ List<Widget> getImageRarity(Rarity rarity) {
 
 List<Widget> cachedImageType = List.filled(Type.values.length, null);
 
+Widget getImageType(Type type)
+{
+  if(cachedImageType[type.index] == null) {
+    switch(type) {
+      case Type.Objet:
+        cachedImageType[type.index] = Icon(Icons.build);
+        break;
+      case Type.Stade:
+        cachedImageType[type.index] = Icon(Icons.landscape);
+        break;
+      case Type.Supporter:
+        cachedImageType[type.index] = Icon(Icons.accessibility_new);
+        break;
+      case Type.Energy:
+        cachedImageType[type.index] = Icon(Icons.battery_charging_full);
+        break;
+      default:
+        cachedImageType[type.index] = energyImage(type);
+    }
+  }
+  return cachedImageType[type.index];
+}
+
 class PokeCard
 {
   Type   type;
@@ -263,27 +288,8 @@ class PokeCard
     return getImageRarity(rarity);
   }
 
-  Widget imageType()
-  {
-    if(cachedImageType[type.index] == null) {
-      switch(type) {
-        case Type.Objet:
-          cachedImageType[type.index] = Icon(Icons.build);
-          break;
-        case Type.Stade:
-          cachedImageType[type.index] = Icon(Icons.landscape);
-          break;
-        case Type.Supporter:
-          cachedImageType[type.index] = Icon(Icons.accessibility_new);
-          break;
-        case Type.Energy:
-          cachedImageType[type.index] = Icon(Icons.battery_charging_full);
-          break;
-        default:
-          cachedImageType[type.index] = energyImage(type);
-      }
-    }
-    return cachedImageType[type.index];
+  Widget imageType() {
+    return getImageType(type);
   }
 
   bool hasAnotherRendering() {
@@ -624,6 +630,7 @@ class Stats {
   int cardByBooster = 0;
   int anomaly = 0;
   List<int> count;
+  int totalCards = 0;
 
   // Cached
   List<int> countByType;
@@ -640,7 +647,7 @@ class Stats {
     countEnergy   = List<int>.filled(energies.length, 0);
   }
 
-  void addBoosterDraw(List<int> draw, List<int> energy, int anomaly) {
+  void addBoosterDraw(List<int> draw, List<int> energy , int anomaly) {
     if( draw.length > subExt.cards.length)
       throw StatitikException('Corruption des données de tirages');
 
@@ -661,11 +668,29 @@ class Stats {
           countByType[subExt.cards[cardI].type.index] += nbCard;
           countByRarity[subExt.cards[cardI].rarity.index] += nbCard;
         }
+        totalCards   += nbCard;
         count[cardI] += nbCard;
         countByMode[Mode.Normal.index]  += c.countNormal;
         countByMode[Mode.Reverse.index] += c.countReverse;
         countByMode[Mode.Halo.index]    += c.countHalo;
       }
+    }
+  }
+}
+
+class StatsExtension {
+  final SubExtension subExt;
+
+  List<int> countByType;
+  List<int> countByRarity;
+
+  StatsExtension({this.subExt}) {
+    countByType   = List<int>.filled(Type.values.length, 0);
+    countByRarity = List<int>.filled(Rarity.values.length, 0);
+
+    for(PokeCard c in subExt.cards) {
+      countByType[c.type.index]     += 1;
+      countByRarity[c.rarity.index] += 1;
     }
   }
 }

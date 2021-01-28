@@ -16,12 +16,6 @@ class PieChartGenericState extends State<PieChartGeneric> {
   int touchedIndex;
   List<PieChartSectionData> sections = [];
 
-  @override
-  void initState() {
-
-    super.initState();
-  }
-
   void createPie() {
     sections.clear();
     for(var energy in energies) {
@@ -54,18 +48,71 @@ class PieChartGenericState extends State<PieChartGeneric> {
         aspectRatio: 1.5,
         child: PieChart(
           PieChartData(
-              /*
-              pieTouchData: PieTouchData(touchCallback: (pieTouchResponse) {
-                setState(() {
-                  if (pieTouchResponse.touchInput is FlLongPressEnd ||
-                      pieTouchResponse.touchInput is FlPanEnd) {
-                    touchedIndex = -1;
-                  } else {
-                    touchedIndex = pieTouchResponse.touchedSectionIndex;
-                  }
-                });
-              }),
-              */
+              borderData: FlBorderData(
+                show: false,
+              ),
+              sectionsSpace: 2,
+              centerSpaceRadius: 70,
+              sections: sections),
+        ),
+      ),
+    );
+  }
+}
+
+enum Visualize {
+  Type,
+  Rarity
+}
+
+class PieExtension extends StatefulWidget {
+  final StatsExtension stats;
+  final Visualize visu;
+
+  PieExtension({this.stats, this.visu});
+
+  @override
+  _PieExtensionState createState() => _PieExtensionState();
+}
+
+class _PieExtensionState extends State<PieExtension> {
+  int touchedIndex;
+  List<PieChartSectionData> sections = [];
+
+  void createPie() {
+    sections.clear();
+    if( widget.visu == Visualize.Type) {
+      for(var type in Type.values) {
+        final isTouched = type.index == touchedIndex;
+        //final double fontSize = isTouched ? 20 : 16;
+        final double radius = isTouched ? 50 : 30;
+        //final double widgetSize = isTouched ? 55 : 0;
+        int count = widget.stats.countByType[type.index];
+        if (count > 0) {
+          sections.add(PieChartSectionData(
+            color: typeColors[type.index],
+            value: count.toDouble(),
+            title: '',
+            radius: radius,
+            //titleStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
+            badgeWidget: getImageType(type),
+            badgePositionPercentageOffset: .98,
+          )
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    createPie();
+
+    return Container(
+      child: AspectRatio(
+        aspectRatio: 1.5,
+        child: PieChart(
+          PieChartData(
               borderData: FlBorderData(
                 show: false,
               ),

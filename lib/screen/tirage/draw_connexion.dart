@@ -58,23 +58,32 @@ class _DrawHomePageState extends State<DrawHomePage> {
             child: Text( 'Connexion', style: Theme.of(context).textTheme.headline3, ),
           ),
         ),
-        body:Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            child: signInButton(refresh)
-          ),
-          if(message != null) Container( child: Center( child: Text(message, style: TextStyle(color: Colors.red)))),
-          Expanded(child: SizedBox()),
-          Container( padding: const EdgeInsets.only(left: 10),
+        body:SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Column(
-                children: [
-                  Text('En vous connectant, vous acceptez :\n$bullet la sauvegarde de votre UID dans notre base de données.',
-                    style: TextStyle(fontSize: 16.0),),
-                ]),
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text('En vous connectant, vous pouvez:'),
+              textBullet('Enregistrer vos tirages'),
+              textBullet('Comparer vos statistiques avec celles de la communauté'),
+              Expanded(child: SizedBox()),
+              Container(
+                child: signInButton(refresh)
+              ),
+              if(message != null) Container( child: Center( child: Text(message, style: TextStyle(color: Colors.red)))),
+              Expanded(child: SizedBox()),
+              Container( padding: const EdgeInsets.only(left: 10),
+                child: Column(
+                    children: [
+                      Text('En vous connectant, vous acceptez :\n$bullet la sauvegarde de votre UID dans notre base de données.',
+                        style: TextStyle(fontSize: 16.0),),
+                    ]),
+              ),
+              SizedBox(height: 10.0,),
+            ],
+            ),
           ),
-          SizedBox(height: 10.0,),
-        ],
         ),
       );
     }

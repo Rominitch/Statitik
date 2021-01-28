@@ -404,3 +404,15 @@ AlertDialog showAlert(BuildContext context) {
     ],
   );
 }
+
+RichText textBullet(text) {
+  return RichText(
+    text: TextSpan(
+      text: '• ',
+      style: TextStyle(color: Colors.lightBlue, fontSize: 18),
+      children: <TextSpan>[
+        TextSpan(text: text,),
+      ],
+    ),
+  );
+}
