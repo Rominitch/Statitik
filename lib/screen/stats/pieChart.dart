@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:fl_chart/fl_chart.dart';
@@ -86,7 +87,7 @@ class _PieExtensionState extends State<PieExtension> {
     if( widget.visu == Visualize.Type) {
       for(var type in Type.values) {
         final isTouched = type.index == touchedIndex;
-        final double radius = isTouched ? 50 : 30;
+        final double radius = isTouched ? 130 : 100;
         int count = widget.stats.countByType[type.index];
         if (count > 0) {
           sections.add(PieChartSectionData(
@@ -94,9 +95,10 @@ class _PieExtensionState extends State<PieExtension> {
             value: count.toDouble(),
             title: ( count * ratio ).toStringAsFixed(2) + ' %',
             radius: radius,
-            //titleStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
+            titlePositionPercentageOffset: 0.8,
+            titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
             badgeWidget: getImageType(type),
-            badgePositionPercentageOffset: .98,
+            badgePositionPercentageOffset: 1.15,
           )
           );
         }
@@ -104,7 +106,7 @@ class _PieExtensionState extends State<PieExtension> {
     } else {
       for(var rarity in Rarity.values) {
         final isTouched = rarity.index == touchedIndex;
-        final double radius = isTouched ? 50 : 30;
+        final double radius = isTouched ? 130 : 100;
         int count = widget.stats.countByRarity[rarity.index];
         if (count > 0) {
           sections.add(PieChartSectionData(
@@ -112,9 +114,10 @@ class _PieExtensionState extends State<PieExtension> {
             value: count.toDouble(),
             title: ( count * ratio ).toStringAsFixed(2) + ' %',
             radius: radius,
-            //titleStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
-            badgeWidget: Row(children: getImageRarity(rarity), ),
-            badgePositionPercentageOffset: .98,
+            titlePositionPercentageOffset: 0.8,
+            titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
+            badgeWidget: Row( mainAxisSize: MainAxisSize.min,  children: getImageRarity(rarity), ),
+            badgePositionPercentageOffset: 1.15,
           )
           );
         }
@@ -128,14 +131,14 @@ class _PieExtensionState extends State<PieExtension> {
 
     return Container(
       child: AspectRatio(
-        aspectRatio: 1.5,
+        aspectRatio: 1.0,
         child: PieChart(
           PieChartData(
               borderData: FlBorderData(
                 show: false,
               ),
               sectionsSpace: 2,
-              centerSpaceRadius: 70,
+              centerSpaceRadius: 60,
               sections: sections),
         ),
       ),

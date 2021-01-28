@@ -70,15 +70,6 @@ class _StatsPageState extends State<StatsPage> {
                         },
                       )
                     ),
-                    /*
-                    Card(
-                      child: FlatButton(
-                      child: Text('Tous les produits')
-                          : Text(widget.product.name),
-                      onPressed: () {}
-                      ),
-                    ),
-                     */
                   ],
                 ),
                 widget.stats != null
@@ -131,7 +122,7 @@ class _StatsPageState extends State<StatsPage> {
           rarity.add( buildLine([Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), height: 30.0)], luck, modeColors[mode.index]) );
       }
     } else {
-      rarity.add(Text('Les données de l\'extensions ne sont pas encore présentes: les statistiques sont limitées.'));
+      rarity.add(Text('Les données de l\'extension ne sont pas encore présentes: les statistiques sont limitées.'));
     }
 
     return Container(
@@ -155,8 +146,9 @@ class _StatsPageState extends State<StatsPage> {
               ),
               PieChartGeneric(allStats: widget.stats),
               Card(
+                  color: Colors.grey[700],
                   child: FlatButton(
-                      child: Text('Détails de l\'extensions'),
+                      child: Text('Détails de l\'extension'),
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => StatsExtensionsPage(stats: widget.stats)));
                   }

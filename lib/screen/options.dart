@@ -87,41 +87,46 @@ class _OptionsPageState extends State<OptionsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: buttons + <Widget>[
-          Card(
-            child: FlatButton(
-                onPressed: () {
-                  Environment.instance.showThanks(context);
-                },
-                child: Text('Remerciement')
-            ),
-          ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Card(
+              Expanded(child: Card(
                 child: FlatButton(
                     onPressed: () {
                       Environment.instance.showDisclaimer(context);
                     },
                     child: Text('Disclaimer')
                 ),
-              ),
-              Card(
+              )),
+              Expanded(child: Card(
+                child: FlatButton(
+                    onPressed: () {
+                      Environment.instance.showThanks(context);
+                    },
+                    child: Text('Remerciement')
+                ),
+              )),
+            ]
+          ),
+          Row(
+            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(child: Card(
                 child: FlatButton(
                     onPressed: () {
                       Environment.instance.showSupport(context);
                     },
                     child: Text('Support')
                 ),
-              ),
-              Card(
+              )),
+              Expanded(child: Card(
                 child: FlatButton(
                     onPressed: () {
                       Environment.instance.showAbout(context);
                     },
                     child: Text('A propos')
                 ),
-              ),
+              )),
             ],
           ),
 
