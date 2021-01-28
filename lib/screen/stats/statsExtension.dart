@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/percent_indicator.dart';
-import 'package:statitikcard/screen/languagePage.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
-import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 
 class StatsExtensionsPage extends StatefulWidget {
-  final Stats  stats;
+  final Stats stats;
+  StatsExtension statsExtension;
 
-  StatsExtensionsPage({this.stats});
+  StatsExtensionsPage({this.stats}) {
+    statsExtension = StatsExtension(subExt: stats.subExt);
+  }
 
   @override
   _StatsExtensionsPageState createState() => _StatsExtensionsPageState();
@@ -22,7 +22,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
         appBar: AppBar(
           title: Center(
             child: Text(
-              'Statistiquesde l\'extension', style: Theme.of(context).textTheme.headline3,
+              'Statistiques de l\'extension', style: Theme.of(context).textTheme.headline3,
             ),
           ),
         ),
@@ -44,7 +44,9 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
                     child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text('Répartition')
+                      Text('Répartition'),
+                      PieExtension(stats: widget.statsExtension, visu: Visualize.Type),
+                      PieExtension(stats: widget.statsExtension, visu: Visualize.Rarity),
                     ]
                     )
                   ),

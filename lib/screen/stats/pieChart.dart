@@ -81,21 +81,39 @@ class _PieExtensionState extends State<PieExtension> {
 
   void createPie() {
     sections.clear();
+
+    final double ratio = 100.0 / widget.stats.subExt.cards.length;
     if( widget.visu == Visualize.Type) {
       for(var type in Type.values) {
         final isTouched = type.index == touchedIndex;
-        //final double fontSize = isTouched ? 20 : 16;
         final double radius = isTouched ? 50 : 30;
-        //final double widgetSize = isTouched ? 55 : 0;
         int count = widget.stats.countByType[type.index];
         if (count > 0) {
           sections.add(PieChartSectionData(
             color: typeColors[type.index],
             value: count.toDouble(),
-            title: '',
+            title: ( count * ratio ).toStringAsFixed(2) + ' %',
             radius: radius,
             //titleStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
             badgeWidget: getImageType(type),
+            badgePositionPercentageOffset: .98,
+          )
+          );
+        }
+      }
+    } else {
+      for(var rarity in Rarity.values) {
+        final isTouched = rarity.index == touchedIndex;
+        final double radius = isTouched ? 50 : 30;
+        int count = widget.stats.countByRarity[rarity.index];
+        if (count > 0) {
+          sections.add(PieChartSectionData(
+            color: typeColors[rarity.index],
+            value: count.toDouble(),
+            title: ( count * ratio ).toStringAsFixed(2) + ' %',
+            radius: radius,
+            //titleStyle: TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold, color: const Color(0xffffffff)),
+            badgeWidget: Row(children: getImageRarity(rarity), ),
             badgePositionPercentageOffset: .98,
           )
           );

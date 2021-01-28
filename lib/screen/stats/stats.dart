@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:statitikcard/screen/languagePage.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
+import 'package:statitikcard/screen/stats/statsExtension.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 
@@ -72,7 +73,7 @@ class _StatsPageState extends State<StatsPage> {
                     /*
                     Card(
                       child: FlatButton(
-                      child: widget.product == null ? Text('Tous les produits')
+                      child: Text('Tous les produits')
                           : Text(widget.product.name),
                       onPressed: () {}
                       ),
@@ -133,7 +134,6 @@ class _StatsPageState extends State<StatsPage> {
       rarity.add(Text('Les données de l\'extensions ne sont pas encore présentes: les statistiques sont limitées.'));
     }
 
-
     return Container(
       child: Card(
         child: Padding(
@@ -154,6 +154,14 @@ class _StatsPageState extends State<StatsPage> {
                 children: rarity,
               ),
               PieChartGeneric(allStats: widget.stats),
+              Card(
+                  child: FlatButton(
+                      child: Text('Détails de l\'extensions'),
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => StatsExtensionsPage(stats: widget.stats)));
+                  }
+                ),
+              ),
             ]
           ),
         ),
