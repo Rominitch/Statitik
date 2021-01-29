@@ -386,27 +386,6 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
         );
     }
 
-    void showThanks(context) {
-        showDialog(
-            context: context,
-            builder: (_) => new AlertDialog(
-            title: new Text("Remerciement"),
-            content: Text('Un grand merci aux membres de Pokécardex (Kyuubi, 3l3ktr0) pour leur aide et soutien.'),
-        )
-        );
-    }
-
-    void showSupport(context) {
-        showDialog(
-            context: context,
-            builder: (_) => new AlertDialog(
-                title: new Text("Support et soutien"),
-                //content: Text('Demande d\'améliorations et bugs: rominitch@gmail.com.\nVous pouvez me soutenir financièrement sur :'),
-                content: Text('Demande d\'améliorations et bugs: rominitch@gmail.com.'),
-            )
-        );
-    }
-
     bool isLogged() {
         return user != null;
     }

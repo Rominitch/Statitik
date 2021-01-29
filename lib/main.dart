@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Wrapper.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
+import 'package:statitikcard/screen/support.dart';
+import 'package:statitikcard/screen/thanks.dart';
 import 'package:statitikcard/services/environment.dart';
 
 void main() {
@@ -21,10 +23,12 @@ class StatitikApp extends StatelessWidget {
         primaryColor: Colors.grey[600],
         accentColor: Colors.orange[300],
         backgroundColor: Colors.grey[900],
+        cardColor: Colors.grey[700],
         textTheme: TextTheme(
           headline1: TextStyle( color: Colors.grey[400], fontFamily: 'Pacifico', fontSize: 50.0,),
           headline3: TextStyle( fontFamily: 'Pacifico', fontSize: 30.0,),
           headline5: TextStyle( fontFamily: 'Pacifico', fontSize: 20.0,),
+          bodyText2: TextStyle( fontSize: 16 ),
         ),
       ),
       title: 'StatitikCard',
@@ -33,6 +37,8 @@ class StatitikApp extends StatelessWidget {
         '/': (context) => ApplicationWidget(),
         '/home': (context) => Wrapper(),
         '/stats': (context) => StatsPage(),
+        '/support': (context) => SupportPage(),
+        '/thanks': (context) => ThanksPage(),
       }
     );
   }

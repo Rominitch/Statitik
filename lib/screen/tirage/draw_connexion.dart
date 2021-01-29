@@ -41,6 +41,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                 SizedBox(height: 8.0,),
                 Row(children: [
                   Icon(Icons.help_outline),
+                  SizedBox(width: 10.0),
                   Flexible(child: Text('Le clique long vous offre plus d\'options pour vos cartes ou boosters !')),]),
               ]
             ),
@@ -51,7 +52,6 @@ class _DrawHomePageState extends State<DrawHomePage> {
       Function refresh = (String message) {
         setState( () { this.message = message;} );
       };
-      String bullet = String.fromCharCode(0x2022);
       return Scaffold(
         appBar: AppBar(
           title: Center(
@@ -75,9 +75,10 @@ class _DrawHomePageState extends State<DrawHomePage> {
               Expanded(child: SizedBox()),
               Container( padding: const EdgeInsets.only(left: 10),
                 child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text('En vous connectant, vous acceptez :\n$bullet la sauvegarde de votre UID dans notre base de données.',
-                        style: TextStyle(fontSize: 16.0),),
+                      Text('En vous connectant, vous acceptez :'),
+                      textBullet('la sauvegarde de votre UID dans notre base de données'),
                     ]),
               ),
               SizedBox(height: 10.0,),

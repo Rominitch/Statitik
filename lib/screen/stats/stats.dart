@@ -92,7 +92,7 @@ class _StatsPageState extends State<StatsPage> {
         percent: (luck / 10.0).clamp(0.0, 1.0),
         progressColor: color,
         )),
-        Container(child:Text('${luck.toStringAsFixed(3)}'), width: 40)
+        Container(child:Text('${luck.toStringAsFixed(3)}'), width: 50)
     ]);
   }
 
@@ -146,7 +146,7 @@ class _StatsPageState extends State<StatsPage> {
               ),
               PieChartGeneric(allStats: widget.stats),
               Card(
-                  color: Colors.grey[700],
+                  color: Colors.grey[800],
                   child: FlatButton(
                       child: Text('Détails de l\'extension'),
                   onPressed: () {

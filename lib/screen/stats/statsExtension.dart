@@ -20,16 +20,38 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
   Widget build(BuildContext context) {
     List<Widget> cards = [];
     int id=0;
-    final double ratio = 100.0 / widget.stats.totalCards;
+    final double ratio   = 100.0 / widget.stats.totalCards;
+    final double uniform = 100.0 / widget.stats.count.length;
 
     for(int count in widget.stats.count) {
+      PokeCard pc = widget.stats.subExt.cards[id];
+      double percent = count * ratio;
+      Color col = percent == 0.0
+                ? Colors.red
+                : percent < uniform * 0.01
+                ? Colors.yellow
+                : percent < uniform * 0.1
+                ? Colors.purple
+                : percent < uniform
+                ? Colors.blue
+                : Colors.green;
+      String label = percent == 0.0
+                   ? '-'
+                   : percent.toStringAsPrecision(2)+'%';
+
       cards.add(Card(
-        color: Colors.grey[700],
+        color: Colors.grey[800],
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children:[
-          Text('${id+1}'),
-          Text((count * ratio).toStringAsPrecision(2)+'%'),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  pc.imageType(),
+                  SizedBox(width: 5.0),
+                  Text('${id+1}'),
+              ]),
+              Text(label, style: TextStyle(color: col, fontWeight: FontWeight.bold)),
         ]),
       ));
       id += 1;

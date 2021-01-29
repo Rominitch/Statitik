@@ -258,11 +258,11 @@ class _CardSelectorState extends State<CardSelector> {
     Function r = () {setState((){});};
 
     return SimpleDialog(
-      title: Text("Selection du type"),
+      title: Text("Type de carte"),
       children: [Column(
-          //mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
           //mainAxisAlignment: MainAxisAlignment.center,
-          //crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children:
           [
             createIconCard(context, Mode.Normal,  code.countNormal , widget.refresh, r),
@@ -275,11 +275,13 @@ class _CardSelectorState extends State<CardSelector> {
 
   Widget createIconCard(BuildContext context, Mode mode, int count, Function refresh, Function localRefresh) {
     CodeDraw code = widget.boosterDraw.cardBin[widget.id];
+    final Color background = Colors.grey[800];
     return Card(
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Card(
-              color: count > 0 ? modeColors[mode] : Colors.grey[900],
+              color: count > 0 ? modeColors[mode] : background,
               child: FlatButton(
                 child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -304,7 +306,7 @@ class _CardSelectorState extends State<CardSelector> {
                       localRefresh();
                       refresh();
                     },
-                    color: Colors.grey[700],
+                    color: background,
                     child: Container(
                       child: Text('+', style: TextStyle(fontSize: 20)),
                     )
@@ -318,7 +320,7 @@ class _CardSelectorState extends State<CardSelector> {
                       localRefresh();
                       refresh();
                     },
-                    color: Colors.grey[700],
+                    color: background,
                     child: Container(
                       child: Text('-', style: TextStyle(fontSize: 20)),
                     )
@@ -409,7 +411,6 @@ RichText textBullet(text) {
   return RichText(
     text: TextSpan(
       text: '• ',
-      style: TextStyle(color: Colors.lightBlue, fontSize: 18),
       children: <TextSpan>[
         TextSpan(text: text,),
       ],

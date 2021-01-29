@@ -88,7 +88,6 @@ class _OptionsPageState extends State<OptionsPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: buttons + <Widget>[
           Row(
-            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(child: Card(
                 child: FlatButton(
@@ -101,7 +100,7 @@ class _OptionsPageState extends State<OptionsPage> {
               Expanded(child: Card(
                 child: FlatButton(
                     onPressed: () {
-                      Environment.instance.showThanks(context);
+                      Navigator.of(context).pushNamed('/thanks');
                     },
                     child: Text('Remerciement')
                 ),
@@ -109,12 +108,11 @@ class _OptionsPageState extends State<OptionsPage> {
             ]
           ),
           Row(
-            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(child: Card(
                 child: FlatButton(
                     onPressed: () {
-                      Environment.instance.showSupport(context);
+                      Navigator.of(context).pushNamed('/support');
                     },
                     child: Text('Support')
                 ),
