@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'package:statitikcard/screen/Wrapper.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/support.dart';
 import 'package:statitikcard/screen/thanks.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
 
 void main() {
   // Build instance for first time
@@ -33,6 +36,15 @@ class StatitikApp extends StatelessWidget {
       ),
       title: 'StatitikCard',
       initialRoute: '/',
+      localizationsDelegates: [
+        const StatitikLocaleDelegate(),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', ''),
+        const Locale('fr', ''),
+      ],
       routes: {
         '/': (context) => ApplicationWidget(),
         '/home': (context) => Wrapper(),
