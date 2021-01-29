@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/environment.dart';
 
@@ -67,7 +68,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
             title: Container(
               child: Row(
                 children:[
-                  Text('Extension'),
+                  Text(StatitikLocale.of(context).read('S_B0')),
                   SizedBox(width: 10.0),
                   widget.language.barIcon(),
                 ],
@@ -79,9 +80,9 @@ class _ExtensionPageState extends State<ExtensionPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Veuillez choisir l\'extension d\'un booster de votre produit.'),
+                  Text(StatitikLocale.of(context).read('EP_B0')),
                   CheckboxListTile(
-                    title: Text("Afficher les noms"),
+                    title: Text(StatitikLocale.of(context).read('EP_B1')),
                     value: Environment.instance.showExtensionName,
                     onChanged: (newValue) {
                       setState(() {

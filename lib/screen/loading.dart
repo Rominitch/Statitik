@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
 
 class Loading extends StatefulWidget {
   Loading() : super()
@@ -56,13 +57,13 @@ class _LoadingState extends State<Loading> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       SizedBox(height: 80.0),
-                      Text('Connexion à la base de données impossible.\nVérifier votre connexion.',
+                      Text(StatitikLocale.of(context).read('LO_B0'),
                         style: TextStyle(color: Colors.red)
                       ),
                       SizedBox(height: 10.0),
                       Card(
                         child: FlatButton(
-                            child: Text('Réessayer'),
+                            child: Text(StatitikLocale.of(context).read('retry')),
                             onPressed:() {
                               setState(() {
                                 error=false;

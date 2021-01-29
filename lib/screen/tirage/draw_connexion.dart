@@ -70,7 +70,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
               textBullet(StatitikLocale.of(context).read('DC_B7')),
               Expanded(child: SizedBox()),
               Container(
-                child: signInButton(refresh)
+                child: signInButton(refresh, context)
               ),
               if(message != null) Container( child: Center( child: Text(message, style: TextStyle(color: Colors.red)))),
               Expanded(child: SizedBox()),

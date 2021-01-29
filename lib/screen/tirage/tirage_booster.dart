@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class BoosterPage extends StatefulWidget {
@@ -48,7 +49,7 @@ class _BoosterPageState extends State<BoosterPage> {
           title: Container(
             child: Row(
               children:[
-                Text('Booster ${widget.boosterDraw.id}'),
+                Text(StatitikLocale.of(context).read('S_B4')+' ${widget.boosterDraw.id}'),
                 SizedBox(width: 10.0),
                 widget.boosterDraw.subExtension.image(hSize: iconSize),
                 SizedBox(width: 10.0),
@@ -62,7 +63,7 @@ class _BoosterPageState extends State<BoosterPage> {
             if(widget.boosterDraw.isFinished()) Card(
               color: greenValid,
               child: FlatButton(
-              child: Text('Ok'),
+              child: Text(StatitikLocale.of(context).read('ok')),
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
@@ -83,8 +84,8 @@ class _BoosterPageState extends State<BoosterPage> {
                 ),
               ),
               CheckboxListTile(
-                title: Text('Le booster n\'est pas conforme ?'),
-                subtitle: Text('Exemple: le nombre de cartes n\'est pas correct'),
+                title: Text(StatitikLocale.of(context).read('TB_B0')),
+                subtitle: Text(StatitikLocale.of(context).read('TB_B1')),
                 value: widget.boosterDraw.abnormal,
                 onChanged: (newValue) async {
 

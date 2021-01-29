@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 Widget createLanguage(Language l, BuildContext context, Function press)
@@ -89,12 +90,12 @@ Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function pre
           showDialog(
               context: context,
               builder: (_) => new AlertDialog(
-                title: new Text("Edition du booster"),
+                title: new Text(StatitikLocale.of(context).read('V_B2')),
                 actions: [
                   Card(
                     color: Colors.grey[700],
                     child: FlatButton(
-                      child: Text('Changer l\'extension'),
+                      child: Text(StatitikLocale.of(context).read('V_B3')),
                       onPressed: () {
                         Navigator.of(context).pop();
                         bd.resetExtensions();
@@ -105,7 +106,7 @@ Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function pre
                   if( current.productAnomaly && current.canDelete() ) Card(
                     color: Colors.red,
                     child: FlatButton(
-                      child: Text('Supprimer', style: TextStyle(color: Colors.white),),
+                      child: Text(StatitikLocale.of(context).read('delete'), style: TextStyle(color: Colors.white),),
                         onPressed: () {
                           current.deleteBooster(bd.id-1);
                           Navigator.of(context).pop();
@@ -258,7 +259,7 @@ class _CardSelectorState extends State<CardSelector> {
     Function r = () {setState((){});};
 
     return SimpleDialog(
-      title: Text("Type de carte"),
+      title: Text(StatitikLocale.of(context).read('V_B4')),
       children: [Column(
           mainAxisSize: MainAxisSize.min,
           //mainAxisAlignment: MainAxisAlignment.center,
@@ -334,7 +335,7 @@ class _CardSelectorState extends State<CardSelector> {
 }
 
 
-Widget signInButton(Function press) {
+Widget signInButton(Function press, BuildContext context) {
   return  Card(
     child: FlatButton(
         onPressed: () {
@@ -346,7 +347,7 @@ Widget signInButton(Function press) {
         child:Padding(
           padding: const EdgeInsets.only(left: 10),
           child: Text(
-            'Connexion avec Google',
+            StatitikLocale.of(context).read('V_B5'),
             style: TextStyle(
               fontSize: 20,
               color: Colors.grey,
@@ -357,7 +358,7 @@ Widget signInButton(Function press) {
   );
 }
 
-Widget signOutButton(Function press) {
+Widget signOutButton(Function press, context) {
   return  Card(
     child: FlatButton(
         onPressed: () {
@@ -368,7 +369,7 @@ Widget signOutButton(Function press) {
         child:Padding(
           padding: const EdgeInsets.only(left: 10),
           child: Text(
-            'Deconnexion',
+            StatitikLocale.of(context).read('deconnexion'),
             style: TextStyle(
               fontSize: 20,
               color: Colors.grey,
@@ -381,24 +382,24 @@ Widget signOutButton(Function press) {
 
 AlertDialog showAlert(BuildContext context) {
   return AlertDialog(
-    title: Text('Attention'),
+    title: Text(StatitikLocale.of(context).read('warning')),
     content: SingleChildScrollView(
       child: ListBody(
         children: <Widget>[
-          Text('Les données seront réinitialisées.'),
-          Text('Voulez-vous continuer ?'),
+          Text(StatitikLocale.of(context).read('V_B0')),
+          Text(StatitikLocale.of(context).read('V_B1')),
         ],
       ),
     ),
     actions: <Widget>[
       TextButton(
-        child: Text('Oui'),
+        child: Text(StatitikLocale.of(context).read('yes')),
         onPressed: () {
           Navigator.of(context).pop(true);
         },
       ),
       TextButton(
-        child: Text('Annuler'),
+        child: Text(StatitikLocale.of(context).read('cancel')),
         onPressed: () {
           Navigator.of(context).pop(false);
         },

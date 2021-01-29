@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/internationalization.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SupportPage extends StatelessWidget {
@@ -6,23 +7,23 @@ class SupportPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text( 'Support', style: Theme.of(context).textTheme.headline3, ),
+          title: Text( StatitikLocale.of(context).read('O_B4'), style: Theme.of(context).textTheme.headline3, ),
         ),
         body: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Pour des demandes d\'améliorations ou signaler des bugs:'),
+                  Text(StatitikLocale.of(context).read('SU_B0')),
                   FlatButton(
                       onPressed: () => _launchURL('https://github.com/Rominitch/Statitik'),
                       child: Center(child: Text('https://github.com/Rominitch/Statitik', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)))
                   ),
                   SizedBox(height: 16.0),
-                  //Text('Vous pouvez aussi nous soutenir financièrement:'),
+                  //Text(StatitikLocale.of(context).read('SU_B2')),
                   //Center(child: Text('https://github.com/Rominitch/Statitik', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold))),
                   SizedBox(height: 16.0),
-                  Text('Pour d\'autres demandes, contactez-nous:'),
+                  Text(StatitikLocale.of(context).read('SU_B1')),
                   FlatButton(
                       onPressed: () => _launchURL('mailto:rominitch@gmail.com'),
                       child: Center(child: Text('rominitch@gmail.com', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)))

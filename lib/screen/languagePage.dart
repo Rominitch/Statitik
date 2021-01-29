@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/extensionPage.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/environment.dart';
 
@@ -33,7 +34,7 @@ class _LanguagePageState extends State<LanguagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Langue"),
+        title: Text(StatitikLocale.of(context).read('L_T0')),
        ),
         body: SafeArea(
         child: GridView.count(

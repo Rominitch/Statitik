@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:statitikcard/services/internationalization.dart';
 
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/connection.dart';
@@ -374,13 +375,8 @@ class Environment
         showDialog(
             context: context,
             builder: (_) => new AlertDialog(
-                title: new Text("Disclaimer"),
-                content: SingleChildScrollView( child:Text('''\n$nameApp n\'est pas une application officielle Pokémon, elle n\'est en aucun cas affiliée, approuvée ou supportée par Nintendo, GAME FREAK ou The Pokémon Company.
-Elle est à but non-lucratif, créé par et pour des fans de Pokémon.
-
-Les personnages, le thème "Pokémon ®" et ses marques dérivées sont propriétés de © Nintendo, The Pokémon Company, Game Freak, Creatures.
-Les images et illustrations utilisées sont la propriété de leurs auteurs respectifs.
-© 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.''',
+                title: new Text(StatitikLocale.of(context).read('disclaimer_T0')),
+                content: SingleChildScrollView( child:Text( nameApp + StatitikLocale.of(context).read('disclaimer'),
                 textAlign: TextAlign.justify),
             ), )
         );
@@ -419,31 +415,3 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
     }
 
 }
-
-// import 'services/environment.dart' as G;
-
-/*
-
-// custom event class
-class MyEvent {
-  String eventData;
-
-  MyEvent(this.eventData);
-}
-
-// class that fires when something changes
-class SomeClass {
-  var changeController = new StreamController<MyEvent>();
-  Stream<MyEvent> get onChange => changeController.stream;
-
-  void doSomething() {
-    // do the change
-    changeController.add(new MyEvent('something changed'));
-  }
-}
-
-// listen to changes
-...
-var c = new SomeClass();
-c.onChange.listen((e) => print(e.eventData));
- */

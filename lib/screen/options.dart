@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
 
 class OptionsPage extends StatefulWidget {
   @override
@@ -26,7 +27,7 @@ class _OptionsPageState extends State<OptionsPage> {
     if(Environment.instance.isLogged())
     {
       buttons = [
-        signOutButton(refresh),
+        signOutButton(refresh, context),
         Expanded(child: SizedBox()),
         FlatButton(
             color: Colors.red[800],
@@ -39,7 +40,7 @@ class _OptionsPageState extends State<OptionsPage> {
                 );
               });
             },
-            child: Text('Suppression du compte')
+            child: Text(StatitikLocale.of(context).read('O_B0'))
         ),
         SizedBox(height: 10),
       ];
@@ -51,11 +52,11 @@ class _OptionsPageState extends State<OptionsPage> {
                 Environment.instance.startDB=false;
                 Environment.instance.readStaticData();
               },
-              child: Text('Actualiser la base de données')
+              child: Text(StatitikLocale.of(context).read('O_B1'))
           ),
           SizedBox(height: 10),
           CheckboxListTile(value: useDebug,
-              title: Text('Mode debug'),
+              title: Text(StatitikLocale.of(context).read('O_B2')),
               onChanged: (newValue) {
                 setState(() {
                   useDebug = newValue;
@@ -71,7 +72,7 @@ class _OptionsPageState extends State<OptionsPage> {
 
     } else {
       buttons = [
-        signInButton(refreshWithError),
+        signInButton(refreshWithError, context),
         Expanded(child: SizedBox()),
       ];
     }
@@ -79,7 +80,7 @@ class _OptionsPageState extends State<OptionsPage> {
     return Scaffold(
         appBar: AppBar(
         title: Center(
-          child: Text( 'Options', style: Theme.of(context).textTheme.headline3, ),
+          child: Text( StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline3, ),
         ),
       ),
     body: Padding(
@@ -94,7 +95,7 @@ class _OptionsPageState extends State<OptionsPage> {
                     onPressed: () {
                       Environment.instance.showDisclaimer(context);
                     },
-                    child: Text('Disclaimer')
+                    child: Text(StatitikLocale.of(context).read('disclaimer_T0'))
                 ),
               )),
               Expanded(child: Card(
@@ -102,7 +103,7 @@ class _OptionsPageState extends State<OptionsPage> {
                     onPressed: () {
                       Navigator.of(context).pushNamed('/thanks');
                     },
-                    child: Text('Remerciement')
+                    child: Text(StatitikLocale.of(context).read('O_B3'))
                 ),
               )),
             ]
@@ -114,7 +115,7 @@ class _OptionsPageState extends State<OptionsPage> {
                     onPressed: () {
                       Navigator.of(context).pushNamed('/support');
                     },
-                    child: Text('Support')
+                    child: Text(StatitikLocale.of(context).read('O_B4'))
                 ),
               )),
               Expanded(child: Card(
@@ -122,7 +123,7 @@ class _OptionsPageState extends State<OptionsPage> {
                     onPressed: () {
                       Environment.instance.showAbout(context);
                     },
-                    child: Text('A propos')
+                    child: Text(StatitikLocale.of(context).read('O_B5'))
                 ),
               )),
             ],
@@ -136,21 +137,21 @@ class _OptionsPageState extends State<OptionsPage> {
 
   Widget forgetMeDialog() {
     return new AlertDialog(
-      title: new Text("Attention"),
+      title: new Text(StatitikLocale.of(context).read('warning')),
       content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children:
           [
-            Text('Conformement à la réglementation en rigeur, vous avez le droit à l\'oubli.\n'),
-            Text('La suppression de votre UID dans la base de données est irréversible, vous ne pourrez plus jamais accéder à vos tirages.\n', style: TextStyle(color: Colors.red[600])),
-            Text('Voulez-vous supprimer votre compte ?\n')
+            Text(StatitikLocale.of(context).read('O_B6')),
+            Text(StatitikLocale.of(context).read('O_B7'), style: TextStyle(color: Colors.red[600])),
+            Text(StatitikLocale.of(context).read('O_B8'))
           ]
       ),
       actions: [
         Card(
           color: Colors.red[600],
-          child: FlatButton( child: Text("Confirmer"),
+          child: FlatButton( child: Text(StatitikLocale.of(context).read('confirm')),
           onPressed: (){
             Environment.instance.removeUser().whenComplete(() {
               Navigator.of(context).pop();
@@ -159,7 +160,7 @@ class _OptionsPageState extends State<OptionsPage> {
           },),),
         Card(
           color: Theme.of(context).primaryColor,
-          child: FlatButton( child: Text("Annuler"), onPressed: (){ Navigator.of(context).pop();},),),
+          child: FlatButton( child: Text(StatitikLocale.of(context).read('cancel')), onPressed: (){ Navigator.of(context).pop();},),),
       ],
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/tirage/tirage_resume.dart';
+import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/environment.dart';
 
@@ -62,7 +63,7 @@ class _ProductPageState extends State<ProductPage> {
               title: Container(
                 child: Row(
                   children:[
-                    Text('Produits'),
+                    Text(StatitikLocale.of(context).read('TP_T0')),
                     SizedBox(width: 10.0),
                     widget.language.barIcon(),
                     SizedBox(width: 10.0),
@@ -73,8 +74,8 @@ class _ProductPageState extends State<ProductPage> {
             ),
             body:
                 widgetProd == null
-                    ? Center( child: Text("Chargement...", textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
-                    : (widgetProd.isEmpty ? Center( child: Text("Aucun produit n'est disponible", textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
+                    ? Center( child: Text(StatitikLocale.of(context).read('loading'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
+                    : (widgetProd.isEmpty ? Center( child: Text(StatitikLocale.of(context).read('TP_B0'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
                       : GridView.count(
                           crossAxisCount: 3,
                           scrollDirection: Axis.vertical,
