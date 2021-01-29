@@ -4,6 +4,7 @@ import 'package:statitikcard/screen/languagePage.dart';
 import 'package:statitikcard/screen/tirage/tirage_produit.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class DrawHomePage extends StatefulWidget {
@@ -20,7 +21,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
       return Scaffold(
           appBar: AppBar(
           title: Center(
-          child: Text( 'Tirage', style: Theme.of(context).textTheme.headline3, ),
+          child: Text( StatitikLocale.of(context).read('H_T0'), style: Theme.of(context).textTheme.headline3, ),
          ),
         ),
         body: SafeArea(
@@ -29,20 +30,20 @@ class _DrawHomePageState extends State<DrawHomePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text('Bienvenue sur l\'enregistrement des tirages.\n\nMerci de rentrer les informations les plus justes possibles afin d\'aider la communauté.'),
+                Text(StatitikLocale.of(context).read('DC_B0')),
                 Expanded(child: SizedBox()),
-                Card( color: greenValid, child: FlatButton(child: Text('Commencer', style: TextStyle(color: Colors.grey[800]) ),
+                Card( color: greenValid, child: FlatButton(child: Text(StatitikLocale.of(context).read('DC_B1'), style: TextStyle(color: Colors.grey[800]) ),
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage)));
                   },
                 )),
                 Expanded(child: SizedBox()),
-                Text('Astuces:', style: TextStyle( decoration: TextDecoration.underline, )),
+                Text(StatitikLocale.of(context).read('DC_B2'), style: TextStyle( decoration: TextDecoration.underline, )),
                 SizedBox(height: 8.0,),
                 Row(children: [
                   Icon(Icons.help_outline),
                   SizedBox(width: 10.0),
-                  Flexible(child: Text('Le clique long vous offre plus d\'options pour vos cartes ou boosters !')),]),
+                  Flexible(child: Text(StatitikLocale.of(context).read('DC_B3'))),]),
               ]
             ),
           ),
@@ -55,7 +56,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
       return Scaffold(
         appBar: AppBar(
           title: Center(
-            child: Text( 'Connexion', style: Theme.of(context).textTheme.headline3, ),
+            child: Text( StatitikLocale.of(context).read('DC_B4'), style: Theme.of(context).textTheme.headline3, ),
           ),
         ),
         body:SafeArea(
@@ -64,9 +65,9 @@ class _DrawHomePageState extends State<DrawHomePage> {
             child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('En vous connectant, vous pouvez:'),
-              textBullet('Enregistrer vos tirages'),
-              textBullet('Comparer vos statistiques avec celles de la communauté'),
+              Text(StatitikLocale.of(context).read('DC_B5')),
+              textBullet(StatitikLocale.of(context).read('DC_B6')),
+              textBullet(StatitikLocale.of(context).read('DC_B7')),
               Expanded(child: SizedBox()),
               Container(
                 child: signInButton(refresh)
@@ -77,8 +78,8 @@ class _DrawHomePageState extends State<DrawHomePage> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text('En vous connectant, vous acceptez :'),
-                      textBullet('la sauvegarde de votre UID dans notre base de données'),
+                      Text(StatitikLocale.of(context).read('DC_B8')),
+                      textBullet(StatitikLocale.of(context).read('DC_B9')),
                     ]),
               ),
               SizedBox(height: 10.0,),

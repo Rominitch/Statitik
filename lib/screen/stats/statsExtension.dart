@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
+import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class StatsExtensionsPage extends StatefulWidget {
@@ -59,7 +60,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
     return Scaffold(
         appBar: AppBar(
           title: Text(
-            'Statistiques de l\'extension', style: Theme.of(context).textTheme.headline5,
+            StatitikLocale.of(context).read('SE_T'), style: Theme.of(context).textTheme.headline5,
           ),
         ),
         body: SafeArea(
@@ -73,7 +74,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text('Répartition des cartes', style: Theme.of(context).textTheme.headline5),
+                              Text(StatitikLocale.of(context).read('SE_B0'), style: Theme.of(context).textTheme.headline5),
                               PieExtension(stats: widget.statsExtension, visu: Visualize.Type),
                               SizedBox(height: 10.0,),
                               PieExtension(stats: widget.statsExtension, visu: Visualize.Rarity),
@@ -88,7 +89,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text('Fréquence par carte', style: Theme.of(context).textTheme.headline5),
+                              Text(StatitikLocale.of(context).read('SE_B1'), style: Theme.of(context).textTheme.headline5),
                               GridView.count(
                                 crossAxisCount: 5,
                                 shrinkWrap: true,

@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/languagePage.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
 import 'package:statitikcard/screen/stats/statsExtension.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class StatsPage extends StatefulWidget {
@@ -43,7 +45,7 @@ class _StatsPageState extends State<StatsPage> {
         appBar: AppBar(
           title: Center(
             child: Text(
-              'Statistiques', style: Theme.of(context).textTheme.headline3,
+              StatitikLocale.of(context).read('H_T1'), style: Theme.of(context).textTheme.headline3,
             ),
           ),
         ),
@@ -59,12 +61,12 @@ class _StatsPageState extends State<StatsPage> {
                       child: FlatButton(
                         child: widget.language != null ? Row(
                           children: [
-                            Text('Extension'),
+                            Text(StatitikLocale.of(context).read('S_B0')),
                             SizedBox(width: 8.0),
                             Image(image: widget.language.create(), height: 30),
                             SizedBox(width: 8.0),
                             widget.subExt.image(hSize: 30),
-                        ]) : Text('Extension'),
+                        ]) : Text(StatitikLocale.of(context).read('S_B0')),
                         onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension)));
                         },
@@ -74,8 +76,8 @@ class _StatsPageState extends State<StatsPage> {
                 ),
                 widget.stats != null
                 ? (widget.stats.nbBoosters > 0 ? buildStatsView()
-                : Container( child: Center(child: Text('Aucun résultat'),)))
-                : Container( child: Center(child: Text('Sélectionner une extension'),)),
+                : Container( child: Center(child: Text(StatitikLocale.of(context).read('S_B1')),)))
+                : Container( child: Center(child: Text(StatitikLocale.of(context).read('S_B2')),)),
               ],
             ),
           )
@@ -122,7 +124,7 @@ class _StatsPageState extends State<StatsPage> {
           rarity.add( buildLine([Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), height: 30.0)], luck, modeColors[mode.index]) );
       }
     } else {
-      rarity.add(Text('Les données de l\'extension ne sont pas encore présentes: les statistiques sont limitées.'));
+      rarity.add(Text(StatitikLocale.of(context).read('S_B3')));
     }
 
     return Container(
@@ -132,12 +134,12 @@ class _StatsPageState extends State<StatsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(children: [Text('Booster   ', style: Theme.of(context).textTheme.headline5 ),
+              Row(children: [Text(StatitikLocale.of(context).read('S_B4'), style: Theme.of(context).textTheme.headline5 ),
                 Expanded(child: SizedBox()),
-                Text('${widget.stats.nbBoosters} dont ${widget.stats.anomaly} avec anomalie')
+                Text(sprintf(StatitikLocale.of(context).read('S_B5'), [widget.stats.nbBoosters, widget.stats.anomaly]))
               ]),
               SizedBox(height: 8.0,),
-              Text('Répartition pour 10 cartes'),
+              Text(StatitikLocale.of(context).read('S_B6')),
               SizedBox(height: 8.0,),
               ListView(
                 shrinkWrap: true,
@@ -148,7 +150,7 @@ class _StatsPageState extends State<StatsPage> {
               Card(
                   color: Colors.grey[800],
                   child: FlatButton(
-                      child: Text('Détails de l\'extension'),
+                      child: Text(StatitikLocale.of(context).read('S_B7')),
                   onPressed: () {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => StatsExtensionsPage(stats: widget.stats)));
                   }

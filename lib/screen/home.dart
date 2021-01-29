@@ -43,15 +43,15 @@ class _HomeState extends State<Home> {
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.add_chart),
-            label: StatitikLocale.of(context).read('T0'),
+            label: StatitikLocale.of(context).read('H_T0'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.insert_chart_outlined_rounded),
-            label: StatitikLocale.of(context).read('T1'),
+            label: StatitikLocale.of(context).read('H_T1'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
-            label: StatitikLocale.of(context).read('T2'),
+            label: StatitikLocale.of(context).read('H_T2'),
           ),
         ],
         currentIndex: _selectedIndex,
