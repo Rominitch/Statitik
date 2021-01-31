@@ -98,11 +98,13 @@ class Collection
     List languages = [];
     List extensions = [];
     List subExtensions = [];
+    Map<int, String> category = {};
 
     void clear() {
         languages.clear();
         extensions.clear();
         subExtensions.clear();
+        category.clear();
     }
 
     void addLanguage(Language l) {
@@ -161,7 +163,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.3.0';
+    final String version = '0.3.1';
 
     // State
     bool isInitialized=false;
@@ -226,6 +228,11 @@ class Environment
                         print("Bad Subextension: ${se.name} $e");
                     }
                 }
+
+                var catExts = await connection.query("SELECT * FROM `Categorie` ORDER BY `nom` DESC");
+                for (var row in catExts) {
+                    collection.category[row[0]-1] = row[1];
+                }
             });
 
             startDB = true;
@@ -234,7 +241,7 @@ class Environment
 
     Future<List> readProducts(Language l, SubExtension se) async
     {
-        List produits = [];
+        List produits = List<List<Product>>.generate(Environment.instance.collection.category.length, (index) { return []; });
 
         Function fillProd = (connection, exts) async {
             for (var row in exts) {
@@ -244,19 +251,21 @@ class Environment
                 for (var row in reqBoosters) {
                     boosters[row[0]] = row[1];
                 }
-                produits.add(Product(idDB: row[0], name: row[1], imageURL: row[2], boosters: boosters ));
+                int cat = row[3]-1;
+                assert(0 <= cat && cat < produits.length);
+                produits[cat].add(Product(idDB: row[0], name: row[1], imageURL: row[2], boosters: boosters ));
             }
         };
 
         await db.transactionR( (connection) async {
-            var exts = await connection.query("SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone` FROM `Produit`, `ProduitBooster`"
+            var exts = await connection.query("SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie` FROM `Produit`, `ProduitBooster`"
                 " WHERE `Produit`.`approuve` = 1"
                 " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
                 " AND `ProduitBooster`.`idSousExtension` = ${se.id}"
                 " ORDER BY `Produit`.`nom` ASC");
             await fillProd(connection, exts);
 
-            exts = await connection.query("SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone` FROM `Produit`, `ProduitBooster`"
+            exts = await connection.query("SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie` FROM `Produit`, `ProduitBooster`"
                 " WHERE `Produit`.`approuve` = 1"
                 " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
                 " AND `ProduitBooster`.`idSousExtension` IS NULL"
