@@ -260,6 +260,7 @@ class Environment
         await db.transactionR( (connection) async {
             var exts = await connection.query("SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie` FROM `Produit`, `ProduitBooster`"
                 " WHERE `Produit`.`approuve` = 1"
+                " AND `Produit`.`idLangue` = ${l.id}"
                 " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
                 " AND `ProduitBooster`.`idSousExtension` = ${se.id}"
                 " ORDER BY `Produit`.`nom` ASC");
@@ -267,6 +268,7 @@ class Environment
 
             exts = await connection.query("SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie` FROM `Produit`, `ProduitBooster`"
                 " WHERE `Produit`.`approuve` = 1"
+                " AND `Produit`.`idLangue` = ${l.id}"
                 " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
                 " AND `ProduitBooster`.`idSousExtension` IS NULL"
                 " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC");
