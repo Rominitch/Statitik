@@ -305,9 +305,10 @@ class SubExtension
   String icon;
   List<PokeCard> cards = [];
   int    idExtension;
+  int    year;
   bool   validCard = true;
 
-  SubExtension({ this.id, this.name, this.icon, this.idExtension });
+  SubExtension({ this.id, this.name, this.icon, this.idExtension, this.year });
 
   void extractCard(String code)
   {
@@ -357,8 +358,9 @@ class Product
   String name;
   String imageURL;
   Map boosters;
+  Color color;
 
-  Product({this.idDB, this.name, this.imageURL, this.boosters});
+  Product({this.idDB, this.name, this.imageURL, this.boosters, this.color});
 
   CachedNetworkImage image()
   {

@@ -78,6 +78,7 @@ class _StatsPageState extends State<StatsPage> {
                 ? (widget.stats.nbBoosters > 0 ? buildStatsView()
                 : Container( child: Center(child: Text(StatitikLocale.of(context).read('S_B1')),)))
                 : Container( child: Center(child: Text(StatitikLocale.of(context).read('S_B2')),)),
+                if(widget.stats == null) Image(image: AssetImage('assets/press/Arrozard.png')),
               ],
             ),
           )

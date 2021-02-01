@@ -163,7 +163,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.3.1';
+    final String version = '0.3.3';
 
     // State
     bool isInitialized=false;
@@ -220,7 +220,7 @@ class Environment
 
                 var subExts = await connection.query("SELECT * FROM `SousExtension` ORDER BY `code` DESC");
                 for (var row in subExts) {
-                    SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1]);
+                    SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], year: row[6]);
                     try {
                         se.extractCard(row[4]);
                         collection.addSubExtension(se);
@@ -243,7 +243,7 @@ class Environment
     {
         List produits = List<List<Product>>.generate(Environment.instance.collection.category.length, (index) { return []; });
 
-        Function fillProd = (connection, exts) async {
+        Function fillProd = (connection, exts, color) async {
             for (var row in exts) {
                 Map boosters = {};
                 var reqBoosters = await connection.query("SELECT `ProduitBooster`.idSousExtension, `ProduitBooster`.nombre FROM `ProduitBooster`"
@@ -253,26 +253,29 @@ class Environment
                 }
                 int cat = row[3]-1;
                 assert(0 <= cat && cat < produits.length);
-                produits[cat].add(Product(idDB: row[0], name: row[1], imageURL: row[2], boosters: boosters ));
+                produits[cat].add(Product(idDB: row[0], name: row[1], imageURL: row[2], boosters: boosters, color: color ));
             }
         };
 
         await db.transactionR( (connection) async {
-            var exts = await connection.query("SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie` FROM `Produit`, `ProduitBooster`"
+            String query = "SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie` FROM `Produit`, `ProduitBooster`"
                 " WHERE `Produit`.`approuve` = 1"
                 " AND `Produit`.`idLangue` = ${l.id}"
                 " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
                 " AND `ProduitBooster`.`idSousExtension` = ${se.id}"
-                " ORDER BY `Produit`.`nom` ASC");
-            await fillProd(connection, exts);
+                " ORDER BY `Produit`.`nom` ASC";
+            var exts = await connection.query(query);
+            await fillProd(connection, exts, Colors.grey[600]);
 
-            exts = await connection.query("SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie` FROM `Produit`, `ProduitBooster`"
+            query ="SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie` FROM `Produit`, `ProduitBooster`"
                 " WHERE `Produit`.`approuve` = 1"
                 " AND `Produit`.`idLangue` = ${l.id}"
                 " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
                 " AND `ProduitBooster`.`idSousExtension` IS NULL"
-                " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC");
-            await fillProd(connection, exts);
+                " AND `Produit`.`annee` >= ${se.year}"
+                " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC";
+            exts = await connection.query(query);
+            await fillProd(connection, exts, Colors.deepOrange[700]);
         });
         return produits;
     }

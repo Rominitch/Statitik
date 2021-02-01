@@ -32,6 +32,7 @@ class _ProductPageState extends State<ProductPage> {
       for(Product prod in products[id]) {
         productFound = true;
         productCard.add(Card(
+            color: prod.color,
             child: FlatButton(
               padding: const EdgeInsets.all(8.0),
               child: Column(

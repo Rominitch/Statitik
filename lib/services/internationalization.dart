@@ -69,7 +69,9 @@ class StatitikLocale {
       'TB_B1': 'Example: card\'s number is not correct',
       'TP_T0': 'Products',
       'TP_B0': 'Products are not available',
-      'TP_B1': 'If your product is not registered, use many boosters or send us a message.',
+      'TP_B1': '''If your product is not registered, use many boosters or send us a message.
+
+`Orange` products contain randomized boosters.''',
       'TR_B0': 'Error of product creation',
       'TR_B1': 'Registration validated',
       'TR_B2': 'Thanks for your contribution !',
@@ -146,7 +148,9 @@ Images and illustrations used are the property of their respective authors.
       'TB_B1': 'Exemple: le nombre de cartes n\'est pas correct',
       'TP_T0': 'Produits',
       'TP_B0': 'Aucun produit n\'est disponible',
-      'TP_B1': 'Si votre produit n\'est pas référencé, utiliser plusieurs boosters ou signaler-le nous.',
+      'TP_B1': '''Si votre produit n\'est pas référencé, utiliser plusieurs boosters ou signaler-le nous.
+
+Les produits `oranges` possèdent des boosters aléatoires.''',
       'TR_B0': 'Erreur de création du produit',
       'TR_B1': 'Enregistrement validé',
       'TR_B2': 'Merci pour votre participation !',
