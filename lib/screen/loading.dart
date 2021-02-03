@@ -38,6 +38,7 @@ class _LoadingState extends State<Loading> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Center(child: Image(image: AssetImage("assets/press/PikaIntro.png"), height: 250)),
               Center(
                 child: Text(
                     env.nameApp,
@@ -73,7 +74,7 @@ class _LoadingState extends State<Loading> {
                       ),
                     ],
                   ),
-                )
+                ),
             ],
           ),
         ),

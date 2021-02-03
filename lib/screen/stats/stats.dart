@@ -41,6 +41,36 @@ class _StatsPageState extends State<StatsPage> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> finalWidget = [];
+    if (widget.stats != null) {
+     if (widget.stats.nbBoosters > 0) {
+       finalWidget.add(buildStatsView());
+     } else {
+       finalWidget = [
+         SizedBox(height: 20.0),
+         Container( child: Center(child: Text(StatitikLocale.of(context).read('S_B1'), style: Theme.of(context).textTheme.headline1),)),
+         Center(child: Text(StatitikLocale.of(context).read('S_B8'))),
+         SizedBox(height: 20.0),
+         Padding(
+           padding: const EdgeInsets.all(16.0),
+           child: Image(image: AssetImage('assets/press/PikaNoResult.png'),),
+         )
+        ];
+     }
+    } else {
+      finalWidget = [
+        Container( child: Row( children: [
+            SizedBox(width: 40.0),
+            Image(image: AssetImage('assets/arrow.png'), height: 30.0,),
+            SizedBox(width: 25.0),
+            Flexible(child: Text(StatitikLocale.of(context).read('S_B2'), style: Theme.of(context).textTheme.headline5,)),
+            ],)
+        ),
+        SizedBox(height: 20.0),
+        Image(image: AssetImage('assets/press/Arrozard.png')),
+      ];
+    }
+
     return Scaffold(
         appBar: AppBar(
           title: Center(
@@ -54,7 +84,7 @@ class _StatsPageState extends State<StatsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
-              children: [
+              children: <Widget>[
                 Row(
                   children: [
                     Card(
@@ -74,12 +104,7 @@ class _StatsPageState extends State<StatsPage> {
                     ),
                   ],
                 ),
-                widget.stats != null
-                ? (widget.stats.nbBoosters > 0 ? buildStatsView()
-                : Container( child: Center(child: Text(StatitikLocale.of(context).read('S_B1')),)))
-                : Container( child: Center(child: Text(StatitikLocale.of(context).read('S_B2')),)),
-                if(widget.stats == null) Image(image: AssetImage('assets/press/Arrozard.png')),
-              ],
+              ] + finalWidget
             ),
           )
         )
