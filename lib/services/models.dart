@@ -352,12 +352,20 @@ class SubExtension
   }
 }
 
+class ProductBooster
+{
+  int nbBoosters;
+  int nbCardsPerBooster;
+
+  ProductBooster({this.nbBoosters, this.nbCardsPerBooster});
+}
+
 class Product
 {
   int idDB;
   String name;
   String imageURL;
-  Map boosters;
+  Map<int,ProductBooster> boosters;
   Color color;
 
   Product({this.idDB, this.name, this.imageURL, this.boosters, this.color});
@@ -373,7 +381,7 @@ class Product
 
   int countBoosters() {
     int count=0;
-    boosters.forEach((key, value) { count += value; });
+    boosters.forEach((key, value) { count += value.nbBoosters; });
     return count;
   }
 
@@ -381,9 +389,9 @@ class Product
     List list = [];
     int id=1;
     boosters.forEach((key, value) {
-      for( int i=0; i < value; i+=1) {
+      for( int i=0; i < value.nbBoosters; i+=1) {
         SubExtension se = key != null ? Environment.instance.collection.getSubExtensionID(key) : null;
-        list.add(new BoosterDraw(creation: se, id: id));
+        list.add(new BoosterDraw(creation: se, id: id, nbCards: value.nbCardsPerBooster));
         id += 1;
       }
     });
@@ -452,21 +460,22 @@ class CodeDraw {
 }
 
 class BoosterDraw {
-  int id;
-  SubExtension creation;          ///< Keep product extension.
-
+  final int id;
+  final SubExtension creation;    ///< Keep product extension.
+  final int nbCards;              ///< Number of cards inside booster
+  ///
   List<bool> energiesBin;         ///< Energy inside booster.
   List<CodeDraw> cardBin;         ///< All card select by extension.
   SubExtension subExtension;      ///< Current extensions.
   int count = 0;
-  int nbCards = 10;               ///< Number of cards inside booster
   bool abnormal = false;          ///< Packaging error
 
   // Event
   final StreamController onEnergyChanged = new StreamController.broadcast();
 
-  BoosterDraw({this.creation, this.id })
+  BoosterDraw({this.creation, this.id, this.nbCards })
   {
+    assert(nbCards != null);
     energiesBin = List<bool>.filled(energies.length, false);
     subExtension = creation;
     if(hasSubExtension()) {
@@ -479,7 +488,6 @@ class BoosterDraw {
 
   void resetBooster() {
     count    = 0;
-    nbCards  = 10;
     abnormal = false;
     cardBin  = null;
     energiesBin = List<bool>.filled(energies.length, false);

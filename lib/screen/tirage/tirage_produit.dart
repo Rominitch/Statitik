@@ -20,54 +20,67 @@ class _ProductPageState extends State<ProductPage> {
   List<Widget> widgetProd;
   bool productFound = false;
 
-  void setupProducts(BuildContext context) async {
-    List products = await Environment.instance.readProducts(widget.language, widget.subExt);
+  void setupProducts(BuildContext context) {
+    Environment.instance.readProducts(widget.language, widget.subExt).then((products) {
+      widgetProd = [];
+      productFound = false;
 
-    widgetProd = [];
-    productFound = false;
+      for (int id = 0; id < products.length; id += 1) {
+        List<Widget> productCard = [];
 
-    for(int id=0; id < products.length; id +=1 ) {
-      List<Widget> productCard = [];
+        for (Product prod in products[id]) {
+          productFound = true;
+          productCard.add(Card(
+              color: prod.color,
+              child: FlatButton(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      if(imageRight) prod.image(),
+                      if(imageRight) Text(
+                          prod.name, textAlign: TextAlign.center,
+                          softWrap: true,
+                          style: TextStyle(fontSize: ((prod.name.length > 15)
+                              ? 8
+                              : 13)))
+                      else
+                        Text(prod.name, textAlign: TextAlign.center,
+                          softWrap: true,),
 
-      for(Product prod in products[id]) {
-        productFound = true;
-        productCard.add(Card(
-            color: prod.color,
-            child: FlatButton(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    if(imageRight) prod.image(),
-                    if(imageRight) Text( prod.name, textAlign: TextAlign.center, softWrap: true, style: TextStyle(fontSize: ((prod.name.length > 15) ? 8 : 13)  ) )
-                    else           Text( prod.name, textAlign: TextAlign.center, softWrap: true, ),
+                    ]
+                ),
+                onPressed: () {
+                  // Build new session of draw
+                  Environment.instance.currentDraw =
+                      SessionDraw(product: prod, language: widget.language);
+                  // Go to page
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ResumePage()));
+                },
+              )
+          ));
+        }
 
-                  ]
-              ),
-              onPressed: () {
-                // Build new session of draw
-                Environment.instance.currentDraw = SessionDraw(product: prod, language:widget.language);
-                // Go to page
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ResumePage()));
-              },
-            )
-        ));
+        if (productCard.isNotEmpty) {
+          assert(Environment.instance.collection.category.containsKey(id));
+          widgetProd.add(
+              Text(Environment.instance.collection.category[id], style: Theme
+                  .of(context)
+                  .textTheme
+                  .headline5));
+          widgetProd.add(GridView.count(
+            crossAxisCount: 3,
+            scrollDirection: Axis.vertical,
+            primary: false,
+            children: productCard,
+            shrinkWrap: true,
+          ));
+        }
       }
 
-      if(productCard.isNotEmpty) {
-        assert(Environment.instance.collection.category.containsKey(id));
-        widgetProd.add(Text(Environment.instance.collection.category[id], style: Theme.of(context).textTheme.headline5));
-        widgetProd.add(GridView.count(
-          crossAxisCount: 3,
-          scrollDirection: Axis.vertical,
-          primary: false,
-          children: productCard,
-          shrinkWrap: true,
-        ));
-      }
-    }
-
-    setState(() {});
+      setState(() {});
+    });
   }
 
   @override

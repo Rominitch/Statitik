@@ -245,11 +245,11 @@ class Environment
 
         Function fillProd = (connection, exts, color) async {
             for (var row in exts) {
-                Map boosters = {};
-                var reqBoosters = await connection.query("SELECT `ProduitBooster`.idSousExtension, `ProduitBooster`.nombre FROM `ProduitBooster`"
+                Map<int, ProductBooster> boosters = {};
+                var reqBoosters = await connection.query("SELECT `ProduitBooster`.`idSousExtension`, `ProduitBooster`.`nombre`, `ProduitBooster`.`carte` FROM `ProduitBooster`"
                     " WHERE `ProduitBooster`.`idProduit` = ${row[0]}");
                 for (var row in reqBoosters) {
-                    boosters[row[0]] = row[1];
+                    boosters[row[0]] = ProductBooster(nbBoosters: row[1], nbCardsPerBooster: row[2]);
                 }
                 int cat = row[3]-1;
                 assert(0 <= cat && cat < produits.length);
