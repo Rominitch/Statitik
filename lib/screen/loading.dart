@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
@@ -38,7 +39,7 @@ class _LoadingState extends State<Loading> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(child: Image(image: AssetImage("assets/press/PikaIntro.png"), height: 250)),
+              Center(child: drawImagePress(context, "PikaIntro.png", 400.0)),
               Center(
                 child: Text(
                     env.nameApp,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -28,7 +29,6 @@ class _OptionsPageState extends State<OptionsPage> {
     {
       buttons = [
         signOutButton(refresh, context),
-        Expanded(child: SizedBox()),
         FlatButton(
             color: Colors.red[800],
             onPressed: () {
@@ -73,7 +73,6 @@ class _OptionsPageState extends State<OptionsPage> {
     } else {
       buttons = [
         signInButton(refreshWithError, context),
-        Expanded(child: SizedBox()),
       ];
     }
 
@@ -88,7 +87,7 @@ class _OptionsPageState extends State<OptionsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: buttons + <Widget>[
-          Center(child: Image(image: AssetImage("assets/press/PikaOption.png"), height: 200.0)),
+          Expanded(child: Center(child: drawImagePress(context, "PikaOption.png", 200.0))),
           Row(
             children: [
               Expanded(child: Card(

@@ -5,6 +5,7 @@ import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/languagePage.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
 import 'package:statitikcard/screen/stats/statsExtension.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -53,7 +54,7 @@ class _StatsPageState extends State<StatsPage> {
          SizedBox(height: 20.0),
          Padding(
            padding: const EdgeInsets.all(16.0),
-           child: Image(image: AssetImage('assets/press/PikaNoResult.png'),),
+           child: drawImagePress(context, "PikaNoResult.png", 250.0),
          )
         ];
      }
@@ -67,7 +68,7 @@ class _StatsPageState extends State<StatsPage> {
             ],)
         ),
         SizedBox(height: 20.0),
-        Image(image: AssetImage('assets/press/Arrozard.png')),
+        drawImagePress(context, 'Arrozard.png', 350.0),
       ];
     }
 

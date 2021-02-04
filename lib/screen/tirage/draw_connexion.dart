@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/languagePage.dart';
 import 'package:statitikcard/screen/tirage/tirage_produit.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -25,29 +26,27 @@ class _DrawHomePageState extends State<DrawHomePage> {
          ),
         ),
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(StatitikLocale.of(context).read('DC_B0')),
-                Expanded(child: SizedBox()),
-                Image(image: AssetImage('assets/press/Zeraora.png')),
-                Card( color: greenValid, child: FlatButton(child: Text(StatitikLocale.of(context).read('DC_B1'), style: TextStyle(color: Colors.grey[800]) ),
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage)));
-                  },
-                )),
-                Expanded(child: SizedBox()),
-                Text(StatitikLocale.of(context).read('DC_B2'), style: TextStyle( decoration: TextDecoration.underline, )),
-                SizedBox(height: 8.0,),
-                Row(children: [
-                  Icon(Icons.help_outline),
-                  SizedBox(width: 10.0),
-                  Flexible(child: Text(StatitikLocale.of(context).read('DC_B3'))),]),
-              ]
+          child: SingleChildScrollView(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(StatitikLocale.of(context).read('DC_B0')),
+                  drawImagePress(context, 'Zeraora.png', 370.0),
+                  Card( color: greenValid, child: FlatButton(child: Text(StatitikLocale.of(context).read('DC_B1'), style: TextStyle(color: Colors.grey[800]) ),
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage)));
+                    },
+                  )),
+                  Text(StatitikLocale.of(context).read('DC_B2'), style: TextStyle( decoration: TextDecoration.underline, )),
+                  SizedBox(height: 8.0,),
+                  Row(children: [
+                    Icon(Icons.help_outline),
+                    SizedBox(width: 10.0),
+                    Flexible(child: Text(StatitikLocale.of(context).read('DC_B3'))),]),
+                ]
+              ),
             ),
-          ),
         ),
       );
     } else {
