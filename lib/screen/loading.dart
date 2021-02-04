@@ -17,12 +17,14 @@ class Loading extends StatefulWidget {
 
 class _LoadingState extends State<Loading> {
   bool error = false;
+  String msgError;
 
   @override
   void initState() {
     Environment.instance.onServerError.stream.listen((event) {
       setState(() {
         error = true;
+        msgError = event;
       });
     });
 
@@ -59,7 +61,7 @@ class _LoadingState extends State<Loading> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       SizedBox(height: 80.0),
-                      Text(StatitikLocale.of(context).read('LO_B0'),
+                      Text(StatitikLocale.of(context).read(msgError),
                         style: TextStyle(color: Colors.red)
                       ),
                       SizedBox(height: 10.0),

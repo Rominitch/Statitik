@@ -90,6 +90,8 @@ class StatitikLocale {
       'disclaimer': ''' is not an official Pokémon application, it is not affiliated, endorsed or supported by Nintendo, GAME FREAK or The Pokémon Company.
 Images and illustrations used are the property of their respective authors.
 © 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon and Pokémon character names are trademarks of Nintendo.''',
+      'DB_0': 'Impossible to connect.',
+      'DB_1': 'Software is too old. Please update.',
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -173,6 +175,8 @@ Elle est à but non-lucratif, créé par et pour des fans de Pokémon.
 Les personnages, le thème "Pokémon ®" et ses marques dérivées sont propriétés de © Nintendo, The Pokémon Company, Game Freak, Creatures.
 Les images et illustrations utilisées sont la propriété de leurs auteurs respectifs.
 © 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.''',
+      'DB_0': 'Impossible de se connecter à la base de données.',
+      'DB_1': 'Le programme est trop vieux. Installez les mises à jour.',
     },
   };
 

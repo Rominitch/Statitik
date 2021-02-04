@@ -72,6 +72,7 @@ class Credential
 
 class Database
 {
+    final double version = 1.0;
     final ConnectionSettings settings = createConnection();
 
     Future<void> transactionR(Function queries) async
@@ -81,7 +82,7 @@ class Database
         {
             connection = await MySqlConnection.connect(settings);
         } catch( e ) {
-            throw StatitikException("Impossible de se connecter à la base de données.");
+            throw StatitikException('DB_0');
         }
 
         // Execute request
@@ -155,7 +156,7 @@ class Environment
 
     // Event
     final StreamController<bool> onInitialize = StreamController<bool>();
-    final StreamController<bool> onServerError = StreamController<bool>();
+    final StreamController<String> onServerError = StreamController<String>();
 
     // Manager
     Credential credential = Credential();
@@ -184,21 +185,40 @@ class Environment
             try {
                 await Future.wait(
                     [
+                        databaseReady(),
                         credential.initialize(),
                         readStaticData(),
                     ]);
 
                 isInitialized = true;
                 onInitialize.add(isInitialized);
-            } catch (e) {
+            }
+            on StatitikException catch(e) {
                 isInitialized = false;
-                onServerError.add(true);
+                onServerError.add(e.msg);
+            }
+            catch (e) {
+                isInitialized = false;
+                onServerError.add('error');
             }
         }
     }
 
     void toggleShowExtensionName() {
         showExtensionName = ! showExtensionName;
+    }
+
+    Future<void> databaseReady() async
+    {
+        await db.transactionR( (connection) async {
+            var info = await connection.query("SELECT * FROM `BaseInfo`");
+            bool isValid = false;
+            for (var row in info) {
+                isValid = row[0] == db.version;
+            }
+            if(info == null || !isValid)
+                throw StatitikException('DB_1');
+        });
     }
 
     Future<void> readStaticData() async
