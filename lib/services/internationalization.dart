@@ -177,6 +177,7 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
 © 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.''',
       'DB_0': 'Impossible de se connecter à la base de données.',
       'DB_1': 'Le programme est trop vieux. Installez les mises à jour.',
+      'NP_T0': 'Nouveau produit'
     },
   };
 

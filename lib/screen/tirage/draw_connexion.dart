@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/Admin/newProduct.dart';
 
 import 'package:statitikcard/screen/languagePage.dart';
 import 'package:statitikcard/screen/tirage/tirage_produit.dart';
@@ -44,6 +45,19 @@ class _DrawHomePageState extends State<DrawHomePage> {
                     Icon(Icons.help_outline),
                     SizedBox(width: 10.0),
                     Flexible(child: Text(StatitikLocale.of(context).read('DC_B3'))),]),
+                  if(Environment.instance.user.admin)
+                    CircleAvatar(
+                      backgroundColor: Colors.lightGreen,
+                      radius: 20,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: Icon(Icons.add_shopping_cart),
+                        color: Colors.white,
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => NewProductPage()));
+                        },
+                      ),
+                    ),
                 ]
               ),
             ),
