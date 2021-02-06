@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/widgets/CardSelector.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -176,7 +177,7 @@ class _PokemonCardState extends State<PokemonCard> {
                 setState(() {
                   showDialog(
                       context: context,
-                      builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.idCard, update); }
+                      builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.idCard, update, false); }
                   );
                   widget.refresh();
                 });
@@ -184,7 +185,7 @@ class _PokemonCardState extends State<PokemonCard> {
             },
             onPressed: () {
               setState(() {
-                widget.boosterDraw.toggleCard(widget.idCard, Mode.Normal);
+                widget.boosterDraw.toggleCard(widget.boosterDraw.cardBin[widget.idCard], widget.card.defaultMode());
                 widget.refresh();
               });
             }
@@ -220,120 +221,42 @@ class _EnergyButtonState extends State<EnergyButton> {
 
   @override
   Widget build(BuildContext context) {
-    bool enabled = widget.boosterDraw.isEnergy(widget.type);
+    Function update = () {
+      setState(() {
+        widget.boosterDraw.onEnergyChanged.add(true);
+      });
+      widget.refresh();
+    };
+
+    CodeDraw code = widget.boosterDraw.energiesBin[widget.type.index];
     return Card(
       child: FlatButton(
-        color: enabled ? greenValid : Colors.grey[800],
+        color: code.color(),
         minWidth: 20.0,
         child: energyImage(widget.type),
         onPressed: () {
-          widget.boosterDraw.setEnergy(widget.type, enabled);
+          setState(() {
+            widget.boosterDraw.toggleCard(code, Mode.Normal);
+            widget.boosterDraw.onEnergyChanged.add(true);
+          });
+        },
+        onLongPress: () {
+          setState(() {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.type.index, update, true); }
+            ).whenComplete(()  {
+              setState(() {
+                widget.boosterDraw.onEnergyChanged.add(true);
+                widget.refresh();
+              });
+            });
+          });
         },
       ),
     );
   }
 }
-
-void createCardType(BuildContext context, int id, BoosterDraw boosterDraw, Function refresh) {
-  showDialog(
-      context: context,
-      builder: (BuildContext context) { return CardSelector(boosterDraw, id, refresh); }
-  );
-}
-
-class CardSelector extends StatefulWidget {
-  @override
-  _CardSelectorState createState() => _CardSelectorState();
-
-  final BoosterDraw boosterDraw;
-  final int      id;
-  final Function refresh;
-
-  CardSelector(this.boosterDraw, this.id, this.refresh);
-}
-
-class _CardSelectorState extends State<CardSelector> {
-  @override
-  Widget build(BuildContext context) {
-    CodeDraw code = widget.boosterDraw.cardBin[widget.id];
-    Function r = () {setState((){});};
-
-    return SimpleDialog(
-      title: Text(StatitikLocale.of(context).read('V_B4')),
-      children: [Column(
-          mainAxisSize: MainAxisSize.min,
-          //mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children:
-          [
-            createIconCard(context, Mode.Normal,  code.countNormal , widget.refresh, r),
-            createIconCard(context, Mode.Reverse, code.countReverse, widget.refresh, r),
-            createIconCard(context, Mode.Halo,    code.countHalo   , widget.refresh, r),
-          ]
-      ),]
-    );
-  }
-
-  Widget createIconCard(BuildContext context, Mode mode, int count, Function refresh, Function localRefresh) {
-    CodeDraw code = widget.boosterDraw.cardBin[widget.id];
-    final Color background = Colors.grey[800];
-    return Card(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Card(
-              color: count > 0 ? modeColors[mode] : background,
-              child: FlatButton(
-                child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), width: 75.0),
-                      SizedBox(height: 6.0),
-                      Text(modeNames[mode]),
-                    ]),
-                padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-                onPressed: () {
-                  widget.boosterDraw.setOtherRendering(widget.id, mode);
-                  Navigator.of(context).pop();
-                  refresh();
-                },
-              ),
-            ),
-            SizedBox(width: 10),
-            Column(
-              children: [
-                RaisedButton(
-                    onPressed: () {
-                      widget.boosterDraw.increase(code, mode);
-                      localRefresh();
-                      refresh();
-                    },
-                    color: background,
-                    child: Container(
-                      child: Text('+', style: TextStyle(fontSize: 20)),
-                    )
-                ),
-                Container(
-                    child: Text('$count', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),)
-                ),
-                RaisedButton(
-                    onPressed: () {
-                      widget.boosterDraw.decrease(code, mode);
-                      localRefresh();
-                      refresh();
-                    },
-                    color: background,
-                    child: Container(
-                      child: Text('-', style: TextStyle(fontSize: 20)),
-                    )
-                ),
-              ],
-            )
-          ],
-        )
-    );
-  }
-}
-
 
 Widget signInButton(Function press, BuildContext context) {
   return  Card(

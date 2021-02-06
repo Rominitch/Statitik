@@ -112,13 +112,13 @@ class _StatsPageState extends State<StatsPage> {
     );
   }
 
-  Widget buildLine(label, luck, color) {
+  Widget buildLine(label, luck, color, divider) {
     return Row(
       children: [
         Container(child: Row( children: label), width: 50,),
         Expanded(child: LinearPercentIndicator(
         lineHeight: 8.0,
-        percent: (luck / 10.0).clamp(0.0, 1.0),
+        percent: (luck / divider).clamp(0.0, 1.0),
         progressColor: color,
         )),
         Container(child:Text('${luck.toStringAsFixed(3)}'), width: 50)
@@ -126,6 +126,7 @@ class _StatsPageState extends State<StatsPage> {
   }
 
   Widget buildStatsView() {
+    double divider = 11.0;
     List<Widget> rarity = [];
     {
       double sum=0;
@@ -133,7 +134,7 @@ class _StatsPageState extends State<StatsPage> {
       double luck = sum / widget.stats.nbBoosters;
       if(luck > 0)
         rarity.add( buildLine([Icon(Icons.battery_charging_full),],
-                    luck, Colors.yellowAccent));
+                    luck, Colors.yellowAccent, divider));
     }
 
     if( widget.subExt.validCard ) {
@@ -142,13 +143,13 @@ class _StatsPageState extends State<StatsPage> {
           continue;
         double luck = widget.stats.countByRarity[rare.index] / widget.stats.nbBoosters;
         if(luck > 0)
-          rarity.add( buildLine(getImageRarity(rare), luck, rarityColors[rare.index]) );
+          rarity.add( buildLine(getImageRarity(rare), luck, rarityColors[rare.index], divider) );
       }
 
       for( var mode in [Mode.Reverse, Mode.Halo] ) {
         double luck = widget.stats.countByMode[mode.index] / widget.stats.nbBoosters;
         if(luck > 0)
-          rarity.add( buildLine([Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), height: 30.0)], luck, modeColors[mode.index]) );
+          rarity.add( buildLine([Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), height: 30.0)], luck, modeColors[mode.index], divider) );
       }
     } else {
       rarity.add(Text(StatitikLocale.of(context).read('S_B3')));
@@ -166,7 +167,7 @@ class _StatsPageState extends State<StatsPage> {
                 Text(sprintf(StatitikLocale.of(context).read('S_B5'), [widget.stats.nbBoosters, widget.stats.anomaly]))
               ]),
               SizedBox(height: 8.0,),
-              Text(StatitikLocale.of(context).read('S_B6')),
+              Text(sprintf(StatitikLocale.of(context).read('S_B6'), [divider.toInt()])),
               SizedBox(height: 8.0,),
               ListView(
                 shrinkWrap: true,

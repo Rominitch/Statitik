@@ -72,7 +72,7 @@ class Credential
 
 class Database
 {
-    final double version = 1.0;
+    final String version = '1.1';
     final ConnectionSettings settings = createConnection();
 
     Future<void> transactionR(Function queries) async

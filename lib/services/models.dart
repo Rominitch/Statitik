@@ -293,7 +293,12 @@ class PokeCard
   }
 
   bool hasAnotherRendering() {
-    return !isValid() || rarity == Rarity.Commune || rarity == Rarity.PeuCommune || rarity == Rarity.Rare;
+    return !isValid() || rarity == Rarity.Commune || rarity == Rarity.PeuCommune || rarity == Rarity.Rare
+        || rarity == Rarity.HoloRare;
+  }
+
+  Mode defaultMode() {
+    return rarity == Rarity.HoloRare ? Mode.Halo : Mode.Normal;
   }
 
 }
@@ -330,7 +335,7 @@ class SubExtension
           Type t = convertType[code[i]];
           if (t == null)
             throw Exception(
-                '"Data card list corruption: $i was found with type ${code[i]}');
+                'Data card list corruption: $i was found with type ${code[i]}');
           Rarity r = convertRarity[code[i + 1]];
           if (r == null)
             throw Exception(
@@ -416,6 +421,11 @@ class CodeDraw {
     countHalo    = (code>>6) & 0x07;
   }
 
+  int getCountFrom(Mode mode) {
+    List<int> byMode = [countNormal, countReverse, countHalo];
+    return byMode[mode.index];
+  }
+
   int toInt() {
     int code = countNormal
              + (countReverse<<3)
@@ -464,7 +474,7 @@ class BoosterDraw {
   final SubExtension creation;    ///< Keep product extension.
   final int nbCards;              ///< Number of cards inside booster
   ///
-  List<bool> energiesBin;         ///< Energy inside booster.
+  List<CodeDraw> energiesBin;     ///< Energy inside booster.
   List<CodeDraw> cardBin;         ///< All card select by extension.
   SubExtension subExtension;      ///< Current extensions.
   int count = 0;
@@ -476,7 +486,7 @@ class BoosterDraw {
   BoosterDraw({this.creation, this.id, this.nbCards })
   {
     assert(nbCards != null);
-    energiesBin = List<bool>.filled(energies.length, false);
+    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0); });
     subExtension = creation;
     if(hasSubExtension()) {
       fillCard();
@@ -490,7 +500,7 @@ class BoosterDraw {
     count    = 0;
     abnormal = false;
     cardBin  = null;
-    energiesBin = List<bool>.filled(energies.length, false);
+    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0); });
   }
 
   void resetExtensions() {
@@ -500,9 +510,7 @@ class BoosterDraw {
   }
 
   void fillCard() {
-      cardBin = [];
-      for(int i=0; i < subExtension.cards.length; i+=1 )
-        cardBin.add(new CodeDraw(0,0,0));
+      cardBin = List<CodeDraw>.generate(subExtension.cards.length, (index) { return CodeDraw(0,0,0); });
   }
 
   bool isFinished() {
@@ -513,39 +521,36 @@ class BoosterDraw {
     return subExtension != null;
   }
 
-  bool hasAllCards() {
-    return abnormal ? false : count >= (nbCards + (countEnergy()-1));
+  bool canAdd() {
+    return abnormal ? true : count < nbCards;
   }
 
   int countEnergy() {
     int count=0;
-    for( bool e in energiesBin ){
-      count += e ? 1 : 0;
+    for( CodeDraw c in energiesBin ){
+      count += c.count();
     }
     return count;
   }
 
-  void toggleCard(int id, Mode mode) {
-    int cc = cardBin[id].count();
-    if(cardBin[id].isEmpty()) {
-      if(!hasAllCards()) {
-        count -= cc;
-        cardBin[id].countNormal  = mode==Mode.Normal  ? 1 : 0;
-        cardBin[id].countReverse = mode==Mode.Reverse ? 1 : 0;
-        cardBin[id].countHalo    = mode==Mode.Halo    ? 1 : 0;
-        count += 1;
+  void toggleCard(CodeDraw code, Mode mode) {
+    count -= code.count();
+    if(code.isEmpty()) {
+      if(canAdd()) {
+        code.countNormal  = mode==Mode.Normal  ? 1 : 0;
+        code.countReverse = mode==Mode.Reverse ? 1 : 0;
+        code.countHalo    = mode==Mode.Halo    ? 1 : 0;
       }
     } else {
-      cardBin[id].countNormal  = 0;
-      cardBin[id].countReverse = 0;
-      cardBin[id].countHalo    = 0;
-
-      count -= cc;
+      code.countNormal  = 0;
+      code.countReverse = 0;
+      code.countHalo    = 0;
     }
+    count += code.count();
   }
 
   void increase(CodeDraw code, Mode mode) {
-    if(!hasAllCards()) {
+    if(canAdd()) {
       count -= code.count();
       code.increase(mode);
       count += code.count();
@@ -560,47 +565,16 @@ class BoosterDraw {
     }
   }
 
-  void setOtherRendering(int id, Mode mode) {
-    if(!hasAllCards()) {
-      count += cardBin[id].isEmpty() ? 1 : 0;
+  void setOtherRendering(CodeDraw code, Mode mode) {
+    if(canAdd()) {
+      count -= code.count();
 
-      cardBin[id].countNormal  = mode==Mode.Normal  ? 1 : 0;
-      cardBin[id].countReverse = mode==Mode.Reverse ? 1 : 0;
-      cardBin[id].countHalo    = mode==Mode.Halo    ? 1 : 0;
+      code.countNormal  = mode==Mode.Normal  ? 1 : 0;
+      code.countReverse = mode==Mode.Reverse ? 1 : 0;
+      code.countHalo    = mode==Mode.Halo    ? 1 : 0;
+
+      count += code.count();
     }
-  }
-
-  bool isEnergy(Type type) {
-    return energiesBin[type.index];
-  }
-
-  void setEnergy(Type type, bool enable) {
-    if(!abnormal) {
-      toggleEnergy(type);
-    } else {
-    // Reset
-    count -= countEnergy();
-
-    energiesBin[type.index] = !enable;
-
-    count += countEnergy();
-
-    onEnergyChanged.add(true);
-    }
-  }
-
-  void toggleEnergy(Type type) {
-    // Reset
-    count -= countEnergy();
-
-    bool newState = !energiesBin[type.index];
-    energiesBin.fillRange(0, energiesBin.length, false);
-
-    // Set new
-    energiesBin[type.index] = newState;
-    count += countEnergy();
-
-    onEnergyChanged.add(true);
   }
 
   bool needReset() {
@@ -623,11 +597,12 @@ class BoosterDraw {
       elements.removeLast();
     }
 
-    List<int> energyCode = [0, 0];
-    int i=0;
-    for(bool e in energiesBin) {
-      energyCode[i~/8] += (e ? 1 : 0)<<i;
-      i += 1;
+    List<int> energyCode = [];
+    for(CodeDraw c in energiesBin) {
+      energyCode.add(c.toInt());
+    }
+    while(energyCode.last == 0) {
+      energyCode.removeLast();
     }
 
     return [idAchat, subExtension.id, abnormal ? 1 : 0, Int8List.fromList(energyCode), Int8List.fromList(elements)];
@@ -665,7 +640,8 @@ class Stats {
     nbBoosters += 1;
 
     for(int energyI=0; energyI < countEnergy.length; energyI +=1) {
-      countEnergy[energyI] += ((energy[energyI~/8] >> energyI) & 0x1 == 0x1) ? 1 : 0;
+      CodeDraw c = CodeDraw.fromInt(energy[energyI]);
+      countEnergy[energyI] += c.count();
     }
 
     for(int cardI=0; cardI < draw.length; cardI +=1) {
