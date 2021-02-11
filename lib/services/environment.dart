@@ -168,7 +168,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.3.9';
+    final String version = '0.4.0';
 
     // State
     bool isInitialized=false;
@@ -363,7 +363,7 @@ class Environment
             });
             return true;
         } catch( e ) {
-            if(!kReleaseMode)
+            if(local)
                 print("Database error $e");
         }
         return false;
@@ -384,12 +384,25 @@ class Environment
         }
     }
 
-    Future<Stats> getStats(SubExtension subExt, Product product) async {
+    Future<Stats> getStats(SubExtension subExt, Product product, int category) async {
         Stats stats = new Stats(subExt: subExt);
         try {
             await db.transactionR( (connection) async {
-                //String productQ = product == null ? "" : " AND product";
-                String query = 'SELECT `cartesBin`, `energieBin`, `anomalie` FROM `TirageBooster` WHERE `idSousExtension` = ${subExt.id};';
+                String query;
+                if(product != null) {
+                    query = 'SELECT `cartesBin`, `energieBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit` '
+                            'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
+                            'AND `UtilisateurProduit`.`idProduit` = ${product.idDB} '
+                            'AND `idSousExtension` = ${subExt.id};';
+                } else if(category != -1) {
+                    query = 'SELECT `cartesBin`, `energieBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit`, `Produit` '
+                        'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
+                        'AND `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit` '
+                        'AND `Produit`.`idCategorie` = ${category+1} '
+                        'AND `idSousExtension` = ${subExt.id};';
+                } else {
+                    query = 'SELECT `cartesBin`, `energieBin`, `anomalie` FROM `TirageBooster` WHERE `idSousExtension` = ${subExt.id};';
+                }
                 var req = await connection.query(query);
                 for (var row in req) {
                     stats.addBoosterDraw((row[0] as Blob).toBytes(), (row[1] as Blob).toBytes(), row[2]);
@@ -397,8 +410,8 @@ class Environment
             });
         }
         catch( e ) {
-            //if( e is StatitikException)
-            //    print(e.msg);
+            if( local && e is StatitikException)
+                print(e.msg);
         }
         return stats;
     }

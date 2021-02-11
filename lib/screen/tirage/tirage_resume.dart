@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/screen/extensionPage.dart';
+import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/tirage/tirage_booster.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/environment.dart';

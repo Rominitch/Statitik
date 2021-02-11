@@ -406,6 +406,17 @@ class Product
     });
     return list;
   }
+
+  Future<int> countProduct() async {
+    int count=0;
+    await Environment.instance.db.transactionR((connection) async {
+      var req = await connection.query('SELECT count(idProduit) FROM `UtilisateurProduit` WHERE idProduit = $idDB;');
+      for (var row in req) {
+        count = row[0];
+      }
+    });
+    return count;
+  }
 }
 
 class CodeDraw {

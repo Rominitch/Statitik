@@ -6,17 +6,22 @@ import 'package:statitikcard/services/models.dart';
 
 class StatsExtensionsPage extends StatefulWidget {
   final Stats stats;
-  StatsExtension statsExtension;
 
-  StatsExtensionsPage({this.stats}) {
-    statsExtension = StatsExtension(subExt: stats.subExt);
-  }
+  StatsExtensionsPage({this.stats});
 
   @override
   _StatsExtensionsPageState createState() => _StatsExtensionsPageState();
 }
 
 class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
+  StatsExtension statsExtension;
+
+  @override
+  void initState() {
+    statsExtension = StatsExtension(subExt: widget.stats.subExt);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Widget> cards = [];
@@ -75,9 +80,9 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Text(StatitikLocale.of(context).read('SE_B0'), style: Theme.of(context).textTheme.headline5),
-                              PieExtension(stats: widget.statsExtension, visu: Visualize.Type),
+                              PieExtension(stats: statsExtension, visu: Visualize.Type),
                               SizedBox(height: 10.0,),
-                              PieExtension(stats: widget.statsExtension, visu: Visualize.Rarity),
+                              PieExtension(stats: statsExtension, visu: Visualize.Rarity),
                             ]
                         ),
                       )

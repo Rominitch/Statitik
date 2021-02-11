@@ -1,32 +1,37 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:sprintf/sprintf.dart';
-import 'package:statitikcard/screen/languagePage.dart';
+
+import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
 import 'package:statitikcard/screen/stats/statsExtension.dart';
+import 'package:statitikcard/screen/commonPages/productPage.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
-class StatsPage extends StatefulWidget {
+class StatsData {
   Language     language;
   SubExtension subExt;
   Product      product;
+  int          category = -1;
   Stats        stats;
+}
+
+class StatsPage extends StatefulWidget {
+  final StatsData d = StatsData();
 
   @override
   _StatsPageState createState() => _StatsPageState();
 }
 
 class _StatsPageState extends State<StatsPage> {
-
   void afterSelectExtension(BuildContext context, Language language, SubExtension subExt) {
     Navigator.popUntil(context, ModalRoute.withName('/'));
     setState(() {
-      widget.language = language;
-      widget.subExt   = subExt;
+      widget.d.language = language;
+      widget.d.subExt   = subExt;
     });
 
     //Launch compute stats
@@ -34,8 +39,8 @@ class _StatsPageState extends State<StatsPage> {
   }
 
   Future<void> waitStats() async {
-    Environment.instance.getStats(widget.subExt, widget.product).then( (stats) {
-      widget.stats = stats;
+    Environment.instance.getStats(widget.d.subExt, widget.d.product, widget.d.category).then( (stats) {
+      widget.d.stats = stats;
       setState(() {});
     });
   }
@@ -43,8 +48,12 @@ class _StatsPageState extends State<StatsPage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> finalWidget = [];
-    if (widget.stats != null) {
-     if (widget.stats.nbBoosters > 0) {
+    final String productButton = widget.d.product == null
+        ? (widget.d.category == -1) ? StatitikLocale.of(context).read('S_B9') : Environment.instance.collection.category[widget.d.category]
+        : widget.d.product.name;
+
+    if(widget.d.stats != null) {
+     if(widget.d.stats.nbBoosters > 0) {
        finalWidget.add(buildStatsView());
      } else {
        finalWidget = [
@@ -88,21 +97,31 @@ class _StatsPageState extends State<StatsPage> {
               children: <Widget>[
                 Row(
                   children: [
-                    Card(
+                   Card(
                       child: FlatButton(
-                        child: widget.language != null ? Row(
+                        child: widget.d.language != null ? Row(
                           children: [
                             Text(StatitikLocale.of(context).read('S_B0')),
                             SizedBox(width: 8.0),
-                            Image(image: widget.language.create(), height: 30),
+                            Image(image: widget.d.language.create(), height: 30),
                             SizedBox(width: 8.0),
-                            widget.subExt.image(hSize: 30),
+                            widget.d.subExt.image(hSize: 30),
                         ]) : Text(StatitikLocale.of(context).read('S_B0')),
                         onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension)));
                         },
                       )
                     ),
+                    if( widget.d.language != null && widget.d.subExt != null )
+                      Expanded(
+                        child: Card( child: FlatButton(
+                            child: Text(productButton, softWrap: true, style: TextStyle(fontSize: (productButton.length > 20) ? 10 : 14),),
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.MultiSelection, language: widget.d.language, subExt: widget.d.subExt, afterSelected: afterSelectProduct) ));
+                            },
+                          )
+                    ),
+                      ),
                   ],
                 ),
               ] + finalWidget
@@ -110,6 +129,23 @@ class _StatsPageState extends State<StatsPage> {
           )
         )
     );
+  }
+
+  void afterSelectProduct(BuildContext context, Language language, Product product, int category) {
+    Navigator.pop(context);
+    setState(() {
+      if(product != null) {
+        widget.d.product  = product;
+        widget.d.category = -1;
+      } else if( category != -1 ) {
+        widget.d.product  = null;
+        widget.d.category = category;
+      } else { // All products
+        widget.d.product  = null;
+        widget.d.category = -1;
+      }
+      waitStats();
+    });
   }
 
   Widget buildLine(label, luck, color, divider) {
@@ -130,24 +166,24 @@ class _StatsPageState extends State<StatsPage> {
     List<Widget> rarity = [];
     {
       double sum=0;
-      widget.stats.countEnergy.forEach((number) {sum += number.toDouble(); });
-      double luck = sum / widget.stats.nbBoosters;
+      widget.d.stats.countEnergy.forEach((number) {sum += number.toDouble(); });
+      double luck = sum / widget.d.stats.nbBoosters;
       if(luck > 0)
         rarity.add( buildLine([Icon(Icons.battery_charging_full),],
                     luck, Colors.yellowAccent, divider));
     }
 
-    if( widget.subExt.validCard ) {
+    if( widget.d.subExt.validCard ) {
       for( var rare in Rarity.values ) {
         if(rare == Rarity.Unknown)
           continue;
-        double luck = widget.stats.countByRarity[rare.index] / widget.stats.nbBoosters;
+        double luck = widget.d.stats.countByRarity[rare.index] / widget.d.stats.nbBoosters;
         if(luck > 0)
           rarity.add( buildLine(getImageRarity(rare), luck, rarityColors[rare.index], divider) );
       }
 
       for( var mode in [Mode.Reverse, Mode.Halo] ) {
-        double luck = widget.stats.countByMode[mode.index] / widget.stats.nbBoosters;
+        double luck = widget.d.stats.countByMode[mode.index] / widget.d.stats.nbBoosters;
         if(luck > 0)
           rarity.add( buildLine([Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), height: 30.0)], luck, modeColors[mode.index], divider) );
       }
@@ -164,7 +200,7 @@ class _StatsPageState extends State<StatsPage> {
             children: [
               Row(children: [Text(StatitikLocale.of(context).read('S_B4'), style: Theme.of(context).textTheme.headline5 ),
                 Expanded(child: SizedBox()),
-                Text(sprintf(StatitikLocale.of(context).read('S_B5'), [widget.stats.nbBoosters, widget.stats.anomaly]))
+                Text(sprintf(StatitikLocale.of(context).read('S_B5'), [widget.d.stats.nbBoosters, widget.d.stats.anomaly]))
               ]),
               SizedBox(height: 8.0,),
               Text(sprintf(StatitikLocale.of(context).read('S_B6'), [divider.toInt()])),
@@ -174,13 +210,13 @@ class _StatsPageState extends State<StatsPage> {
                 primary: false,
                 children: rarity,
               ),
-              PieChartGeneric(allStats: widget.stats),
+              PieChartGeneric(allStats: widget.d.stats),
               Card(
                   color: Colors.grey[800],
                   child: FlatButton(
                       child: Text(StatitikLocale.of(context).read('S_B7')),
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => StatsExtensionsPage(stats: widget.stats)));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => StatsExtensionsPage(stats: widget.d.stats)));
                   }
                 ),
               ),

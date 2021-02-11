@@ -73,6 +73,7 @@ class StatitikLocale {
       'TP_B1': '''If your product is not registered, use many boosters or send us a message.
 
 `Orange` products contain randomized boosters.''',
+      'TP_B2': 'Select',
       'TR_B0': 'Error of product creation',
       'TR_B1': 'Registration validated',
       'TR_B2': 'Thanks for your contribution !',
@@ -119,6 +120,7 @@ Images and illustrations used are the property of their respective authors.
       'S_B6': 'Répartition pour %d cartes',
       'S_B7': 'Détails de l\'extension',
       'S_B8': 'Aidez-nous en enregistrant vos tirages !',
+      'S_B9': 'Tous les produits',
       'yes':    'Oui',
       'cancel': 'Annuler',
       'warning': 'Attention',
@@ -155,6 +157,7 @@ Images and illustrations used are the property of their respective authors.
       'TP_B1': '''Si votre produit n\'est pas référencé, utiliser plusieurs boosters ou signaler-le nous.
 
 Les produits `oranges` possèdent des boosters aléatoires.''',
+      'TP_B2': 'Sélectionner',
       'TR_B0': 'Erreur de création du produit',
       'TR_B1': 'Enregistrement validé',
       'TR_B2': 'Merci pour votre participation !',

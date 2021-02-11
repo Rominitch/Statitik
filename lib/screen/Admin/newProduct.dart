@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/material.dart';
-import 'package:statitikcard/screen/extensionPage.dart';
-import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -17,10 +14,10 @@ class NewProductBooster {
 class NewProduct {
   Language l;
   String name = '';
-  String EAC = '';
+  String eac = '';
   String image = '';
   int year = 2021;
-  int cat = null;
+  int cat;
   List<NewProductBooster> boosters = [];
 
   bool validate() {
@@ -133,12 +130,12 @@ class _NewProductPageState extends State<NewProductPage> {
           decoration: InputDecoration(
               labelText: 'EAC'
           ),
-          initialValue: product.EAC,
+          initialValue: product.eac,
           validator: (value) {
             if (value.isEmpty) {
               return 'Veuillez donner un nom.';
             }
-            product.EAC = value;
+            product.eac = value;
             return null;
           },
         ),
@@ -167,7 +164,7 @@ class _NewProductPageState extends State<NewProductPage> {
                     idAchat = row[0] + 1;
                   }
 
-                  String query = 'INSERT INTO `Produit` (idProduit, idLangue, idUtilisateur, nom, EAN, annee, idCategorie, icone, approuve) VALUES ($idAchat, ${product.l.id}, ${env.user.idDB}, "${product.name}", "${product.EAC}", ${product.year}, ${product.cat}, "", 1);';
+                  String query = 'INSERT INTO `Produit` (idProduit, idLangue, idUtilisateur, nom, EAN, annee, idCategorie, icone, approuve) VALUES ($idAchat, ${product.l.id}, ${env.user.idDB}, "${product.name}", "${product.eac}", ${product.year}, ${product.cat}, "", 1);';
                   print(query);
                   await connection.query(query);
 

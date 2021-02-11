@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Admin/newProduct.dart';
 
-import 'package:statitikcard/screen/languagePage.dart';
-import 'package:statitikcard/screen/tirage/tirage_produit.dart';
+import 'package:statitikcard/screen/commonPages/languagePage.dart';
+import 'package:statitikcard/screen/commonPages/productPage.dart';
+import 'package:statitikcard/screen/tirage/tirage_resume.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -106,6 +107,15 @@ class _DrawHomePageState extends State<DrawHomePage> {
   }
 
   void goToProductPage(BuildContext context, Language language, SubExtension subExt) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(language: language, subExt: subExt) ));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.SingleSelection, language: language, subExt: subExt, afterSelected: afterSelectProduct) ));
+  }
+
+  void afterSelectProduct(BuildContext context, Language language, Product product, int categorie) {
+    // Build new session of draw
+    Environment.instance.currentDraw =
+        SessionDraw(product: product, language: language);
+    // Go to page
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => ResumePage()));
   }
 }
