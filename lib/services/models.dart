@@ -375,9 +375,13 @@ class Product
 
   Product({this.idDB, this.name, this.imageURL, this.boosters, this.color});
 
+  bool hasImages() {
+    return imageURL.isNotEmpty;
+  }
+
   CachedNetworkImage image()
   {
-    return CachedNetworkImage(imageUrl: '$imageURL',
+    return CachedNetworkImage(imageUrl: Environment.instance.serverImages+imageURL,
       errorWidget: (context, url, error) => Icon(Icons.error),
       placeholder: (context, url) => CircularProgressIndicator(),
       height: 70,
@@ -639,7 +643,7 @@ class Stats {
     anomaly += anomaly;
     nbBoosters += 1;
 
-    for(int energyI=0; energyI < countEnergy.length; energyI +=1) {
+    for(int energyI=0; energyI < energy.length; energyI +=1) {
       CodeDraw c = CodeDraw.fromInt(energy[energyI]);
       countEnergy[energyI] += c.count();
     }

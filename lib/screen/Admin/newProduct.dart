@@ -1,13 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_spinbox/material.dart';
+import 'package:statitikcard/screen/extensionPage.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class NewProductBooster {
-  int subExtension;
-  int count;
-  int nbCard;
+  SubExtension ext;
+  int count=1;
+  int nbCard=11;
 }
 
 class NewProduct {
@@ -17,6 +21,13 @@ class NewProduct {
   String image = '';
   int year = 2021;
   int cat = null;
+  List<NewProductBooster> boosters = [];
+
+  bool validate() {
+    bool valid = boosters.length > 0;
+    boosters.forEach((element) { valid &= element.ext != null; })
+    return valid;
+  }
 }
 
 class NewProductPage extends StatefulWidget {
@@ -30,6 +41,15 @@ class _NewProductPageState extends State<NewProductPage> {
   NewProduct product = NewProduct();
   List<Widget> radioCat = [];
   List<Widget> radioLangue = [];
+
+  String error = null;
+
+  void onAdd()
+  {
+    setState(() {
+      product.boosters.add(new NewProductBooster());
+    });
+  }
 
   @override
   void initState() {
@@ -89,6 +109,12 @@ class _NewProductPageState extends State<NewProductPage> {
     if(product.l == null)
       formular.add(Card( child: Row( children: radioLangue) ));
     if(product.cat != null && product.l != null) {
+      List<Widget> bs=[];
+      for(NewProductBooster booster in product.boosters) {
+        bs.add(BoostersInfo(productAdd: onAdd, newProd: booster, l: product.l,));
+      }
+      bs.add(BoostersInfo(productAdd: onAdd, newProd: null, l: product.l));
+
       formular = [
         TextFormField(
           decoration: InputDecoration(
@@ -99,6 +125,7 @@ class _NewProductPageState extends State<NewProductPage> {
             if (value.isEmpty) {
               return 'Veuillez donner un nom.';
             }
+            product.name = value;
             return null;
           },
         ),
@@ -111,29 +138,57 @@ class _NewProductPageState extends State<NewProductPage> {
             if (value.isEmpty) {
               return 'Veuillez donner un nom.';
             }
+            product.EAC = value;
             return null;
           },
         ),
         Center(
-          child: Row(children: [
-            CircleAvatar(child: Icon(Icons.remove)),
-            Container(
-                width: 100.0,
-                child: Text('${product.year}', textAlign: TextAlign.center,)),
-            CircleAvatar(child: Icon(Icons.add))
-          ]),
+          child: SpinBox(
+            value: product.year.toDouble(),
+            min: 1996,
+            max: 2100,
+            decoration: InputDecoration(labelText: 'Année'),
+            onChanged: (value) {
+              product.year = value.toInt();
+            },
+          ),
         ),
+      ] + bs + [
+        SizedBox(height: 20),
         ElevatedButton(
           onPressed: () {
-            // Validate returns true if the form is valid, or false
-            // otherwise.
-            if (_formKey.currentState.validate()) {
-            // If the form is valid, display a Snackbar.
+            if ( product.validate() && _formKey.currentState.validate()) {
+              try {
+                Environment env = Environment.instance;
+                env.db.transactionR( (connection) async {
+                  int idAchat=0;
+                  var req = await connection.query('SELECT count(idProduit) FROM `Produit`;');
+                  for (var row in req) {
+                    idAchat = row[0] + 1;
+                  }
 
+                  String query = 'INSERT INTO `Produit` (idProduit, idLangue, idUtilisateur, nom, EAN, annee, idCategorie, icone, approuve) VALUES ($idAchat, ${product.l.id}, ${env.user.idDB}, "${product.name}", "${product.EAC}", ${product.year}, ${product.cat}, "", 1);';
+                  print(query);
+                  await connection.query(query);
+
+                  // Prepare data
+                  List<List<dynamic>> pb = [];
+                  for(NewProductBooster b in product.boosters) {
+                    pb.add( [idAchat, b.ext.idExtension, b.count, b.nbCard]);
+                  }
+                  // Send data
+                  await connection.queryMulti('INSERT INTO `ProduitBooster` (idProduit, idSousExtension, nombre, carte) VALUES (?, ?, ?, ?);',
+                      pb);
+                } );
+                Navigator.pop(context);
+              } catch (e) {
+                error = e.toString();
+              }
             }
           },
-          child: Text('Submit'),
-        )
+          child: Text('Envoyer'),
+        ),
+        if(error != null) Text(error),
       ];
     }
     return Scaffold(
@@ -155,3 +210,75 @@ class _NewProductPageState extends State<NewProductPage> {
     );
   }
 }
+
+class BoostersInfo extends StatefulWidget {
+  final Function productAdd;
+  final NewProductBooster newProd;
+  final Language l;
+
+  BoostersInfo({this.productAdd, this.newProd, this.l});
+
+  @override
+  _BoostersInfoState createState() => _BoostersInfoState();
+}
+
+class _BoostersInfoState extends State<BoostersInfo> {
+
+  void afterSelected(BuildContext context, Language language, SubExtension subExt) {
+    Navigator.pop(context);
+    setState(() {
+      widget.newProd.ext = subExt;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if(widget.newProd != null) {
+      return Card(
+          child: Row(children: [
+            FlatButton(
+              minWidth: 40.0,
+              child: (widget.newProd.ext != null) ? widget.newProd.ext.image(hSize: iconSize) : Icon(Icons.add_to_photos),
+              onPressed: (){
+                setState(() {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: widget.l, afterSelected: afterSelected)));
+                });
+              },
+            ),
+            Expanded(
+              child: SpinBox(
+                value: widget.newProd.count.toDouble(),
+                min: 1,
+                max: 50,
+                decoration: InputDecoration(labelText: 'Boosters'),
+                onChanged: (value) {
+                  widget.newProd.count = value.toInt();
+                },
+              ),
+            ),
+            Expanded(
+              child: SpinBox(
+                value: widget.newProd.nbCard.toDouble(),
+                min: 1,
+                max: 15,
+                decoration: InputDecoration(labelText: 'Cartes'),
+                onChanged: (value) {
+                  widget.newProd.nbCard = value.toInt();
+                },
+              ),
+            ),
+          ])
+      );
+    } else {
+      return Card(
+        child: FlatButton(
+          child: Center( child: Icon(Icons.add_to_photos) ),
+          onPressed: () {
+            widget.productAdd();
+          },
+        ),
+      );
+    }
+  }
+}
+

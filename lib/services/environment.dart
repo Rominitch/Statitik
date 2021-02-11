@@ -72,7 +72,7 @@ class Credential
 
 class Database
 {
-    final String version = '1.1';
+    final String version = '1.2';
     final ConnectionSettings settings = createConnection();
 
     Future<void> transactionR(Function queries) async
@@ -88,7 +88,11 @@ class Database
         // Execute request
         try {
             await connection.transaction(queries);
-        } finally {
+        } catch( e ) {
+            if(local)
+                print(e.toString());
+        }
+        finally {
             connection.close();
         }
     }
@@ -164,12 +168,15 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.3.5';
+    final String version = '0.3.9';
 
     // State
     bool isInitialized=false;
     bool startDB=false;
     bool showExtensionName = false;
+    bool showPressImages = false;
+    bool showPressProductImages = false;
+    final String serverImages = 'https://mouca.fr/StatitikCard/products/';
 
     // Cached data
     Collection collection = Collection();
@@ -215,6 +222,8 @@ class Environment
             bool isValid = false;
             for (var row in info) {
                 isValid = row[0] == db.version;
+                showPressImages = row[2] == 1;
+                showPressProductImages = showPressImages;
             }
             if(info == null || !isValid)
                 throw StatitikException('DB_1');

@@ -4,8 +4,6 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/environment.dart';
 
-const bool imageRight = false; // Waiting autorization
-
 class ProductPage extends StatefulWidget {
   final Language language;
   final SubExtension subExt;
@@ -30,6 +28,7 @@ class _ProductPageState extends State<ProductPage> {
 
         for (Product prod in products[id]) {
           productFound = true;
+          bool productImage = prod.hasImages() && Environment.instance.showPressProductImages;
           productCard.add(Card(
               color: prod.color,
               child: FlatButton(
@@ -37,8 +36,8 @@ class _ProductPageState extends State<ProductPage> {
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      if(imageRight) prod.image(),
-                      if(imageRight) Text(
+                      if(productImage) prod.image(),
+                      if(productImage) Text(
                           prod.name, textAlign: TextAlign.center,
                           softWrap: true,
                           style: TextStyle(fontSize: ((prod.name.length > 15)
