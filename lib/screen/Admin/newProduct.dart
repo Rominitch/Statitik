@@ -25,7 +25,7 @@ class NewProduct {
 
   bool validate() {
     bool valid = boosters.length > 0;
-    boosters.forEach((element) { valid &= element.ext != null; })
+    boosters.forEach((element) { valid &= element.ext != null; });
     return valid;
   }
 }
@@ -174,7 +174,7 @@ class _NewProductPageState extends State<NewProductPage> {
                   // Prepare data
                   List<List<dynamic>> pb = [];
                   for(NewProductBooster b in product.boosters) {
-                    pb.add( [idAchat, b.ext.idExtension, b.count, b.nbCard]);
+                    pb.add( [idAchat, b.ext.id, b.count, b.nbCard]);
                   }
                   // Send data
                   await connection.queryMulti('INSERT INTO `ProduitBooster` (idProduit, idSousExtension, nombre, carte) VALUES (?, ?, ?, ?);',
