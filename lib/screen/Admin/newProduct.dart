@@ -39,7 +39,7 @@ class _NewProductPageState extends State<NewProductPage> {
   List<Widget> radioCat = [];
   List<Widget> radioLangue = [];
 
-  String error = null;
+  String error;
 
   void onAdd()
   {

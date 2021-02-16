@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -168,7 +167,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.4.0';
+    final String version = '0.5.0';
 
     // State
     bool isInitialized=false;
@@ -384,26 +383,36 @@ class Environment
         }
     }
 
-    Future<Stats> getStats(SubExtension subExt, Product product, int category) async {
+    Future<Stats> getStats(SubExtension subExt, Product product, int category, [int user]) async {
         Stats stats = new Stats(subExt: subExt);
         try {
+            String userReq = '';
+            if(user != null)
+                userReq = 'AND `UtilisateurProduit`.`idUtilisateur` = $user ';
+
             await db.transactionR( (connection) async {
                 String query;
                 if(product != null) {
                     query = 'SELECT `cartesBin`, `energieBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit` '
                             'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
                             'AND `UtilisateurProduit`.`idProduit` = ${product.idDB} '
-                            'AND `idSousExtension` = ${subExt.id};';
+                            'AND `idSousExtension` = ${subExt.id} '
+                            '$userReq;';
                 } else if(category != -1) {
                     query = 'SELECT `cartesBin`, `energieBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit`, `Produit` '
                         'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
                         'AND `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit` '
                         'AND `Produit`.`idCategorie` = ${category+1} '
-                        'AND `idSousExtension` = ${subExt.id};';
+                        'AND `idSousExtension` = ${subExt.id} '
+                        '$userReq;';
                 } else {
-                    query = 'SELECT `cartesBin`, `energieBin`, `anomalie` FROM `TirageBooster` WHERE `idSousExtension` = ${subExt.id};';
+                    query = 'SELECT `cartesBin`, `energieBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit` '
+                            'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
+                            'AND `idSousExtension` = ${subExt.id} '
+                            '$userReq;';
                 }
                 var req = await connection.query(query);
+                print(query);
                 for (var row in req) {
                     stats.addBoosterDraw((row[0] as Blob).toBytes(), (row[1] as Blob).toBytes(), row[2]);
                 }

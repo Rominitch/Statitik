@@ -5,12 +5,12 @@ import 'package:statitikcard/screen/Wrapper.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/support.dart';
 import 'package:statitikcard/screen/thanks.dart';
-import 'package:statitikcard/services/environment.dart';
+//import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 void main() {
   // Build instance for first time
-  Environment env = Environment.instance;
+  //Environment env = Environment.instance;
 
   runApp(StatitikApp());
 }

@@ -17,6 +17,7 @@ class StatsData {
   Product      product;
   int          category = -1;
   Stats        stats;
+  Stats        userStats;
 }
 
 class StatsPage extends StatefulWidget {
@@ -27,9 +28,15 @@ class StatsPage extends StatefulWidget {
 }
 
 class _StatsPageState extends State<StatsPage> {
+  bool delta=false;
+
   void afterSelectExtension(BuildContext context, Language language, SubExtension subExt) {
     Navigator.popUntil(context, ModalRoute.withName('/'));
     setState(() {
+      // Set old filter
+      widget.d.category = -1;
+      widget.d.product  = null;
+      // Change selection
       widget.d.language = language;
       widget.d.subExt   = subExt;
     });
@@ -39,8 +46,21 @@ class _StatsPageState extends State<StatsPage> {
   }
 
   Future<void> waitStats() async {
-    Environment.instance.getStats(widget.d.subExt, widget.d.product, widget.d.category).then( (stats) {
+    // Clean old result
+    widget.d.userStats = null;
+    widget.d.stats     = null;
+
+    // Get data from DB
+    Environment env = Environment.instance;
+    env.getStats(widget.d.subExt, widget.d.product, widget.d.category).then( (stats) {
       widget.d.stats = stats;
+      // Get user info after
+      if(env.user != null) {
+        env.getStats(widget.d.subExt, widget.d.product, widget.d.category, env.user.idDB).then( (ustats) {
+          widget.d.userStats = ustats;
+          setState(() {});
+        });
+      }
       setState(() {});
     });
   }
@@ -88,6 +108,41 @@ class _StatsPageState extends State<StatsPage> {
               StatitikLocale.of(context).read('H_T1'), style: Theme.of(context).textTheme.headline3,
             ),
           ),
+          actions: [
+            if(widget.d.userStats != null)
+              FlatButton(
+                  child: Icon(Icons.settings),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context)
+                      {
+                        return StatefulBuilder(
+                          builder: (context, setState) { return AlertDialog(
+                            title: Text(StatitikLocale.of(context).read('H_T2')),
+                            content: Container(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CheckboxListTile(
+                                    title: Text(StatitikLocale.of(context).read('S_B10')),
+                                    value: delta,
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        delta = newValue;
+                                      });
+                                    },
+                                  ),
+                                ]
+                              ),
+                            ),
+                          );
+                          }
+                      );
+                     }).then( (result) { setState((){}); } );
+                  }
+             )
+          ],
         ),
         body: SafeArea(
           child: SingleChildScrollView(
@@ -148,7 +203,19 @@ class _StatsPageState extends State<StatsPage> {
     });
   }
 
-  Widget buildLine(label, luck, color, divider) {
+  Widget buildLine(label, luck, color, divider, [double userLuck]) {
+    List<Widget> userInfo = [];
+    if(userLuck != null ) {
+      final double deltaUserLuck = userLuck - luck;
+      final Color color = deltaUserLuck >= 0 ? Colors.green : Colors.deepOrange;
+      final IconData icon = (deltaUserLuck > 0) ? Icons.keyboard_arrow_up : ((deltaUserLuck == 0) ? Icons.remove : Icons.keyboard_arrow_down);
+      final String value = (deltaUserLuck > 0 && delta ? '+' : '') + (delta ? deltaUserLuck.toStringAsFixed(3) : userLuck.toStringAsFixed(3) );
+      userInfo = [
+        Icon(icon, color: color),
+        Container(child:Text(value, style: TextStyle(fontSize: 9, color: color)), width: 30),
+      ];
+    }
+
     return Row(
       children: [
         Container(child: Row( children: label), width: 50,),
@@ -157,8 +224,8 @@ class _StatsPageState extends State<StatsPage> {
         percent: (luck / divider).clamp(0.0, 1.0),
         progressColor: color,
         )),
-        Container(child:Text('${luck.toStringAsFixed(3)}'), width: 50)
-    ]);
+        Container(child:Text('${luck.toStringAsFixed(3)}'), width: 45),
+    ] + userInfo);
   }
 
   Widget buildStatsView() {
@@ -168,9 +235,15 @@ class _StatsPageState extends State<StatsPage> {
       double sum=0;
       widget.d.stats.countEnergy.forEach((number) {sum += number.toDouble(); });
       double luck = sum / widget.d.stats.nbBoosters;
-      if(luck > 0)
-        rarity.add( buildLine([Icon(Icons.battery_charging_full),],
-                    luck, Colors.yellowAccent, divider));
+      if(luck > 0) {
+        double userLuck;
+        if(widget.d.userStats != null && widget.d.userStats.nbBoosters > 0) {
+          double userSum=0;
+          widget.d.userStats.countEnergy.forEach((number) {userSum += number.toDouble(); });
+          userLuck = (userSum / widget.d.userStats.nbBoosters);
+        }
+        rarity.add(buildLine([ Icon(Icons.battery_charging_full), ], luck, Colors.yellowAccent, divider, userLuck));
+      }
     }
 
     if( widget.d.subExt.validCard ) {
@@ -179,13 +252,19 @@ class _StatsPageState extends State<StatsPage> {
           continue;
         double luck = widget.d.stats.countByRarity[rare.index] / widget.d.stats.nbBoosters;
         if(luck > 0)
-          rarity.add( buildLine(getImageRarity(rare), luck, rarityColors[rare.index], divider) );
+        {
+          double userLuck = (widget.d.userStats != null && widget.d.userStats.nbBoosters > 0) ? (widget.d.userStats.countByRarity[rare.index] / widget.d.userStats.nbBoosters) : null;
+          rarity.add( buildLine(getImageRarity(rare), luck, rarityColors[rare.index], divider, userLuck) );
+        }
       }
 
       for( var mode in [Mode.Reverse, Mode.Halo] ) {
         double luck = widget.d.stats.countByMode[mode.index] / widget.d.stats.nbBoosters;
         if(luck > 0)
-          rarity.add( buildLine([Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), height: 30.0)], luck, modeColors[mode.index], divider) );
+        {
+          double userLuck = (widget.d.userStats != null && widget.d.userStats.nbBoosters > 0) ? (widget.d.userStats.countByMode[mode.index] / widget.d.userStats.nbBoosters) : null;
+          rarity.add( buildLine([Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), height: 30.0)], luck, modeColors[mode.index], divider, userLuck) );
+        }
       }
     } else {
       rarity.add(Text(StatitikLocale.of(context).read('S_B3')));
