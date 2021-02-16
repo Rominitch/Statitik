@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/widgets/CardSelector.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 Widget createLanguage(Language l, BuildContext context, Function press)
@@ -72,7 +74,7 @@ Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function pre
   SessionDraw current = Environment.instance.currentDraw;
 
   return Card(
-      color: bd.isFinished() ? Colors.green[400] : Colors.grey[900],
+      color: bd.isFinished() ? greenValid : Colors.grey[900],
       child: FlatButton(
         child: Center(
           child: Column(
@@ -89,12 +91,12 @@ Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function pre
           showDialog(
               context: context,
               builder: (_) => new AlertDialog(
-                title: new Text("Edition du booster"),
+                title: new Text(StatitikLocale.of(context).read('V_B2')),
                 actions: [
                   Card(
                     color: Colors.grey[700],
                     child: FlatButton(
-                      child: Text('Changer l\'extension'),
+                      child: Text(StatitikLocale.of(context).read('V_B3')),
                       onPressed: () {
                         Navigator.of(context).pop();
                         bd.resetExtensions();
@@ -105,7 +107,7 @@ Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function pre
                   if( current.productAnomaly && current.canDelete() ) Card(
                     color: Colors.red,
                     child: FlatButton(
-                      child: Text('Supprimer', style: TextStyle(color: Colors.white),),
+                      child: Text(StatitikLocale.of(context).read('delete'), style: TextStyle(color: Colors.white),),
                         onPressed: () {
                           current.deleteBooster(bd.id-1);
                           Navigator.of(context).pop();
@@ -175,7 +177,7 @@ class _PokemonCardState extends State<PokemonCard> {
                 setState(() {
                   showDialog(
                       context: context,
-                      builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.idCard, update); }
+                      builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.idCard, update, false); }
                   );
                   widget.refresh();
                 });
@@ -183,7 +185,7 @@ class _PokemonCardState extends State<PokemonCard> {
             },
             onPressed: () {
               setState(() {
-                widget.boosterDraw.toggleCard(widget.idCard, Mode.Normal);
+                widget.boosterDraw.toggleCard(widget.boosterDraw.cardBin[widget.idCard], widget.card.defaultMode());
                 widget.refresh();
               });
             }
@@ -219,119 +221,44 @@ class _EnergyButtonState extends State<EnergyButton> {
 
   @override
   Widget build(BuildContext context) {
+    Function update = () {
+      setState(() {
+        widget.boosterDraw.onEnergyChanged.add(true);
+      });
+      widget.refresh();
+    };
+
+    CodeDraw code = widget.boosterDraw.energiesBin[widget.type.index];
     return Card(
       child: FlatButton(
-        color: convertType[widget.boosterDraw.energyCode] == widget.type ? Colors.green : Colors.grey[800],
+        color: code.color(),
         minWidth: 20.0,
         child: energyImage(widget.type),
         onPressed: () {
-          widget.boosterDraw.setEnergy(widget.type);
+          setState(() {
+            widget.boosterDraw.toggleCard(code, Mode.Normal);
+            widget.boosterDraw.onEnergyChanged.add(true);
+          });
+        },
+        onLongPress: () {
+          setState(() {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.type.index, update, true); }
+            ).whenComplete(()  {
+              setState(() {
+                widget.boosterDraw.onEnergyChanged.add(true);
+                widget.refresh();
+              });
+            });
+          });
         },
       ),
     );
   }
 }
 
-void createCardType(BuildContext context, int id, BoosterDraw boosterDraw, Function refresh) {
-  showDialog(
-      context: context,
-      builder: (BuildContext context) { return CardSelector(boosterDraw, id, refresh); }
-  );
-}
-
-class CardSelector extends StatefulWidget {
-  @override
-  _CardSelectorState createState() => _CardSelectorState();
-
-  final BoosterDraw boosterDraw;
-  final int      id;
-  final Function refresh;
-
-  CardSelector(this.boosterDraw, this.id, this.refresh);
-}
-
-class _CardSelectorState extends State<CardSelector> {
-  @override
-  Widget build(BuildContext context) {
-    CodeDraw code = widget.boosterDraw.cardBin[widget.id];
-    Function r = () {setState((){});};
-
-    return SimpleDialog(
-      title: Text("Selection du type"),
-      children: [Column(
-          //mainAxisSize: MainAxisSize.min,
-          //mainAxisAlignment: MainAxisAlignment.center,
-          //crossAxisAlignment: CrossAxisAlignment.stretch,
-          children:
-          [
-            createIconCard(context, Mode.Normal,  code.countNormal , widget.refresh, r),
-            createIconCard(context, Mode.Reverse, code.countReverse, widget.refresh, r),
-            createIconCard(context, Mode.Halo,    code.countHalo   , widget.refresh, r),
-          ]
-      ),]
-    );
-  }
-
-  Widget createIconCard(BuildContext context, Mode mode, int count, Function refresh, Function localRefresh) {
-    CodeDraw code = widget.boosterDraw.cardBin[widget.id];
-    return Card(
-        child: Row(
-          children: [
-            Card(
-              color: count > 0 ? modeColors[mode] : Colors.grey[900],
-              child: FlatButton(
-                child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), width: 75.0),
-                      SizedBox(height: 6.0),
-                      Text(modeNames[mode]),
-                    ]),
-                padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-                onPressed: () {
-                  widget.boosterDraw.setOtherRendering(widget.id, mode);
-                  Navigator.of(context).pop();
-                  refresh();
-                },
-              ),
-            ),
-            SizedBox(width: 10),
-            Column(
-              children: [
-                RaisedButton(
-                    onPressed: () {
-                      widget.boosterDraw.increase(code, mode);
-                      localRefresh();
-                      refresh();
-                    },
-                    color: Colors.grey[700],
-                    child: Container(
-                      child: Text('+', style: TextStyle(fontSize: 20)),
-                    )
-                ),
-                Container(
-                    child: Text('$count', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),)
-                ),
-                RaisedButton(
-                    onPressed: () {
-                      widget.boosterDraw.decrease(code, mode);
-                      localRefresh();
-                      refresh();
-                    },
-                    color: Colors.grey[700],
-                    child: Container(
-                      child: Text('-', style: TextStyle(fontSize: 20)),
-                    )
-                ),
-              ],
-            )
-          ],
-        )
-    );
-  }
-}
-
-
-Widget signInButton(Function press) {
+Widget signInButton(Function press, BuildContext context) {
   return  Card(
     child: FlatButton(
         onPressed: () {
@@ -343,7 +270,7 @@ Widget signInButton(Function press) {
         child:Padding(
           padding: const EdgeInsets.only(left: 10),
           child: Text(
-            'Connexion avec Google',
+            StatitikLocale.of(context).read('V_B5'),
             style: TextStyle(
               fontSize: 20,
               color: Colors.grey,
@@ -354,7 +281,7 @@ Widget signInButton(Function press) {
   );
 }
 
-Widget signOutButton(Function press) {
+Widget signOutButton(Function press, context) {
   return  Card(
     child: FlatButton(
         onPressed: () {
@@ -365,13 +292,52 @@ Widget signOutButton(Function press) {
         child:Padding(
           padding: const EdgeInsets.only(left: 10),
           child: Text(
-            'Deconnexion',
+            StatitikLocale.of(context).read('deconnexion'),
             style: TextStyle(
               fontSize: 20,
               color: Colors.grey,
             ),
           ),
         )
+    ),
+  );
+}
+
+AlertDialog showAlert(BuildContext context) {
+  return AlertDialog(
+    title: Text(StatitikLocale.of(context).read('warning')),
+    content: SingleChildScrollView(
+      child: ListBody(
+        children: <Widget>[
+          Text(StatitikLocale.of(context).read('V_B0')),
+          Text(StatitikLocale.of(context).read('V_B1')),
+        ],
+      ),
+    ),
+    actions: <Widget>[
+      TextButton(
+        child: Text(StatitikLocale.of(context).read('yes')),
+        onPressed: () {
+          Navigator.of(context).pop(true);
+        },
+      ),
+      TextButton(
+        child: Text(StatitikLocale.of(context).read('cancel')),
+        onPressed: () {
+          Navigator.of(context).pop(false);
+        },
+      ),
+    ],
+  );
+}
+
+RichText textBullet(text) {
+  return RichText(
+    text: TextSpan(
+      text: '• ',
+      children: <TextSpan>[
+        TextSpan(text: text,),
+      ],
     ),
   );
 }

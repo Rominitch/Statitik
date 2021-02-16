@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/screen/extensionPage.dart';
+import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/tirage/tirage_booster.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class ResumePage extends StatefulWidget {
-  ResumePage()
-  {
-    if( Environment.instance.currentDraw.product == null ||
-        Environment.instance.currentDraw.boosterDraws.length <= 0 )
-      throw StatitikException("Erreur de création du produit");
-  }
-
   @override
   _ResumePageState createState() => _ResumePageState();
 }
 
 class _ResumePageState extends State<ResumePage> {
 
+  @override
+  void initState() {
+    if( Environment.instance.currentDraw.product == null ||
+        Environment.instance.currentDraw.boosterDraws.length <= 0 )
+      throw StatitikException(StatitikLocale.of(context).read('TR_B0'));
+
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     SessionDraw current = Environment.instance.currentDraw;
@@ -93,19 +95,28 @@ class _ResumePageState extends State<ResumePage> {
     List<Widget> actions = [];
     if(allFinished) {
       actions.add(
-          Card( child: FlatButton(
-              child: Text("Envoyer"),
+          Card(
+              color: greenValid,
+              child: FlatButton(
+              child: Text(StatitikLocale.of(context).read('send')),
               onPressed: () async {
                 Environment env = Environment.instance;
                 bool valid = await env.sendDraw();
                 if( valid ) {
+                  await showDialog(
+                      context: context,
+                      builder: (_) => new AlertDialog(
+                        title: new Text(StatitikLocale.of(context).read('TR_B1')),
+                        content: Text(StatitikLocale.of(context).read('TR_B2')),
+                      )
+                  );
                   Navigator.popUntil(context, ModalRoute.withName('/'));
                 } else {
                   showDialog(
                       context: context,
                       builder: (_) => new AlertDialog(
-                          title: new Text("Erreur"),
-                          content: Text('L\'envoi des données n\'a pu être fait.\nVérifier votre connexion et réessayer !'),
+                          title: new Text(StatitikLocale.of(context).read('error')),
+                          content: Text(StatitikLocale.of(context).read('TR_B3')),
                       )
                   );
                 }
@@ -129,26 +140,30 @@ class _ResumePageState extends State<ResumePage> {
                 child:Row(
                     children: [
                       Icon(Icons.warning),
-                      Text( ' Attention aux diverses extensions' ),
+                      Text(StatitikLocale.of(context).read('TR_B4')),
                     ],
                   ),
               ),
               CheckboxListTile(
-                title: Text('Le produit n\'est pas conforme'),
-                subtitle: Text('Exemple: il n\'y a pas le bon nombre de boosters'),
+                title: Text(StatitikLocale.of(context).read('TR_B5')),
+                subtitle: Text(StatitikLocale.of(context).read('TR_B6')),
                 value: current.productAnomaly,
-                onChanged: (newValue) {
-                  setState(() {
+                onChanged: (newValue) async {
                     if(current.productAnomaly && current.needReset())
                     {
-                      showDialog<void>(
+                      bool reset = await showDialog(
                       context: context,
                       barrierDismissible: false, // user must tap button!
-                      builder: (BuildContext context) { return showAlert(context, current); });
+                      builder: (BuildContext context) { return showAlert(context); });
+
+                      if(reset) {
+                        setState(() {
+                          current.revertAnomaly();
+                        });
+                      }
+                    } else { // Toggle
+                      setState(() { current.productAnomaly = !current.productAnomaly; });
                     }
-                    else // Toggle
-                     current.productAnomaly = !current.productAnomaly;
-                  });
                 },
               ),
               GridView.count(
@@ -163,36 +178,5 @@ class _ResumePageState extends State<ResumePage> {
         ),
       ),
     );
-  }
-
-  AlertDialog showAlert(BuildContext context, SessionDraw current) {
-      return AlertDialog(
-        title: Text('Attention'),
-        content: SingleChildScrollView(
-          child: ListBody(
-            children: <Widget>[
-              Text('Les données seront réinitialisées.'),
-              Text('Voulez-vous continuer ?'),
-            ],
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: Text('Oui'),
-            onPressed: () {
-              Navigator.of(context).pop();
-              setState(() {
-                current.revertAnomaly();
-              });
-            },
-          ),
-          TextButton(
-            child: Text('Annuler'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
   }
 }

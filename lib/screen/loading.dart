@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
 
 class Loading extends StatefulWidget {
   Loading() : super()
@@ -15,12 +17,14 @@ class Loading extends StatefulWidget {
 
 class _LoadingState extends State<Loading> {
   bool error = false;
+  String msgError;
 
   @override
   void initState() {
     Environment.instance.onServerError.stream.listen((event) {
       setState(() {
         error = true;
+        msgError = event;
       });
     });
 
@@ -37,6 +41,7 @@ class _LoadingState extends State<Loading> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Center(child: drawImage(context, "logo.png", 400.0)),
               Center(
                 child: Text(
                     env.nameApp,
@@ -56,13 +61,13 @@ class _LoadingState extends State<Loading> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       SizedBox(height: 80.0),
-                      Text('Connexion à la base de données impossible.\nVérifier votre connexion.',
+                      Text(StatitikLocale.of(context).read(msgError),
                         style: TextStyle(color: Colors.red)
                       ),
                       SizedBox(height: 10.0),
                       Card(
                         child: FlatButton(
-                            child: Text('Réessayer'),
+                            child: Text(StatitikLocale.of(context).read('retry')),
                             onPressed:() {
                               setState(() {
                                 error=false;
@@ -72,7 +77,7 @@ class _LoadingState extends State<Loading> {
                       ),
                     ],
                   ),
-                )
+                ),
             ],
           ),
         ),

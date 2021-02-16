@@ -95,3 +95,6 @@ pubspec.lock
 .dart_tool/
 .idea/
 private/
+assets/press/*.png
+assets/extensions/*.png
+assets/energie/*.png

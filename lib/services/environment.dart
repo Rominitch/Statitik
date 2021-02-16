@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -7,6 +6,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:mysql1/mysql1.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:statitikcard/services/internationalization.dart';
 
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/connection.dart';
@@ -24,6 +25,12 @@ class Credential
     {
         try {
             await Firebase.initializeApp();
+
+            // Auto login
+            var prefs = await SharedPreferences.getInstance();
+            if( prefs.getString('uid') != null ) {
+                await Environment.instance.login(1);
+            }
         } catch(e) {
             Environment.instance.user = null;
         }
@@ -56,11 +63,15 @@ class Credential
     Future<void> signOutGoogle() async {
         Environment.instance.user = null;
         await googleSignIn.signOut();
+
+        var prefs = await SharedPreferences.getInstance();
+        prefs.remove('uid');
     }
 }
 
 class Database
 {
+    final String version = '1.2';
     final ConnectionSettings settings = createConnection();
 
     Future<void> transactionR(Function queries) async
@@ -70,13 +81,17 @@ class Database
         {
             connection = await MySqlConnection.connect(settings);
         } catch( e ) {
-            throw StatitikException("Impossible de se connecter à la base de données.");
+            throw StatitikException('DB_0');
         }
 
         // Execute request
         try {
             await connection.transaction(queries);
-        } finally {
+        } catch( e ) {
+            if(local)
+                print(e.toString());
+        }
+        finally {
             connection.close();
         }
     }
@@ -87,11 +102,13 @@ class Collection
     List languages = [];
     List extensions = [];
     List subExtensions = [];
+    Map<int, String> category = {};
 
     void clear() {
         languages.clear();
         extensions.clear();
         subExtensions.clear();
+        category.clear();
     }
 
     void addLanguage(Language l) {
@@ -142,7 +159,7 @@ class Environment
 
     // Event
     final StreamController<bool> onInitialize = StreamController<bool>();
-    final StreamController<bool> onServerError = StreamController<bool>();
+    final StreamController<String> onServerError = StreamController<String>();
 
     // Manager
     Credential credential = Credential();
@@ -150,12 +167,15 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.1.0';
+    final String version = '0.5.0';
 
     // State
     bool isInitialized=false;
     bool startDB=false;
     bool showExtensionName = false;
+    bool showPressImages = false;
+    bool showPressProductImages = false;
+    final String serverImages = 'https://mouca.fr/StatitikCard/products/';
 
     // Cached data
     Collection collection = Collection();
@@ -171,21 +191,42 @@ class Environment
             try {
                 await Future.wait(
                     [
+                        databaseReady(),
                         credential.initialize(),
                         readStaticData(),
                     ]);
 
                 isInitialized = true;
                 onInitialize.add(isInitialized);
-            } catch (e) {
+            }
+            on StatitikException catch(e) {
                 isInitialized = false;
-                onServerError.add(true);
+                onServerError.add(e.msg);
+            }
+            catch (e) {
+                isInitialized = false;
+                onServerError.add('error');
             }
         }
     }
 
     void toggleShowExtensionName() {
         showExtensionName = ! showExtensionName;
+    }
+
+    Future<void> databaseReady() async
+    {
+        await db.transactionR( (connection) async {
+            var info = await connection.query("SELECT * FROM `BaseInfo`");
+            bool isValid = false;
+            for (var row in info) {
+                isValid = row[0] == db.version;
+                showPressImages = row[2] == 1;
+                showPressProductImages = showPressImages;
+            }
+            if(info == null || !isValid)
+                throw StatitikException('DB_1');
+        });
     }
 
     Future<void> readStaticData() async
@@ -207,13 +248,18 @@ class Environment
 
                 var subExts = await connection.query("SELECT * FROM `SousExtension` ORDER BY `code` DESC");
                 for (var row in subExts) {
-                    SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1]);
+                    SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], year: row[6]);
                     try {
                         se.extractCard(row[4]);
                         collection.addSubExtension(se);
                     } catch(e) {
                         print("Bad Subextension: ${se.name} $e");
                     }
+                }
+
+                var catExts = await connection.query("SELECT * FROM `Categorie` ORDER BY `nom` DESC");
+                for (var row in catExts) {
+                    collection.category[row[0]-1] = row[1];
                 }
             });
 
@@ -223,34 +269,41 @@ class Environment
 
     Future<List> readProducts(Language l, SubExtension se) async
     {
-        List produits = [];
+        List produits = List<List<Product>>.generate(Environment.instance.collection.category.length, (index) { return []; });
 
-        Function fillProd = (connection, exts) async {
+        Function fillProd = (connection, exts, color) async {
             for (var row in exts) {
-                Map boosters = {};
-                var reqBoosters = await connection.query("SELECT `ProduitBooster`.idSousExtension, `ProduitBooster`.nombre FROM `ProduitBooster`"
+                Map<int, ProductBooster> boosters = {};
+                var reqBoosters = await connection.query("SELECT `ProduitBooster`.`idSousExtension`, `ProduitBooster`.`nombre`, `ProduitBooster`.`carte` FROM `ProduitBooster`"
                     " WHERE `ProduitBooster`.`idProduit` = ${row[0]}");
                 for (var row in reqBoosters) {
-                    boosters[row[0]] = row[1];
+                    boosters[row[0]] = ProductBooster(nbBoosters: row[1], nbCardsPerBooster: row[2]);
                 }
-                produits.add(Product(idDB: row[0], name: row[1], imageURL: row[2], boosters: boosters ));
+                int cat = row[3]-1;
+                assert(0 <= cat && cat < produits.length);
+                produits[cat].add(Product(idDB: row[0], name: row[1], imageURL: row[2], boosters: boosters, color: color ));
             }
         };
 
         await db.transactionR( (connection) async {
-            var exts = await connection.query("SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone` FROM `Produit`, `ProduitBooster`"
+            String query = "SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie` FROM `Produit`, `ProduitBooster`"
                 " WHERE `Produit`.`approuve` = 1"
+                " AND `Produit`.`idLangue` = ${l.id}"
                 " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
                 " AND `ProduitBooster`.`idSousExtension` = ${se.id}"
-                " ORDER BY `Produit`.`nom` ASC");
-            await fillProd(connection, exts);
+                " ORDER BY `Produit`.`nom` ASC";
+            var exts = await connection.query(query);
+            await fillProd(connection, exts, Colors.grey[600]);
 
-            exts = await connection.query("SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone` FROM `Produit`, `ProduitBooster`"
+            query ="SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie` FROM `Produit`, `ProduitBooster`"
                 " WHERE `Produit`.`approuve` = 1"
+                " AND `Produit`.`idLangue` = ${l.id}"
                 " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
                 " AND `ProduitBooster`.`idSousExtension` IS NULL"
-                " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC");
-            await fillProd(connection, exts);
+                " AND `Produit`.`annee` >= ${se.year}"
+                " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC";
+            exts = await connection.query(query);
+            await fillProd(connection, exts, Colors.deepOrange[700]);
         });
         return produits;
     }
@@ -266,13 +319,14 @@ class Environment
                     idNewID = row[0] + 1;
                 }
 
-                String query = 'SELECT `idUtilisateur`, `ban` FROM `Utilisateur` WHERE `identifiant` = \'$uid\';';
+                String query = 'SELECT `idUtilisateur`, `ban`, `su` FROM `Utilisateur` WHERE `identifiant` = \'$uid\';';
                 var reqUser = await connection.query(query);
                 if( reqUser.length == 1 ) {
                     for (var row in reqUser) {
                         if(row[1] != 0)
                             throw StatitikException("Utilisateur banni pour non respect des règles.");
                         user = UserPoke(idDB: row[0]);
+                        user.admin = row[2] == 1 ? true : false;
                     }
                 } else {
                     await connection.query('INSERT INTO `Utilisateur` (idUtilisateur, identifiant, ban) VALUES ($idNewID, \'$uid\', 0);');
@@ -303,12 +357,12 @@ class Environment
                     draw.add(booster.buildQuery(idAchat));
                 }
                 // Send data
-                await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, energie, cartesBin) VALUES (?, ?, ?, ?, ?);',
+                await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, energieBin, cartesBin) VALUES (?, ?, ?, ?, ?);',
                                             draw);
             });
             return true;
         } catch( e ) {
-            if(!kReleaseMode)
+            if(local)
                 print("Database error $e");
         }
         return false;
@@ -329,21 +383,44 @@ class Environment
         }
     }
 
-    Future<Stats> getStats(SubExtension subExt, Product product) async {
+    Future<Stats> getStats(SubExtension subExt, Product product, int category, [int user]) async {
         Stats stats = new Stats(subExt: subExt);
         try {
+            String userReq = '';
+            if(user != null)
+                userReq = 'AND `UtilisateurProduit`.`idUtilisateur` = $user ';
+
             await db.transactionR( (connection) async {
-                //String productQ = product == null ? "" : " AND product";
-                String query = 'SELECT `cartesBin`, `energie`, `anomalie` FROM `TirageBooster` WHERE `idSousExtension` = ${subExt.id};';
+                String query;
+                if(product != null) {
+                    query = 'SELECT `cartesBin`, `energieBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit` '
+                            'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
+                            'AND `UtilisateurProduit`.`idProduit` = ${product.idDB} '
+                            'AND `idSousExtension` = ${subExt.id} '
+                            '$userReq;';
+                } else if(category != -1) {
+                    query = 'SELECT `cartesBin`, `energieBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit`, `Produit` '
+                        'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
+                        'AND `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit` '
+                        'AND `Produit`.`idCategorie` = ${category+1} '
+                        'AND `idSousExtension` = ${subExt.id} '
+                        '$userReq;';
+                } else {
+                    query = 'SELECT `cartesBin`, `energieBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit` '
+                            'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
+                            'AND `idSousExtension` = ${subExt.id} '
+                            '$userReq;';
+                }
                 var req = await connection.query(query);
+                print(query);
                 for (var row in req) {
-                    stats.addBoosterDraw((row[0] as Blob).toBytes(), row[1], row[2]);
+                    stats.addBoosterDraw((row[0] as Blob).toBytes(), (row[1] as Blob).toBytes(), row[2]);
                 }
             });
         }
         catch( e ) {
-            //if( e is StatitikException)
-            //    print(e.msg);
+            if( local && e is StatitikException)
+                print(e.msg);
         }
         return stats;
     }
@@ -355,15 +432,18 @@ class Environment
             //applicationIcon:
             applicationLegalese: 'Copyright (c) 2021 Rominitch',
             applicationName: nameApp,
-            children:
-            [ SingleChildScrollView( child: Text( '''\n$nameApp n\'est pas une application officielle Pokémon, elle n\'est en aucun cas affiliée, approuvée ou supportée par Nintendo, GAME FREAK ou The Pokémon Company.
-Elle est à but non-lucratif, créé par et pour des fans de Pokémon.
+            children:[]
+        );
+    }
 
-Les personnages, le thème "Pokémon ®" et ses marques dérivées sont propriétés de © Nintendo, The Pokémon Company, Game Freak, Creatures.
-Les images et illustrations utilisées sont la propriété de leurs auteurs respectifs.
-© 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.''',
+    void showDisclaimer(context) {
+        showDialog(
+            context: context,
+            builder: (_) => new AlertDialog(
+                title: new Text(StatitikLocale.of(context).read('disclaimer_T0')),
+                content: SingleChildScrollView( child:Text( nameApp + StatitikLocale.of(context).read('disclaimer'),
                 textAlign: TextAlign.justify),
-            )]
+            ), )
         );
     }
 
@@ -374,10 +454,14 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
     Future<String> login(int mode) async {
         try {
             String uid;
+            var prefs = await SharedPreferences.getInstance();
 
             // Log system
             if(mode==0) {
                 uid = await credential.signInWithGoogle();
+                prefs.setString('uid', uid);
+            } else {
+                uid = prefs.getString('uid');
             }
 
             // Register and check access
@@ -396,31 +480,3 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
     }
 
 }
-
-// import 'services/environment.dart' as G;
-
-/*
-
-// custom event class
-class MyEvent {
-  String eventData;
-
-  MyEvent(this.eventData);
-}
-
-// class that fires when something changes
-class SomeClass {
-  var changeController = new StreamController<MyEvent>();
-  Stream<MyEvent> get onChange => changeController.stream;
-
-  void doSomething() {
-    // do the change
-    changeController.add(new MyEvent('something changed'));
-  }
-}
-
-// listen to changes
-...
-var c = new SomeClass();
-c.onChange.listen((e) => print(e.eventData));
- */

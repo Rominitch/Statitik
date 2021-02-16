@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class BoosterPage extends StatefulWidget {
@@ -48,14 +49,27 @@ class _BoosterPageState extends State<BoosterPage> {
           title: Container(
             child: Row(
               children:[
-                Text('Booster ${widget.boosterDraw.id}'),
+                Text(StatitikLocale.of(context).read('S_B4')+' ${widget.boosterDraw.id}'),
                 SizedBox(width: 10.0),
                 widget.boosterDraw.subExtension.image(hSize: iconSize),
                 SizedBox(width: 10.0),
-                Text('${widget.boosterDraw.count}/${widget.boosterDraw.nbCards}'),
+                widget.boosterDraw.abnormal
+                ? Text('${widget.boosterDraw.count}')
+                : Text('${widget.boosterDraw.count}/${widget.boosterDraw.nbCards}'),
               ],
             ),
           ),
+          actions: [
+            if(widget.boosterDraw.isFinished()) Card(
+              color: greenValid,
+              child: FlatButton(
+              child: Text(StatitikLocale.of(context).read('ok')),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              ),
+            )
+          ],
         ),
         body:
          ListView(
@@ -68,6 +82,28 @@ class _BoosterPageState extends State<BoosterPage> {
                   primary: false,
                   children: widgetEnergies,
                 ),
+              ),
+              CheckboxListTile(
+                title: Text(StatitikLocale.of(context).read('TB_B0')),
+                subtitle: Text(StatitikLocale.of(context).read('TB_B1')),
+                value: widget.boosterDraw.abnormal,
+                onChanged: (newValue) async {
+
+                    if(widget.boosterDraw.abnormal && widget.boosterDraw.needReset())
+                    {
+                      bool reset = await showDialog(
+                          context: context,
+                          barrierDismissible: false, // user must tap button!
+                          builder: (BuildContext context) { return showAlert(context); });
+
+                      if(reset)
+                      {
+                        setState(() { widget.boosterDraw.revertAnomaly();});
+                      }
+                    } else { // Toggle
+                      setState(() { widget.boosterDraw.abnormal = !widget.boosterDraw.abnormal; });
+                    }
+                },
               ),
               GridView.count(
                 crossAxisCount: 5,

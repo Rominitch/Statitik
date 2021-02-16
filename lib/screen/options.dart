@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
 
 class OptionsPage extends StatefulWidget {
   @override
@@ -20,29 +23,14 @@ class _OptionsPageState extends State<OptionsPage> {
     Function refresh = () {
       setState(() {});
     };
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Center(
-          child: Text(
-            'Options', style: Theme.of(context).textTheme.headline1,
-          ),
-        ),
-        !Environment.instance.isLogged() ? signInButton(refreshWithError) : signOutButton(refresh),
-        if(this.message != null) Text(this.message),
-        Expanded(child: SizedBox()),
-        /*
+
+    List<Widget> buttons = [];
+    if(Environment.instance.isLogged())
+    {
+      buttons = [
+        signOutButton(refresh, context),
         FlatButton(
-            onPressed: () {
-              Environment.instance.startDB=false;
-              Environment.instance.readStaticData();
-            },
-            child: Text('Actualiser la base de données')
-        ),
-         */
-        SizedBox(height: 10),
-        if(Environment.instance.isLogged()) FlatButton(
-          color: Colors.red[800],
+            color: Colors.red[800],
             onPressed: () {
               setState(()
               {
@@ -52,36 +40,118 @@ class _OptionsPageState extends State<OptionsPage> {
                 );
               });
             },
-            child: Text('Suppression du compte')
+            child: Text(StatitikLocale.of(context).read('O_B0'))
         ),
         SizedBox(height: 10),
-        FlatButton(
-            onPressed: () {
-              Environment.instance.showAbout(context);
-            },
-            child: Text('A propos')
+      ];
+
+      if(Environment.instance.user.admin) {
+        buttons += [
+          FlatButton(
+              onPressed: () {
+                Environment.instance.startDB=false;
+                Environment.instance.readStaticData();
+              },
+              child: Text(StatitikLocale.of(context).read('O_B1'))
+          ),
+          SizedBox(height: 10),
+          CheckboxListTile(value: useDebug,
+              title: Text(StatitikLocale.of(context).read('O_B2')),
+              onChanged: (newValue) {
+                setState(() {
+                  useDebug = newValue;
+                });
+                Environment.instance.startDB=false;
+                Environment.instance.db = Database();
+                Environment.instance.readStaticData();
+
+          }),
+          SizedBox(height: 10),
+        ];
+      }
+
+    } else {
+      buttons = [
+        signInButton(refreshWithError, context),
+      ];
+    }
+
+    return Scaffold(
+        appBar: AppBar(
+        title: Center(
+          child: Text( StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline3, ),
         ),
-      ],
+      ),
+    body: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: buttons + <Widget>[
+          Expanded(child: Center(child: drawImagePress(context, "PikaOption.png", 200.0))),
+          Row(
+            children: [
+              Expanded(child: Card(
+                child: FlatButton(
+                    onPressed: () {
+                      Environment.instance.showDisclaimer(context);
+                    },
+                    child: Text(StatitikLocale.of(context).read('disclaimer_T0'))
+                ),
+              )),
+              Expanded(child: Card(
+                child: FlatButton(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/thanks');
+                    },
+                    child: Text(StatitikLocale.of(context).read('O_B3'))
+                ),
+              )),
+            ]
+          ),
+          Row(
+            children: [
+              Expanded(child: Card(
+                child: FlatButton(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/support');
+                    },
+                    child: Text(StatitikLocale.of(context).read('O_B4'))
+                ),
+              )),
+              Expanded(child: Card(
+                child: FlatButton(
+                    onPressed: () {
+                      Environment.instance.showAbout(context);
+                    },
+                    child: Text(StatitikLocale.of(context).read('O_B5'))
+                ),
+              )),
+            ],
+          ),
+
+        ],
+      ),
+    ),
     );
   }
 
   Widget forgetMeDialog() {
     return new AlertDialog(
-      title: new Text("Attention"),
+      title: new Text(StatitikLocale.of(context).read('warning')),
       content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children:
           [
-            Text('Conformement à la réglementation en rigeur, vous avez le droit à l\'oubli.\n'),
-            Text('La suppression de votre UID dans la base de données est irréversible, vous ne pourrez plus jamais accéder à vos tirages.\n', style: TextStyle(color: Colors.red[600])),
-            Text('Voulez-vous supprimer votre compte ?\n')
+            Text(StatitikLocale.of(context).read('O_B6')),
+            Text(StatitikLocale.of(context).read('O_B7'), style: TextStyle(color: Colors.red[600])),
+            Text(StatitikLocale.of(context).read('O_B8'))
           ]
       ),
       actions: [
         Card(
           color: Colors.red[600],
-          child: FlatButton( child: Text("Confirmer"),
+          child: FlatButton( child: Text(StatitikLocale.of(context).read('confirm')),
           onPressed: (){
             Environment.instance.removeUser().whenComplete(() {
               Navigator.of(context).pop();
@@ -90,7 +160,7 @@ class _OptionsPageState extends State<OptionsPage> {
           },),),
         Card(
           color: Theme.of(context).primaryColor,
-          child: FlatButton( child: Text("Annuler"), onPressed: (){ Navigator.of(context).pop();},),),
+          child: FlatButton( child: Text(StatitikLocale.of(context).read('cancel')), onPressed: (){ Navigator.of(context).pop();},),),
       ],
     );
   }

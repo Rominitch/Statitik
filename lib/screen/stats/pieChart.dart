@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:fl_chart/fl_chart.dart';
@@ -15,12 +16,6 @@ class PieChartGeneric extends StatefulWidget {
 class PieChartGenericState extends State<PieChartGeneric> {
   int touchedIndex;
   List<PieChartSectionData> sections = [];
-
-  @override
-  void initState() {
-
-    super.initState();
-  }
 
   void createPie() {
     sections.clear();
@@ -54,23 +49,96 @@ class PieChartGenericState extends State<PieChartGeneric> {
         aspectRatio: 1.5,
         child: PieChart(
           PieChartData(
-              /*
-              pieTouchData: PieTouchData(touchCallback: (pieTouchResponse) {
-                setState(() {
-                  if (pieTouchResponse.touchInput is FlLongPressEnd ||
-                      pieTouchResponse.touchInput is FlPanEnd) {
-                    touchedIndex = -1;
-                  } else {
-                    touchedIndex = pieTouchResponse.touchedSectionIndex;
-                  }
-                });
-              }),
-              */
               borderData: FlBorderData(
                 show: false,
               ),
               sectionsSpace: 2,
               centerSpaceRadius: 70,
+              sections: sections),
+        ),
+      ),
+    );
+  }
+}
+
+enum Visualize {
+  Type,
+  Rarity
+}
+
+class PieExtension extends StatefulWidget {
+  final StatsExtension stats;
+  final Visualize visu;
+
+  PieExtension({this.stats, this.visu});
+
+  @override
+  _PieExtensionState createState() => _PieExtensionState();
+}
+
+class _PieExtensionState extends State<PieExtension> {
+  int touchedIndex;
+  List<PieChartSectionData> sections = [];
+
+  void createPie() {
+    sections.clear();
+
+    final double ratio = 100.0 / widget.stats.subExt.cards.length;
+    if( widget.visu == Visualize.Type) {
+      for(var type in Type.values) {
+        final isTouched = type.index == touchedIndex;
+        final double radius = isTouched ? 130 : 100;
+        int count = widget.stats.countByType[type.index];
+        if (count > 0) {
+          sections.add(PieChartSectionData(
+            color: typeColors[type.index],
+            value: count.toDouble(),
+            title: ( count * ratio ).toStringAsFixed(2) + ' %',
+            radius: radius,
+            titlePositionPercentageOffset: 0.8,
+            titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
+            badgeWidget: getImageType(type),
+            badgePositionPercentageOffset: 1.15,
+          )
+          );
+        }
+      }
+    } else {
+      for(var rarity in Rarity.values) {
+        final isTouched = rarity.index == touchedIndex;
+        final double radius = isTouched ? 130 : 100;
+        int count = widget.stats.countByRarity[rarity.index];
+        if (count > 0) {
+          sections.add(PieChartSectionData(
+            color: typeColors[rarity.index],
+            value: count.toDouble(),
+            title: ( count * ratio ).toStringAsFixed(2) + ' %',
+            radius: radius,
+            titlePositionPercentageOffset: 0.8,
+            titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
+            badgeWidget: Row( mainAxisSize: MainAxisSize.min,  children: getImageRarity(rarity), ),
+            badgePositionPercentageOffset: 1.15,
+          )
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    createPie();
+
+    return Container(
+      child: AspectRatio(
+        aspectRatio: 1.0,
+        child: PieChart(
+          PieChartData(
+              borderData: FlBorderData(
+                show: false,
+              ),
+              sectionsSpace: 2,
+              centerSpaceRadius: 60,
               sections: sections),
         ),
       ),
