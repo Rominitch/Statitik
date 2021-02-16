@@ -1,16 +1,31 @@
-# statitik_pokemon
+# StatitikCard [FR]
+Est une application mobile de partage d'ouverture de booster et de calcul de statistique pour Pokemon JCC.
+Elle est gratuite et sans publicité.
 
-Statistique des tirages pour Pokemon JCC.
+## Télécharger
+<a href='https://play.google.com/store/apps/details?id=fr.mouca.statitikcard&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width="300" alt='Disponible sur Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/fr_badge_web_generic.png'/></a>
 
-## Getting Started
+## Demande d'amélioration
+Pour demander une amélioration ou corriger un bug existant, veuillez ouvrir un nouveau sujet dans 'Issues'.
 
-This project is a starting point for a Flutter application.
+## Licences
+Le code source est sous licence MIT.
+Les assets sont la propriété de leur auteur.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+# StatitikCard [EN]
+Is a mobile application to shared boosters' opening and compute stats for Pokémon TCG.
+It's free and without adds.
+
+## Download
+<a href='https://play.google.com/store/apps/details?id=fr.mouca.statitikcard&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width="300" alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
+
+## Demand an improvement
+To demand an improvment or bug fix, please add new topics into 'Issues' panel.
+
+## Licenses
+Source is under MIT license.
+Assets are undo author's property rights.
+
