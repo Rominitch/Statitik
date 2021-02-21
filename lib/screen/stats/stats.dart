@@ -87,6 +87,17 @@ class _StatsPageState extends State<StatsPage> {
          )
         ];
      }
+     if(widget.d.subExt.validCard)
+       finalWidget.add(
+         Card(
+           color: Colors.grey[800],
+           child: FlatButton(
+               child: Text(StatitikLocale.of(context).read('S_B7')),
+               onPressed: () {
+                 Navigator.push(context, MaterialPageRoute(builder: (context) => StatsExtensionsPage(stats: widget.d.stats)));
+               }
+           ),
+         ));
     } else {
       finalWidget = [
         Container( child: Row( children: [
@@ -290,15 +301,7 @@ class _StatsPageState extends State<StatsPage> {
                 children: rarity,
               ),
               PieChartGeneric(allStats: widget.d.stats),
-              Card(
-                  color: Colors.grey[800],
-                  child: FlatButton(
-                      child: Text(StatitikLocale.of(context).read('S_B7')),
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => StatsExtensionsPage(stats: widget.d.stats)));
-                  }
-                ),
-              ),
+
             ]
           ),
         ),

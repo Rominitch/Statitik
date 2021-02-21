@@ -167,9 +167,9 @@ class _PokemonCardState extends State<PokemonCard> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: icons+[
                   if( nbCard > 1)
-                    Text('${widget.idCard+1} ($nbCard)')
+                    Text('${widget.boosterDraw.nameCard(widget.idCard)} ($nbCard)')
                   else
-                    Text('${widget.idCard+1}')
+                    Text('${widget.boosterDraw.nameCard(widget.idCard)}')
                 ]),
             padding: EdgeInsets.all(2.0),
             onLongPress: () {

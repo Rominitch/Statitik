@@ -71,7 +71,7 @@ class Credential
 
 class Database
 {
-    final String version = '1.2';
+    final String version = '1.3';
     final ConnectionSettings settings = createConnection();
 
     Future<void> transactionR(Function queries) async
@@ -167,7 +167,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.5.0';
+    final String version = '0.5.1';
 
     // State
     bool isInitialized=false;
@@ -248,7 +248,7 @@ class Environment
 
                 var subExts = await connection.query("SELECT * FROM `SousExtension` ORDER BY `code` DESC");
                 for (var row in subExts) {
-                    SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], year: row[6]);
+                    SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], year: row[6], chromatique: row[7]);
                     try {
                         se.extractCard(row[4]);
                         collection.addSubExtension(se);

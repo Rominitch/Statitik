@@ -88,7 +88,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
                       )
                   ),
                   SizedBox(height: 10.0,),
-                  Card(
+                  if (widget.stats.nbBoosters > 0) Card(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(

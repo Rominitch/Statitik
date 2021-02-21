@@ -312,8 +312,9 @@ class SubExtension
   int    idExtension;
   int    year;
   bool   validCard = true;
+  int    chromatique;
 
-  SubExtension({ this.id, this.name, this.icon, this.idExtension, this.year });
+  SubExtension({ this.id, this.name, this.icon, this.idExtension, this.year, this.chromatique });
 
   void extractCard(String code)
   {
@@ -509,6 +510,14 @@ class BoosterDraw {
   }
   bool isRandom() {
     return creation == null;
+  }
+
+  String nameCard(int id) {
+    if(subExtension != null && subExtension.chromatique != null) {
+      return id < subExtension.chromatique ? (id+1).toString() : 'SV' + (id-subExtension.chromatique+1).toString();
+    } else {
+      return (id + 1).toString();
+    }
   }
 
   void resetBooster() {
