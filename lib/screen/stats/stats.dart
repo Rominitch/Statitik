@@ -1,24 +1,24 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
 import 'package:statitikcard/screen/stats/statsExtension.dart';
 import 'package:statitikcard/screen/commonPages/productPage.dart';
+import 'package:statitikcard/screen/stats/userReport.dart';
+import 'package:statitikcard/services/Capture.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
-
-class StatsData {
-  Language     language;
-  SubExtension subExt;
-  Product      product;
-  int          category = -1;
-  Stats        stats;
-  Stats        userStats;
-}
 
 class StatsPage extends StatefulWidget {
   final StatsData d = StatsData();
@@ -29,6 +29,8 @@ class StatsPage extends StatefulWidget {
 
 class _StatsPageState extends State<StatsPage> {
   bool delta=false;
+
+  final _captureKey = GlobalKey<CaptureWidgetState>();
 
   void afterSelectExtension(BuildContext context, Language language, SubExtension subExt) {
     Navigator.popUntil(context, ModalRoute.withName('/'));
@@ -45,6 +47,34 @@ class _StatsPageState extends State<StatsPage> {
     waitStats();
   }
 
+  void _shareReport() {
+    // Demand to write on device
+    [ Permission.storage,
+    ].request().then( (Map<Permission, PermissionStatus> statuses) async {
+      // If accepted
+      if( statuses[Permission.storage].isGranted ) {
+        CaptureResult image = await _captureKey.currentState.captureImage();
+        final myImagePath = (await getApplicationSupportDirectory()).path;
+
+        var now = new DateTime.now();
+        var file = File("$myImagePath/Statitik_${widget.d.subExt.icon}_${DateFormat('yyyyMMdd_kk_mm').format(now)}.png");
+        file.writeAsBytesSync(image.data);
+
+        var result = await PhotoManager.requestPermission();
+        if (result) {
+          final AssetEntity imageEntity = await PhotoManager.editor.saveImageWithPath(file.path);
+          showDialog(
+              context: context,
+              builder: (_) => new AlertDialog(
+                title: new Text(StatitikLocale.of(context).read('RE_B1')),
+                content: Text(StatitikLocale.of(context).read('RE_B2')),
+              )
+          );
+        }
+      }
+    });
+  }
+
   Future<void> waitStats() async {
     // Clean old result
     widget.d.userStats = null;
@@ -57,8 +87,10 @@ class _StatsPageState extends State<StatsPage> {
       // Get user info after
       if(env.user != null) {
         env.getStats(widget.d.subExt, widget.d.product, widget.d.category, env.user.idDB).then( (ustats) {
-          widget.d.userStats = ustats;
-          setState(() {});
+          if(ustats != null && ustats.nbBoosters > 0) {
+            widget.d.userStats = ustats;
+            setState(() {});
+          }
         });
       }
       setState(() {});
@@ -99,20 +131,31 @@ class _StatsPageState extends State<StatsPage> {
            ),
          ));
     } else {
-      finalWidget = [
-        Container( child: Row( children: [
-            SizedBox(width: 40.0),
-            Image(image: AssetImage('assets/arrow.png'), height: 30.0,),
-            SizedBox(width: 25.0),
-            Flexible(child: Text(StatitikLocale.of(context).read('S_B2'), style: Theme.of(context).textTheme.headline5,)),
-            ],)
-        ),
-        SizedBox(height: 20.0),
-        drawImagePress(context, 'Arrozard.png', 350.0),
-      ];
+      if( widget.d.subExt != null) {
+        finalWidget = [
+          Text(StatitikLocale.of(context).read('loading')),
+          SizedBox(height: 20.0),
+          drawImagePress(context, 'Arrozard.png', 350.0),
+        ];
+      } else {
+        finalWidget = [
+          Container( child: Row( children: [
+              SizedBox(width: 40.0),
+              Image(image: AssetImage('assets/arrow.png'), height: 30.0,),
+              SizedBox(width: 25.0),
+              Flexible(child: Text(StatitikLocale.of(context).read('S_B2'), style: Theme.of(context).textTheme.headline5,)),
+              ],)
+          ),
+          SizedBox(height: 20.0),
+          drawImagePress(context, 'Arrozard.png', 350.0),
+        ];
+      }
     }
 
-    return Scaffold(
+    return CaptureWidget(
+        key: _captureKey,
+        capture: UserReport(data: widget.d),
+        child: Scaffold(
         appBar: AppBar(
           title: Center(
             child: Text(
@@ -152,7 +195,12 @@ class _StatsPageState extends State<StatsPage> {
                       );
                      }).then( (result) { setState((){}); } );
                   }
-             )
+              ),
+            if(widget.d.userStats != null)
+              FlatButton(
+                child: Icon(Icons.mobile_screen_share_outlined),
+                onPressed: _shareReport
+              ),
           ],
         ),
         body: SafeArea(
@@ -194,7 +242,7 @@ class _StatsPageState extends State<StatsPage> {
             ),
           )
         )
-    );
+    ));
   }
 
   void afterSelectProduct(BuildContext context, Language language, Product product, int category) {
@@ -290,7 +338,8 @@ class _StatsPageState extends State<StatsPage> {
             children: [
               Row(children: [Text(StatitikLocale.of(context).read('S_B4'), style: Theme.of(context).textTheme.headline5 ),
                 Expanded(child: SizedBox()),
-                Text(sprintf(StatitikLocale.of(context).read('S_B5'), [widget.d.stats.nbBoosters, widget.d.stats.anomaly]))
+                widget.d.stats.anomaly > 0 ? Text(sprintf(StatitikLocale.of(context).read('S_B5'), [widget.d.stats.nbBoosters, widget.d.stats.anomaly]))
+                                           : Text(sprintf(StatitikLocale.of(context).read('S_B13'), [widget.d.stats.nbBoosters]))
               ]),
               SizedBox(height: 8.0,),
               Text(sprintf(StatitikLocale.of(context).read('S_B6'), [divider.toInt()])),
@@ -301,7 +350,6 @@ class _StatsPageState extends State<StatsPage> {
                 children: rarity,
               ),
               PieChartGeneric(allStats: widget.d.stats),
-
             ]
           ),
         ),

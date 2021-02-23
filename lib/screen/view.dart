@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/screen/stats/pieChart.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -339,5 +342,98 @@ RichText textBullet(text) {
         TextSpan(text: text,),
       ],
     ),
+  );
+}
+
+Widget buildLine(label, luck, color, divider, delta, [double userLuck]) {
+  List<Widget> userInfo = [];
+  if(userLuck != null ) {
+    final double deltaUserLuck = userLuck - luck;
+    final Color color = deltaUserLuck >= 0 ? Colors.green : Colors.deepOrange;
+    final IconData icon = (deltaUserLuck > 0) ? Icons.keyboard_arrow_up : ((deltaUserLuck == 0) ? Icons.remove : Icons.keyboard_arrow_down);
+    final String value = (deltaUserLuck > 0 && delta ? '+' : '') + (delta ? deltaUserLuck.toStringAsFixed(3) : userLuck.toStringAsFixed(3) );
+    userInfo = [
+      Icon(icon, color: color),
+      Container(child:Text(value, style: TextStyle(fontSize: 9, color: color)), width: 30),
+    ];
+  }
+
+  return Row(
+      children: [
+        Container(child: Row( children: label), width: 50,),
+        Expanded(child: LinearPercentIndicator(
+          lineHeight: 8.0,
+          percent: (luck / divider).clamp(0.0, 1.0),
+          progressColor: color,
+        )),
+        Container(child:Text('${luck.toStringAsFixed(3)}'), width: 45),
+      ] + userInfo);
+}
+
+Widget buildStatsView(BuildContext context, StatsData data, bool delta, bool print) {
+  assert(data.stats != null);
+  double divider = 11.0;
+  List<Widget> rarity = [];
+  {
+    double sum=0;
+    data.stats.countEnergy.forEach((number) {sum += number.toDouble(); });
+    double luck = sum / data.stats.nbBoosters;
+    if(luck > 0) {
+      double userLuck;
+      if(data.userStats != null && data.userStats.nbBoosters > 0) {
+        double userSum=0;
+        data.userStats.countEnergy.forEach((number) {userSum += number.toDouble(); });
+        userLuck = (userSum / data.userStats.nbBoosters);
+      }
+      rarity.add(buildLine([ Icon(Icons.battery_charging_full), ], luck, Colors.yellowAccent, divider, delta, userLuck));
+    }
+  }
+
+  if( data.subExt.validCard ) {
+    for( var rare in Rarity.values ) {
+      if(rare == Rarity.Unknown)
+        continue;
+      double luck = data.stats.countByRarity[rare.index] / data.stats.nbBoosters;
+      if(luck > 0)
+      {
+        double userLuck = (data.userStats != null && data.userStats.nbBoosters > 0) ? (data.userStats.countByRarity[rare.index] / data.userStats.nbBoosters) : null;
+        rarity.add( buildLine(getImageRarity(rare), luck, rarityColors[rare.index], divider, delta, userLuck) );
+      }
+    }
+
+    for( var mode in [Mode.Reverse, Mode.Halo] ) {
+      double luck = data.stats.countByMode[mode.index] / data.stats.nbBoosters;
+      if(luck > 0)
+      {
+        double userLuck = (data.userStats != null && data.userStats.nbBoosters > 0) ? (data.userStats.countByMode[mode.index] / data.userStats.nbBoosters) : null;
+        rarity.add( buildLine([Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), height: 30.0)], luck, modeColors[mode.index], divider, delta, userLuck) );
+      }
+    }
+  } else {
+    rarity.add(Text(StatitikLocale.of(context).read('S_B3')));
+  }
+
+  return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(children: [Text(StatitikLocale.of(context).read('S_B4'), style: Theme.of(context).textTheme.headline5 ),
+                Expanded(child: SizedBox()),
+                Text(sprintf(StatitikLocale.of(context).read('S_B5'), [data.stats.nbBoosters, data.stats.anomaly]))
+              ]),
+              if(!print) Text(sprintf(StatitikLocale.of(context).read('S_B6'), [divider.toInt()])),
+              if(!print) SizedBox(height: 8.0,),
+              ListView(
+                shrinkWrap: true,
+                primary: false,
+                children: rarity,
+              ),
+              if(!print) Text(StatitikLocale.of(context).read('S_B12'), style: Theme.of(context).textTheme.headline5 ),
+              if(!print) PieChartGeneric(allStats: data.stats),
+            ]
+        ),
+      ),
   );
 }

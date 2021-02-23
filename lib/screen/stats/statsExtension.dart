@@ -45,6 +45,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
                    ? '-'
                    : percent.toStringAsPrecision(2)+'%';
 
+      final cardName = widget.stats.subExt.nameCard(id);
       cards.add(Card(
         color: Colors.grey[800],
         child: Column(
@@ -55,7 +56,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
                 children: [
                   pc.imageType(),
                   SizedBox(width: 5.0),
-                  Text('${id+1}'),
+                  Text(cardName, style: cardName.length > 4 ? TextStyle(fontSize: 10.0) : TextStyle(fontSize: 12.0),),
               ]),
               Text(label, style: TextStyle(color: col, fontWeight: FontWeight.bold)),
         ]),

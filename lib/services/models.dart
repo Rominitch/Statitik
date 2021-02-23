@@ -209,10 +209,10 @@ List<Widget> getImageRarity(Rarity rarity) {
         cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('P', style: TextStyle(fontSize: 12.0))];
         break;
       case Rarity.Chromatique:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('CH', style: TextStyle(fontSize: 12.0))];
+        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('CH', style: TextStyle(fontSize: 10.0))];
         break;
       case Rarity.ChromatiqueRare:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star_border), Text('CH', style: TextStyle(fontSize: 12.0))];
+        cachedImageRarity[rarity.index] = [Icon(Icons.star_border), Text('CH', style: TextStyle(fontSize: 10.0))];
         break;
       case Rarity.V:
         cachedImageRarity[rarity.index] = [Icon(Icons.star_border)];
@@ -355,6 +355,14 @@ class SubExtension
       width:  wSize,
       height: hSize,
     );
+  }
+
+  String nameCard(int id) {
+    if(chromatique != null) {
+      return id < chromatique ? (id+1).toString() : 'SV' + (id-chromatique+1).toString();
+    } else {
+      return (id + 1).toString();
+    }
   }
 }
 
@@ -752,5 +760,18 @@ class SessionDraw
     }
 
     return editedBooster || boosterDraws.length != product.countBoosters();
+  }
+}
+
+class StatsData {
+  Language     language;
+  SubExtension subExt;
+  Product      product;
+  int          category = -1;
+  Stats        stats;
+  Stats        userStats;
+
+  bool isValid() {
+    return language != null && subExt != null && stats != null;
   }
 }

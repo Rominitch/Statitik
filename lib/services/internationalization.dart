@@ -39,6 +39,9 @@ class StatitikLocale {
       'S_B8': 'Help us by record yours draws !',
       'S_B9': 'All products',
       'S_B10': 'Show difference',
+      'S_B11': 'Shared',
+      'S_B12': 'Energies\' distribution',
+      'S_B13': '%d registred',
       'yes':    'Yes',
       'cancel': 'Cancel',
       'warning': 'Warning',
@@ -95,6 +98,9 @@ Images and illustrations used are the property of their respective authors.
 © 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon and Pokémon character names are trademarks of Nintendo.''',
       'DB_0': 'Impossible to connect.',
       'DB_1': 'Software is too old. Please update.',
+      'RE_B0': 'Best cards',
+      'RE_B1': 'Shared',
+      'RE_B2': 'Report is saved into Pictures.',
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -124,6 +130,9 @@ Images and illustrations used are the property of their respective authors.
       'S_B8': 'Aidez-nous en enregistrant vos tirages !',
       'S_B9': 'Tous les produits',
       'S_B10': 'Afficher la différence',
+      'S_B11': 'Partager',
+      'S_B12': 'Répartition des énergies',
+      'S_B13': '%d enregistrés',
       'yes':    'Oui',
       'cancel': 'Annuler',
       'warning': 'Attention',
@@ -183,7 +192,10 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
 © 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.''',
       'DB_0': 'Impossible de se connecter à la base de données.',
       'DB_1': 'Le programme est trop vieux. Installez les mises à jour.',
-      'NP_T0': 'Nouveau produit'
+      'NP_T0': 'Nouveau produit',
+      'RE_B0': 'Meilleures cartes',
+      'RE_B1': 'Partage',
+      'RE_B2': 'Le rapport a été exporté dans Images.',
     },
   };
 
