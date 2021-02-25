@@ -1,20 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:percent_indicator/percent_indicator.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:photo_manager/photo_manager.dart';
-import 'package:sprintf/sprintf.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
-import 'package:statitikcard/screen/stats/pieChart.dart';
+import 'package:statitikcard/screen/stats/statView.dart';
 import 'package:statitikcard/screen/stats/statsExtension.dart';
 import 'package:statitikcard/screen/commonPages/productPage.dart';
 import 'package:statitikcard/screen/stats/userReport.dart';
-import 'package:statitikcard/services/Capture.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -28,9 +19,7 @@ class StatsPage extends StatefulWidget {
 }
 
 class _StatsPageState extends State<StatsPage> {
-  bool delta=false;
-
-  final _captureKey = GlobalKey<CaptureWidgetState>();
+  StatsViewOptions options = StatsViewOptions();
 
   void afterSelectExtension(BuildContext context, Language language, SubExtension subExt) {
     Navigator.popUntil(context, ModalRoute.withName('/'));
@@ -45,34 +34,6 @@ class _StatsPageState extends State<StatsPage> {
 
     //Launch compute stats
     waitStats();
-  }
-
-  void _shareReport() {
-    // Demand to write on device
-    [ Permission.storage,
-    ].request().then( (Map<Permission, PermissionStatus> statuses) async {
-      // If accepted
-      if( statuses[Permission.storage].isGranted ) {
-        CaptureResult image = await _captureKey.currentState.captureImage();
-        final myImagePath = (await getApplicationSupportDirectory()).path;
-
-        var now = new DateTime.now();
-        var file = File("$myImagePath/Statitik_${widget.d.subExt.icon}_${DateFormat('yyyyMMdd_kk_mm').format(now)}.png");
-        file.writeAsBytesSync(image.data);
-
-        var result = await PhotoManager.requestPermission();
-        if (result) {
-          final AssetEntity imageEntity = await PhotoManager.editor.saveImageWithPath(file.path);
-          showDialog(
-              context: context,
-              builder: (_) => new AlertDialog(
-                title: new Text(StatitikLocale.of(context).read('RE_B1')),
-                content: Text(StatitikLocale.of(context).read('RE_B2')),
-              )
-          );
-        }
-      }
-    });
   }
 
   Future<void> waitStats() async {
@@ -106,7 +67,7 @@ class _StatsPageState extends State<StatsPage> {
 
     if(widget.d.stats != null) {
      if(widget.d.stats.nbBoosters > 0) {
-       finalWidget.add(buildStatsView());
+       finalWidget.add(StatsView(data: widget.d, options: options));
      } else {
        finalWidget = [
          SizedBox(height: 20.0),
@@ -130,6 +91,17 @@ class _StatsPageState extends State<StatsPage> {
                }
            ),
          ));
+      if(widget.d.userStats != null)
+       finalWidget.add(
+           Card(
+             color: Colors.grey[800],
+             child: FlatButton(
+                 child: Text(StatitikLocale.of(context).read('S_B14')),
+                 onPressed: () {
+                   Navigator.push(context, MaterialPageRoute(builder: (context) => UserReport(data: widget.d)));
+                 }
+             ),
+         ));
     } else {
       if( widget.d.subExt != null) {
         finalWidget = [
@@ -152,10 +124,7 @@ class _StatsPageState extends State<StatsPage> {
       }
     }
 
-    return CaptureWidget(
-        key: _captureKey,
-        capture: UserReport(data: widget.d),
-        child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: Center(
             child: Text(
@@ -180,10 +149,10 @@ class _StatsPageState extends State<StatsPage> {
                                 children: [
                                   CheckboxListTile(
                                     title: Text(StatitikLocale.of(context).read('S_B10')),
-                                    value: delta,
+                                    value: options.delta,
                                     onChanged: (newValue) {
                                       setState(() {
-                                        delta = newValue;
+                                        options.delta = newValue;
                                       });
                                     },
                                   ),
@@ -196,53 +165,55 @@ class _StatsPageState extends State<StatsPage> {
                      }).then( (result) { setState((){}); } );
                   }
               ),
+            /*
             if(widget.d.userStats != null)
               FlatButton(
-                child: Icon(Icons.mobile_screen_share_outlined),
-                onPressed: _shareReport
+                child: Icon(Icons.share_outlined),
+                onPressed: () {
+                  _shareReport();
+                  //report.needUpdate.add(_shareReport);
+                }
               ),
+             */
           ],
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Row(
-                  children: [
-                   Card(
-                      child: FlatButton(
-                        child: widget.d.language != null ? Row(
-                          children: [
-                            Text(StatitikLocale.of(context).read('S_B0')),
-                            SizedBox(width: 8.0),
-                            Image(image: widget.d.language.create(), height: 30),
-                            SizedBox(width: 8.0),
-                            widget.d.subExt.image(hSize: 30),
-                        ]) : Text(StatitikLocale.of(context).read('S_B0')),
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension)));
-                        },
-                      )
-                    ),
-                    if( widget.d.language != null && widget.d.subExt != null )
-                      Expanded(
-                        child: Card( child: FlatButton(
-                            child: Text(productButton, softWrap: true, style: TextStyle(fontSize: (productButton.length > 20) ? 10 : 14),),
-                            onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.MultiSelection, language: widget.d.language, subExt: widget.d.subExt, afterSelected: afterSelectProduct) ));
-                            },
-                          )
-                    ),
-                      ),
-                  ],
-                ),
-              ] + finalWidget
-            ),
-          )
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Row(
+                children: [
+                 Card(
+                    child: FlatButton(
+                      child: widget.d.language != null ? Row(
+                        children: [
+                          Text(StatitikLocale.of(context).read('S_B0')),
+                          SizedBox(width: 8.0),
+                          Image(image: widget.d.language.create(), height: 30),
+                          SizedBox(width: 8.0),
+                          widget.d.subExt.image(hSize: 30),
+                      ]) : Text(StatitikLocale.of(context).read('S_B0')),
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension)));
+                      },
+                    )
+                  ),
+                  if( widget.d.language != null && widget.d.subExt != null )
+                    Expanded(
+                      child: Card( child: FlatButton(
+                          child: Text(productButton, softWrap: true, style: TextStyle(fontSize: (productButton.length > 20) ? 10 : 14),),
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.MultiSelection, language: widget.d.language, subExt: widget.d.subExt, afterSelected: afterSelectProduct) ));
+                          },
+                        )
+                  ),
+                 ),
+              ]),
+            ] + finalWidget
+          ),
         )
-    ));
+    );
   }
 
   void afterSelectProduct(BuildContext context, Language language, Product product, int category) {
@@ -260,100 +231,5 @@ class _StatsPageState extends State<StatsPage> {
       }
       waitStats();
     });
-  }
-
-  Widget buildLine(label, luck, color, divider, [double userLuck]) {
-    List<Widget> userInfo = [];
-    if(userLuck != null ) {
-      final double deltaUserLuck = userLuck - luck;
-      final Color color = deltaUserLuck >= 0 ? Colors.green : Colors.deepOrange;
-      final IconData icon = (deltaUserLuck > 0) ? Icons.keyboard_arrow_up : ((deltaUserLuck == 0) ? Icons.remove : Icons.keyboard_arrow_down);
-      final String value = (deltaUserLuck > 0 && delta ? '+' : '') + (delta ? deltaUserLuck.toStringAsFixed(3) : userLuck.toStringAsFixed(3) );
-      userInfo = [
-        Icon(icon, color: color),
-        Container(child:Text(value, style: TextStyle(fontSize: 9, color: color)), width: 30),
-      ];
-    }
-
-    return Row(
-      children: [
-        Container(child: Row( children: label), width: 50,),
-        Expanded(child: LinearPercentIndicator(
-        lineHeight: 8.0,
-        percent: (luck / divider).clamp(0.0, 1.0),
-        progressColor: color,
-        )),
-        Container(child:Text('${luck.toStringAsFixed(3)}'), width: 45),
-    ] + userInfo);
-  }
-
-  Widget buildStatsView() {
-    double divider = 11.0;
-    List<Widget> rarity = [];
-    {
-      double sum=0;
-      widget.d.stats.countEnergy.forEach((number) {sum += number.toDouble(); });
-      double luck = sum / widget.d.stats.nbBoosters;
-      if(luck > 0) {
-        double userLuck;
-        if(widget.d.userStats != null && widget.d.userStats.nbBoosters > 0) {
-          double userSum=0;
-          widget.d.userStats.countEnergy.forEach((number) {userSum += number.toDouble(); });
-          userLuck = (userSum / widget.d.userStats.nbBoosters);
-        }
-        rarity.add(buildLine([ Icon(Icons.battery_charging_full), ], luck, Colors.yellowAccent, divider, userLuck));
-      }
-    }
-
-    if( widget.d.subExt.validCard ) {
-      for( var rare in Rarity.values ) {
-        if(rare == Rarity.Unknown)
-          continue;
-        double luck = widget.d.stats.countByRarity[rare.index] / widget.d.stats.nbBoosters;
-        if(luck > 0)
-        {
-          double userLuck = (widget.d.userStats != null && widget.d.userStats.nbBoosters > 0) ? (widget.d.userStats.countByRarity[rare.index] / widget.d.userStats.nbBoosters) : null;
-          rarity.add( buildLine(getImageRarity(rare), luck, rarityColors[rare.index], divider, userLuck) );
-        }
-      }
-
-      for( var mode in [Mode.Reverse, Mode.Halo] ) {
-        double luck = widget.d.stats.countByMode[mode.index] / widget.d.stats.nbBoosters;
-        if(luck > 0)
-        {
-          double userLuck = (widget.d.userStats != null && widget.d.userStats.nbBoosters > 0) ? (widget.d.userStats.countByMode[mode.index] / widget.d.userStats.nbBoosters) : null;
-          rarity.add( buildLine([Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), height: 30.0)], luck, modeColors[mode.index], divider, userLuck) );
-        }
-      }
-    } else {
-      rarity.add(Text(StatitikLocale.of(context).read('S_B3')));
-    }
-
-    return Container(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(children: [Text(StatitikLocale.of(context).read('S_B4'), style: Theme.of(context).textTheme.headline5 ),
-                Expanded(child: SizedBox()),
-                widget.d.stats.anomaly > 0 ? Text(sprintf(StatitikLocale.of(context).read('S_B5'), [widget.d.stats.nbBoosters, widget.d.stats.anomaly]))
-                                           : Text(sprintf(StatitikLocale.of(context).read('S_B13'), [widget.d.stats.nbBoosters]))
-              ]),
-              SizedBox(height: 8.0,),
-              Text(sprintf(StatitikLocale.of(context).read('S_B6'), [divider.toInt()])),
-              SizedBox(height: 8.0,),
-              ListView(
-                shrinkWrap: true,
-                primary: false,
-                children: rarity,
-              ),
-              PieChartGeneric(allStats: widget.d.stats),
-            ]
-          ),
-        ),
-      ),
-    );
   }
 }

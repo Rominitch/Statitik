@@ -32,7 +32,7 @@ class _ProductPageState extends State<ProductPage> {
     if(widgetProd != null)
       widgetProd.clear();
 
-    Environment.instance.readProducts(widget.language, widget.subExt).then((products) async {
+    Environment.instance.readProducts(widget.language, widget.subExt, false).then((products) {
       widgetProd = [];
       productFound = false;
 
@@ -67,12 +67,12 @@ class _ProductPageState extends State<ProductPage> {
 
           String nameProduct = prod.name;
           if(isMulti()) {
-            int countP = await prod.countProduct();
+            int countP = prod.countProduct();
             // Stop and don't show
             if(countP == 0)
               continue;
 
-            nameProduct += " (" + countP.toString() + ")";
+            nameProduct += ' (${countP.toString()})';
           }
 
           bool productImage = prod.hasImages() && Environment.instance.showPressProductImages;

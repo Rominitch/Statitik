@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/environment.dart';
 
@@ -16,3 +17,9 @@ Widget drawImage(BuildContext context, String image, double imgHeight) {
   double finalH = (mediaH / 1000 * imgHeight).clamp(40.0, imgHeight);
   return Image(image: AssetImage("assets/"+image), height: finalH);
 }
+
+void printOutput(String s) {
+  if(!kReleaseMode)
+    print(s);
+}
+

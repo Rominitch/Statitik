@@ -26,8 +26,8 @@ class StatitikApp extends StatelessWidget {
         cardColor: Colors.grey[700],
         textTheme: TextTheme(
           headline1: TextStyle( color: Colors.grey[400], fontFamily: 'Pacifico', fontSize: 50.0,),
-          headline3: TextStyle( fontFamily: 'Pacifico', fontSize: 30.0,),
-          headline5: TextStyle( fontFamily: 'Pacifico', fontSize: 20.0,),
+          headline3: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 30.0,),
+          headline5: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 20.0,),
           bodyText2: TextStyle( fontSize: 16 ),
         ),
       ),

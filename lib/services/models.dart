@@ -381,8 +381,9 @@ class Product
   String imageURL;
   Map<int,ProductBooster> boosters;
   Color color;
+  int count;
 
-  Product({this.idDB, this.name, this.imageURL, this.boosters, this.color});
+  Product({this.idDB, this.name, this.imageURL, this.count, this.boosters, this.color});
 
   bool hasImages() {
     return imageURL.isNotEmpty;
@@ -416,14 +417,7 @@ class Product
     return list;
   }
 
-  Future<int> countProduct() async {
-    int count=0;
-    await Environment.instance.db.transactionR((connection) async {
-      var req = await connection.query('SELECT count(idProduit) FROM `UtilisateurProduit` WHERE idProduit = $idDB;');
-      for (var row in req) {
-        count = row[0];
-      }
-    });
+  int countProduct() {
     return count;
   }
 }
@@ -620,7 +614,6 @@ class BoosterDraw {
 
   List buildQuery(int idAchat) {
     // Clean code to minimal binary data
-    //Int8List bin = new Int8List(cardBin.length);
     List<int> elements = [];
     for(CodeDraw c in cardBin) {
       elements.add(c.toInt());
