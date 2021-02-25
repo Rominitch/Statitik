@@ -7,6 +7,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 import 'package:statitikcard/services/models.dart';
@@ -167,7 +168,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.6.1';
+    final String version = '0.6.2';
 
     // State
     bool isInitialized=false;
@@ -267,7 +268,7 @@ class Environment
         }
     }
 
-    Future<List> readProducts(Language l, SubExtension se, bool userFilter) async
+    Future<List> readProducts(Language l, SubExtension se, bool userFilter, int idCategorie) async
     {
         List produits = List<List<Product>>.generate(Environment.instance.collection.category.length, (index) { return []; });
 
@@ -296,14 +297,19 @@ AND `UtilisateurProduit`.`idUtilisateur` = ${Environment.instance.user.idDB}) as
 WHERE `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit` 
 AND P.`idProduit` = `Produit`.`idProduit`) as count ''';
 
+        String filter = '';
+        if(idCategorie > 0)
+            filter = ' AND `Produit`.`idCategorie` = $idCategorie';
+
         await db.transactionR( (connection) async {
             String query = "SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie`, $subQueryCount FROM `Produit`, `ProduitBooster` "
                 " WHERE `Produit`.`approuve` = 1"
                 " AND `Produit`.`idLangue` = ${l.id}"
                 " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
-                " AND `ProduitBooster`.`idSousExtension` = ${se.id}"
+                " AND `ProduitBooster`.`idSousExtension` = ${se.id} $filter"
                 " ORDER BY `Produit`.`nom` ASC";
 
+            printOutput(query);
             var exts = await connection.query(query);
             await fillProd(connection, exts, Colors.grey[600]);
 
@@ -312,7 +318,7 @@ AND P.`idProduit` = `Produit`.`idProduit`) as count ''';
                 " AND `Produit`.`idLangue` = ${l.id}"
                 " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
                 " AND `ProduitBooster`.`idSousExtension` IS NULL"
-                " AND `Produit`.`annee` >= ${se.year}"
+                " AND `Produit`.`annee` >= ${se.year} $filter"
                 " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC";
 
             exts = await connection.query(query);

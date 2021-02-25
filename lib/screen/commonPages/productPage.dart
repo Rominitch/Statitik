@@ -32,7 +32,7 @@ class _ProductPageState extends State<ProductPage> {
     if(widgetProd != null)
       widgetProd.clear();
 
-    Environment.instance.readProducts(widget.language, widget.subExt, false).then((products) {
+    Environment.instance.readProducts(widget.language, widget.subExt, false, -1).then((products) {
       widgetProd = [];
       productFound = false;
 
