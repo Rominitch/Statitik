@@ -102,6 +102,13 @@ Images and illustrations used are the property of their respective authors.
       'RE_B0': 'Best cards',
       'RE_B1': 'Shared',
       'RE_B2': 'Report is saved into Pictures.',
+      'CAT_1': 'Base',
+      'CAT_2': 'Pack',
+      'CAT_3': 'Coffret',
+      'CAT_4': 'Pokebox',
+      'CAT_5': 'Mini Tin',
+      'CAT_6': 'Elite Training Box',
+      'CAT_7': 'Chest',
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -198,6 +205,13 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'RE_B0': 'Meilleures cartes',
       'RE_B1': 'Partage',
       'RE_B2': 'Le rapport a été exporté dans Images.',
+      'CAT_1': 'Base',
+      'CAT_2': 'Pack',
+      'CAT_3': 'Coffret',
+      'CAT_4': 'Pokebox',
+      'CAT_5': 'Mini Tin',
+      'CAT_6': 'Coffret Dresseur d\'Elite',
+      'CAT_7': 'Coffre',
     },
   };
 

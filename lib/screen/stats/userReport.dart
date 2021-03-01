@@ -94,7 +94,7 @@ class _UserReportState extends State<UserReport> {
         products.add(ProductCard(finalData.product, true));
         compute=false;
       } else { // All products or cat
-        Environment.instance.readProducts(finalData.language, finalData.subExt, false, finalData.category+1).then((aps) {
+        Environment.instance.readProducts(finalData.language, finalData.subExt, false, finalData.category).then((aps) {
           for (final ps in aps) {
             for (Product p in ps) {
               if( products.length < 5 && p.countProduct() > 0)

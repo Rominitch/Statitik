@@ -6,6 +6,7 @@ import 'package:statitikcard/screen/stats/statView.dart';
 import 'package:statitikcard/screen/stats/statsExtension.dart';
 import 'package:statitikcard/screen/commonPages/productPage.dart';
 import 'package:statitikcard/screen/stats/userReport.dart';
+import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -62,7 +63,7 @@ class _StatsPageState extends State<StatsPage> {
   Widget build(BuildContext context) {
     List<Widget> finalWidget = [];
     final String productButton = widget.d.product == null
-        ? (widget.d.category == -1) ? StatitikLocale.of(context).read('S_B9') : Environment.instance.collection.category[widget.d.category]
+        ? categoryName(context, widget.d.category)
         : widget.d.product.name;
 
     if(widget.d.stats != null) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -59,10 +60,12 @@ class _ProductPageState extends State<ProductPage> {
       }
 
       // For each product
-      for (int id = 0; id < products.length; id += 1) {
+      int count = 1;
+      for (var catProd in products) {
+        int idCategory = count;
         List<Widget> productCard = [];
 
-        for (Product prod in products[id]) {
+        for (Product prod in catProd) {
           productFound = true;
 
           String nameProduct = prod.name;
@@ -104,14 +107,14 @@ class _ProductPageState extends State<ProductPage> {
         }
 
         if (productCard.isNotEmpty) {
-          assert(Environment.instance.collection.category.containsKey(id));
+          assert(1 <= idCategory && idCategory <= Environment.instance.collection.category);
           if(isMulti()) {
             widgetProd.add(
                 Card(
                   child: FlatButton(
                     child: Row(
                     children: [
-                      Text(Environment.instance.collection.category[id], style: Theme
+                      Text(categoryName(context, idCategory), style: Theme
                       .of(context)
                       .textTheme
                       .headline5),
@@ -120,14 +123,14 @@ class _ProductPageState extends State<ProductPage> {
                       Icon(Icons.arrow_right_outlined)
                     ]),
                     onPressed: () {
-                      widget.afterSelected(context, widget.language, null, id);
+                      widget.afterSelected(context, widget.language, null, idCategory);
                     },
                   ),
 
                 ));
           } else {
             widgetProd.add(
-                Text(Environment.instance.collection.category[id], style: Theme
+                Text(categoryName(context, idCategory), style: Theme
                     .of(context)
                     .textTheme
                     .headline5));
@@ -140,6 +143,7 @@ class _ProductPageState extends State<ProductPage> {
             shrinkWrap: true,
           ));
         }
+        count += 1;
       }
 
       setState(() {});

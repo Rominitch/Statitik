@@ -72,7 +72,7 @@ class Credential
 
 class Database
 {
-    final String version = '1.3';
+    final String version = '1.4';
     final ConnectionSettings settings = createConnection();
 
     Future<void> transactionR(Function queries) async
@@ -103,13 +103,13 @@ class Collection
     List languages = [];
     List extensions = [];
     List subExtensions = [];
-    Map<int, String> category = {};
+    int category=0;
 
     void clear() {
         languages.clear();
         extensions.clear();
         subExtensions.clear();
-        category.clear();
+        category=0;
     }
 
     void addLanguage(Language l) {
@@ -168,7 +168,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.6.2';
+    final String version = '0.6.3';
 
     // State
     bool isInitialized=false;
@@ -258,9 +258,9 @@ class Environment
                     }
                 }
 
-                var catExts = await connection.query("SELECT * FROM `Categorie` ORDER BY `nom` DESC");
+                var catExts = await connection.query("SELECT COUNT(*) FROM `Categorie` ORDER BY `nom` DESC");
                 for (var row in catExts) {
-                    collection.category[row[0]-1] = row[1];
+                    collection.category = row[0];
                 }
             });
 
@@ -270,7 +270,7 @@ class Environment
 
     Future<List> readProducts(Language l, SubExtension se, bool userFilter, int idCategorie) async
     {
-        List produits = List<List<Product>>.generate(Environment.instance.collection.category.length, (index) { return []; });
+        List produits = List<List<Product>>.generate(Environment.instance.collection.category, (index) { return []; });
 
         Function fillProd = (connection, exts, color) async {
             for (var row in exts) {
@@ -381,8 +381,7 @@ AND P.`idProduit` = `Produit`.`idProduit`) as count ''';
             });
             return true;
         } catch( e ) {
-            if(local)
-                print("Database error $e");
+            printOutput("Database error $e");
         }
         return false;
     }
@@ -417,11 +416,11 @@ AND P.`idProduit` = `Produit`.`idProduit`) as count ''';
                             'AND `UtilisateurProduit`.`idProduit` = ${product.idDB} '
                             'AND `idSousExtension` = ${subExt.id} '
                             '$userReq;';
-                } else if(category != -1) {
+                } else if(category > 0) {
                     query = 'SELECT `cartesBin`, `energieBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit`, `Produit` '
                         'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
                         'AND `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit` '
-                        'AND `Produit`.`idCategorie` = ${category+1} '
+                        'AND `Produit`.`idCategorie` = $category '
                         'AND `idSousExtension` = ${subExt.id} '
                         '$userReq;';
                 } else {
@@ -437,8 +436,8 @@ AND P.`idProduit` = `Produit`.`idProduit`) as count ''';
             });
         }
         catch( e ) {
-            if( local && e is StatitikException)
-                print(e.msg);
+            if( e is StatitikException)
+                printOutput(e.msg);
         }
         return stats;
     }

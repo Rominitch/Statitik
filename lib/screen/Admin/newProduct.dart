@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/material.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
+import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -22,7 +23,7 @@ class NewProduct {
 
   bool validate() {
     bool valid = boosters.length > 0;
-    boosters.forEach((element) { valid &= element.ext != null; });
+    //boosters.forEach((element) { valid &= element.ext != null; });
     return valid;
   }
 }
@@ -72,11 +73,11 @@ class _NewProductPageState extends State<NewProductPage> {
 
     Environment.instance.db.transactionR( (connection) async {
       radioCat.clear();
-      var catResult = await connection.query("SELECT * FROM `Categorie`");
+      var catResult = await connection.query("SELECT idCategorie FROM `Categorie`");
       for (var row in catResult) {
         radioCat.add(
         RadioListTile<int>(
-          title: Text(row[1]),
+          title: Text(categoryName(context, row[0])),
           value: row[0],
           groupValue: product.cat,
           onChanged: (int value) {
@@ -132,10 +133,10 @@ class _NewProductPageState extends State<NewProductPage> {
           ),
           initialValue: product.eac,
           validator: (value) {
-            if (value.isEmpty) {
-              return 'Veuillez donner un nom.';
+            if (value.contains(new RegExp(r'[a-z]'))) {
+              return 'EAN doit contenir des chiffres.';
             }
-            product.eac = value;
+            product.eac = value.isEmpty ? null : '"'+value+'"';
             return null;
           },
         ),
@@ -164,22 +165,22 @@ class _NewProductPageState extends State<NewProductPage> {
                     idAchat = row[0] + 1;
                   }
 
-                  String query = 'INSERT INTO `Produit` (idProduit, idLangue, idUtilisateur, nom, EAN, annee, idCategorie, icone, approuve) VALUES ($idAchat, ${product.l.id}, ${env.user.idDB}, "${product.name}", "${product.eac}", ${product.year}, ${product.cat}, "", 1);';
-                  print(query);
+                  String query = 'INSERT INTO `Produit` (idProduit, idLangue, idUtilisateur, nom, EAN, annee, idCategorie, icone, approuve) VALUES ($idAchat, ${product.l.id}, ${env.user.idDB}, "${product.name}", ${product.eac}, ${product.year}, ${product.cat}, "", 1);';
                   await connection.query(query);
 
                   // Prepare data
                   List<List<dynamic>> pb = [];
                   for(NewProductBooster b in product.boosters) {
-                    pb.add( [idAchat, b.ext.id, b.count, b.nbCard]);
+                    pb.add( [idAchat, b.ext == null ? null : b.ext.id, b.count, b.nbCard]);
                   }
                   // Send data
                   await connection.queryMulti('INSERT INTO `ProduitBooster` (idProduit, idSousExtension, nombre, carte) VALUES (?, ?, ?, ?);',
                       pb);
-                } );
-                Navigator.pop(context);
+                } ).then((value) {
+                  Navigator.pop(context);
+                });
               } catch (e) {
-                error = e.toString();
+                //print(e);
               }
             }
           },
