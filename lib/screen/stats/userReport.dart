@@ -203,11 +203,10 @@ class _UserReportState extends State<UserReport> {
         body: (compute)
           ? Center(child: Text(translator.read('loading'), style: Theme.of(context).textTheme.headline3))
           : SingleChildScrollView(
-          padding: EdgeInsets.all(5.0),
-          //scrollDirection: isPortrait ? Axis.vertical : Axis.horizontal,
           child: Screenshot(
             controller: screenshotController,
             child: Container(
+              padding: EdgeInsets.all(5.0),
               color: Colors.grey[850],
               child: isPortrait
                 ? Column(
@@ -245,10 +244,10 @@ class _UserReportState extends State<UserReport> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(width: width / 3, child: StatsView(data: finalData, options: options)),
-                        if(bestCards.isNotEmpty)Container(width: width / 3, child: buildBestCards(translator, 3)),
-                        if(products.isNotEmpty) Container(width: width / 3, child: buildProducts(translator, 2)),
+                        if(bestCards.isNotEmpty) Container(width: width / 3, child: buildBestCards(translator, 3)),
+                        if(products.isNotEmpty)  Container(width: width / 3, child: buildProducts(translator, 2)),
                       ],
-                    ),
+                      )
                   ],
               ),
             ),
@@ -277,6 +276,7 @@ class _UserReportState extends State<UserReport> {
   Widget buildProducts(translator, limit) {
     return Card(
         child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(translator.read('TP_T0'), style: Theme.of(context).textTheme.headline5),
               GridView.count(

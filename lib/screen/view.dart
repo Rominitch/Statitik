@@ -173,7 +173,7 @@ class _PokemonCardState extends State<PokemonCard> {
                 ]),
             padding: EdgeInsets.all(2.0),
             onLongPress: () {
-              if( widget.card.hasAnotherRendering() ) {
+              if( widget.card.hasAnotherRendering() || widget.card.hasAlternative ) {
                 setState(() {
                   showDialog(
                       context: context,

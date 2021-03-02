@@ -77,7 +77,7 @@ enum Rarity {
   Prism,
   Chromatique,
   ChromatiqueRare,
-  V,
+  V, // or Gx
   VMax,
   UltraRare,
   Secret,

@@ -33,7 +33,7 @@ class _CardSelectorState extends State<CardSelector> {
       cardModes =
       [
         if( widget.boosterDraw.abnormal || card.rarity != Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh),
-        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh),
+        if( widget.boosterDraw.abnormal || card.rarity.index <= Rarity.HoloRare.index) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh),
         if( widget.boosterDraw.abnormal || card.rarity == Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Halo, refresh: widget.refresh),
         if( widget.boosterDraw.abnormal || card.hasAlternative)            IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Alternative, refresh: widget.refresh),
       ];
