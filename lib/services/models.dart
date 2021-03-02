@@ -133,11 +133,12 @@ enum Mode {
   Normal,
   Reverse,
   Halo,
+  Alternative,
 }
 
-const Map modeImgs   = {Mode.Normal: "normal", Mode.Reverse: "reverse", Mode.Halo: "halo"};
-const Map modeNames  = {Mode.Normal: "Normal", Mode.Reverse: "Reverse", Mode.Halo: "Halo"};
-const Map modeColors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAccent, Mode.Halo: Colors.purple};
+const Map modeImgs   = {Mode.Normal: "normal", Mode.Reverse: "reverse", Mode.Halo: "halo", Mode.Alternative: 'alternative'};
+const Map modeNames  = {Mode.Normal: "Normal", Mode.Reverse: "Reverse", Mode.Halo: "Halo", Mode.Alternative: 'Alternative'};
+const Map modeColors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAccent, Mode.Halo: Colors.purple, Mode.Alternative: Colors.deepOrange};
 
 const String emptyMode = '_';
 
@@ -277,8 +278,9 @@ class PokeCard
 {
   Type   type;
   Rarity rarity;
+  bool   hasAlternative;
 
-  PokeCard({this.type, this.rarity});
+  PokeCard({this.type, this.rarity, this.hasAlternative});
 
   bool isValid() {
     return type!= Type.Unknown && rarity != Rarity.Unknown;
@@ -300,7 +302,6 @@ class PokeCard
   Mode defaultMode() {
     return rarity == Rarity.HoloRare ? Mode.Halo : Mode.Normal;
   }
-
 }
 
 class SubExtension
@@ -325,12 +326,10 @@ class SubExtension
         validCard=false;
         // Build pre-publication: 300 card max
         for (int i = 0; i < 300; i += 1) {
-          cards.add(PokeCard(type: Type.Unknown, rarity: Rarity.Unknown));
+          cards.add(PokeCard(type: Type.Unknown, rarity: Rarity.Unknown, hasAlternative: true));
         }
       } else {
-        if (code.length % 2 == 1) {
-          throw Exception('Corrupt database code');
-        }
+        assert(code.length % 2 != 1 || code.contains('*'));
 
         for (int i = 0; i < code.length; i += 2) {
           Type t = convertType[code[i]];
@@ -342,7 +341,14 @@ class SubExtension
             throw Exception(
                 'Data card list corruption: $i was found with rarity ${code[i +
                     1]}');
-          cards.add(PokeCard(type: t, rarity: r));
+
+          //Special alternative case
+          bool alternative = false;
+          if((i + 2) < code.length && code[i + 2] == '*') {
+            i += 1;
+            alternative = true;
+          }
+          cards.add(PokeCard(type: t, rarity: r, hasAlternative: alternative));
         }
       }
   }
@@ -426,32 +432,36 @@ class CodeDraw {
   int countNormal;
   int countReverse;
   int countHalo;
+  int countAlternative;
 
-  CodeDraw(this.countNormal, this.countReverse, this.countHalo){
+  CodeDraw(this.countNormal, this.countReverse, this.countHalo, this.countAlternative){
     assert(this.countNormal <= 7);
     assert(this.countReverse <= 7);
     assert(this.countHalo <= 7);
+    assert(this.countAlternative <= 7);
   }
 
   CodeDraw.fromInt(int code) {
-    countNormal  = code & 0x07;
-    countReverse = (code>>3) & 0x07;
-    countHalo    = (code>>6) & 0x07;
+    countNormal      = code & 0x07;
+    countReverse     = (code>>3) & 0x07;
+    countHalo        = (code>>6) & 0x07;
+    countAlternative = (code>>9) & 0x07;
   }
 
   int getCountFrom(Mode mode) {
-    List<int> byMode = [countNormal, countReverse, countHalo];
+    List<int> byMode = [countNormal, countReverse, countHalo, countAlternative];
     return byMode[mode.index];
   }
 
   int toInt() {
     int code = countNormal
              + (countReverse<<3)
-             + (countHalo   <<6);
+             + (countHalo   <<6)
+             + (countAlternative <<9);
     return code;
   }
   int count() {
-    return countNormal+countReverse+countHalo;
+    return countNormal+countReverse+countHalo+countAlternative;
   }
 
   bool isEmpty() {
@@ -460,12 +470,14 @@ class CodeDraw {
 
   Color color() {
     return countHalo > 0
-          ? modeColors[Mode.Halo]
-          : (countReverse > 0
-              ?modeColors[Mode.Reverse]
-              : (countNormal > 0
-                 ? modeColors[Mode.Normal]
-                 : Colors.grey[900]));
+      ? modeColors[Mode.Halo]
+      : (countReverse > 0
+        ?modeColors[Mode.Reverse]
+        : (countAlternative > 0
+          ? modeColors[Mode.Alternative]
+          :(countNormal > 0
+            ? modeColors[Mode.Normal]
+            : Colors.grey[900])));
   }
 
   void increase(Mode mode) {
@@ -473,6 +485,8 @@ class CodeDraw {
       countNormal = min(countNormal + 1, 7);
     else if( mode == Mode.Reverse)
       countReverse = min(countReverse + 1, 7);
+    else if( mode == Mode.Alternative)
+      countAlternative = min(countAlternative + 1, 7);
     else
       countHalo = min(countHalo + 1, 7);
   }
@@ -482,6 +496,8 @@ class CodeDraw {
       countNormal = max(countNormal - 1, 0);
     else if( mode == Mode.Reverse)
       countReverse = max(countReverse - 1, 0);
+    else if( mode == Mode.Alternative)
+      countAlternative = max(countAlternative - 1, 0);
     else
       countHalo = max(countHalo - 1, 0);
   }
@@ -504,7 +520,7 @@ class BoosterDraw {
   BoosterDraw({this.creation, this.id, this.nbCards })
   {
     assert(nbCards != null);
-    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0); });
+    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0,0); });
     subExtension = creation;
     if(hasSubExtension()) {
       fillCard();
@@ -526,7 +542,7 @@ class BoosterDraw {
     count    = 0;
     abnormal = false;
     cardBin  = null;
-    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0); });
+    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0,0); });
   }
 
   void resetExtensions() {
@@ -536,7 +552,7 @@ class BoosterDraw {
   }
 
   void fillCard() {
-      cardBin = List<CodeDraw>.generate(subExtension.cards.length, (index) { return CodeDraw(0,0,0); });
+      cardBin = List<CodeDraw>.generate(subExtension.cards.length, (index) { return CodeDraw(0,0,0,0); });
   }
 
   bool isFinished() {
@@ -563,14 +579,16 @@ class BoosterDraw {
     count -= code.count();
     if(code.isEmpty()) {
       if(canAdd()) {
-        code.countNormal  = mode==Mode.Normal  ? 1 : 0;
-        code.countReverse = mode==Mode.Reverse ? 1 : 0;
-        code.countHalo    = mode==Mode.Halo    ? 1 : 0;
+        code.countNormal      = mode==Mode.Normal      ? 1 : 0;
+        code.countReverse     = mode==Mode.Reverse     ? 1 : 0;
+        code.countHalo        = mode==Mode.Halo        ? 1 : 0;
+        code.countAlternative = mode==Mode.Alternative ? 1 : 0;
       }
     } else {
-      code.countNormal  = 0;
-      code.countReverse = 0;
-      code.countHalo    = 0;
+      code.countNormal      = 0;
+      code.countReverse     = 0;
+      code.countHalo        = 0;
+      code.countAlternative = 0;
     }
     count += code.count();
   }
@@ -595,9 +613,10 @@ class BoosterDraw {
     if(canAdd()) {
       count -= code.count();
 
-      code.countNormal  = mode==Mode.Normal  ? 1 : 0;
-      code.countReverse = mode==Mode.Reverse ? 1 : 0;
-      code.countHalo    = mode==Mode.Halo    ? 1 : 0;
+      code.countNormal      = mode==Mode.Normal      ? 1 : 0;
+      code.countReverse     = mode==Mode.Reverse     ? 1 : 0;
+      code.countHalo        = mode==Mode.Halo        ? 1 : 0;
+      code.countAlternative = mode==Mode.Alternative ? 1 : 0;
 
       count += code.count();
     }

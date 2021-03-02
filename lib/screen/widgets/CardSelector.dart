@@ -6,7 +6,7 @@ class CardSelector extends StatefulWidget {
   final BoosterDraw boosterDraw;
   final int      id;
   final Function refresh;
-  final bool isEnergy;
+  final bool     isEnergy;
 
   CardSelector(this.boosterDraw, this.id, this.refresh, this.isEnergy);
 
@@ -32,9 +32,10 @@ class _CardSelectorState extends State<CardSelector> {
       CodeDraw code = widget.boosterDraw.cardBin[widget.id];
       cardModes =
       [
-        if( card.rarity != Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh),
+        if( widget.boosterDraw.abnormal || card.rarity != Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh),
         IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh),
-        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Halo, refresh: widget.refresh),
+        if( widget.boosterDraw.abnormal || card.rarity == Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Halo, refresh: widget.refresh),
+        if( widget.boosterDraw.abnormal || card.hasAlternative)            IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Alternative, refresh: widget.refresh),
       ];
     }
 

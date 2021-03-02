@@ -168,7 +168,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.6.3';
+    final String version = '0.6.4';
 
     // State
     bool isInitialized=false;
@@ -258,7 +258,7 @@ class Environment
                     }
                 }
 
-                var catExts = await connection.query("SELECT COUNT(*) FROM `Categorie` ORDER BY `nom` DESC");
+                var catExts = await connection.query("SELECT COUNT(*) FROM `Categorie`");
                 for (var row in catExts) {
                     collection.category = row[0];
                 }

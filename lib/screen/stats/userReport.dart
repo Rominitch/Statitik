@@ -199,6 +199,7 @@ class _UserReportState extends State<UserReport> {
             ),
           ],
         ),
+        backgroundColor: Colors.grey[850],
         body: (compute)
           ? Center(child: Text(translator.read('loading'), style: Theme.of(context).textTheme.headline3))
           : SingleChildScrollView(
@@ -206,45 +207,50 @@ class _UserReportState extends State<UserReport> {
           //scrollDirection: isPortrait ? Axis.vertical : Axis.horizontal,
           child: Screenshot(
             controller: screenshotController,
-            child: isPortrait
+            child: Container(
+              color: Colors.grey[850],
+              child: isPortrait
                 ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row( children: [
+                        Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headline5),
+                        Expanded(child: SizedBox(width: 1.0)),
+                        Image(image: widget.data.language.create(), height: 30),
+                        SizedBox(width: 6.0),
+                        Text(widget.data.subExt.name, style: TextStyle( fontSize: (widget.data.subExt.name.length > 13) ? 10 : 12 )),
+                        SizedBox(width: 6.0),
+                        widget.data.subExt.image(hSize: 30)
+                      ]),
+                      StatsView(data: finalData, options: options),
+                      if(bestCards.isNotEmpty) buildBestCards(translator, 5),
+                      if(products.isNotEmpty)  buildProducts(translator, 3),
+                    ],
+                  )
+              : Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Row( children: [
-                      Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headline5),
-                      Expanded(child: SizedBox(width: 1.0)),
-                      Image(image: widget.data.language.create(), height: 30),
-                      SizedBox(width: 6.0),
-                      Text(widget.data.subExt.name, style: TextStyle( fontSize: (widget.data.subExt.name.length > 13) ? 10 : 12 )),
-                      SizedBox(width: 6.0),
-                      widget.data.subExt.image(hSize: 30)
-                    ]),
-                    StatsView(data: finalData, options: options),
-                    if(bestCards.isNotEmpty) buildBestCards(translator, 5),
-                    if(products.isNotEmpty)  buildProducts(translator, 3),
+                        Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headline5),
+                        SizedBox(width: 30.0),
+                        Image(image: widget.data.language.create(), height: 30),
+                        SizedBox(width: 6.0),
+                        Text(widget.data.subExt.name, style: TextStyle( fontSize: (widget.data.subExt.name.length > 13) ? 10 : 12 )),
+                        SizedBox(width: 6.0),
+                        widget.data.subExt.image(hSize: 30),
+                      ]
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(width: width / 3, child: StatsView(data: finalData, options: options)),
+                        if(bestCards.isNotEmpty)Container(width: width / 3, child: buildBestCards(translator, 3)),
+                        if(products.isNotEmpty) Container(width: width / 3, child: buildProducts(translator, 2)),
+                      ],
+                    ),
                   ],
-                )
-            : Column(
-              children: [
-                Row( children: [
-                    Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headline5),
-                    SizedBox(width: 30.0),
-                    Image(image: widget.data.language.create(), height: 30),
-                    SizedBox(width: 6.0),
-                    Text(widget.data.subExt.name, style: TextStyle( fontSize: (widget.data.subExt.name.length > 13) ? 10 : 12 )),
-                    SizedBox(width: 6.0),
-                    widget.data.subExt.image(hSize: 30),
-                  ]
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(width: width / 3, child: StatsView(data: finalData, options: options)),
-                    if(bestCards.isNotEmpty)Container(width: width / 3, child: buildBestCards(translator, 3)),
-                    if(products.isNotEmpty) Container(width: width / 3, child: buildProducts(translator, 2)),
-                  ],
-                ),
-              ],
+              ),
             ),
           )
         )
