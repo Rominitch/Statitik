@@ -32,7 +32,7 @@ class _ResumePageState extends State<ResumePage> {
       Function fillBoosterInfo = (BuildContext context) async {
         final result = await Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => BoosterPage(boosterDraw: boosterDraw)),
+          MaterialPageRoute(builder: (context) => BoosterPage(language: current.language, boosterDraw: boosterDraw)),
         );
 
         //below you can get your result and update the view with setState
@@ -92,11 +92,20 @@ class _ResumePageState extends State<ResumePage> {
       );
     }
 
+    // Choose best color button on first error
+    Color button = greenValid;
+    for( BoosterDraw booster in current.boosterDraws) {
+      if(booster.isFinished() && booster.validationWorld(current.language) != Validator.Valid) {
+        button = Colors.deepOrange;
+        break;
+      }
+    }
+
     List<Widget> actions = [];
     if(allFinished) {
       actions.add(
           Card(
-              color: greenValid,
+              color: button,
               child: FlatButton(
               child: Text(StatitikLocale.of(context).read('send')),
               onPressed: () async {

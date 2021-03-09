@@ -49,6 +49,13 @@ class Extension
   Extension({ this.id, this.name, this.idLanguage });
 }
 
+enum Validator {
+  Valid,
+  ErrorReverse,
+  ErrorEnergy,
+  ErrorTooManyGood,
+}
+
 // Fr type / rarity
 enum Type {
   Plante,
@@ -70,26 +77,35 @@ enum Type {
 }
 enum Rarity {
   Commune,
+  JC,
   PeuCommune,
+  JU,
   Rare,
+  JR,
   HoloRare,
   Magnifique,
   Prism,
   Chromatique,
-  ChromatiqueRare,
-  V, // or Gx
+  Turbo,
+  V, // or GX /Ex
+  JRR,
   VMax,
+  JRRR,
   UltraRare,
+  ChromatiqueRare,
   Secret,
+  JSR,
   ArcEnCiel,
+  JHR,
   Gold,
+  JUR,
   Unknown,
 }
 
-List<Color> rarityColors = [Colors.green, Colors.green, Colors.green,
-  Colors.blue, Colors.blue, Colors.blue, Colors.blue, Colors.blue,
-  Colors.purple, Colors.purple, Colors.purple,
-  Colors.yellow, Colors.yellow, Colors.yellow
+List<Color> rarityColors = [Colors.green, Colors.green, Colors.green[600], Colors.green[600], Colors.green[700], Colors.green[700],  // C JC P JU R JR
+  Colors.blue, Colors.blue[600], Colors.blue[700], Colors.blue[800],                  // H M P C
+  Colors.purple, Colors.purple, Colors.purple[600], Colors.purple[600], Colors.purple[700], Colors.purple[800],         // Ch T V JRR Vm JRRR
+  Colors.yellow, Colors.yellow[600], Colors.yellow[600], Colors.yellow[700], Colors.yellow[700], Colors.yellow[800], Colors.yellow[800]           // ChR S JSR A JHR G JUR
 ];
 
 const Map convertType =
@@ -122,11 +138,21 @@ const Map convertRarity =
   'P': Rarity.Prism,
   'q': Rarity.Chromatique,
   'Q': Rarity.ChromatiqueRare,
-  'v': Rarity.V, // or GX
+  'T': Rarity.Turbo,
+  'v': Rarity.V, // or GX /Ex
   'V': Rarity.VMax,
   'S': Rarity.Secret,
   'A': Rarity.ArcEnCiel,
   'G': Rarity.Gold,
+  //Japon
+  'C': Rarity.JC,
+  '0': Rarity.JU,
+  '1': Rarity.JR,
+  '2': Rarity.JRR,
+  '3': Rarity.JRRR,
+  '4': Rarity.JSR,
+  '5': Rarity.JHR,
+  '6': Rarity.JUR
 };
 
 enum Mode {
@@ -190,7 +216,6 @@ String typeToString(Type type) {
 
 List<List<Widget>> cachedImageRarity = List.filled(Rarity.values.length, null);
 
-
 List<Widget> getImageRarity(Rarity rarity) {
   if(cachedImageRarity[rarity.index] == null) {
     //star_border
@@ -221,6 +246,9 @@ List<Widget> getImageRarity(Rarity rarity) {
       case Rarity.VMax:
         cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('X', style: TextStyle(fontSize: 12.0))];
         break;
+      case Rarity.Turbo:
+        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('T', style: TextStyle(fontSize: 12.0))];
+        break;
       case Rarity.HoloRare:
         cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('H', style: TextStyle(fontSize: 12.0))];
         break;
@@ -242,6 +270,32 @@ List<Widget> getImageRarity(Rarity rarity) {
       case Rarity.Unknown:
         cachedImageRarity[rarity.index] = [Icon(Icons.help_outline)];
         break;
+
+      case Rarity.JC:
+        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('C', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.JU:
+        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('U', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.JR:
+        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('R', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.JRR:
+        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('RR', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.JRRR:
+        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('RRR', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.JSR:
+        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('SR', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.JHR:
+        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('HR', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.JUR:
+        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('UR', style: TextStyle(fontSize: 12.0))];
+        break;
+
       default:
         throw Exception("Unknown rarity: $rarity");
     }
@@ -256,13 +310,13 @@ Widget getImageType(Type type)
   if(cachedImageType[type.index] == null) {
     switch(type) {
       case Type.Objet:
-        cachedImageType[type.index] = Icon(Icons.build);
+        cachedImageType[type.index] = Icon(Icons.build, color: Colors.blueAccent,);
         break;
       case Type.Stade:
-        cachedImageType[type.index] = Icon(Icons.landscape);
+        cachedImageType[type.index] = Icon(Icons.landscape, color: Colors.green[700]);
         break;
       case Type.Supporter:
-        cachedImageType[type.index] = Icon(Icons.accessibility_new);
+        cachedImageType[type.index] = Icon(Icons.accessibility_new, color: Colors.red[900]);
         break;
       case Type.Energy:
         cachedImageType[type.index] = Icon(Icons.battery_charging_full);
@@ -651,6 +705,40 @@ class BoosterDraw {
 
     return [idAchat, subExtension.id, abnormal ? 1 : 0, Int8List.fromList(energyCode), Int8List.fromList(elements)];
   }
+
+  Validator validationWorld(final Language language) {
+    if(abnormal)
+      return Validator.Valid;
+
+    // Fr and US
+    if(language.id == 1 || language.id == 2) {
+      int count = 0;
+      energiesBin.forEach((element) {
+        count += element.count();
+      });
+      if (count != 1 && count != 2)
+        return Validator.ErrorEnergy;
+
+      int goodCard = 0;
+      int reverse = 0;
+      int id = 0;
+      cardBin.forEach((element) {
+        if (subExtension.cards.isNotEmpty) {
+          count = element.count();
+          if (count > 0 &&
+              subExtension.cards[id].rarity.index > Rarity.Rare.index)
+            goodCard += count;
+        }
+        reverse += element.countReverse;
+        id += 1;
+      });
+      if (reverse != 1 && reverse != 2)
+        return Validator.ErrorReverse;
+      if (goodCard > 3)
+        return Validator.ErrorTooManyGood;
+    }
+    return Validator.Valid;
+  }
 }
 
 class Stats {
@@ -700,9 +788,10 @@ class Stats {
         }
         totalCards   += nbCard;
         count[cardI] += nbCard;
-        countByMode[Mode.Normal.index]  += c.countNormal;
-        countByMode[Mode.Reverse.index] += c.countReverse;
-        countByMode[Mode.Halo.index]    += c.countHalo;
+        countByMode[Mode.Normal.index]      += c.countNormal;
+        countByMode[Mode.Reverse.index]     += c.countReverse;
+        countByMode[Mode.Halo.index]        += c.countHalo;
+        countByMode[Mode.Alternative.index] += c.countAlternative;
       }
     }
   }

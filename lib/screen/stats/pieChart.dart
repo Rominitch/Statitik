@@ -110,7 +110,7 @@ class _PieExtensionState extends State<PieExtension> {
         int count = widget.stats.countByRarity[rarity.index];
         if (count > 0) {
           sections.add(PieChartSectionData(
-            color: typeColors[rarity.index],
+            color: rarityColors[rarity.index],
             value: count.toDouble(),
             title: ( count * ratio ).toStringAsFixed(2) + ' %',
             radius: radius,

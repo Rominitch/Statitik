@@ -72,54 +72,59 @@ Widget createSubExtension(SubExtension se, BuildContext context, Function press,
 
 Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function press, Function update) {
   SessionDraw current = Environment.instance.currentDraw;
+  Color color = Colors.grey[900];
+  if( bd.isFinished() ) {
+    final valid = bd.validationWorld(current.language);
+    color = (valid == Validator.Valid) ? greenValid : Colors.deepOrange;
+  }
 
   return Card(
-      color: bd.isFinished() ? greenValid : Colors.grey[900],
-      child: FlatButton(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              (bd.subExtension != null) ? bd.subExtension.image(hSize: iconSize) : Icon(Icons.add_to_photos),
-              SizedBox(height: 6.0),
-              Text('${bd.id}'),
-          ]),
-        ),
-        onPressed: () => press(context),
-        onLongPress: () {
-          if(current.productAnomaly || bd.isRandom())
-          showDialog(
-              context: context,
-              builder: (_) => new AlertDialog(
-                title: new Text(StatitikLocale.of(context).read('V_B2')),
-                actions: [
-                  Card(
-                    color: Colors.grey[700],
-                    child: FlatButton(
-                      child: Text(StatitikLocale.of(context).read('V_B3')),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        bd.resetExtensions();
-                        press(context);
-                      }
-                    ),
+    color: color,
+    child: FlatButton(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            (bd.subExtension != null) ? bd.subExtension.image(hSize: iconSize) : Icon(Icons.add_to_photos),
+            SizedBox(height: 6.0),
+            Text('${bd.id}'),
+        ]),
+      ),
+      onPressed: () => press(context),
+      onLongPress: () {
+        if(current.productAnomaly || bd.isRandom())
+        showDialog(
+          context: context,
+          builder: (_) => new AlertDialog(
+            title: new Text(StatitikLocale.of(context).read('V_B2')),
+            actions: [
+              Card(
+                color: Colors.grey[700],
+                child: FlatButton(
+                  child: Text(StatitikLocale.of(context).read('V_B3')),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    bd.resetExtensions();
+                    press(context);
+                  }
+                ),
+              ),
+              if( current.productAnomaly && current.canDelete() ) Card(
+                color: Colors.red,
+                child: FlatButton(
+                  child: Text(StatitikLocale.of(context).read('delete'), style: TextStyle(color: Colors.white),),
+                    onPressed: () {
+                      current.deleteBooster(bd.id-1);
+                      Navigator.of(context).pop();
+                      update();
+                    }
                   ),
-                  if( current.productAnomaly && current.canDelete() ) Card(
-                    color: Colors.red,
-                    child: FlatButton(
-                      child: Text(StatitikLocale.of(context).read('delete'), style: TextStyle(color: Colors.white),),
-                        onPressed: () {
-                          current.deleteBooster(bd.id-1);
-                          Navigator.of(context).pop();
-                          update();
-                        }
-                      ),
-                    ),
-                ],
-              )
-          );
-        },
-      )
+                ),
+            ],
+          )
+        );
+      },
+    )
   );
 }
 

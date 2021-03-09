@@ -5,8 +5,9 @@ import 'package:statitikcard/services/models.dart';
 
 class BoosterPage extends StatefulWidget {
   final BoosterDraw boosterDraw;
+  final Language    language;
 
-  BoosterPage({this.boosterDraw});
+  BoosterPage({this.language, this.boosterDraw});
 
   @override
   _BoosterPageState createState() => _BoosterPageState();
@@ -20,6 +21,10 @@ class _BoosterPageState extends State<BoosterPage> {
   void initState() {
     super.initState();
 
+    createCards();
+  }
+
+  void createCards() {
     // Build one time all widgets
     Function refresh = () => setState( () {} );
     widgets = [];
@@ -38,6 +43,27 @@ class _BoosterPageState extends State<BoosterPage> {
 
   @override
   Widget build(BuildContext context) {
+    Color buttonColor = greenValid;
+    Widget buttonLabel = Text(StatitikLocale.of(context).read('ok'));
+    if(widget.boosterDraw.isFinished()) {
+      switch(widget.boosterDraw.validationWorld(widget.language))
+      {
+        case Validator.ErrorEnergy:
+          buttonColor = Colors.deepOrange;
+          buttonLabel = Row(children:[Icon(Icons.warning_amber_outlined), Icon(Icons.battery_charging_full)]);
+          break;
+        case Validator.ErrorReverse:
+          buttonColor = Colors.deepOrange;
+          buttonLabel = Row(children:[Icon(Icons.warning_amber_outlined), Image(image: AssetImage('assets/carte/${modeImgs[Mode.Reverse]}.png'), height: 30.0)]);
+          break;
+        case Validator.ErrorTooManyGood:
+          buttonColor = Colors.deepOrange;
+          buttonLabel = Row(children:[Icon(Icons.warning_amber_outlined), Icon(Icons.star_border)]);
+          break;
+        default:
+      }
+    }
+
     return Scaffold(
         appBar: AppBar(
           leading: new IconButton(
@@ -61,9 +87,9 @@ class _BoosterPageState extends State<BoosterPage> {
           ),
           actions: [
             if(widget.boosterDraw.isFinished()) Card(
-              color: greenValid,
+              color: buttonColor,
               child: FlatButton(
-              child: Text(StatitikLocale.of(context).read('ok')),
+              child: buttonLabel,
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
@@ -98,7 +124,8 @@ class _BoosterPageState extends State<BoosterPage> {
 
                       if(reset)
                       {
-                        setState(() { widget.boosterDraw.revertAnomaly();});
+                        widget.boosterDraw.revertAnomaly();
+                        setState(() { createCards(); });
                       }
                     } else { // Toggle
                       setState(() { widget.boosterDraw.abnormal = !widget.boosterDraw.abnormal; });
