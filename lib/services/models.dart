@@ -358,53 +358,69 @@ class PokeCard
   }
 }
 
+class PokemonInfo
+{
+  List<String> names;
+  int          generation;
+}
+
+class ListCards
+{
+  List<PokeCard>    cards    = [];
+  List<PokemonInfo> pokemons = [];
+  bool   validCard = true;
+
+  void extractCard(String code)
+  {
+    cards.clear();
+    validCard = true;
+
+    if(code == null || code.isEmpty) {
+      validCard=false;
+      // Build pre-publication: 300 card max
+      for (int i = 0; i < 300; i += 1) {
+        cards.add(PokeCard(type: Type.Unknown, rarity: Rarity.Unknown, hasAlternative: true));
+      }
+    } else {
+      assert(code.length % 2 != 1 || code.contains('*'));
+
+      for (int i = 0; i < code.length; i += 2) {
+        Type t = convertType[code[i]];
+        if (t == null)
+          throw Exception(
+              'Data card list corruption: $i was found with type ${code[i]}');
+        Rarity r = convertRarity[code[i + 1]];
+        if (r == null)
+          throw Exception(
+              'Data card list corruption: $i was found with rarity ${code[i +
+                  1]}');
+
+        //Special alternative case
+        bool alternative = false;
+        if((i + 2) < code.length && code[i + 2] == '*') {
+          i += 1;
+          alternative = true;
+        }
+        cards.add(PokeCard(type: t, rarity: r, hasAlternative: alternative));
+      }
+    }
+  }
+}
+
 class SubExtension
 {
   int    id;
   String name;
   String icon;
-  List<PokeCard> cards = [];
+  ListCards cards;
   int    idExtension;
   int    year;
-  bool   validCard = true;
   int    chromatique;
 
-  SubExtension({ this.id, this.name, this.icon, this.idExtension, this.year, this.chromatique });
+  SubExtension({ this.id, this.name, this.icon, this.idExtension, this.year, this.chromatique, this.cards });
 
-  void extractCard(String code)
-  {
-      cards.clear();
-      validCard = true;
-
-      if(code.isEmpty) {
-        validCard=false;
-        // Build pre-publication: 300 card max
-        for (int i = 0; i < 300; i += 1) {
-          cards.add(PokeCard(type: Type.Unknown, rarity: Rarity.Unknown, hasAlternative: true));
-        }
-      } else {
-        assert(code.length % 2 != 1 || code.contains('*'));
-
-        for (int i = 0; i < code.length; i += 2) {
-          Type t = convertType[code[i]];
-          if (t == null)
-            throw Exception(
-                'Data card list corruption: $i was found with type ${code[i]}');
-          Rarity r = convertRarity[code[i + 1]];
-          if (r == null)
-            throw Exception(
-                'Data card list corruption: $i was found with rarity ${code[i +
-                    1]}');
-
-          //Special alternative case
-          bool alternative = false;
-          if((i + 2) < code.length && code[i + 2] == '*') {
-            i += 1;
-            alternative = true;
-          }
-          cards.add(PokeCard(type: t, rarity: r, hasAlternative: alternative));
-        }
-      }
+  ListCards info() {
+    return cards;
   }
 
   Widget image({double wSize, double hSize})
@@ -606,7 +622,7 @@ class BoosterDraw {
   }
 
   void fillCard() {
-      cardBin = List<CodeDraw>.generate(subExtension.cards.length, (index) { return CodeDraw(0,0,0,0); });
+      cardBin = List<CodeDraw>.generate(subExtension.info().cards.length, (index) { return CodeDraw(0,0,0,0); });
   }
 
   bool isFinished() {
@@ -723,10 +739,10 @@ class BoosterDraw {
       int reverse = 0;
       int id = 0;
       cardBin.forEach((element) {
-        if (subExtension.cards.isNotEmpty) {
+        if (subExtension.info().cards.isNotEmpty) {
           count = element.count();
           if (count > 0 &&
-              subExtension.cards[id].rarity.index > Rarity.Rare.index)
+              subExtension.info().cards[id].rarity.index > Rarity.Rare.index)
             goodCard += count;
         }
         reverse += element.countReverse;
@@ -757,7 +773,7 @@ class Stats {
   List<int> countEnergy;
 
   Stats({this.subExt}) {
-    count         = List<int>.filled(subExt.cards.length, 0);
+    count         = List<int>.filled(subExt.info().cards.length, 0);
     countByType   = List<int>.filled(Type.values.length, 0);
     countByRarity = List<int>.filled(Rarity.values.length, 0);
     countByMode   = List<int>.filled(Mode.values.length, 0);
@@ -765,7 +781,7 @@ class Stats {
   }
 
   void addBoosterDraw(List<int> draw, List<int> energy , int anomaly) {
-    if( draw.length > subExt.cards.length)
+    if( draw.length > subExt.info().cards.length)
       throw StatitikException('Corruption des données de tirages');
 
     anomaly += anomaly;
@@ -781,10 +797,10 @@ class Stats {
       int nbCard = c.count();
       if( nbCard > 0 ) {
         cardByBooster += nbCard;
-        if(subExt.validCard) {
+        if(subExt.info().validCard) {
           // Count
-          countByType[subExt.cards[cardI].type.index] += nbCard;
-          countByRarity[subExt.cards[cardI].rarity.index] += nbCard;
+          countByType[subExt.info().cards[cardI].type.index] += nbCard;
+          countByRarity[subExt.info().cards[cardI].rarity.index] += nbCard;
         }
         totalCards   += nbCard;
         count[cardI] += nbCard;
@@ -807,7 +823,7 @@ class StatsExtension {
     countByType   = List<int>.filled(Type.values.length, 0);
     countByRarity = List<int>.filled(Rarity.values.length, 0);
 
-    for(PokeCard c in subExt.cards) {
+    for(PokeCard c in subExt.info().cards) {
       countByType[c.type.index]     += 1;
       countByRarity[c.rarity.index] += 1;
     }

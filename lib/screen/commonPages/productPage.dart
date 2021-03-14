@@ -3,6 +3,7 @@ import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/product.dart';
 
 enum ProductPageMode {
   SingleSelection,
@@ -33,7 +34,7 @@ class _ProductPageState extends State<ProductPage> {
     if(widgetProd != null)
       widgetProd.clear();
 
-    Environment.instance.readProducts(widget.language, widget.subExt, false, -1).then((products) {
+    readProducts(widget.language, widget.subExt, -1, isMulti() ? widget.subExt : null ).then((products) {
       widgetProd = [];
       productFound = false;
 
@@ -41,7 +42,7 @@ class _ProductPageState extends State<ProductPage> {
       if( isMulti() ) {
         widgetProd.add(
             Card(
-              child: FlatButton(child: Row(
+              child: TextButton(child: Row(
                   children: [
                     Text(StatitikLocale.of(context).read('S_B9'), style: Theme
                         .of(context)
@@ -81,8 +82,8 @@ class _ProductPageState extends State<ProductPage> {
           bool productImage = prod.hasImages() && Environment.instance.showPressProductImages;
           productCard.add(Card(
               color: prod.color,
-              child: FlatButton(
-                padding: const EdgeInsets.all(8.0),
+              child: TextButton(
+                style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -111,7 +112,7 @@ class _ProductPageState extends State<ProductPage> {
           if(isMulti()) {
             widgetProd.add(
                 Card(
-                  child: FlatButton(
+                  child: TextButton(
                     child: Row(
                     children: [
                       Text(categoryName(context, idCategory), style: Theme
@@ -172,7 +173,7 @@ class _ProductPageState extends State<ProductPage> {
                 ),
               ),
               actions: [
-                Card(child: FlatButton(
+                Card(child: TextButton(
                     child: Icon(Icons.help_outline,),
                     onPressed: () {
                       showDialog(

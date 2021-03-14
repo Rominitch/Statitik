@@ -28,7 +28,12 @@ class StatitikApp extends StatelessWidget {
           headline1: TextStyle( color: Colors.grey[400], fontFamily: 'Pacifico', fontSize: 50.0,),
           headline3: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 30.0,),
           headline5: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 20.0,),
-          bodyText2: TextStyle( fontSize: 16 ),
+          bodyText2: TextStyle( color: Colors.white, fontSize: 16 ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            primary: Colors.white,
+          ),
         ),
       ),
       title: 'StatitikCard',

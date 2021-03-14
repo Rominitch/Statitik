@@ -56,7 +56,7 @@ class _NewProductPageState extends State<NewProductPage> {
     {
       radioLangue.add(Expanded( child:
       Container(
-        child: FlatButton(
+        child: TextButton(
           child: Image(
             image: AssetImage('assets/langue/${l.image}.png'),
           ),
@@ -234,8 +234,8 @@ class _BoostersInfoState extends State<BoostersInfo> {
     if(widget.newProd != null) {
       return Card(
           child: Row(children: [
-            FlatButton(
-              minWidth: 40.0,
+            TextButton(
+              style: TextButton.styleFrom(minimumSize: Size(0.0, 40.0)),
               child: (widget.newProd.ext != null) ? widget.newProd.ext.image(hSize: iconSize) : Icon(Icons.add_to_photos),
               onPressed: (){
                 setState(() {
@@ -269,7 +269,7 @@ class _BoostersInfoState extends State<BoostersInfo> {
       );
     } else {
       return Card(
-        child: FlatButton(
+        child: TextButton(
           child: Center( child: Icon(Icons.add_to_photos) ),
           onPressed: () {
             widget.productAdd();

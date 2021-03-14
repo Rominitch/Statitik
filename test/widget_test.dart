@@ -21,7 +21,7 @@ void _testMain() {
     await tester.pump();
 
     // Press Fr
-    Finder langueButton = find.byType(FlatButton);
+    Finder langueButton = find.byType(TextButton);
     expect(langueButton, findsWidgets);
     await tester.tap(langueButton.first);
     await tester.pump();

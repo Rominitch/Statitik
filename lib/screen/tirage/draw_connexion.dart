@@ -35,7 +35,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                 children: [
                   Text(StatitikLocale.of(context).read('DC_B0')),
                   drawImagePress(context, 'Zeraora.png', 370.0),
-                  Card( color: greenValid, child: FlatButton(child: Text(StatitikLocale.of(context).read('DC_B1'), style: TextStyle(color: Colors.grey[800]) ),
+                  Card( color: greenValid, child: TextButton(child: Text(StatitikLocale.of(context).read('DC_B1'), style: TextStyle(color: Colors.grey[800]) ),
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage)));
                     },

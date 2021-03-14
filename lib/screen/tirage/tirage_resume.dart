@@ -78,7 +78,7 @@ class _ResumePageState extends State<ResumePage> {
     if(current.productAnomaly) {
       boosters.add(Card(
           color: Colors.grey[900],
-          child: FlatButton(
+          child: TextButton(
               child: Center(
                 child: Icon(Icons.add_circle_outline, size: 30.0,),
               ),
@@ -104,9 +104,10 @@ class _ResumePageState extends State<ResumePage> {
     List<Widget> actions = [];
     if(allFinished) {
       actions.add(
-          Card(
-              color: button,
-              child: FlatButton(
+          Padding(
+            padding: const EdgeInsets.all(2.0),
+            child: TextButton(
+              style: TextButton.styleFrom( backgroundColor: button, ),
               child: Text(StatitikLocale.of(context).read('send')),
               onPressed: () async {
                 Environment env = Environment.instance;
@@ -130,8 +131,8 @@ class _ResumePageState extends State<ResumePage> {
                   );
                 }
               },
+          ),
             )
-          )
       );
     }
 
@@ -155,7 +156,7 @@ class _ResumePageState extends State<ResumePage> {
               ),
               CheckboxListTile(
                 title: Text(StatitikLocale.of(context).read('TR_B5')),
-                subtitle: Text(StatitikLocale.of(context).read('TR_B6')),
+                subtitle: Text(StatitikLocale.of(context).read('TR_B6'), style: TextStyle(fontSize: 12)),
                 value: current.productAnomaly,
                 onChanged: (newValue) async {
                     if(current.productAnomaly && current.needReset())
@@ -177,7 +178,7 @@ class _ResumePageState extends State<ResumePage> {
               ),
               GridView.count(
                     crossAxisCount: 5,
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(2.0),
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
                     primary: false,

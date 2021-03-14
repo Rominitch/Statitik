@@ -15,6 +15,7 @@ import 'package:statitikcard/screen/stats/statView.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/product.dart';
 
 class FullCard {
   String name;
@@ -58,7 +59,7 @@ class _UserReportState extends State<UserReport> {
 
     if(finalData.stats != null) {
       for (int i = 0; i < finalData.stats.count.length; i += 1) {
-        PokeCard card = finalData.subExt.cards[i];
+        PokeCard card = finalData.subExt.info().cards[i];
         if (finalData.stats.count[i] > 0 &&
             card.rarity.index >= Rarity.HoloRare.index) {
           cardSort[card.rarity.index].add(
@@ -94,7 +95,7 @@ class _UserReportState extends State<UserReport> {
         products.add(ProductCard(finalData.product, true));
         compute=false;
       } else { // All products or cat
-        Environment.instance.readProducts(finalData.language, finalData.subExt, false, finalData.category).then((aps) {
+        readProductsForUser(finalData.language, finalData.subExt, finalData.category).then((aps) {
           for (final ps in aps) {
             for (Product p in ps) {
               if( products.length < 5 && p.countProduct() > 0)

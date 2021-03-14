@@ -15,7 +15,7 @@ class SupportPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(StatitikLocale.of(context).read('SU_B0')),
-                  FlatButton(
+                  TextButton(
                       onPressed: () => _launchURL('https://github.com/Rominitch/Statitik'),
                       child: Center(child: Text('https://github.com/Rominitch/Statitik', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)))
                   ),
@@ -24,7 +24,7 @@ class SupportPage extends StatelessWidget {
                   //Center(child: Text('https://github.com/Rominitch/Statitik', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold))),
                   SizedBox(height: 16.0),
                   Text(StatitikLocale.of(context).read('SU_B1')),
-                  FlatButton(
+                  TextButton(
                       onPressed: () => _launchURL('mailto:rominitch@gmail.com'),
                       child: Center(child: Text('rominitch@gmail.com', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)))
                   ),

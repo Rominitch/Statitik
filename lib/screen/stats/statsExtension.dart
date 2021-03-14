@@ -30,7 +30,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
     final double uniform = 100.0 / widget.stats.count.length;
 
     for(int count in widget.stats.count) {
-      PokeCard pc = widget.stats.subExt.cards[id];
+      PokeCard pc = widget.stats.subExt.info().cards[id];
       double percent = count * ratio;
       Color col = percent == 0.0
                 ? Colors.red

@@ -28,7 +28,7 @@ class _CardSelectorState extends State<CardSelector> {
         IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh),
       ];
     } else {
-      PokeCard card = widget.boosterDraw.subExtension.cards[widget.id];
+      PokeCard card = widget.boosterDraw.subExtension.info().cards[widget.id];
       CodeDraw code = widget.boosterDraw.cardBin[widget.id];
       cardModes =
       [
@@ -79,14 +79,14 @@ class _IconCardState extends State<IconCard> {
             children: [
               Card(
                 color: count > 0 ? modeColors[widget.mode] : background,
-                child: FlatButton(
+                child: TextButton(
                   child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [Image(image: AssetImage('assets/carte/${modeImgs[widget.mode]}.png'), width: 75.0),
                         SizedBox(height: 6.0),
                         Text(modeNames[widget.mode]),
                       ]),
-                  padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                  style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
                   onPressed: () {
                     widget.boosterDraw.setOtherRendering(widget.code, widget.mode);
                     Navigator.of(context).pop();
@@ -97,14 +97,16 @@ class _IconCardState extends State<IconCard> {
               SizedBox(width: 10),
               Column(
                 children: [
-                  RaisedButton(
+                  ElevatedButton(
                       onPressed: () {
                         setState(() {
                           widget.boosterDraw.increase(widget.code, widget.mode);
                         });
                         widget.refresh();
                       },
-                      color: background,
+                      style: ElevatedButton.styleFrom(
+                        primary: background, // background
+                      ),
                       child: Container(
                         child: Text('+', style: TextStyle(fontSize: 20)),
                       )
@@ -112,14 +114,16 @@ class _IconCardState extends State<IconCard> {
                   Container(
                       child: Text('$count', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),)
                   ),
-                  RaisedButton(
+                  ElevatedButton(
                       onPressed: () {
                         setState(() {
                           widget.boosterDraw.decrease(widget.code, widget.mode);
                         });
                         widget.refresh();
                       },
-                      color: background,
+                      style: ElevatedButton.styleFrom(
+                        primary: background, // background
+                      ),
                       child: Container(
                         child: Text('-', style: TextStyle(fontSize: 20)),
                       )

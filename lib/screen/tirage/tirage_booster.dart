@@ -29,7 +29,7 @@ class _BoosterPageState extends State<BoosterPage> {
     Function refresh = () => setState( () {} );
     widgets = [];
     int id=0;
-    for(PokeCard card in widget.boosterDraw.subExtension.cards) {
+    for(PokeCard card in widget.boosterDraw.subExtension.info().cards) {
       widgets.add( PokemonCard(card: card, idCard: id, boosterDraw: widget.boosterDraw, refresh:refresh ) );
       id += 1;
     }
@@ -88,7 +88,7 @@ class _BoosterPageState extends State<BoosterPage> {
           actions: [
             if(widget.boosterDraw.isFinished()) Card(
               color: buttonColor,
-              child: FlatButton(
+              child: TextButton(
               child: buttonLabel,
               onPressed: () {
                 Navigator.of(context).pop(true);
@@ -102,16 +102,16 @@ class _BoosterPageState extends State<BoosterPage> {
             children: [
               Container(
                 height: 60.0,
-                child:
-                ListView(
+                child: ListView(
                   scrollDirection: Axis.horizontal,
                   primary: false,
                   children: widgetEnergies,
+
                 ),
               ),
               CheckboxListTile(
                 title: Text(StatitikLocale.of(context).read('TB_B0')),
-                subtitle: Text(StatitikLocale.of(context).read('TB_B1')),
+                subtitle: Text(StatitikLocale.of(context).read('TB_B1'), style: TextStyle(fontSize: 12)),
                 value: widget.boosterDraw.abnormal,
                 onChanged: (newValue) async {
 

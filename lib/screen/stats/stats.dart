@@ -81,11 +81,11 @@ class _StatsPageState extends State<StatsPage> {
          )
         ];
      }
-     if(widget.d.subExt.validCard)
+     if(widget.d.subExt.info().validCard)
        finalWidget.add(
          Card(
            color: Colors.grey[800],
-           child: FlatButton(
+           child: TextButton(
                child: Text(StatitikLocale.of(context).read('S_B7')),
                onPressed: () {
                  Navigator.push(context, MaterialPageRoute(builder: (context) => StatsExtensionsPage(stats: widget.d.stats)));
@@ -96,7 +96,7 @@ class _StatsPageState extends State<StatsPage> {
        finalWidget.add(
            Card(
              color: Colors.grey[800],
-             child: FlatButton(
+             child: TextButton(
                  child: Text(StatitikLocale.of(context).read('S_B14')),
                  onPressed: () {
                    Navigator.push(context, MaterialPageRoute(builder: (context) => UserReport(data: widget.d)));
@@ -134,7 +134,7 @@ class _StatsPageState extends State<StatsPage> {
           ),
           actions: [
             if(widget.d.userStats != null)
-              FlatButton(
+              TextButton(
                   child: Icon(Icons.settings),
                   onPressed: () {
                     showDialog(
@@ -186,7 +186,7 @@ class _StatsPageState extends State<StatsPage> {
               Row(
                 children: [
                  Card(
-                    child: FlatButton(
+                    child: TextButton(
                       child: widget.d.language != null ? Row(
                         children: [
                           Text(StatitikLocale.of(context).read('S_B0')),
@@ -202,7 +202,7 @@ class _StatsPageState extends State<StatsPage> {
                   ),
                   if( widget.d.language != null && widget.d.subExt != null )
                     Expanded(
-                      child: Card( child: FlatButton(
+                      child: Card( child: TextButton(
                           child: Text(productButton, softWrap: true, style: TextStyle(fontSize: (productButton.length > 20) ? 10 : 14),),
                           onPressed: () {
                             Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.MultiSelection, language: widget.d.language, subExt: widget.d.subExt, afterSelected: afterSelectProduct) ));

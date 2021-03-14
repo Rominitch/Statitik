@@ -29,8 +29,10 @@ class _OptionsPageState extends State<OptionsPage> {
     {
       buttons = [
         signOutButton(refresh, context),
-        FlatButton(
-            color: Colors.red[800],
+        TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.red[800], // background
+            ),
             onPressed: () {
               setState(()
               {
@@ -47,7 +49,7 @@ class _OptionsPageState extends State<OptionsPage> {
 
       if(Environment.instance.user.admin) {
         buttons += [
-          FlatButton(
+          TextButton(
               onPressed: () {
                 Environment.instance.startDB=false;
                 Environment.instance.readStaticData();
@@ -91,7 +93,7 @@ class _OptionsPageState extends State<OptionsPage> {
           Row(
             children: [
               Expanded(child: Card(
-                child: FlatButton(
+                child: TextButton(
                     onPressed: () {
                       Environment.instance.showDisclaimer(context);
                     },
@@ -99,7 +101,7 @@ class _OptionsPageState extends State<OptionsPage> {
                 ),
               )),
               Expanded(child: Card(
-                child: FlatButton(
+                child: TextButton(
                     onPressed: () {
                       Navigator.of(context).pushNamed('/thanks');
                     },
@@ -111,7 +113,7 @@ class _OptionsPageState extends State<OptionsPage> {
           Row(
             children: [
               Expanded(child: Card(
-                child: FlatButton(
+                child: TextButton(
                     onPressed: () {
                       Navigator.of(context).pushNamed('/support');
                     },
@@ -119,7 +121,7 @@ class _OptionsPageState extends State<OptionsPage> {
                 ),
               )),
               Expanded(child: Card(
-                child: FlatButton(
+                child: TextButton(
                     onPressed: () {
                       Environment.instance.showAbout(context);
                     },
@@ -151,7 +153,7 @@ class _OptionsPageState extends State<OptionsPage> {
       actions: [
         Card(
           color: Colors.red[600],
-          child: FlatButton( child: Text(StatitikLocale.of(context).read('confirm')),
+          child: TextButton( child: Text(StatitikLocale.of(context).read('confirm')),
           onPressed: (){
             Environment.instance.removeUser().whenComplete(() {
               Navigator.of(context).pop();
@@ -160,7 +162,7 @@ class _OptionsPageState extends State<OptionsPage> {
           },),),
         Card(
           color: Theme.of(context).primaryColor,
-          child: FlatButton( child: Text(StatitikLocale.of(context).read('cancel')), onPressed: (){ Navigator.of(context).pop();},),),
+          child: TextButton( child: Text(StatitikLocale.of(context).read('cancel')), onPressed: (){ Navigator.of(context).pop();},),),
       ],
     );
   }

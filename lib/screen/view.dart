@@ -7,7 +7,7 @@ import 'package:statitikcard/services/models.dart';
 Widget createLanguage(Language l, BuildContext context, Function press)
 {
   return Container(
-    child: FlatButton(
+    child: TextButton(
       child: Image(
         image: AssetImage('assets/langue/${l.image}.png'),
       ),
@@ -33,19 +33,22 @@ class _ExtensionButtonState extends State<ExtensionButton> {
   Widget build(BuildContext context) {
     return Card(
       color: Colors.grey[850],
-      child: FlatButton(
+      child: Container(
         height: 40.0,
-        minWidth: 30.0,
-        child: Environment.instance.showExtensionName
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [widget.subExtension.image(hSize: iconSize),
-                           Text(widget.subExtension.name, textAlign: TextAlign.center,)
-                          ]
-            )
-            : widget.subExtension.image(),
-        onPressed: widget.press,
+        child: TextButton(
+          style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0),
+                                      minimumSize: Size(30.0, 40.0)),
+          child: Environment.instance.showExtensionName
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [widget.subExtension.image(hSize: iconSize),
+                             Text(widget.subExtension.name, textAlign: TextAlign.center,)
+                            ]
+              )
+              : widget.subExtension.image(),
+          onPressed: widget.press,
+        ),
       ),
     );
   }
@@ -55,18 +58,18 @@ Widget createSubExtension(SubExtension se, BuildContext context, Function press,
 {
   return Card(
     color: Colors.grey[850],
-    child: FlatButton(
-      height: 40.0,
-        child: withName ? Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            se.image(),
-            SizedBox(width: 10.0),
-            Text( '${se.name}' ),
-          ])
-        : se.image(),
-        onPressed: press,
-      ),
+    child: TextButton(
+      style: TextButton.styleFrom(minimumSize: Size(0.0, 40.0)),
+      child: withName ? Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          se.image(),
+          SizedBox(width: 10.0),
+          Text( '${se.name}' ),
+        ])
+      : se.image(),
+      onPressed: press,
+    ),
   );
 }
 
@@ -80,7 +83,7 @@ Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function pre
 
   return Card(
     color: color,
-    child: FlatButton(
+    child: TextButton(
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -100,7 +103,7 @@ Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function pre
             actions: [
               Card(
                 color: Colors.grey[700],
-                child: FlatButton(
+                child: TextButton(
                   child: Text(StatitikLocale.of(context).read('V_B3')),
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -111,7 +114,7 @@ Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function pre
               ),
               if( current.productAnomaly && current.canDelete() ) Card(
                 color: Colors.red,
-                child: FlatButton(
+                child: TextButton(
                   child: Text(StatitikLocale.of(context).read('delete'), style: TextStyle(color: Colors.white),),
                     onPressed: () {
                       current.deleteBooster(bd.id-1);
@@ -164,37 +167,40 @@ class _PokemonCardState extends State<PokemonCard> {
       widget.refresh();
     };
 
-    return Card(
-        color: cardValue.color(),
-        child: FlatButton(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: icons+[
-                  if( nbCard > 1)
-                    Text('${widget.boosterDraw.nameCard(widget.idCard)} ($nbCard)')
-                  else
-                    Text('${widget.boosterDraw.nameCard(widget.idCard)}')
-                ]),
-            padding: EdgeInsets.all(2.0),
-            onLongPress: () {
-              if( widget.card.hasAnotherRendering() || widget.card.hasAlternative ) {
-                setState(() {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.idCard, update, false); }
-                  );
-                  widget.refresh();
-                });
-              }
-            },
-            onPressed: () {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: TextButton(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: icons+[
+                if( nbCard > 1)
+                  Text('${widget.boosterDraw.nameCard(widget.idCard)} ($nbCard)')
+                else
+                  Text('${widget.boosterDraw.nameCard(widget.idCard)}')
+              ]),
+          style: TextButton.styleFrom(
+            backgroundColor: cardValue.color(),
+            padding: const EdgeInsets.all(2.0)
+          ),
+          onLongPress: () {
+            if( widget.card.hasAnotherRendering() || widget.card.hasAlternative ) {
               setState(() {
-                widget.boosterDraw.toggleCard(widget.boosterDraw.cardBin[widget.idCard], widget.card.defaultMode());
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.idCard, update, false); }
+                );
                 widget.refresh();
               });
             }
-        )
+          },
+          onPressed: () {
+            setState(() {
+              widget.boosterDraw.toggleCard(widget.boosterDraw.cardBin[widget.idCard], widget.card.defaultMode());
+              widget.refresh();
+            });
+          }
+      ),
     );
   }
 }
@@ -234,38 +240,43 @@ class _EnergyButtonState extends State<EnergyButton> {
     };
 
     CodeDraw code = widget.boosterDraw.energiesBin[widget.type.index];
-    return Card(
-      child: FlatButton(
-        color: code.color(),
-        minWidth: 20.0,
-        child: energyImage(widget.type),
-        onPressed: () {
-          setState(() {
-            widget.boosterDraw.toggleCard(code, Mode.Normal);
-            widget.boosterDraw.onEnergyChanged.add(true);
-          });
-        },
-        onLongPress: () {
-          setState(() {
-            showDialog(
-                context: context,
-                builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.type.index, update, true); }
-            ).whenComplete(()  {
-              setState(() {
-                widget.boosterDraw.onEnergyChanged.add(true);
-                widget.refresh();
+    return Container(
+        constraints: BoxConstraints(
+          maxWidth: 55.0,
+        ),
+        padding: EdgeInsets.all(2.0),
+        child: TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: code.color(),
+          ),
+          child: energyImage(widget.type),
+          onPressed: () {
+            setState(() {
+              widget.boosterDraw.toggleCard(code, Mode.Normal);
+              widget.boosterDraw.onEnergyChanged.add(true);
+            });
+          },
+          onLongPress: () {
+            setState(() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.type.index, update, true); }
+              ).whenComplete(()  {
+                setState(() {
+                  widget.boosterDraw.onEnergyChanged.add(true);
+                  widget.refresh();
+                });
               });
             });
-          });
-        },
-      ),
+          },
+        ),
     );
   }
 }
 
 Widget signInButton(Function press, BuildContext context) {
   return  Card(
-    child: FlatButton(
+    child: TextButton(
         onPressed: () {
           // Login
           Environment.instance.login(0).then((result) {
@@ -287,24 +298,24 @@ Widget signInButton(Function press, BuildContext context) {
 }
 
 Widget signOutButton(Function press, context) {
-  return  Card(
-    child: FlatButton(
-        onPressed: () {
-          Environment.instance.credential.signOutGoogle().then((result) {
-            press();
-          });
-        },
-        child:Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Text(
-            StatitikLocale.of(context).read('deconnexion'),
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.grey,
-            ),
-          ),
-        )
-    ),
+  return TextButton(
+      style: TextButton.styleFrom(
+        backgroundColor: Theme.of(context).primaryColor, // background
+      ),
+    onPressed: () {
+      Environment.instance.credential.signOutGoogle().then((result) {
+        press();
+      });
+    },
+    child:Padding(
+      padding: const EdgeInsets.only(left: 10),
+      child: Text(
+        StatitikLocale.of(context).read('deconnexion'),
+        style: TextStyle(
+          fontSize: 20,
+        ),
+      ),
+    )
   );
 }
 

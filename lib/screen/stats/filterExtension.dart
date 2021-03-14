@@ -12,7 +12,7 @@ class FilterExtensions extends StatelessWidget {
               children: [
                 Row(
                   children: [Card(
-                      child: FlatButton(
+                      child: TextButton(
                         child: Text('Extensions'),
                         onPressed: () {
 

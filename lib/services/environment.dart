@@ -72,7 +72,7 @@ class Credential
 
 class Database
 {
-    final String version = '1.4';
+    final String version = '1.5';
     final ConnectionSettings settings = createConnection();
 
     Future<void> transactionR(Function queries) async
@@ -103,12 +103,14 @@ class Collection
     List languages = [];
     List extensions = [];
     List subExtensions = [];
+    Map listCards = {};
     int category=0;
 
     void clear() {
         languages.clear();
         extensions.clear();
         subExtensions.clear();
+        listCards.clear();
         category=0;
     }
 
@@ -121,6 +123,9 @@ class Collection
     }
     void addSubExtension(SubExtension e) {
         subExtensions.add(e);
+    }
+    void addListCards(ListCards l, int id) {
+        listCards[id] = l;
     }
 
     List getExtensions(Language language) {
@@ -151,6 +156,10 @@ class Collection
         }
         return null;
     }
+
+    ListCards getListCardsID(int id) {
+        return listCards[id];
+    }
 }
 
 class Environment
@@ -168,7 +177,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.6.7';
+    final String version = '0.7.0';
 
     // State
     bool isInitialized=false;
@@ -247,14 +256,28 @@ class Environment
                     collection.addExtension(Extension(id: row[0], name: row[2], idLanguage: row[1]));
                 }
 
+                var lstCards = await connection.query("SELECT * FROM `ListeCartes`");
+                for (var row in lstCards) {
+                    ListCards c = ListCards();
+                    try {
+                        c.extractCard(row[1]);
+                        assert(c.cards.isNotEmpty);
+                        // TODO pokemon
+                        collection.addListCards(c, row[0]);
+                    } catch(e) {
+                        print("Bad cards list: $e");
+                    }
+                }
+
                 var subExts = await connection.query("SELECT * FROM `SousExtension` ORDER BY `code` DESC");
                 for (var row in subExts) {
-                    SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], year: row[6], chromatique: row[7]);
                     try {
-                        se.extractCard(row[4]);
+                        SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], year: row[6], chromatique: row[7],
+                            cards: collection.getListCardsID(row[4]));
                         collection.addSubExtension(se);
+                        assert(se.cards != null);
                     } catch(e) {
-                        print("Bad Subextension: ${se.name} $e");
+                        print("Bad SubExtension: ${row[2]} $e");
                     }
                 }
 
@@ -266,65 +289,6 @@ class Environment
 
             startDB = true;
         }
-    }
-
-    Future<List> readProducts(Language l, SubExtension se, bool userFilter, int idCategorie) async
-    {
-        List produits = List<List<Product>>.generate(Environment.instance.collection.category, (index) { return []; });
-
-        Function fillProd = (connection, exts, color) async {
-            for (var row in exts) {
-                Map<int, ProductBooster> boosters = {};
-                var reqBoosters = await connection.query("SELECT `ProduitBooster`.`idSousExtension`, `ProduitBooster`.`nombre`, `ProduitBooster`.`carte` FROM `ProduitBooster`"
-                    " WHERE `ProduitBooster`.`idProduit` = ${row[0]}");
-                for (var row in reqBoosters) {
-                    boosters[row[0]] = ProductBooster(nbBoosters: row[1], nbCardsPerBooster: row[2]);
-                }
-                int cat = row[3]-1;
-                assert(0 <= cat && cat < produits.length);
-                produits[cat].add(Product(idDB: row[0], name: row[1], imageURL: row[2], count: row[4], boosters: boosters, color: color ));
-            }
-        };
-
-        String subQueryCount;
-        if(userFilter && Environment.instance.user != null)
-            subQueryCount = '''(SELECT COUNT(*) FROM `Produit` as P, `UtilisateurProduit`
-WHERE `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`
-AND P.`idProduit` = `Produit`.`idProduit`
-AND `UtilisateurProduit`.`idUtilisateur` = ${Environment.instance.user.idDB}) as count ''';
-        else
-            subQueryCount = '''(SELECT COUNT(*) FROM `Produit` as P, `UtilisateurProduit`
-WHERE `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit` 
-AND P.`idProduit` = `Produit`.`idProduit`) as count ''';
-
-        String filter = '';
-        if(idCategorie > 0)
-            filter = ' AND `Produit`.`idCategorie` = $idCategorie';
-
-        await db.transactionR( (connection) async {
-            String query = "SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie`, $subQueryCount FROM `Produit`, `ProduitBooster` "
-                " WHERE `Produit`.`approuve` = 1"
-                " AND `Produit`.`idLangue` = ${l.id}"
-                " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
-                " AND `ProduitBooster`.`idSousExtension` = ${se.id} $filter"
-                " ORDER BY `Produit`.`nom` ASC";
-
-            printOutput(query);
-            var exts = await connection.query(query);
-            await fillProd(connection, exts, Colors.grey[600]);
-
-            query ="SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie`, $subQueryCount FROM `Produit`, `ProduitBooster`"
-                " WHERE `Produit`.`approuve` = 1"
-                " AND `Produit`.`idLangue` = ${l.id}"
-                " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
-                " AND `ProduitBooster`.`idSousExtension` IS NULL"
-                " AND `Produit`.`annee` >= ${se.year} $filter"
-                " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC";
-
-            exts = await connection.query(query);
-            await fillProd(connection, exts, Colors.deepOrange[700]);
-        });
-        return produits;
     }
 
     Future<void> registerUser(String uid) async {

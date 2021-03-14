@@ -66,7 +66,7 @@ class _LoadingState extends State<Loading> {
                       ),
                       SizedBox(height: 10.0),
                       Card(
-                        child: FlatButton(
+                        child: TextButton(
                             child: Text(StatitikLocale.of(context).read('retry')),
                             onPressed:() {
                               setState(() {
