@@ -358,16 +358,28 @@ class PokeCard
   }
 }
 
-class PokemonInfo
+class NamedInfo
 {
   List<String> names;
+
+  NamedInfo({this.names});
+}
+
+class PokemonInfo extends NamedInfo
+{
   int          generation;
+
+  PokemonInfo({List<String> names, this.generation}) :
+  super(names: names)
+  {
+   assert(names.length == 3);
+  }
 }
 
 class ListCards
 {
   List<PokeCard>    cards    = [];
-  List<PokemonInfo> pokemons = [];
+  List              pokemons = [];
   bool   validCard = true;
 
   void extractCard(String code)
@@ -404,6 +416,35 @@ class ListCards
         cards.add(PokeCard(type: t, rarity: r, hasAlternative: alternative));
       }
     }
+  }
+
+  void extractNamed(List<int> pokeList) {
+    for( int pokeID in pokeList ) {
+      var poke = null;
+      if( pokeID >= 10000 ) {
+        poke = Environment.instance.collection.getNamedID(pokeID);
+
+      } else {
+        poke = Environment.instance.collection.getPokemonID(pokeID);
+      }
+
+      assert(poke != null); // Missing item into DB
+      pokemons.add(poke);
+    }
+
+    if(local && pokemons.length != cards.length) {
+      pokemons.forEach((element) { print( element.names[0] );});
+
+      print('Named: ${pokemons.length} != Code ${cards.length}');
+    }
+    assert(pokemons.length == cards.length);
+  }
+
+  String getName(Language l, int id) {
+    if(pokemons != null && id < pokemons.length ) {
+      return pokemons[id].names[l.id-1];
+    }
+    return "";
   }
 }
 
@@ -707,7 +748,7 @@ class BoosterDraw {
     for(CodeDraw c in cardBin) {
       elements.add(c.toInt());
     }
-    while(elements.last == 0) {
+    while(elements.isNotEmpty && elements.last == 0) {
       elements.removeLast();
     }
 
@@ -715,7 +756,7 @@ class BoosterDraw {
     for(CodeDraw c in energiesBin) {
       energyCode.add(c.toInt());
     }
-    while(energyCode.last == 0) {
+    while(energyCode.isNotEmpty && energyCode.last == 0) {
       energyCode.removeLast();
     }
 
@@ -780,6 +821,14 @@ class Stats {
     countEnergy   = List<int>.filled(energies.length, 0);
   }
 
+  bool hasEnergy() {
+    for(int e in countEnergy ) {
+      if(e > 0)
+        return true;
+    }
+    return false;
+  }
+
   void addBoosterDraw(List<int> draw, List<int> energy , int anomaly) {
     if( draw.length > subExt.info().cards.length)
       throw StatitikException('Corruption des données de tirages');
@@ -790,6 +839,9 @@ class Stats {
     for(int energyI=0; energyI < energy.length; energyI +=1) {
       CodeDraw c = CodeDraw.fromInt(energy[energyI]);
       countEnergy[energyI] += c.count();
+      // Energy can be reverse
+      countByMode[Mode.Reverse.index] += c.countReverse;
+      assert((c.countHalo + c.countAlternative) == 0);
     }
 
     for(int cardI=0; cardI < draw.length; cardI +=1) {

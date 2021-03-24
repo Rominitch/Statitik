@@ -75,8 +75,9 @@ class Database
     final String version = '1.5';
     final ConnectionSettings settings = createConnection();
 
-    Future<void> transactionR(Function queries) async
+    Future<bool> transactionR(Function queries) async
     {
+        bool valid=false;
         MySqlConnection connection;
         try
         {
@@ -88,13 +89,15 @@ class Database
         // Execute request
         try {
             await connection.transaction(queries);
+
+            valid = true;
         } catch( e ) {
-            if(local)
-                print(e.toString());
+            printOutput(e.toString());
         }
         finally {
             connection.close();
         }
+        return valid;
     }
 }
 
@@ -105,12 +108,15 @@ class Collection
     List subExtensions = [];
     Map listCards = {};
     int category=0;
+    Map pokemons = {};
+    Map otherNames = {};
 
     void clear() {
         languages.clear();
         extensions.clear();
         subExtensions.clear();
         listCards.clear();
+        pokemons.clear();
         category=0;
     }
 
@@ -160,6 +166,21 @@ class Collection
     ListCards getListCardsID(int id) {
         return listCards[id];
     }
+
+    void addPokemon(PokemonInfo p, int id) {
+        pokemons[id] = p;
+    }
+    void addNamed(NamedInfo p, int id) {
+        otherNames[id] = p;
+    }
+
+    PokemonInfo getPokemonID(int id) {
+        return id > 0 ? pokemons[id] : null;
+    }
+
+    NamedInfo getNamedID(int id) {
+        return id >= 10000 ? otherNames[id] : null;
+    }
 }
 
 class Environment
@@ -177,7 +198,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.7.0';
+    final String version = '0.7.4';
 
     // State
     bool isInitialized=false;
@@ -255,6 +276,23 @@ class Environment
                 for (var row in exts) {
                     collection.addExtension(Extension(id: row[0], name: row[2], idLanguage: row[1]));
                 }
+                var pokes = await connection.query("SELECT * FROM `Pokemon`");
+                for (var row in pokes) {
+                    try {
+                        PokemonInfo p = PokemonInfo(names: row[2].split('|'), generation: row[1]);
+                        collection.addPokemon(p, row[0]);
+                    } catch(e) {
+                        print("Bad pokemon: ${row[0]} $e");
+                    }
+                }
+                var objSup = await connection.query("SELECT * FROM `DresseurObjet`");
+                for (var row in objSup) {
+                    try {
+                        collection.addNamed(NamedInfo(names: row[1].split('|')), row[0]);
+                    } catch(e) {
+                        print("Bad Object: ${row[0]} $e");
+                    }
+                }
 
                 var lstCards = await connection.query("SELECT * FROM `ListeCartes`");
                 for (var row in lstCards) {
@@ -262,7 +300,21 @@ class Environment
                     try {
                         c.extractCard(row[1]);
                         assert(c.cards.isNotEmpty);
-                        // TODO pokemon
+                        List<int> pokeCode = [];
+                        if( row[2] != null) {
+                            try {
+                                final byteData = (row[2] as Blob)
+                                    .toBytes()
+                                    .toList();
+                                for (int id = 0; id < byteData.length; id += 2) {
+                                    pokeCode.add(
+                                        (byteData[id] << 8) + byteData[id + 1]);
+                                }
+                                c.extractNamed(pokeCode);
+                            } catch(e) {
+                                print("Data corruption: ListCard ${row[0]} $e");
+                            }
+                        }
                         collection.addListCards(c, row[0]);
                     } catch(e) {
                         print("Bad cards list: $e");
@@ -274,8 +326,8 @@ class Environment
                     try {
                         SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], year: row[6], chromatique: row[7],
                             cards: collection.getListCardsID(row[4]));
+                        assert(se.info() != null);
                         collection.addSubExtension(se);
-                        assert(se.cards != null);
                     } catch(e) {
                         print("Bad SubExtension: ${row[2]} $e");
                     }
@@ -325,25 +377,28 @@ class Environment
             return false;
 
         try {
-            await db.transactionR( (connection) async {
-                int idAchat;
+            return await db.transactionR( (connection) async {
+                // Get new ID
+                int idAchat = 1;
                 var req = await connection.query('SELECT count(idAchat) FROM `UtilisateurProduit`;');
                 for (var row in req) {
                     idAchat = row[0] + 1;
                 }
 
-                await connection.query('INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user.idDB}, ${currentDraw.product.idDB}, ${currentDraw.productAnomaly ? 1 : 0});');
+                // Add new product
+                final query = 'INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user.idDB}, ${currentDraw.product.idDB}, ${currentDraw.productAnomaly ? 1 : 0})';
+                await connection.query(query);
 
                 // Prepare data
                 List<List<dynamic>> draw = [];
                 for(BoosterDraw booster in currentDraw.boosterDraws) {
+                    assert(booster != null);
                     draw.add(booster.buildQuery(idAchat));
                 }
                 // Send data
                 await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, energieBin, cartesBin) VALUES (?, ?, ?, ?, ?);',
                                             draw);
             });
-            return true;
         } catch( e ) {
             printOutput("Database error $e");
         }
@@ -393,9 +448,13 @@ class Environment
                             'AND `idSousExtension` = ${subExt.id} '
                             '$userReq;';
                 }
+                printOutput(query);
+
                 var req = await connection.query(query);
                 for (var row in req) {
-                    stats.addBoosterDraw((row[0] as Blob).toBytes(), (row[1] as Blob).toBytes(), row[2]);
+                    try {
+                        stats.addBoosterDraw((row[0] as Blob).toBytes(), (row[1] as Blob).toBytes(), row[2]);
+                    } catch(e) {}
                 }
             });
         }

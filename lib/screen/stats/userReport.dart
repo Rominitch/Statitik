@@ -20,8 +20,9 @@ import 'package:statitikcard/services/product.dart';
 class FullCard {
   String name;
   PokeCard card;
+  String realName;
 
-  FullCard([this.name, this.card]);
+  FullCard([this.name, this.card, this.realName]);
 }
 
 class UserReport extends StatefulWidget {
@@ -62,8 +63,8 @@ class _UserReportState extends State<UserReport> {
         PokeCard card = finalData.subExt.info().cards[i];
         if (finalData.stats.count[i] > 0 &&
             card.rarity.index >= Rarity.HoloRare.index) {
-          cardSort[card.rarity.index].add(
-              FullCard(finalData.subExt.nameCard(i), card));
+          String rname = finalData.subExt.info().getName(finalData.language, i);
+          cardSort[card.rarity.index].add(FullCard(finalData.subExt.nameCard(i), card, rname));
         }
       }
 
@@ -73,20 +74,39 @@ class _UserReportState extends State<UserReport> {
             break;
 
           final cardName = c.name;
-          bestCards.add(Card(
-            color: Colors.grey[600],
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children:
-                [
-                  Row(mainAxisAlignment: MainAxisAlignment.center,
-                      children: [c.card.imageType()] + c.card.imageRarity()),
-                  SizedBox(height: 6.0),
-                  Text(cardName),
-                ]),
-          )
-          );
+          if(finalData.subExt.info().pokemons.isNotEmpty)
+            bestCards.add(Card(
+              color: Colors.grey[600],
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children:
+                    [
+                      Container(child: Text( c.name ), width: 40),
+                      Container(child:Row(children: [c.card.imageType()] + c.card.imageRarity()), width:80),
+                      SizedBox(width: 6.0),
+                      Flexible(child:Text( c.realName, style: TextStyle(fontSize: c.realName.length > 10 ? 10 : 13) )),
+                    ]),
+              ),
+              )
+            );
+          else
+            bestCards.add(Card(
+              color: Colors.grey[600],
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children:
+                  [
+                    Row(mainAxisAlignment: MainAxisAlignment.center,
+                        children: [c.card.imageType()] + c.card.imageRarity()),
+                    SizedBox(height: 6.0),
+                    Text(cardName),
+                  ]),
+            )
+            );
         }
       }
 
@@ -258,20 +278,35 @@ class _UserReportState extends State<UserReport> {
   }
 
   Widget buildBestCards(translator, limit) {
-    return Card(
-        child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(translator.read('RE_B0'), style: Theme.of(context).textTheme.headline5),
-              GridView.count(
-                crossAxisCount: limit,
-                shrinkWrap: true,
-                primary: false,
-                children: bestCards,
-              )
-            ]
-        )
-    );
+    if(finalData.subExt.info().pokemons.isNotEmpty)
+      return Card(
+          child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(translator.read('RE_B0'), style: Theme.of(context).textTheme.headline5),
+                ListView(
+                  shrinkWrap: true,
+                  primary: false,
+                  children: bestCards,
+                )
+              ]
+          )
+      );
+    else
+      return Card(
+          child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(translator.read('RE_B0'), style: Theme.of(context).textTheme.headline5),
+                GridView.count(
+                  crossAxisCount: limit,
+                  shrinkWrap: true,
+                  primary: false,
+                  children: bestCards,
+                )
+              ]
+          )
+      );
   }
 
   Widget buildProducts(translator, limit) {

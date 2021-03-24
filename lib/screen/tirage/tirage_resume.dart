@@ -112,6 +112,7 @@ class _ResumePageState extends State<ResumePage> {
               onPressed: () async {
                 Environment env = Environment.instance;
                 bool valid = await env.sendDraw();
+
                 if( valid ) {
                   await showDialog(
                       context: context,
@@ -140,6 +141,17 @@ class _ResumePageState extends State<ResumePage> {
       appBar: AppBar(
         title: Text(current.product.name, style: TextStyle(fontSize: 15)),
         actions: actions,
+        leading: new IconButton(
+          icon: new Icon(Icons.arrow_back),
+          onPressed: () async {
+            bool exit = await showDialog(
+                context: context,
+                barrierDismissible: false, // user must tap button!
+                builder: (BuildContext context) { return showExit(context); });
+            if(exit)
+              Navigator.of(context).pop(true);
+          },
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -187,6 +199,33 @@ class _ResumePageState extends State<ResumePage> {
             ],
         ),
       ),
+    );
+  }
+
+  AlertDialog showExit(BuildContext context) {
+    return AlertDialog(
+      title: Text(StatitikLocale.of(context).read('warning')),
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: <Widget>[
+            Text(StatitikLocale.of(context).read('TR_B7')),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          child: Text(StatitikLocale.of(context).read('yes')),
+          onPressed: () {
+            Navigator.of(context).pop(true);
+          },
+        ),
+        TextButton(
+          child: Text(StatitikLocale.of(context).read('cancel')),
+          onPressed: () {
+            Navigator.of(context).pop(false);
+          },
+        ),
+      ],
     );
   }
 }

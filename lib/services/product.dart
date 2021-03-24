@@ -52,6 +52,7 @@ AND P.`idProduit` = `Produit`.`idProduit`) as count ''';
         " AND `Produit`.`idLangue` = ${l.id}"
         " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
         " AND `ProduitBooster`.`idSousExtension` = ${se.id} $filter"
+        " GROUP BY `Produit`.`idProduit`"
         " ORDER BY `Produit`.`nom` ASC";
 
     //printOutput(query);
@@ -76,6 +77,7 @@ AND P.`idProduit` = `Produit`.`idProduit`) as count ''';
         " AND `ProduitBooster`.`idSousExtension` IS NULL"
         " $filter"
         " $filterSE"
+        " GROUP BY `Produit`.`idProduit`"
         " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC";
 
     printOutput(query);
@@ -119,9 +121,11 @@ AND `UtilisateurProduit`.`idUtilisateur` = ${Environment.instance.user.idDB}) as
         " AND `Produit`.`idLangue` = ${l.id}"
         " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
         " AND `ProduitBooster`.`idSousExtension` = ${se.id} $filter"
+        " GROUP BY `Produit`.`idProduit`"
         " ORDER BY `Produit`.`nom` ASC";
 
     //printOutput(query);
+
     var exts = await connection.query(query);
     await fillProd(connection, exts, Colors.grey[600]);
 
@@ -137,7 +141,10 @@ AND `UtilisateurProduit`.`idUtilisateur` = ${Environment.instance.user.idDB}) as
         " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
         " AND `ProduitBooster`.`idSousExtension` IS NULL"
         " $filter $filterSE"
+        " GROUP BY `Produit`.`idProduit`"
         " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC";
+
+    //printOutput(query);
 
     exts = await connection.query(query);
     await fillProd(connection, exts, Colors.deepOrange[700]);

@@ -67,7 +67,7 @@ class StatsView extends StatelessWidget {
     } else {
       rarity.add(Text(translator.read('S_B3')));
     }
-
+    final energyData = data.stats.hasEnergy();
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -86,8 +86,8 @@ class StatsView extends StatelessWidget {
                 primary: false,
                 children: rarity,
               ),
-              if(!options.print) Text(translator.read('S_B12'), style: Theme.of(context).textTheme.headline5 ),
-              if(!options.print) PieChartGeneric(allStats: data.stats),
+              if(!options.print && energyData) Text(translator.read('S_B12'), style: Theme.of(context).textTheme.headline5 ),
+              if(!options.print && energyData) PieChartGeneric(allStats: data.stats),
             ]
         ),
       ),
