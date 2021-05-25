@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.7.4+43
+version: 0.7.6+45
 
 environment:
   sdk: ">=2.10.0 <3.0.0"
@@ -28,19 +28,19 @@ dependencies:
   firebase_core: ^1.0.1
   firebase_auth_web: ^1.0.2
   firebase_auth: ^1.0.1
-  provider: ^4.3.2+3
-  mysql1: ^0.17.1
-  cached_network_image: ^2.5.0
-  google_sign_in: ^4.5.6
-  percent_indicator: ^2.1.9
-  fl_chart: ^0.12.2
+  provider: ^5.0.0
+  mysql1: ^0.19.0
+  cached_network_image: ^3.0.0
+  google_sign_in: ^5.0.3
+  percent_indicator: ^3.0.1
+  fl_chart: ^0.36.1
   shared_preferences: ^2.0.4
   url_launcher: ^6.0.2
-  sprintf: ^5.0.0
-  flutter_spinbox: ^0.3.1+2
-  permission_handler: ^6.1.0
+  sprintf: ^6.0.0
+  flutter_spinbox: ^0.5.2
+  permission_handler: ^8.0.0+2
   path_provider: ^2.0.1
-  photo_manager: ^0.6.0
+  photo_manager: ^1.2.0
   screenshot: ^0.3.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -56,7 +56,7 @@ dev_dependencies:
   #integration_test:
   #  sdk: flutter
   test: any
-  flutter_launcher_icons: "^0.8.0"
+  flutter_launcher_icons: "^0.9.0"
 
 flutter_icons:
   android: "launcher_icon"

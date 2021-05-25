@@ -110,6 +110,7 @@ Images and illustrations used are the property of their respective authors.
       'CAT_5': 'Mini Tin',
       'CAT_6': 'Elite Training Box',
       'CAT_7': 'Chest',
+      'CAT_8': 'Premium Tournament Collection',
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -214,6 +215,7 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'CAT_5': 'Mini Tin',
       'CAT_6': 'Coffret Dresseur d\'Elite',
       'CAT_7': 'Coffre',
+      'CAT_8': 'Premium Tournament Collection',
     },
   };
 

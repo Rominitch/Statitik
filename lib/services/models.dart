@@ -420,7 +420,7 @@ class ListCards
 
   void extractNamed(List<int> pokeList) {
     for( int pokeID in pokeList ) {
-      var poke = null;
+      var poke;
       if( pokeID >= 10000 ) {
         poke = Environment.instance.collection.getNamedID(pokeID);
 
