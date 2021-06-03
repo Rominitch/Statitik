@@ -84,7 +84,7 @@ class _IconCardState extends State<IconCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [Image(image: AssetImage('assets/carte/${modeImgs[widget.mode]}.png'), width: 75.0),
                         SizedBox(height: 6.0),
-                        Text(modeNames[widget.mode]),
+                        Text(StatitikLocale.of(context).read(modeNames[widget.mode])),
                       ]),
                   style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
                   onPressed: () {

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:mobile_number/mobile_number.dart';
 
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,7 +32,7 @@ class Credential
             // Auto login
             var prefs = await SharedPreferences.getInstance();
             if( prefs.getString('uid') != null ) {
-                await Environment.instance.login(1);
+                await Environment.instance.login(10, null, null);
             }
         } catch(e) {
             Environment.instance.user = null;
@@ -61,6 +63,77 @@ class Credential
         return null;
     }
 
+    Future<String> initMobileNumberState() async {
+        if (!await MobileNumber.hasPhonePermission) {
+            await MobileNumber.requestPhonePermission;
+            return "";
+        }
+        String mobileNumber = '';
+        // Platform messages may fail, so we use a try/catch PlatformException.
+        try {
+            mobileNumber = (await MobileNumber.mobileNumber)!;
+        } on PlatformException catch (e) {
+            debugPrint("Failed to get mobile number because of '${e.message}'");
+        }
+
+        return mobileNumber;
+    }
+
+    Future<void> signInWithPhone(env, context, updateLocal) async {
+        try {
+            FirebaseAuth auth = FirebaseAuth.instance;
+
+            MobileNumber.listenPhonePermission((isPermissionGranted) {
+                if (isPermissionGranted) {
+                    printOutput("Permission OK");
+                } else {
+                    printOutput("Permission FAILURE");
+                }
+            });
+            String myPhoneNumber = await initMobileNumberState();
+
+            await auth.verifyPhoneNumber(
+                phoneNumber: myPhoneNumber,
+                verificationCompleted: (PhoneAuthCredential credential) async {
+
+                    // Sign the user in (or link) with the auto-generated credential
+                    UserCredential authResult = await auth.signInWithCredential(credential);
+                },
+                verificationFailed: (FirebaseAuthException e) {
+                    Environment.instance.user = null;
+                },
+                codeSent: (String verificationId, int? resendToken) async {
+                    // Update the UI - wait for the user to enter the SMS code
+                    String smsCode = await showDialog(
+                        context: context,
+                        barrierDismissible: false, // user must tap button!
+                        builder: (BuildContext context) { return showAlert(context); });
+
+                    // Create a PhoneAuthCredential with the code
+                    PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
+
+                    // Sign the user in (or link) with the credential
+                    UserCredential authResult = await auth.signInWithCredential(credential);
+
+                    var prefs = await SharedPreferences.getInstance();
+
+                    String uid = "telephone-" + authResult.user!.uid;
+                    prefs.setString('uid', uid);
+                    // Register and check access
+                    await env.registerUser(uid);
+
+                    updateLocal("");
+                  },
+                timeout: const Duration(seconds: 2*60),
+                codeAutoRetrievalTimeout: (String verificationId) {
+                },
+            );
+        }
+        catch(e) {
+            Environment.instance.user = null;
+        }
+    }
+
     Future<void> signOutGoogle() async {
         Environment.instance.user = null;
         await googleSignIn.signOut();
@@ -68,6 +141,36 @@ class Credential
         var prefs = await SharedPreferences.getInstance();
         prefs.remove('uid');
     }
+
+    AlertDialog showAlert(BuildContext context) {
+        String smsCode="";
+        return AlertDialog(
+            title: Text(StatitikLocale.of(context).read('LOG_1')),
+            content:  TextField(
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                    smsCode = value;
+                },
+                //controller: _textFieldController,
+                decoration: InputDecoration(hintText: "Sms code"),
+            ),
+            actions: <Widget>[
+                TextButton(
+                    child: Text(StatitikLocale.of(context).read('confirm')),
+                    onPressed: () {
+                        Navigator.of(context).pop(smsCode);
+                    },
+                ),
+                TextButton(
+                    child: Text(StatitikLocale.of(context).read('cancel')),
+                    onPressed: () {
+                        Navigator.of(context).pop("");
+                    },
+                ),
+            ],
+        );
+    }
+
 }
 
 class Database
@@ -198,7 +301,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.8.0';
+    final String version = '0.8.1';
 
     // State
     bool isInitialized=false;
@@ -492,22 +595,26 @@ class Environment
         return user != null;
     }
 
-    Future<String?> login(int mode) async {
+    Future<String?> login(int mode, context, updateGUI) async {
         try {
-            String uid;
-            var prefs = await SharedPreferences.getInstance();
-
             // Log system
-            if(mode==0) {
-                uid = (await credential.signInWithGoogle())!;
-                prefs.setString('uid', uid);
+            if(mode==1) {
+                await credential.signInWithPhone(this, context, updateGUI);
             } else {
-                uid = prefs.getString('uid')!;
-            }
+                String uid;
+                var prefs = await SharedPreferences.getInstance();
 
-            // Register and check access
-            if(uid != null) {
-                await registerUser(uid);
+                if(mode==0) {
+                    uid = (await credential.signInWithGoogle())!;
+                    prefs.setString('uid', uid);
+                } else {
+                    uid = prefs.getString('uid')!;
+                }
+
+                // Register and check access
+                if(uid != null) {
+                    await registerUser(uid);
+                }
             }
         } catch(e) {
             Environment.instance.user = null;

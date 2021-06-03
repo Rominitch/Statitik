@@ -74,7 +74,8 @@ class _OptionsPageState extends State<OptionsPage> {
 
     } else {
       buttons = [
-        signInButton(refreshWithError, context),
+        signInButton('V_B5', 0, refreshWithError, context),
+        signInButton('V_B6', 1, refreshWithError, context),
       ];
     }
 

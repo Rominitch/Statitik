@@ -16,7 +16,7 @@ class DrawHomePage extends StatefulWidget {
 }
 
 class _DrawHomePageState extends State<DrawHomePage> {
-  late String message;
+  String? message;
 
   @override
   Widget build(BuildContext context) {
@@ -85,9 +85,12 @@ class _DrawHomePageState extends State<DrawHomePage> {
               textBullet(StatitikLocale.of(context).read('DC_B7')),
               Expanded(child: SizedBox()),
               Container(
-                child: signInButton(refresh, context)
+                child: signInButton('V_B5', 0, refresh, context)
               ),
-              if(message != null) Container( child: Center( child: Text(message, style: TextStyle(color: Colors.red)))),
+              Container(
+                child: signInButton('V_B6', 1, refresh, context)
+              ),
+              if(message != null) Container( child: Center( child: Text(message!, style: TextStyle(color: Colors.red)))),
               Expanded(child: SizedBox()),
               Container( padding: const EdgeInsets.only(left: 10),
                 child: Column(
