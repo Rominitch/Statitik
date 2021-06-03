@@ -20,7 +20,7 @@ class ProductQuery {
     }
   }
 }
-Future<List> readProducts(Language l, SubExtension se, int idCategorie, SubExtension containsSe) async
+Future<List> readProducts(Language l, SubExtension se, int idCategorie, SubExtension? containsSe) async
 {
   List produits = List<List<Product>>.generate(Environment.instance.collection.category, (index) { return []; });
 
@@ -109,7 +109,7 @@ Future<List> readProductsForUser(Language l, SubExtension se, int idCategorie) a
   String subQueryCount = '''(SELECT COUNT(*) FROM `Produit` as P, `UtilisateurProduit`
 WHERE `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`
 AND P.`idProduit` = `Produit`.`idProduit`
-AND `UtilisateurProduit`.`idUtilisateur` = ${Environment.instance.user.idDB}) as count ''';
+AND `UtilisateurProduit`.`idUtilisateur` = ${Environment.instance.user!.idDB}) as count ''';
 
   String filter = '';
   if(idCategorie > 0)

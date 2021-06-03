@@ -7,7 +7,7 @@ class StatitikLocale {
   final Locale locale;
 
   static StatitikLocale of(BuildContext context) {
-    return Localizations.of<StatitikLocale>(context, StatitikLocale);
+    return Localizations.of<StatitikLocale>(context, StatitikLocale)!;
   }
 
   static Map<String, Map<String, String>> _localizedValues = {
@@ -221,7 +221,12 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
 
   String read(String code) {
     assert( _localizedValues.containsKey(locale.languageCode) );
-    return _localizedValues[locale.languageCode][code];
+    var dict = _localizedValues[locale.languageCode];
+    if(dict != null) {
+      var s = dict[code];
+      return s != null ? s : "";
+    }
+    return "";
   }
 }
 

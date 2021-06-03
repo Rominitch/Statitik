@@ -44,11 +44,11 @@ class _StatsPageState extends State<StatsPage> {
 
     // Get data from DB
     Environment env = Environment.instance;
-    env.getStats(widget.d.subExt, widget.d.product, widget.d.category).then( (stats) {
+    env.getStats(widget.d.subExt, widget.d.product!, widget.d.category).then( (stats) {
       widget.d.stats = stats;
       // Get user info after
       if(env.user != null) {
-        env.getStats(widget.d.subExt, widget.d.product, widget.d.category, env.user.idDB).then( (ustats) {
+        env.getStats(widget.d.subExt, widget.d.product!, widget.d.category, env.user!.idDB).then( (ustats) {
           if(ustats != null && ustats.nbBoosters > 0) {
             widget.d.userStats = ustats;
             setState(() {});
@@ -64,10 +64,10 @@ class _StatsPageState extends State<StatsPage> {
     List<Widget> finalWidget = [];
     final String productButton = widget.d.product == null
         ? categoryName(context, widget.d.category)
-        : widget.d.product.name;
+        : widget.d.product!.name;
 
     if(widget.d.stats != null) {
-     if(widget.d.stats.nbBoosters > 0) {
+     if(widget.d.stats!.nbBoosters > 0) {
        finalWidget.add(StatsView(data: widget.d, options: options));
      } else {
        finalWidget = [
@@ -88,7 +88,7 @@ class _StatsPageState extends State<StatsPage> {
            child: TextButton(
                child: Text(StatitikLocale.of(context).read('S_B7')),
                onPressed: () {
-                 Navigator.push(context, MaterialPageRoute(builder: (context) => StatsExtensionsPage(stats: widget.d.stats)));
+                 Navigator.push(context, MaterialPageRoute(builder: (context) => StatsExtensionsPage(stats: widget.d.stats!)));
                }
            ),
          ));
@@ -153,7 +153,7 @@ class _StatsPageState extends State<StatsPage> {
                                     value: options.delta,
                                     onChanged: (newValue) {
                                       setState(() {
-                                        options.delta = newValue;
+                                        options.delta = newValue!;
                                       });
                                     },
                                   ),

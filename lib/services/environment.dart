@@ -37,13 +37,13 @@ class Credential
         }
     }
 
-    Future<String> signInWithGoogle() async {
+    Future<String?> signInWithGoogle() async {
         try {
             FirebaseAuth _auth = FirebaseAuth.instance;
 
-            final GoogleSignInAccount googleSignInAccount = await googleSignIn
+            final GoogleSignInAccount? googleSignInAccount = await googleSignIn
                 .signIn();
-            final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount
+            final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount!
                 .authentication;
             final AuthCredential credential = GoogleAuthProvider.credential(
                 accessToken: googleSignInAuthentication.accessToken,
@@ -53,7 +53,7 @@ class Credential
             final UserCredential authResult = await _auth.signInWithCredential(
                 credential);
 
-            return "google-" + authResult.user.uid;
+            return "google-" + authResult.user!.uid;
 
         } catch(e) {
             Environment.instance.user = null;
@@ -154,7 +154,7 @@ class Collection
         return l;
     }
 
-    SubExtension getSubExtensionID(int id) {
+    SubExtension? getSubExtensionID(int id) {
         for(SubExtension se in subExtensions) {
             if (se.id == id) {
                 return se;
@@ -198,7 +198,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.7.6';
+    final String version = '0.7.7';
 
     // State
     bool isInitialized=false;
@@ -212,8 +212,8 @@ class Environment
     Collection collection = Collection();
 
     // Current draw
-    UserPoke user;
-    SessionDraw currentDraw;
+    UserPoke? user;
+    late SessionDraw currentDraw;
 
     void initialize() async
     {
@@ -347,7 +347,7 @@ class Environment
         if (user == null) {
             await db.transactionR( (connection) async {
                 // Check user data exists into database
-                int idNewID;
+                int idNewID=-1;
                 var reqCountUser = await connection.query(
                     'SELECT count(`idUtilisateur`) FROM `Utilisateur`;');
                 for (var row in reqCountUser) {
@@ -361,13 +361,13 @@ class Environment
                         if(row[1] != 0)
                             throw StatitikException("Utilisateur banni pour non respect des règles.");
                         user = UserPoke(idDB: row[0]);
-                        user.admin = row[2] == 1 ? true : false;
+                        user!.admin = row[2] == 1 ? true : false;
                     }
                 } else {
                     await connection.query('INSERT INTO `Utilisateur` (idUtilisateur, identifiant, ban) VALUES ($idNewID, \'$uid\', 0);');
                     user = UserPoke(idDB: idNewID);
                 }
-                user.uid = uid;
+                user!.uid = uid;
             });
         }
     }
@@ -386,7 +386,7 @@ class Environment
                 }
 
                 // Add new product
-                final query = 'INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user.idDB}, ${currentDraw.product.idDB}, ${currentDraw.productAnomaly ? 1 : 0})';
+                final query = 'INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user!.idDB}, ${currentDraw.product.idDB}, ${currentDraw.productAnomaly ? 1 : 0})';
                 await connection.query(query);
 
                 // Prepare data
@@ -411,7 +411,7 @@ class Environment
 
         try {
             await db.transactionR( (connection) async {
-                await connection.query('UPDATE `Utilisateur` SET `identifiant` = \'unregistred\' WHERE `identifiant` = \'${user.uid}\';');
+                await connection.query('UPDATE `Utilisateur` SET `identifiant` = \'unregistred\' WHERE `identifiant` = \'${user!.uid}\';');
 
                 user = null;
             });
@@ -420,7 +420,7 @@ class Environment
         }
     }
 
-    Future<Stats> getStats(SubExtension subExt, Product product, int category, [int user]) async {
+    Future<Stats> getStats(SubExtension subExt, Product product, int category, [int? user]) async {
         Stats stats = new Stats(subExt: subExt);
         try {
             String userReq = '';
@@ -491,17 +491,17 @@ class Environment
         return user != null;
     }
 
-    Future<String> login(int mode) async {
+    Future<String?> login(int mode) async {
         try {
             String uid;
             var prefs = await SharedPreferences.getInstance();
 
             // Log system
             if(mode==0) {
-                uid = await credential.signInWithGoogle();
+                uid = (await credential.signInWithGoogle())!;
                 prefs.setString('uid', uid);
             } else {
-                uid = prefs.getString('uid');
+                uid = prefs.getString('uid')!;
             }
 
             // Register and check access

@@ -7,14 +7,14 @@ import 'package:statitikcard/services/models.dart';
 class StatsExtensionsPage extends StatefulWidget {
   final Stats stats;
 
-  StatsExtensionsPage({this.stats});
+  StatsExtensionsPage({required this.stats});
 
   @override
   _StatsExtensionsPageState createState() => _StatsExtensionsPageState();
 }
 
 class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
-  StatsExtension statsExtension;
+  late StatsExtension statsExtension;
 
   @override
   void initState() {

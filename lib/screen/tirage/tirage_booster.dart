@@ -7,15 +7,15 @@ class BoosterPage extends StatefulWidget {
   final BoosterDraw boosterDraw;
   final Language    language;
 
-  BoosterPage({this.language, this.boosterDraw});
+  BoosterPage({required this.language, required this.boosterDraw});
 
   @override
   _BoosterPageState createState() => _BoosterPageState();
 }
 
 class _BoosterPageState extends State<BoosterPage> {
-  List<Widget> widgets;
-  List<Widget> widgetEnergies;
+  late List<Widget> widgets;
+  late List<Widget> widgetEnergies;
 
   @override
   void initState() {
@@ -29,7 +29,7 @@ class _BoosterPageState extends State<BoosterPage> {
     Function refresh = () => setState( () {} );
     widgets = [];
     int id=0;
-    for(PokeCard card in widget.boosterDraw.subExtension.info().cards) {
+    for(PokeCard card in widget.boosterDraw.subExtension!.info().cards) {
       widgets.add( PokemonCard(card: card, idCard: id, boosterDraw: widget.boosterDraw, refresh:refresh ) );
       id += 1;
     }
@@ -77,7 +77,7 @@ class _BoosterPageState extends State<BoosterPage> {
               children:[
                 Text(StatitikLocale.of(context).read('S_B4')+' ${widget.boosterDraw.id}'),
                 SizedBox(width: 10.0),
-                widget.boosterDraw.subExtension.image(hSize: iconSize),
+                widget.boosterDraw.subExtension!.image(hSize: iconSize),
                 SizedBox(width: 10.0),
                 widget.boosterDraw.abnormal
                 ? Text('${widget.boosterDraw.count}')

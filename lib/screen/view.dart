@@ -4,7 +4,7 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
-Widget createLanguage(Language l, BuildContext context, Function press)
+Widget createLanguage(Language l, BuildContext context, Widget Function(BuildContext) press)
 {
   return Container(
     child: TextButton(
@@ -19,10 +19,10 @@ Widget createLanguage(Language l, BuildContext context, Function press)
 }
 
 class ExtensionButton extends StatefulWidget {
-  final Function     press;
+  final void Function()     press;
   final SubExtension subExtension;
 
-  ExtensionButton({this.subExtension, this.press});
+  ExtensionButton({required this.subExtension, required this.press});
 
   @override
   _ExtensionButtonState createState() => _ExtensionButtonState();
@@ -54,7 +54,7 @@ class _ExtensionButtonState extends State<ExtensionButton> {
   }
 }
 
-Widget createSubExtension(SubExtension se, BuildContext context, Function press, bool withName)
+Widget createSubExtension(SubExtension se, BuildContext context, void Function() press, bool withName)
 {
   return Card(
     color: Colors.grey[850],
@@ -75,7 +75,7 @@ Widget createSubExtension(SubExtension se, BuildContext context, Function press,
 
 Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function press, Function update) {
   SessionDraw current = Environment.instance.currentDraw;
-  Color color = Colors.grey[900];
+  Color? color = Colors.grey[900];
   if( bd.isFinished() ) {
     final valid = bd.validationWorld(current.language);
     color = (valid == Validator.Valid) ? greenValid : Colors.deepOrange;
@@ -88,7 +88,7 @@ Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function pre
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            (bd.subExtension != null) ? bd.subExtension.image(hSize: iconSize) : Icon(Icons.add_to_photos),
+            (bd.subExtension != null) ? bd.subExtension!.image(hSize: iconSize) : Icon(Icons.add_to_photos),
             SizedBox(height: 6.0),
             Text('${bd.id}'),
         ]),
@@ -137,14 +137,14 @@ class PokemonCard extends StatefulWidget {
   final BoosterDraw boosterDraw;
   final Function refresh;
 
-  PokemonCard({this.idCard, this.card, this.boosterDraw, this.refresh});
+  PokemonCard({required this.idCard, required this.card, required this.boosterDraw, required this.refresh});
 
   @override
   _PokemonCardState createState() => _PokemonCardState();
 }
 
 class _PokemonCardState extends State<PokemonCard> {
-  List<Widget> icons;
+  late List<Widget> icons;
 
   @override
   void initState() {
@@ -160,7 +160,7 @@ class _PokemonCardState extends State<PokemonCard> {
 
   @override
   Widget build(BuildContext context) {
-    CodeDraw cardValue = widget.boosterDraw.cardBin[widget.idCard];
+    CodeDraw cardValue = widget.boosterDraw.cardBin![widget.idCard];
     int nbCard = cardValue.count();
     Function update = () {
       setState(() {});
@@ -196,7 +196,7 @@ class _PokemonCardState extends State<PokemonCard> {
           },
           onPressed: () {
             setState(() {
-              widget.boosterDraw.toggleCard(widget.boosterDraw.cardBin[widget.idCard], widget.card.defaultMode());
+              widget.boosterDraw.toggleCard(widget.boosterDraw.cardBin![widget.idCard], widget.card.defaultMode());
               widget.refresh();
             });
           }
@@ -210,7 +210,7 @@ class EnergyButton extends StatefulWidget {
   final Type type;
   final Function refresh;
 
-  EnergyButton({this.type, this.boosterDraw, this.refresh});
+  EnergyButton({required this.type, required this.boosterDraw, required this.refresh});
 
   @override
   _EnergyButtonState createState() => _EnergyButtonState();

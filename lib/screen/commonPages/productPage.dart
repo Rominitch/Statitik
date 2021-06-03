@@ -16,14 +16,14 @@ class ProductPage extends StatefulWidget {
   final Function afterSelected;
   final ProductPageMode mode;
 
-  ProductPage({ this.mode, this.language, this.subExt, this.afterSelected });
+  ProductPage({ required this.mode, required this.language, required this.subExt, required this.afterSelected });
 
   @override
   _ProductPageState createState() => _ProductPageState();
 }
 
 class _ProductPageState extends State<ProductPage> {
-  List<Widget> widgetProd;
+  late List<Widget> widgetProd;
   bool productFound = false;
 
   bool isMulti() {
@@ -31,8 +31,9 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   void setupProducts(BuildContext context) {
-    if(widgetProd != null)
+    if(widgetProd != null) {
       widgetProd.clear();
+    }
 
     readProducts(widget.language, widget.subExt, -1, isMulti() ? widget.subExt : null ).then((products) {
       widgetProd = [];

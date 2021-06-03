@@ -11,7 +11,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   int _selectedIndex = 1;
-  List<Widget> _widgetOptions;
+  late List<Widget> _widgetOptions;
 
   @override
   void initState() {

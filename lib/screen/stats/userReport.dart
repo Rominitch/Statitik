@@ -18,17 +18,17 @@ import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/product.dart';
 
 class FullCard {
-  String name;
+  String   name;
   PokeCard card;
-  String realName;
+  String   realName;
 
-  FullCard([this.name, this.card, this.realName]);
+  FullCard(this.name, this.card, this.realName);
 }
 
 class UserReport extends StatefulWidget {
   final StatsData data;
 
-  UserReport({this.data});
+  UserReport({required this.data});
 
   @override
   _UserReportState createState() => _UserReportState();
@@ -59,9 +59,9 @@ class _UserReportState extends State<UserReport> {
     bestCards.clear();
 
     if(finalData.stats != null) {
-      for (int i = 0; i < finalData.stats.count.length; i += 1) {
+      for (int i = 0; i < finalData.stats!.count.length; i += 1) {
         PokeCard card = finalData.subExt.info().cards[i];
-        if (finalData.stats.count[i] > 0 &&
+        if (finalData.stats!.count[i] > 0 &&
             card.rarity.index >= Rarity.HoloRare.index) {
           String rname = finalData.subExt.info().getName(finalData.language, i);
           cardSort[card.rarity.index].add(FullCard(finalData.subExt.nameCard(i), card, rname));
@@ -112,7 +112,7 @@ class _UserReportState extends State<UserReport> {
 
       products.clear();
       if (finalData.product != null) {
-        products.add(ProductCard(finalData.product, true));
+        products.add(ProductCard(finalData.product!, true));
         compute=false;
       } else { // All products or cat
         readProductsForUser(finalData.language, finalData.subExt, finalData.category).then((aps) {
@@ -140,7 +140,7 @@ class _UserReportState extends State<UserReport> {
     [ Permission.storage,
     ].request().then( (Map<Permission, PermissionStatus> statuses) async {
       // If accepted
-      if( statuses[Permission.storage].isGranted ) {
+      if( statuses[Permission.storage]!.isGranted ) {
         screenshotController
             .capture()
             .then((Uint8List image) async {
@@ -174,10 +174,10 @@ class _UserReportState extends State<UserReport> {
 
   Future<Uint8List> captureImage() async {
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
-    final boundary = _boundaryKey.currentContext.findRenderObject() as RenderRepaintBoundary;
+    final boundary = _boundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
     final image = await boundary.toImage(pixelRatio: pixelRatio);
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
-    return data.buffer.asUint8List();
+    return data!.buffer.asUint8List();
   }
 
   @override

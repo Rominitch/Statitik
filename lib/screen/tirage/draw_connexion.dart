@@ -16,7 +16,7 @@ class DrawHomePage extends StatefulWidget {
 }
 
 class _DrawHomePageState extends State<DrawHomePage> {
-  String message;
+  late String message;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                     Icon(Icons.help_outline),
                     SizedBox(width: 10.0),
                     Flexible(child: Text(StatitikLocale.of(context).read('DC_B3'))),]),
-                  if(Environment.instance.user.admin)
+                  if(Environment.instance.user!.admin)
                     CircleAvatar(
                       backgroundColor: Colors.lightGreen,
                       radius: 20,

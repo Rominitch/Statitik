@@ -11,7 +11,7 @@ class OptionsPage extends StatefulWidget {
 }
 
 class _OptionsPageState extends State<OptionsPage> {
-  String message;
+  late String message;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,7 @@ class _OptionsPageState extends State<OptionsPage> {
         SizedBox(height: 10),
       ];
 
-      if(Environment.instance.user.admin) {
+      if(Environment.instance.user!.admin) {
         buttons += [
           TextButton(
               onPressed: () {
@@ -61,7 +61,7 @@ class _OptionsPageState extends State<OptionsPage> {
               title: Text(StatitikLocale.of(context).read('O_B2')),
               onChanged: (newValue) {
                 setState(() {
-                  useDebug = newValue;
+                  useDebug = newValue!;
                 });
                 Environment.instance.startDB=false;
                 Environment.instance.db = Database();

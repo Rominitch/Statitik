@@ -15,7 +15,7 @@ class CardSelector extends StatefulWidget {
 }
 
 class _CardSelectorState extends State<CardSelector> {
-  List<Widget> cardModes;
+  late List<Widget> cardModes;
 
   @override
   void initState() {
@@ -28,8 +28,8 @@ class _CardSelectorState extends State<CardSelector> {
         IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh),
       ];
     } else {
-      PokeCard card = widget.boosterDraw.subExtension.info().cards[widget.id];
-      CodeDraw code = widget.boosterDraw.cardBin[widget.id];
+      PokeCard card = widget.boosterDraw.subExtension!.info().cards[widget.id];
+      CodeDraw code = widget.boosterDraw.cardBin![widget.id];
       cardModes =
       [
         if( widget.boosterDraw.abnormal || card.rarity != Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh),
@@ -61,14 +61,14 @@ class IconCard extends StatefulWidget {
   final Function refresh;
   final Mode mode;
 
-  IconCard({this.boosterDraw, this.code, this.mode, this.refresh});
+  IconCard({required this.boosterDraw, required this.code, required this.mode, required this.refresh});
 
   @override
   _IconCardState createState() => _IconCardState();
 }
 
 class _IconCardState extends State<IconCard> {
-  final Color background = Colors.grey[800];
+  final Color? background = Colors.grey[800];
 
   @override
   Widget build(BuildContext context) {

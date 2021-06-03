@@ -7,14 +7,14 @@ import 'package:statitikcard/services/models.dart';
 class PieChartGeneric extends StatefulWidget {
   final Stats allStats;
 
-  PieChartGeneric({this.allStats});
+  PieChartGeneric({required this.allStats});
 
   @override
   State<StatefulWidget> createState() => PieChartGenericState();
 }
 
 class PieChartGenericState extends State<PieChartGeneric> {
-  int touchedIndex;
+  int touchedIndex = -1;
   List<PieChartSectionData> sections = [];
 
   void createPie() {
@@ -70,14 +70,14 @@ class PieExtension extends StatefulWidget {
   final StatsExtension stats;
   final Visualize visu;
 
-  PieExtension({this.stats, this.visu});
+  PieExtension({required this.stats, required this.visu});
 
   @override
   _PieExtensionState createState() => _PieExtensionState();
 }
 
 class _PieExtensionState extends State<PieExtension> {
-  int touchedIndex;
+  int touchedIndex=-1;
   List<PieChartSectionData> sections = [];
 
   void createPie() {

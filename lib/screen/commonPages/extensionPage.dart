@@ -8,7 +8,7 @@ class ExtensionPage extends StatefulWidget {
   final Language language;
   final Function afterSelected;
 
-  ExtensionPage({ this.language, this.afterSelected });
+  ExtensionPage({ required this.language, required this.afterSelected });
 
   @override
   _ExtensionPageState createState() => _ExtensionPageState();
@@ -22,7 +22,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
       List<Widget> subExtensions = [];
       for( SubExtension se in Environment.instance.collection.getSubExtensions(e))
       {
-        Function press = () {
+        void Function() press = () {
           widget.afterSelected(context, widget.language, se);
         };
         subExtensions.add(ExtensionButton(subExtension: se, press: press));

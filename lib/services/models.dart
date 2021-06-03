@@ -10,14 +10,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 double iconSize = 25.0;
 
-final Color greenValid = Colors.green[500];
+final Color greenValid = Colors.green[500]!;
 
 class UserPoke {
   int idDB;
-  String uid;
+  late String uid;
   bool admin = false;
 
-  UserPoke({this.idDB});
+  UserPoke({required this.idDB});
 }
 
 class Language
@@ -25,7 +25,7 @@ class Language
   int id;
   String image;
 
-  Language({this.id, this.image});
+  Language({required this.id, required this.image});
 
   AssetImage create()
   {
@@ -46,7 +46,7 @@ class Extension
   String name;
   int    idLanguage;
 
-  Extension({ this.id, this.name, this.idLanguage });
+  Extension({ required this.id, required this.name, required this.idLanguage });
 }
 
 enum Validator {
@@ -102,10 +102,10 @@ enum Rarity {
   Unknown,
 }
 
-List<Color> rarityColors = [Colors.green, Colors.green, Colors.green[600], Colors.green[600], Colors.green[700], Colors.green[700],  // C JC P JU R JR
-  Colors.blue, Colors.blue[600], Colors.blue[700], Colors.blue[800],                  // H M P C
-  Colors.purple, Colors.purple, Colors.purple[600], Colors.purple[600], Colors.purple[700], Colors.purple[800],         // Ch T V JRR Vm JRRR
-  Colors.yellow, Colors.yellow[600], Colors.yellow[600], Colors.yellow[700], Colors.yellow[700], Colors.yellow[800], Colors.yellow[800]           // ChR S JSR A JHR G JUR
+List<Color> rarityColors = [Colors.green, Colors.green, Colors.green[600]!, Colors.green[600]!, Colors.green[700]!, Colors.green[700]!,  // C JC P JU R JR
+  Colors.blue, Colors.blue[600]!, Colors.blue[700]!, Colors.blue[800]!,                  // H M P C
+  Colors.purple, Colors.purple, Colors.purple[600]!, Colors.purple[600]!, Colors.purple[700]!, Colors.purple[800]!,         // Ch T V JRR Vm JRRR
+  Colors.yellow, Colors.yellow[600]!, Colors.yellow[600]!, Colors.yellow[700]!, Colors.yellow[700]!, Colors.yellow[800]!, Colors.yellow[800]!           // ChR S JSR A JHR G JUR
 ];
 
 const Map convertType =
@@ -187,13 +187,13 @@ const List<Type> energies = [Type.Plante,  Type.Feu,  Type.Eau,
   Type.Metal, Type.Fee,  Type.Dragon, Type.Incolore];
 
 List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
-  Colors.yellow, Colors.purple[600], Colors.deepOrange[800], Colors.deepPurple[900],
-  Colors.grey[400],  Colors.pinkAccent, Colors.orange, Colors.white70,
+  Colors.yellow, Colors.purple[600]!, Colors.deepOrange[800]!, Colors.deepPurple[900]!,
+  Colors.grey[400]!,  Colors.pinkAccent, Colors.orange, Colors.white70,
 ];
 
-List<Color> typeColors = energiesColors + [Colors.blue[700], Colors.red[800], Colors.greenAccent[100], Colors.yellowAccent[100]];
+List<Color> typeColors = energiesColors + [Colors.blue[700]!, Colors.red[800]!, Colors.greenAccent[100]!, Colors.yellowAccent[100]!];
 
-List<Widget> cachedEnergies = List.filled(energies.length, null);
+List<Widget?> cachedEnergies = List.filled(energies.length, null);
 
 Widget energyImage(Type type) {
   if(cachedEnergies[type.index] == null) {
@@ -206,7 +206,7 @@ Widget energyImage(Type type) {
       );
     }
   }
-  return cachedEnergies[type.index];
+  return cachedEnergies[type.index]!;
 }
 
 String typeToString(Type type) {
@@ -214,7 +214,7 @@ String typeToString(Type type) {
           (k) => convertType[k] == type, orElse: () => emptyMode);
 }
 
-List<List<Widget>> cachedImageRarity = List.filled(Rarity.values.length, null);
+List<List<Widget>?> cachedImageRarity = List.filled(Rarity.values.length, null);
 
 List<Widget> getImageRarity(Rarity rarity) {
   if(cachedImageRarity[rarity.index] == null) {
@@ -300,10 +300,10 @@ List<Widget> getImageRarity(Rarity rarity) {
         throw Exception("Unknown rarity: $rarity");
     }
   }
-  return cachedImageRarity[rarity.index];
+  return cachedImageRarity[rarity.index]!;
 }
 
-List<Widget> cachedImageType = List.filled(Type.values.length, null);
+List<Widget?> cachedImageType = List.filled(Type.values.length, null);
 
 Widget getImageType(Type type)
 {
@@ -325,7 +325,7 @@ Widget getImageType(Type type)
         cachedImageType[type.index] = energyImage(type);
     }
   }
-  return cachedImageType[type.index];
+  return cachedImageType[type.index]!;
 }
 
 class PokeCard
@@ -334,7 +334,7 @@ class PokeCard
   Rarity rarity;
   bool   hasAlternative;
 
-  PokeCard({this.type, this.rarity, this.hasAlternative});
+  PokeCard({required this.type, required this.rarity, required this.hasAlternative});
 
   bool isValid() {
     return type!= Type.Unknown && rarity != Rarity.Unknown;
@@ -362,14 +362,14 @@ class NamedInfo
 {
   List<String> names;
 
-  NamedInfo({this.names});
+  NamedInfo({required this.names});
 }
 
 class PokemonInfo extends NamedInfo
 {
   int          generation;
 
-  PokemonInfo({List<String> names, this.generation}) :
+  PokemonInfo({required List<String> names, required this.generation}) :
   super(names: names)
   {
    assert(names.length == 3);
@@ -458,13 +458,13 @@ class SubExtension
   int    year;
   int    chromatique;
 
-  SubExtension({ this.id, this.name, this.icon, this.idExtension, this.year, this.chromatique, this.cards });
+  SubExtension({ required this.id, required this.name, required this.icon, required this.idExtension, required this.year, required this.chromatique, required this.cards });
 
   ListCards info() {
     return cards;
   }
 
-  Widget image({double wSize, double hSize})
+  Widget image({double? wSize, double? hSize})
   {
     return CachedNetworkImage(imageUrl: '$adresseHTML/StatitikCard/extensions/$icon.png',
       errorWidget: (context, url, error) => Icon(Icons.help_outline),
@@ -488,7 +488,7 @@ class ProductBooster
   int nbBoosters;
   int nbCardsPerBooster;
 
-  ProductBooster({this.nbBoosters, this.nbCardsPerBooster});
+  ProductBooster({required this.nbBoosters, required this.nbCardsPerBooster});
 }
 
 class Product
@@ -500,7 +500,7 @@ class Product
   Color color;
   int count;
 
-  Product({this.idDB, this.name, this.imageURL, this.count, this.boosters, this.color});
+  Product({required this.idDB, required this.name, required this.imageURL, required this.count, required this.boosters, required this.color});
 
   bool hasImages() {
     return imageURL.isNotEmpty;
@@ -526,7 +526,7 @@ class Product
     int id=1;
     boosters.forEach((key, value) {
       for( int i=0; i < value.nbBoosters; i+=1) {
-        SubExtension se = key != null ? Environment.instance.collection.getSubExtensionID(key) : null;
+        SubExtension? se = key != null ? Environment.instance.collection.getSubExtensionID(key) : null;
         list.add(new BoosterDraw(creation: se, id: id, nbCards: value.nbCardsPerBooster));
         id += 1;
       }
@@ -540,10 +540,10 @@ class Product
 }
 
 class CodeDraw {
-  int countNormal;
-  int countReverse;
-  int countHalo;
-  int countAlternative;
+  late int countNormal;
+  late int countReverse;
+  late int countHalo;
+  late int countAlternative;
 
   CodeDraw(this.countNormal, this.countReverse, this.countHalo, this.countAlternative){
     assert(this.countNormal <= 7);
@@ -616,21 +616,20 @@ class CodeDraw {
 
 class BoosterDraw {
   final int id;
-  final SubExtension creation;    ///< Keep product extension.
-  final int nbCards;              ///< Number of cards inside booster
+  final SubExtension? creation;    ///< Keep product extension.
+  final int nbCards;               ///< Number of cards inside booster
   ///
-  List<CodeDraw> energiesBin;     ///< Energy inside booster.
-  List<CodeDraw> cardBin;         ///< All card select by extension.
-  SubExtension subExtension;      ///< Current extensions.
+  late List<CodeDraw> energiesBin;     ///< Energy inside booster.
+  late List<CodeDraw>? cardBin;         ///< All card select by extension.
+  late SubExtension? subExtension;     ///< Current extensions.
   int count = 0;
   bool abnormal = false;          ///< Packaging error
 
   // Event
   final StreamController onEnergyChanged = new StreamController.broadcast();
 
-  BoosterDraw({this.creation, this.id, this.nbCards })
+  BoosterDraw({this.creation, required this.id, required this.nbCards })
   {
-    assert(nbCards != null);
     energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0,0); });
     subExtension = creation;
     if(hasSubExtension()) {
@@ -642,8 +641,8 @@ class BoosterDraw {
   }
 
   String nameCard(int id) {
-    if(subExtension != null && subExtension.chromatique != null) {
-      return id < subExtension.chromatique ? (id+1).toString() : 'SV' + (id-subExtension.chromatique+1).toString();
+    if(subExtension != null && subExtension!.chromatique != null) {
+      return id < subExtension!.chromatique ? (id+1).toString() : 'SV' + (id-subExtension!.chromatique+1).toString();
     } else {
       return (id + 1).toString();
     }
@@ -663,7 +662,7 @@ class BoosterDraw {
   }
 
   void fillCard() {
-      cardBin = List<CodeDraw>.generate(subExtension.info().cards.length, (index) { return CodeDraw(0,0,0,0); });
+      cardBin = List<CodeDraw>.generate(subExtension!.info().cards.length, (index) { return CodeDraw(0,0,0,0); });
   }
 
   bool isFinished() {
@@ -745,7 +744,7 @@ class BoosterDraw {
   List buildQuery(int idAchat) {
     // Clean code to minimal binary data
     List<int> elements = [];
-    for(CodeDraw c in cardBin) {
+    for(CodeDraw c in cardBin!) {
       elements.add(c.toInt());
     }
     while(elements.isNotEmpty && elements.last == 0) {
@@ -760,7 +759,7 @@ class BoosterDraw {
       energyCode.removeLast();
     }
 
-    return [idAchat, subExtension.id, abnormal ? 1 : 0, Int8List.fromList(energyCode), Int8List.fromList(elements)];
+    return [idAchat, subExtension!.id, abnormal ? 1 : 0, Int8List.fromList(energyCode), Int8List.fromList(elements)];
   }
 
   Validator validationWorld(final Language language) {
@@ -779,11 +778,11 @@ class BoosterDraw {
       int goodCard = 0;
       int reverse = 0;
       int id = 0;
-      cardBin.forEach((element) {
-        if (subExtension.info().cards.isNotEmpty) {
+      cardBin!.forEach((element) {
+        if (subExtension!.info().cards.isNotEmpty) {
           count = element.count();
           if (count > 0 &&
-              subExtension.info().cards[id].rarity.index > Rarity.Rare.index)
+              subExtension!.info().cards[id].rarity.index > Rarity.Rare.index)
             goodCard += count;
         }
         reverse += element.countReverse;
@@ -803,17 +802,17 @@ class Stats {
   int nbBoosters = 0;
   int cardByBooster = 0;
   int anomaly = 0;
-  List<int> count;
+  late List<int> count;
   int totalCards = 0;
 
   // Cached
-  List<int> countByType;
-  List<int> countByRarity;
-  List<int> countByMode;
+  late List<int> countByType;
+  late List<int> countByRarity;
+  late List<int> countByMode;
 
-  List<int> countEnergy;
+  late List<int> countEnergy;
 
-  Stats({this.subExt}) {
+  Stats({required this.subExt}) {
     count         = List<int>.filled(subExt.info().cards.length, 0);
     countByType   = List<int>.filled(Type.values.length, 0);
     countByRarity = List<int>.filled(Rarity.values.length, 0);
@@ -868,10 +867,10 @@ class Stats {
 class StatsExtension {
   final SubExtension subExt;
 
-  List<int> countByType;
-  List<int> countByRarity;
+  late List<int> countByType;
+  late List<int> countByRarity;
 
-  StatsExtension({this.subExt}) {
+  StatsExtension({required this.subExt}) {
     countByType   = List<int>.filled(Type.values.length, 0);
     countByRarity = List<int>.filled(Rarity.values.length, 0);
 
@@ -887,9 +886,9 @@ class SessionDraw
   Language language;
   Product product;
   bool productAnomaly=false;
-  List boosterDraws;
+  late List boosterDraws;
 
-  SessionDraw({this.product, this.language})
+  SessionDraw({required this.product, required this.language})
   {
     boosterDraws = product.buildBoosterDraw();
   }
@@ -897,7 +896,7 @@ class SessionDraw
   void addNewBooster() {
     BoosterDraw booster = boosterDraws.last;
 
-    boosterDraws.add(new BoosterDraw(creation: booster.subExtension, id: booster.id+1) );
+    boosterDraws.add(new BoosterDraw(creation: booster.subExtension, id: booster.id+1, nbCards: 0) );
   }
 
   void deleteBooster(int id) {
@@ -933,12 +932,12 @@ class SessionDraw
 }
 
 class StatsData {
-  Language     language;
-  SubExtension subExt;
-  Product      product;
-  int          category = -1;
-  Stats        stats;
-  Stats        userStats;
+  late Language     language;
+  late SubExtension subExt;
+  late Product?     product;
+  int               category = -1;
+  late Stats?       stats;
+  late Stats?       userStats;
 
   bool isValid() {
     return language != null && subExt != null && stats != null;

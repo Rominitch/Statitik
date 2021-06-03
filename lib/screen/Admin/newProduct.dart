@@ -7,18 +7,18 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class NewProductBooster {
-  SubExtension ext;
+  late SubExtension ext;
   int count=1;
   int nbCard=11;
 }
 
 class NewProduct {
-  Language l;
+  late Language l;
   String name = '';
   String eac = '';
   String image = '';
   int year = 2021;
-  int cat;
+  int cat = 0;
   List<NewProductBooster> boosters = [];
 
   bool validate() {
@@ -40,7 +40,7 @@ class _NewProductPageState extends State<NewProductPage> {
   List<Widget> radioCat = [];
   List<Widget> radioLangue = [];
 
-  String error;
+  String error = "";
 
   void onAdd()
   {
@@ -80,9 +80,9 @@ class _NewProductPageState extends State<NewProductPage> {
           title: Text(categoryName(context, row[0])),
           value: row[0],
           groupValue: product.cat,
-          onChanged: (int value) {
+          onChanged: (int? value) {
             setState(() {
-              product.cat = value;
+              product.cat = value!;
             });
           },
         ));
@@ -120,7 +120,7 @@ class _NewProductPageState extends State<NewProductPage> {
           ),
           initialValue: product.name,
           validator: (value) {
-            if (value.isEmpty) {
+            if (value!.isEmpty) {
               return 'Veuillez donner un nom.';
             }
             product.name = value;
@@ -133,10 +133,10 @@ class _NewProductPageState extends State<NewProductPage> {
           ),
           initialValue: product.eac,
           validator: (value) {
-            if (value.contains(new RegExp(r'[a-z]'))) {
+            if (value!.contains(new RegExp(r'[a-z]'))) {
               return 'EAN doit contenir des chiffres.';
             }
-            product.eac = value.isEmpty ? null : '"'+value+'"';
+            product.eac = (value.isEmpty ? null : '"'+value+'"')!;
             return null;
           },
         ),
@@ -155,7 +155,7 @@ class _NewProductPageState extends State<NewProductPage> {
         SizedBox(height: 20),
         ElevatedButton(
           onPressed: () {
-            if ( product.validate() && _formKey.currentState.validate()) {
+            if ( product.validate() && _formKey.currentState!.validate()) {
               try {
                 Environment env = Environment.instance;
                 env.db.transactionR( (connection) async {
@@ -165,7 +165,7 @@ class _NewProductPageState extends State<NewProductPage> {
                     idAchat = row[0] + 1;
                   }
 
-                  String query = 'INSERT INTO `Produit` (idProduit, idLangue, idUtilisateur, nom, EAN, annee, idCategorie, icone, approuve) VALUES ($idAchat, ${product.l.id}, ${env.user.idDB}, "${product.name}", ${product.eac}, ${product.year}, ${product.cat}, "", 1);';
+                  String query = 'INSERT INTO `Produit` (idProduit, idLangue, idUtilisateur, nom, EAN, annee, idCategorie, icone, approuve) VALUES ($idAchat, ${product.l.id}, ${env.user!.idDB}, "${product.name}", ${product.eac}, ${product.year}, ${product.cat}, "", 1);';
                   await connection.query(query);
 
                   // Prepare data
@@ -211,10 +211,10 @@ class _NewProductPageState extends State<NewProductPage> {
 
 class BoostersInfo extends StatefulWidget {
   final Function productAdd;
-  final NewProductBooster newProd;
+  final NewProductBooster? newProd;
   final Language l;
 
-  BoostersInfo({this.productAdd, this.newProd, this.l});
+  BoostersInfo({required this.productAdd, this.newProd, required this.l});
 
   @override
   _BoostersInfoState createState() => _BoostersInfoState();
@@ -225,7 +225,7 @@ class _BoostersInfoState extends State<BoostersInfo> {
   void afterSelected(BuildContext context, Language language, SubExtension subExt) {
     Navigator.pop(context);
     setState(() {
-      widget.newProd.ext = subExt;
+      widget.newProd!.ext = subExt;
     });
   }
 
@@ -236,7 +236,7 @@ class _BoostersInfoState extends State<BoostersInfo> {
           child: Row(children: [
             TextButton(
               style: TextButton.styleFrom(minimumSize: Size(0.0, 40.0)),
-              child: (widget.newProd.ext != null) ? widget.newProd.ext.image(hSize: iconSize) : Icon(Icons.add_to_photos),
+              child: (widget.newProd!.ext != null) ? widget.newProd!.ext.image(hSize: iconSize) : Icon(Icons.add_to_photos),
               onPressed: (){
                 setState(() {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: widget.l, afterSelected: afterSelected)));
@@ -245,23 +245,23 @@ class _BoostersInfoState extends State<BoostersInfo> {
             ),
             Expanded(
               child: SpinBox(
-                value: widget.newProd.count.toDouble(),
+                value: widget.newProd!.count.toDouble(),
                 min: 1,
                 max: 50,
                 decoration: InputDecoration(labelText: 'Boosters'),
                 onChanged: (value) {
-                  widget.newProd.count = value.toInt();
+                  widget.newProd!.count = value.toInt();
                 },
               ),
             ),
             Expanded(
               child: SpinBox(
-                value: widget.newProd.nbCard.toDouble(),
+                value: widget.newProd!.nbCard.toDouble(),
                 min: 1,
                 max: 15,
                 decoration: InputDecoration(labelText: 'Cartes'),
                 onChanged: (value) {
-                  widget.newProd.nbCard = value.toInt();
+                  widget.newProd!.nbCard = value.toInt();
                 },
               ),
             ),

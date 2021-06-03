@@ -17,7 +17,7 @@ class Loading extends StatefulWidget {
 
 class _LoadingState extends State<Loading> {
   bool error = false;
-  String msgError;
+  late String msgError;
 
   @override
   void initState() {
