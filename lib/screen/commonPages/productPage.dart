@@ -23,7 +23,7 @@ class ProductPage extends StatefulWidget {
 }
 
 class _ProductPageState extends State<ProductPage> {
-  late List<Widget> widgetProd;
+  List<Widget>? widgetProd;
   bool productFound = false;
 
   bool isMulti() {
@@ -32,7 +32,7 @@ class _ProductPageState extends State<ProductPage> {
 
   void setupProducts(BuildContext context) {
     if(widgetProd != null) {
-      widgetProd.clear();
+      widgetProd!.clear();
     }
 
     readProducts(widget.language, widget.subExt, -1, isMulti() ? widget.subExt : null ).then((products) {
@@ -41,7 +41,7 @@ class _ProductPageState extends State<ProductPage> {
 
       // All products
       if( isMulti() ) {
-        widgetProd.add(
+        widgetProd!.add(
             Card(
               child: TextButton(child: Row(
                   children: [
@@ -111,7 +111,7 @@ class _ProductPageState extends State<ProductPage> {
         if (productCard.isNotEmpty) {
           assert(1 <= idCategory && idCategory <= Environment.instance.collection.category);
           if(isMulti()) {
-            widgetProd.add(
+            widgetProd!.add(
                 Card(
                   child: TextButton(
                     child: Row(
@@ -131,13 +131,13 @@ class _ProductPageState extends State<ProductPage> {
 
                 ));
           } else {
-            widgetProd.add(
+            widgetProd!.add(
                 Text(categoryName(context, idCategory), style: Theme
                     .of(context)
                     .textTheme
                     .headline5));
           }
-          widgetProd.add(GridView.count(
+          widgetProd!.add(GridView.count(
             crossAxisCount: 3,
             scrollDirection: Axis.vertical,
             primary: false,
@@ -192,13 +192,13 @@ class _ProductPageState extends State<ProductPage> {
             body:
                 widgetProd == null
                     ? Center( child: Text(StatitikLocale.of(context).read('loading'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
-                    : (widgetProd.isEmpty ? Center( child: Text(StatitikLocale.of(context).read('TP_B0'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
+                    : (widgetProd!.isEmpty ? Center( child: Text(StatitikLocale.of(context).read('TP_B0'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
                       : SingleChildScrollView(
                         padding: EdgeInsets.all(8.0),
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: widgetProd,
+                            children: widgetProd!,
                           ),
                       )
               )

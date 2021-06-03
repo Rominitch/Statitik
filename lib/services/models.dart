@@ -382,7 +382,7 @@ class ListCards
   List              pokemons = [];
   bool   validCard = true;
 
-  void extractCard(String code)
+  void extractCard(String? code)
   {
     cards.clear();
     validCard = true;
@@ -453,15 +453,15 @@ class SubExtension
   int    id;
   String name;
   String icon;
-  ListCards cards;
+  ListCards? cards;
   int    idExtension;
   int    year;
-  int    chromatique;
+  int?   chromatique;
 
   SubExtension({ required this.id, required this.name, required this.icon, required this.idExtension, required this.year, required this.chromatique, required this.cards });
 
   ListCards info() {
-    return cards;
+    return cards!;
   }
 
   Widget image({double? wSize, double? hSize})
@@ -476,7 +476,7 @@ class SubExtension
 
   String nameCard(int id) {
     if(chromatique != null) {
-      return id < chromatique ? (id+1).toString() : 'SV' + (id-chromatique+1).toString();
+      return id < chromatique! ? (id+1).toString() : 'SV' + (id-chromatique!+1).toString();
     } else {
       return (id + 1).toString();
     }
@@ -642,7 +642,7 @@ class BoosterDraw {
 
   String nameCard(int id) {
     if(subExtension != null && subExtension!.chromatique != null) {
-      return id < subExtension!.chromatique ? (id+1).toString() : 'SV' + (id-subExtension!.chromatique+1).toString();
+      return id < subExtension!.chromatique! ? (id+1).toString() : 'SV' + (id-subExtension!.chromatique!+1).toString();
     } else {
       return (id + 1).toString();
     }
@@ -741,7 +741,7 @@ class BoosterDraw {
     fillCard();
   }
 
-  List buildQuery(int idAchat) {
+  List<Object> buildQuery(int idAchat) {
     // Clean code to minimal binary data
     List<int> elements = [];
     for(CodeDraw c in cardBin!) {
@@ -932,12 +932,12 @@ class SessionDraw
 }
 
 class StatsData {
-  late Language     language;
-  late SubExtension subExt;
-  late Product?     product;
+  Language?         language;
+  SubExtension?     subExt;
+  Product?          product;
   int               category = -1;
-  late Stats?       stats;
-  late Stats?       userStats;
+  Stats?            stats;
+  Stats?            userStats;
 
   bool isValid() {
     return language != null && subExt != null && stats != null;

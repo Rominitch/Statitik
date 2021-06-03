@@ -163,7 +163,7 @@ class Collection
         return null;
     }
 
-    ListCards getListCardsID(int id) {
+    ListCards? getListCardsID(int id) {
         return listCards[id];
     }
 
@@ -198,7 +198,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.7.7';
+    final String version = '0.8.0';
 
     // State
     bool isInitialized=false;
@@ -324,8 +324,9 @@ class Environment
                 var subExts = await connection.query("SELECT * FROM `SousExtension` ORDER BY `code` DESC");
                 for (var row in subExts) {
                     try {
+                        var cards = collection.getListCardsID(row[4]);
                         SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], year: row[6], chromatique: row[7],
-                            cards: collection.getListCardsID(row[4]));
+                            cards: cards);
                         assert(se.info() != null);
                         collection.addSubExtension(se);
                     } catch(e) {
@@ -386,11 +387,11 @@ class Environment
                 }
 
                 // Add new product
-                final query = 'INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user!.idDB}, ${currentDraw.product.idDB}, ${currentDraw.productAnomaly ? 1 : 0})';
-                await connection.query(query);
+                final queryStr = 'INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user!.idDB}, ${currentDraw.product.idDB}, ${currentDraw.productAnomaly ? 1 : 0})';
+                await connection.query(queryStr);
 
                 // Prepare data
-                List<List<dynamic>> draw = [];
+                List<List<Object>> draw = [];
                 for(BoosterDraw booster in currentDraw.boosterDraws) {
                     assert(booster != null);
                     draw.add(booster.buildQuery(idAchat));
@@ -420,7 +421,7 @@ class Environment
         }
     }
 
-    Future<Stats> getStats(SubExtension subExt, Product product, int category, [int? user]) async {
+    Future<Stats> getStats(SubExtension subExt, Product? product, int category, [int? user]) async {
         Stats stats = new Stats(subExt: subExt);
         try {
             String userReq = '';

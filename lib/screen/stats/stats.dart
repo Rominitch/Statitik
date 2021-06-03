@@ -44,11 +44,11 @@ class _StatsPageState extends State<StatsPage> {
 
     // Get data from DB
     Environment env = Environment.instance;
-    env.getStats(widget.d.subExt, widget.d.product!, widget.d.category).then( (stats) {
+    env.getStats(widget.d.subExt!, widget.d.product, widget.d.category).then( (stats) {
       widget.d.stats = stats;
       // Get user info after
       if(env.user != null) {
-        env.getStats(widget.d.subExt, widget.d.product!, widget.d.category, env.user!.idDB).then( (ustats) {
+        env.getStats(widget.d.subExt!, widget.d.product, widget.d.category, env.user!.idDB).then( (ustats) {
           if(ustats != null && ustats.nbBoosters > 0) {
             widget.d.userStats = ustats;
             setState(() {});
@@ -81,7 +81,7 @@ class _StatsPageState extends State<StatsPage> {
          )
         ];
      }
-     if(widget.d.subExt.info().validCard)
+     if(widget.d.subExt!.info().validCard)
        finalWidget.add(
          Card(
            color: Colors.grey[800],
@@ -191,9 +191,9 @@ class _StatsPageState extends State<StatsPage> {
                         children: [
                           Text(StatitikLocale.of(context).read('S_B0')),
                           SizedBox(width: 8.0),
-                          Image(image: widget.d.language.create(), height: 30),
+                          Image(image: widget.d.language!.create(), height: 30),
                           SizedBox(width: 8.0),
-                          widget.d.subExt.image(hSize: 30),
+                          widget.d.subExt!.image(hSize: 30),
                       ]) : Text(StatitikLocale.of(context).read('S_B0')),
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension)));
@@ -205,7 +205,7 @@ class _StatsPageState extends State<StatsPage> {
                       child: Card( child: TextButton(
                           child: Text(productButton, softWrap: true, style: TextStyle(fontSize: (productButton.length > 20) ? 10 : 14),),
                           onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.MultiSelection, language: widget.d.language, subExt: widget.d.subExt, afterSelected: afterSelectProduct) ));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.MultiSelection, language: widget.d.language!, subExt: widget.d.subExt!, afterSelected: afterSelectProduct) ));
                           },
                         )
                   ),
@@ -217,7 +217,7 @@ class _StatsPageState extends State<StatsPage> {
     );
   }
 
-  void afterSelectProduct(BuildContext context, Language language, Product product, int category) {
+  void afterSelectProduct(BuildContext context, Language language, Product? product, int category) {
     Navigator.pop(context);
     setState(() {
       if(product != null) {

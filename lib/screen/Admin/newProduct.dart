@@ -7,13 +7,13 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class NewProductBooster {
-  late SubExtension ext;
+  SubExtension? ext;
   int count=1;
   int nbCard=11;
 }
 
 class NewProduct {
-  late Language l;
+  Language? l;
   String name = '';
   String eac = '';
   String image = '';
@@ -165,13 +165,13 @@ class _NewProductPageState extends State<NewProductPage> {
                     idAchat = row[0] + 1;
                   }
 
-                  String query = 'INSERT INTO `Produit` (idProduit, idLangue, idUtilisateur, nom, EAN, annee, idCategorie, icone, approuve) VALUES ($idAchat, ${product.l.id}, ${env.user!.idDB}, "${product.name}", ${product.eac}, ${product.year}, ${product.cat}, "", 1);';
+                  String query = 'INSERT INTO `Produit` (idProduit, idLangue, idUtilisateur, nom, EAN, annee, idCategorie, icone, approuve) VALUES ($idAchat, ${product.l!.id}, ${env.user!.idDB}, "${product.name}", ${product.eac}, ${product.year}, ${product.cat}, "", 1);';
                   await connection.query(query);
 
                   // Prepare data
                   List<List<dynamic>> pb = [];
                   for(NewProductBooster b in product.boosters) {
-                    pb.add( [idAchat, b.ext == null ? null : b.ext.id, b.count, b.nbCard]);
+                    pb.add( [idAchat, b.ext == null ? null : b.ext!.id, b.count, b.nbCard]);
                   }
                   // Send data
                   await connection.queryMulti('INSERT INTO `ProduitBooster` (idProduit, idSousExtension, nombre, carte) VALUES (?, ?, ?, ?);',
@@ -212,7 +212,7 @@ class _NewProductPageState extends State<NewProductPage> {
 class BoostersInfo extends StatefulWidget {
   final Function productAdd;
   final NewProductBooster? newProd;
-  final Language l;
+  final Language? l;
 
   BoostersInfo({required this.productAdd, this.newProd, required this.l});
 
@@ -236,10 +236,10 @@ class _BoostersInfoState extends State<BoostersInfo> {
           child: Row(children: [
             TextButton(
               style: TextButton.styleFrom(minimumSize: Size(0.0, 40.0)),
-              child: (widget.newProd!.ext != null) ? widget.newProd!.ext.image(hSize: iconSize) : Icon(Icons.add_to_photos),
+              child: (widget.newProd!.ext != null) ? widget.newProd!.ext!.image(hSize: iconSize) : Icon(Icons.add_to_photos),
               onPressed: (){
                 setState(() {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: widget.l, afterSelected: afterSelected)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: widget.l!, afterSelected: afterSelected)));
                 });
               },
             ),

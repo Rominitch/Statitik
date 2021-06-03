@@ -110,10 +110,10 @@ class _DrawHomePageState extends State<DrawHomePage> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.SingleSelection, language: language, subExt: subExt, afterSelected: afterSelectProduct) ));
   }
 
-  void afterSelectProduct(BuildContext context, Language language, Product product, int categorie) {
+  void afterSelectProduct(BuildContext context, Language language, Product? product, int categorie) {
     // Build new session of draw
     Environment.instance.currentDraw =
-        SessionDraw(product: product, language: language);
+        SessionDraw(product: product!, language: language);
     // Go to page
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => ResumePage()));

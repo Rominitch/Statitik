@@ -83,7 +83,7 @@ class _PieExtensionState extends State<PieExtension> {
   void createPie() {
     sections.clear();
 
-    final double ratio = 100.0 / widget.stats.subExt.cards.cards.length;
+    final double ratio = 100.0 / widget.stats.subExt.cards!.cards.length;
     if( widget.visu == Visualize.Type) {
       for(var type in Type.values) {
         final isTouched = type.index == touchedIndex;

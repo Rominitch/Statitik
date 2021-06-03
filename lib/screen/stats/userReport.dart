@@ -60,11 +60,11 @@ class _UserReportState extends State<UserReport> {
 
     if(finalData.stats != null) {
       for (int i = 0; i < finalData.stats!.count.length; i += 1) {
-        PokeCard card = finalData.subExt.info().cards[i];
+        PokeCard card = finalData.subExt!.info().cards[i];
         if (finalData.stats!.count[i] > 0 &&
             card.rarity.index >= Rarity.HoloRare.index) {
-          String rname = finalData.subExt.info().getName(finalData.language, i);
-          cardSort[card.rarity.index].add(FullCard(finalData.subExt.nameCard(i), card, rname));
+          String rname = finalData.subExt!.info().getName(finalData.language!, i);
+          cardSort[card.rarity.index].add(FullCard(finalData.subExt!.nameCard(i), card, rname));
         }
       }
 
@@ -74,7 +74,7 @@ class _UserReportState extends State<UserReport> {
             break;
 
           final cardName = c.name;
-          if(finalData.subExt.info().pokemons.isNotEmpty)
+          if(finalData.subExt!.info().pokemons.isNotEmpty)
             bestCards.add(Card(
               color: Colors.grey[600],
               child: Padding(
@@ -115,7 +115,7 @@ class _UserReportState extends State<UserReport> {
         products.add(ProductCard(finalData.product!, true));
         compute=false;
       } else { // All products or cat
-        readProductsForUser(finalData.language, finalData.subExt, finalData.category).then((aps) {
+        readProductsForUser(finalData.language!, finalData.subExt!, finalData.category).then((aps) {
           for (final ps in aps) {
             for (Product p in ps) {
               if( products.length < 5 && p.countProduct() > 0)
@@ -147,7 +147,7 @@ class _UserReportState extends State<UserReport> {
           final myImagePath = (await getApplicationSupportDirectory()).path;
 
           var now = new DateTime.now();
-          final title = 'Statitik_${finalData.subExt.icon}_${DateFormat(
+          final title = 'Statitik_${finalData.subExt!.icon}_${DateFormat(
               'yyyyMMdd_kk_mm').format(now)}';
           var file = File("$myImagePath/$title.png");
           file.writeAsBytesSync(image!);
@@ -237,11 +237,11 @@ class _UserReportState extends State<UserReport> {
                       Row( children: [
                         Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headline5),
                         Expanded(child: SizedBox(width: 1.0)),
-                        Image(image: widget.data.language.create(), height: 30),
+                        Image(image: widget.data.language!.create(), height: 30),
                         SizedBox(width: 6.0),
-                        Text(widget.data.subExt.name, style: TextStyle( fontSize: (widget.data.subExt.name.length > 13) ? 10 : 12 )),
+                        Text(widget.data.subExt!.name, style: TextStyle( fontSize: (widget.data.subExt!.name.length > 13) ? 10 : 12 )),
                         SizedBox(width: 6.0),
-                        widget.data.subExt.image(hSize: 30)
+                        widget.data.subExt!.image(hSize: 30)
                       ]),
                       StatsView(data: finalData, options: options),
                       if(bestCards.isNotEmpty) buildBestCards(translator, 5),
@@ -254,11 +254,11 @@ class _UserReportState extends State<UserReport> {
                     Row( children: [
                         Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headline5),
                         SizedBox(width: 30.0),
-                        Image(image: widget.data.language.create(), height: 30),
+                        Image(image: widget.data.language!.create(), height: 30),
                         SizedBox(width: 6.0),
-                        Text(widget.data.subExt.name, style: TextStyle( fontSize: (widget.data.subExt.name.length > 13) ? 10 : 12 )),
+                        Text(widget.data.subExt!.name, style: TextStyle( fontSize: (widget.data.subExt!.name.length > 13) ? 10 : 12 )),
                         SizedBox(width: 6.0),
-                        widget.data.subExt.image(hSize: 30),
+                        widget.data.subExt!.image(hSize: 30),
                       ]
                     ),
                     Row(
@@ -278,7 +278,7 @@ class _UserReportState extends State<UserReport> {
   }
 
   Widget buildBestCards(translator, limit) {
-    if(finalData.subExt.info().pokemons.isNotEmpty)
+    if(finalData.subExt!.info().pokemons.isNotEmpty)
       return Card(
           child: Column(
               mainAxisSize: MainAxisSize.min,
