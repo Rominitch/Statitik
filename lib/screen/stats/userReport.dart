@@ -143,14 +143,14 @@ class _UserReportState extends State<UserReport> {
       if( statuses[Permission.storage]!.isGranted ) {
         screenshotController
             .capture()
-            .then((Uint8List image) async {
+            .then((Uint8List? image) async {
           final myImagePath = (await getApplicationSupportDirectory()).path;
 
           var now = new DateTime.now();
           final title = 'Statitik_${finalData.subExt.icon}_${DateFormat(
               'yyyyMMdd_kk_mm').format(now)}';
           var file = File("$myImagePath/$title.png");
-          file.writeAsBytesSync(image);
+          file.writeAsBytesSync(image!);
 
           var result = await PhotoManager.requestPermission();
           if (result) {
