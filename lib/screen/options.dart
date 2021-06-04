@@ -11,11 +11,11 @@ class OptionsPage extends StatefulWidget {
 }
 
 class _OptionsPageState extends State<OptionsPage> {
-  late String message;
+  String? message;
 
   @override
   Widget build(BuildContext context) {
-    Function refreshWithError = (message) {
+    var refreshWithError = (String? message) {
       setState((){
         this.message = message;
       });
@@ -74,8 +74,8 @@ class _OptionsPageState extends State<OptionsPage> {
 
     } else {
       buttons = [
-        signInButton('V_B5', 0, refreshWithError, context),
-        signInButton('V_B6', 1, refreshWithError, context),
+        signInButton('V_B5', CredentialMode.Google, refreshWithError, context),
+        signInButton('V_B6', CredentialMode.Phone, refreshWithError, context),
       ];
     }
 

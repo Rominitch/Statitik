@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
-import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -275,14 +274,12 @@ class _EnergyButtonState extends State<EnergyButton> {
   }
 }
 
-Widget signInButton(String nameId, int mode, Function press, BuildContext context) {
+Widget signInButton(String nameId, CredentialMode mode, Function(String?) press, BuildContext context) {
   return  Card(
     child: TextButton(
         onPressed: () {
           // Login
-          Environment.instance.login(mode, context, press).then((result) {
-              press(result);
-          });
+          Environment.instance.login(mode, context, press);
         },
         child:Padding(
           padding: const EdgeInsets.only(left: 10),

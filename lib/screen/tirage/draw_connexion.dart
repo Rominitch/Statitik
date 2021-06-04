@@ -65,7 +65,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
         ),
       );
     } else {
-      Function refresh = (String message) {
+      var refresh = (String? message) {
         setState( () { this.message = message;} );
       };
       return Scaffold(
@@ -85,10 +85,10 @@ class _DrawHomePageState extends State<DrawHomePage> {
               textBullet(StatitikLocale.of(context).read('DC_B7')),
               Expanded(child: SizedBox()),
               Container(
-                child: signInButton('V_B5', 0, refresh, context)
+                child: signInButton('V_B5', CredentialMode.Google, refresh, context)
               ),
               Container(
-                child: signInButton('V_B6', 1, refresh, context)
+                child: signInButton('V_B6', CredentialMode.Phone, refresh, context)
               ),
               if(message != null) Container( child: Center( child: Text(message!, style: TextStyle(color: Colors.red)))),
               Expanded(child: SizedBox()),

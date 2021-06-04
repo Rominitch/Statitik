@@ -18,7 +18,7 @@ class NewProduct {
   String eac = '';
   String image = '';
   int year = 2021;
-  int cat = 0;
+  int? cat;
   List<NewProductBooster> boosters = [];
 
   bool validate() {
@@ -40,7 +40,7 @@ class _NewProductPageState extends State<NewProductPage> {
   List<Widget> radioCat = [];
   List<Widget> radioLangue = [];
 
-  String error = "";
+  String? error;
 
   void onAdd()
   {
@@ -186,7 +186,7 @@ class _NewProductPageState extends State<NewProductPage> {
           },
           child: Text('Envoyer'),
         ),
-        if(error != null) Text(error),
+        if(error != null) Text(error!),
       ];
     }
     return Scaffold(

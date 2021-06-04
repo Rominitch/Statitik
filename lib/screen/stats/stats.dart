@@ -49,7 +49,7 @@ class _StatsPageState extends State<StatsPage> {
       // Get user info after
       if(env.user != null) {
         env.getStats(widget.d.subExt!, widget.d.product, widget.d.category, env.user!.idDB).then( (ustats) {
-          if(ustats != null && ustats.nbBoosters > 0) {
+          if(ustats.nbBoosters > 0) {
             widget.d.userStats = ustats;
             setState(() {});
           }

@@ -116,6 +116,13 @@ Images and illustrations used are the property of their respective authors.
       'SET_1': 'Parallel set (Reverse)',
       'SET_2': 'Standard set foil',
       'LOG_1': 'Enter your SMS code',
+      'LOG_2': 'Permission: "Acces to number" failed',
+      'LOG_3': 'Unknown authentification mode',
+      'LOG_4': 'Internal error',
+      'LOG_5': 'Authentification failed: %s',
+      'LOG_6': 'Enter your phone number',
+      'LOG_7': 'Phone number: +1 XX XX XX XX',
+      'LOG_8': 'Authentification cancelled',
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -226,6 +233,13 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'SET_1': 'Set parallèle (Reverse)',
       'SET_2': 'Set standard holographique',
       'LOG_1': 'Entrer le code SMS',
+      'LOG_2': 'Permission: "Accès au numéro" refusée',
+      'LOG_3': 'Mode d\'authentification inconnu',
+      'LOG_4': 'Erreur interne',
+      'LOG_5': 'L\'authentification a échouée: %s',
+      'LOG_6': 'Entrer votre numéro de téléphone (avec indicatif)',
+      'LOG_7': 'Numéro de téléphone: +33 6 XX XX XX XX',
+      'LOG_8': 'Authentification annulée',
     },
   };
 

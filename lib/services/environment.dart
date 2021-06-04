@@ -5,10 +5,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:mobile_number/mobile_number.dart';
 
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
@@ -18,6 +18,13 @@ import 'package:statitikcard/services/connection.dart';
 class StatitikException implements Exception {
     String msg;
     StatitikException(this.msg);
+}
+
+enum CredentialMode
+{
+    Google,
+    Phone,
+    AutoLog
 }
 
 class Credential
@@ -32,105 +39,103 @@ class Credential
             // Auto login
             var prefs = await SharedPreferences.getInstance();
             if( prefs.getString('uid') != null ) {
-                await Environment.instance.login(10, null, null);
+                Environment.instance.login(CredentialMode.AutoLog, null, null);
             }
         } catch(e) {
             Environment.instance.user = null;
         }
     }
 
-    Future<String?> signInWithGoogle() async {
-        try {
-            FirebaseAuth _auth = FirebaseAuth.instance;
+    void signInWithGoogle(onSuccess) {
+        FirebaseAuth _auth = FirebaseAuth.instance;
 
-            final GoogleSignInAccount? googleSignInAccount = await googleSignIn
-                .signIn();
-            final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount!
-                .authentication;
-            final AuthCredential credential = GoogleAuthProvider.credential(
-                accessToken: googleSignInAuthentication.accessToken,
-                idToken: googleSignInAuthentication.idToken,
-            );
+        googleSignIn.signIn().then((GoogleSignInAccount? googleSignInAccount) {
+            googleSignInAccount!.authentication.then((GoogleSignInAuthentication googleSignInAuthentication) {
+                final AuthCredential credential = GoogleAuthProvider.credential(
+                    accessToken: googleSignInAuthentication.accessToken,
+                    idToken: googleSignInAuthentication.idToken,
+                );
 
-            final UserCredential authResult = await _auth.signInWithCredential(
-                credential);
+                _auth.signInWithCredential(credential).then((UserCredential authResult){
+                    onSuccess("google-" + authResult.user!.uid);
+                });
 
-            return "google-" + authResult.user!.uid;
 
-        } catch(e) {
-            Environment.instance.user = null;
-        }
-        return null;
+            });
+        });
     }
 
-    Future<String> initMobileNumberState() async {
-        if (!await MobileNumber.hasPhonePermission) {
-            await MobileNumber.requestPhonePermission;
-            return "";
-        }
-        String mobileNumber = '';
-        // Platform messages may fail, so we use a try/catch PlatformException.
-        try {
-            mobileNumber = (await MobileNumber.mobileNumber)!;
-        } on PlatformException catch (e) {
-            debugPrint("Failed to get mobile number because of '${e.message}'");
-        }
-
-        return mobileNumber;
-    }
-
-    Future<void> signInWithPhone(env, context, updateLocal) async {
+    Future<void> signInWithPhone(BuildContext? context, onError, onSuccess) async {
         try {
             FirebaseAuth auth = FirebaseAuth.instance;
 
-            MobileNumber.listenPhonePermission((isPermissionGranted) {
-                if (isPermissionGranted) {
-                    printOutput("Permission OK");
-                } else {
-                    printOutput("Permission FAILURE");
+            showDialog(
+                context: context!,
+                barrierDismissible: false, // user must tap button!
+                builder: (BuildContext context) { return enterPhone(context); })
+                .then( (myPhoneNumber) {
+                    if(myPhoneNumber != "") {
+                        auth.verifyPhoneNumber(
+                            phoneNumber: myPhoneNumber,
+                            verificationCompleted: (
+                                PhoneAuthCredential credential) {
+                                // Sign the user in (or link) with the auto-generated credential
+                                auth.signInWithCredential(credential).then((
+                                    UserCredential authResult) {
+                                    String uid = "telephone-" +
+                                        authResult.user!.uid;
+                                    onSuccess(uid);
+                                }).onError((error, stackTrace) =>
+                                    onError('LOG_5', myPhoneNumber));
+                            },
+                            verificationFailed: (FirebaseAuthException e) {
+                                onError('LOG_5', myPhoneNumber);
+                            },
+                            codeSent: (String verificationId,
+                                int? resendToken) async {
+                                // Update the UI - wait for the user to enter the SMS code
+                                showDialog(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    // user must tap button!
+                                    builder: (BuildContext context) {
+                                        return showAlert(context);
+                                    })
+                                    .then((smsCode) {
+                                        if(smsCode!="") {
+                                            // Create a PhoneAuthCredential with the code
+                                            PhoneAuthCredential credential = PhoneAuthProvider
+                                                .credential(
+                                                verificationId: verificationId,
+                                                smsCode: smsCode);
+
+                                            // Sign the user in (or link) with the credential
+                                            auth.signInWithCredential(credential).then((
+                                                UserCredential authResult) {
+                                                String uid = "telephone-" +
+                                                    authResult.user!.uid;
+                                                onSuccess(uid);
+                                            }).onError((error, stackTrace) =>
+                                                onError('LOG_5', myPhoneNumber));
+                                        } else {
+                                            onError('LOG_8', null);
+                                        }
+                                });
+                            },
+                            timeout: const Duration(seconds: 2 * 60),
+                            codeAutoRetrievalTimeout: (
+                                String verificationId) {},
+                        ).then((value) {}
+                        ).onError((error, stackTrace) =>
+                            onError('LOG_5', error));
+                    } else {
+                        onError('LOG_8', null);
+                    }
                 }
-            });
-            String myPhoneNumber = await initMobileNumberState();
-
-            await auth.verifyPhoneNumber(
-                phoneNumber: myPhoneNumber,
-                verificationCompleted: (PhoneAuthCredential credential) async {
-
-                    // Sign the user in (or link) with the auto-generated credential
-                    UserCredential authResult = await auth.signInWithCredential(credential);
-                },
-                verificationFailed: (FirebaseAuthException e) {
-                    Environment.instance.user = null;
-                },
-                codeSent: (String verificationId, int? resendToken) async {
-                    // Update the UI - wait for the user to enter the SMS code
-                    String smsCode = await showDialog(
-                        context: context,
-                        barrierDismissible: false, // user must tap button!
-                        builder: (BuildContext context) { return showAlert(context); });
-
-                    // Create a PhoneAuthCredential with the code
-                    PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
-
-                    // Sign the user in (or link) with the credential
-                    UserCredential authResult = await auth.signInWithCredential(credential);
-
-                    var prefs = await SharedPreferences.getInstance();
-
-                    String uid = "telephone-" + authResult.user!.uid;
-                    prefs.setString('uid', uid);
-                    // Register and check access
-                    await env.registerUser(uid);
-
-                    updateLocal("");
-                  },
-                timeout: const Duration(seconds: 2*60),
-                codeAutoRetrievalTimeout: (String verificationId) {
-                },
             );
         }
         catch(e) {
-            Environment.instance.user = null;
+            onError(e);
         }
     }
 
@@ -171,6 +176,34 @@ class Credential
         );
     }
 
+    AlertDialog enterPhone(BuildContext context) {
+        String smsCode="";
+        return AlertDialog(
+            title: Text(StatitikLocale.of(context).read('LOG_6')),
+            content:  TextField(
+                keyboardType: TextInputType.phone,
+                onChanged: (value) {
+                    smsCode = value;
+                },
+                //controller: _textFieldController,
+                decoration: InputDecoration(hintText: StatitikLocale.of(context).read('LOG_7')),
+            ),
+            actions: <Widget>[
+                TextButton(
+                    child: Text(StatitikLocale.of(context).read('confirm')),
+                    onPressed: () {
+                        Navigator.of(context).pop(smsCode);
+                    },
+                ),
+                TextButton(
+                    child: Text(StatitikLocale.of(context).read('cancel')),
+                    onPressed: () {
+                        Navigator.of(context).pop("");
+                    },
+                ),
+            ],
+        );
+    }
 }
 
 class Database
@@ -301,7 +334,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.8.1';
+    final String version = '0.8.2';
 
     // State
     bool isInitialized=false;
@@ -595,36 +628,44 @@ class Environment
         return user != null;
     }
 
-    Future<String?> login(int mode, context, updateGUI) async {
-        try {
-            // Log system
-            if(mode==1) {
-                await credential.signInWithPhone(this, context, updateGUI);
-            } else {
-                String uid;
-                var prefs = await SharedPreferences.getInstance();
-
-                if(mode==0) {
-                    uid = (await credential.signInWithGoogle())!;
-                    prefs.setString('uid', uid);
-                } else {
-                    uid = prefs.getString('uid')!;
-                }
+    void login(CredentialMode mode, context, Function(String?)? updateGUI) {
+        var onSuccess = (uid) {
+            printOutput("Credential Success: "+uid);
+            SharedPreferences.getInstance().then((prefs) {
+                // Save to preferences
+                prefs.setString('uid', uid);
 
                 // Register and check access
-                if(uid != null) {
-                    await registerUser(uid);
-                }
+                assert(uid != null);
+                registerUser(uid).then((value) {
+                    if(updateGUI != null)
+                        updateGUI(null);
+                });
+            });
+        };
+        var onError = (message, [code]) {
+            printOutput("Credential Error: "+message);
+            Environment.instance.user = null;
+            if(updateGUI != null)
+                updateGUI(sprintf(StatitikLocale.of(context).read(message), [code]));
+        };
+
+        try {
+            // Log system
+            if(mode==CredentialMode.Phone) {
+                credential.signInWithPhone(context, onError, onSuccess);
+            } else if(mode==CredentialMode.Google) {
+                credential.signInWithGoogle(onSuccess);
+            }
+            else if(mode==CredentialMode.AutoLog){
+                SharedPreferences.getInstance().then((prefs) {
+                    onSuccess(prefs.getString('uid'));
+                });
+            } else {
+                onError('LOG_3');
             }
         } catch(e) {
-            Environment.instance.user = null;
-            if( e is StatitikException) {
-                return e.msg;
-            } else {
-                return "Une erreur interne est apparue !";
-            }
+            onError('LOG_4');
         }
-        return null;
     }
-
 }
