@@ -77,7 +77,7 @@ class _StatsPageState extends State<StatsPage> {
          SizedBox(height: 20.0),
          Padding(
            padding: const EdgeInsets.all(16.0),
-           child: drawImagePress(context, "PikaNoResult.png", 250.0),
+           child: drawImagePress(context, "PikaNoResult", 250.0),
          )
         ];
      }
@@ -108,7 +108,7 @@ class _StatsPageState extends State<StatsPage> {
         finalWidget = [
           Text(StatitikLocale.of(context).read('loading')),
           SizedBox(height: 20.0),
-          drawImagePress(context, 'Arrozard.png', 350.0),
+          drawImagePress(context, 'Arrozard', 350.0),
         ];
       } else {
         finalWidget = [
@@ -120,7 +120,7 @@ class _StatsPageState extends State<StatsPage> {
               ],)
           ),
           SizedBox(height: 20.0),
-          drawImagePress(context, 'Arrozard.png', 350.0),
+          drawImagePress(context, 'Arrozard', 350.0),
         ];
       }
     }

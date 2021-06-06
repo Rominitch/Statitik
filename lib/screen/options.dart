@@ -90,7 +90,7 @@ class _OptionsPageState extends State<OptionsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: buttons + <Widget>[
-          Expanded(child: Center(child: drawImagePress(context, "PikaOption.png", 200.0))),
+          Expanded(child: Center(child: drawImagePress(context, "PikaOption", 200.0))),
           Row(
             children: [
               Expanded(child: Card(

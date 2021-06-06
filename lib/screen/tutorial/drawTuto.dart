@@ -1,4 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 class DrawTutorial extends StatefulWidget {
@@ -49,9 +52,9 @@ class _DrawTutorialState extends State<DrawTutorial> {
             children: [
               SimpleText(StatitikLocale.of(context).read('TUTO0_2')),
               Title(StatitikLocale.of(context).read('TUTO0_3')),
-              CardTutoImage(StatitikLocale.of(context).read('TUTO0_4'), "assets/tuto/tuto1.png", false),
-              CardTutoImage(StatitikLocale.of(context).read('TUTO0_5'), "assets/tuto/tuto2.png", ),
-              CardTutoImage(StatitikLocale.of(context).read('TUTO0_6'), "assets/tuto/tuto3.png", false),
+              CardTutoImage(StatitikLocale.of(context).read('TUTO0_4'), "tuto1", false),
+              CardTutoImage(StatitikLocale.of(context).read('TUTO0_5'), "tuto2", ),
+              CardTutoImage(StatitikLocale.of(context).read('TUTO0_6'), "tuto3", false),
               CardTutoColumnChildren([
                 Text(StatitikLocale.of(context).read('TUTO0_7'), textAlign: TextAlign.justify, style: Theme.of(context).textTheme.headline5),
                 Text(StatitikLocale.of(context).read('TUTO0_8'), textAlign: TextAlign.justify),
@@ -63,7 +66,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
                   Icon(Icons.add_photo_alternate_outlined),
                   Conseil(StatitikLocale.of(context).read('TUTO0_12'), Colors.grey[400]!),
                   SimpleText(StatitikLocale.of(context).read('TUTO0_13')),
-                  Image.asset("assets/tuto/tuto4.png", height: 40),
+                  ImageTuto("tuto4", 40),
                   SimpleText(StatitikLocale.of(context).read('TUTO0_14')),
                 ], Colors.grey[700]!),
                 CardTutoCC(StatitikLocale.of(context).read('TUTO0_15'), [
@@ -72,10 +75,10 @@ class _DrawTutorialState extends State<DrawTutorial> {
               ]),
               Title(StatitikLocale.of(context).read('TUTO0_17')),
               SimpleText(StatitikLocale.of(context).read('TUTO0_18')),
-              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_19'), "assets/tuto/tuto5.png",[
+              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_19'), "tuto5",[
                 SimpleText(StatitikLocale.of(context).read('TUTO0_20')),
               ], true, 70),
-              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_21'), "assets/tuto/tuto6.png",[
+              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_21'), "tuto6",[
                 SimpleText(StatitikLocale.of(context).read('TUTO0_22')),
                 Conseil(StatitikLocale.of(context).read('TUTO0_23'), Colors.deepOrange),
               ], false, 80),
@@ -87,10 +90,10 @@ class _DrawTutorialState extends State<DrawTutorial> {
               SimpleText(StatitikLocale.of(context).read('TUTO0_28')),
               SimpleText(StatitikLocale.of(context).read('TUTO0_29')),
               Conseil(StatitikLocale.of(context).read('TUTO0_30'), Colors.deepOrange),
-              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_31'), "assets/tuto/tuto7.png",[
+              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_31'), "tuto7",[
                 SimpleText(StatitikLocale.of(context).read('TUTO0_32')),
               ]),
-              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_33'), "assets/tuto/tuto9.png",[
+              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_33'), "tuto9",[
                 SimpleText(StatitikLocale.of(context).read('TUTO0_34')),
                 Conseil(StatitikLocale.of(context).read('TUTO0_35'), Colors.deepOrange),
               ]),
@@ -105,11 +108,12 @@ class _DrawTutorialState extends State<DrawTutorial> {
                 Conseil(StatitikLocale.of(context).read('TUTO0_41'), Colors.deepOrange),
               ]),
               Title(StatitikLocale.of(context).read('TUTO0_42')),
-              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_43'), "assets/tuto/tuto8.png", [
+              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_43'), "tuto8", [
                 SimpleText(StatitikLocale.of(context).read('TUTO0_44')),
                 SimpleText(StatitikLocale.of(context).read('TUTO0_45'))
               ], true, 70),
               SimpleText(StatitikLocale.of(context).read('TUTO0_46')),
+              Center(child: drawImagePress(context, "PikaNoResult", 250.0))
             ],
           )
         )
@@ -124,6 +128,13 @@ class _DrawTutorialState extends State<DrawTutorial> {
     return Text(text, style: Theme.of(context).textTheme.headline5);
   }
 
+  Widget ImageTuto(String image, double height) {
+    return CachedNetworkImage(imageUrl: '$adresseHTML/StatitikCard/tuto/$image.png',
+      errorWidget: (context, url, error) => Icon(Icons.help_outline),
+      placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
+      height: height,
+    );
+  }
   Widget CardTutoImage(String text, String image, [bool imageRight=true])
   {
     var content = imageRight ? <Widget>[
@@ -131,9 +142,9 @@ class _DrawTutorialState extends State<DrawTutorial> {
         width: w2_3,
         child: SimpleText(text),
       ),
-      Image.asset(image, height: 150),
+      ImageTuto(image, 150),
     ] : [
-      Image.asset(image, height: 150),
+      ImageTuto(image, 150),
       Container(
         width: w2_3,
         child: SimpleText(text),
@@ -154,9 +165,9 @@ class _DrawTutorialState extends State<DrawTutorial> {
           ]+subContent
         )
       ),
-      Image.asset(image, height: imageHeight),
+      ImageTuto(image, imageHeight),
     ] : [
-      Image.asset(image, height: imageHeight),
+      ImageTuto(image, imageHeight),
       Container(
         width: w2_3,
         child: Column(
