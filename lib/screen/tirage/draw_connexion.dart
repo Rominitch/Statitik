@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:statitikcard/screen/Admin/newProduct.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/commonPages/productPage.dart';
 import 'package:statitikcard/screen/tirage/tirage_resume.dart';
+import 'package:statitikcard/screen/tutorial/drawTuto.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -17,6 +19,24 @@ class DrawHomePage extends StatefulWidget {
 
 class _DrawHomePageState extends State<DrawHomePage> {
   String? message;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if( Environment.instance.isLogged() ) {
+      // First time: go to tutorial
+      SharedPreferences.getInstance().then((prefs) {
+        var needTuto = prefs.getBool("TutorialDraw");
+        if(needTuto == null || !needTuto)
+        {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => DrawTutorial()));
+          // Save to preferences (never shown)
+          prefs.setBool('TutorialDraw', true);
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +58,11 @@ class _DrawHomePageState extends State<DrawHomePage> {
                   Card( color: greenValid, child: TextButton(child: Text(StatitikLocale.of(context).read('DC_B1'), style: TextStyle(color: Colors.grey[800]) ),
                     onPressed: () {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage)));
+                    },
+                  )),
+                  Card( child: TextButton(child: Text(StatitikLocale.of(context).read('DC_B10') ),
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => DrawTutorial()));
                     },
                   )),
                   Text(StatitikLocale.of(context).read('DC_B2'), style: TextStyle( decoration: TextDecoration.underline, )),

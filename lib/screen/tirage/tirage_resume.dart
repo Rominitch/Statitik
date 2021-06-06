@@ -71,7 +71,7 @@ class _ResumePageState extends State<ResumePage> {
 
       allFinished &= boosterDraw.isFinished();
       if( current.boosterDraws.first.subExtension != null && boosterDraw.subExtension != null)
-        sameExt &= (current.boosterDraws.first.subExtension.idExtension == boosterDraw.subExtension.idExtension);
+        sameExt &= (current.boosterDraws.first.subExtension!.idExtension == boosterDraw.subExtension!.idExtension);
     }
 
     // Add booster button

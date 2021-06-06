@@ -186,7 +186,7 @@ class Credential
                     smsCode = value;
                 },
                 //controller: _textFieldController,
-                decoration: InputDecoration(hintText: StatitikLocale.of(context).read('LOG_7')),
+                decoration: InputDecoration(hintText: StatitikLocale.of(context).read('LOG_7'), hintStyle: TextStyle(fontSize: 10)),
             ),
             actions: <Widget>[
                 TextButton(
@@ -334,7 +334,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.8.2';
+    final String version = '0.8.3';
 
     // State
     bool isInitialized=false;
@@ -342,7 +342,7 @@ class Environment
     bool showExtensionName = false;
     bool showPressImages = false;
     bool showPressProductImages = false;
-    final String serverImages = 'https://mouca.fr/StatitikCard/products/';
+    final String serverImages = '$adresseHTML/StatitikCard/products/';
 
     // Cached data
     Collection collection = Collection();
@@ -668,4 +668,28 @@ class Environment
             onError('LOG_4');
         }
     }
+
+  Future<bool> sendRequestProduct(String info, String eac) async
+  {
+      if( !isLogged() )
+          return false;
+      try {
+          return await db.transactionR( (connection) async {
+              // Get new ID
+              int idRequest = 1;
+              var req = await connection.query('SELECT count(idDemande) FROM `Demande`;');
+              for (var row in req) {
+                  idRequest = row[0] + 1;
+              }
+
+              // Add new request
+              final queryStr = 'INSERT INTO `Demande` (idDemande, Information, EAC) VALUES (?, ?, ?)';
+
+              await connection.queryMulti(queryStr, [[idRequest, info, eac]]);
+          });
+      } catch( e ) {
+          printOutput("Database error $e");
+      }
+      return false;
+  }
 }

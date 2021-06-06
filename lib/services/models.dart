@@ -468,7 +468,7 @@ class SubExtension
   {
     return CachedNetworkImage(imageUrl: '$adresseHTML/StatitikCard/extensions/$icon.png',
       errorWidget: (context, url, error) => Icon(Icons.help_outline),
-      placeholder: (context, url) => CircularProgressIndicator(),
+      placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
       width:  wSize,
       height: hSize,
     );
@@ -510,7 +510,7 @@ class Product
   {
     return CachedNetworkImage(imageUrl: Environment.instance.serverImages+imageURL,
       errorWidget: (context, url, error) => Icon(Icons.error),
-      placeholder: (context, url) => CircularProgressIndicator(),
+      placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
       height: 70,
     );
   }
@@ -521,8 +521,8 @@ class Product
     return count;
   }
 
-  List buildBoosterDraw() {
-    List list = [];
+  List<BoosterDraw> buildBoosterDraw() {
+    var list = <BoosterDraw>[];
     int id=1;
     boosters.forEach((key, value) {
       for( int i=0; i < value.nbBoosters; i+=1) {
@@ -615,7 +615,7 @@ class CodeDraw {
 }
 
 class BoosterDraw {
-  final int id;
+  late int id;
   final SubExtension? creation;    ///< Keep product extension.
   final int nbCards;               ///< Number of cards inside booster
   ///
@@ -630,6 +630,7 @@ class BoosterDraw {
 
   BoosterDraw({this.creation, required this.id, required this.nbCards })
   {
+    assert(this.nbCards > 0);
     energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0,0); });
     subExtension = creation;
     if(hasSubExtension()) {
@@ -886,7 +887,7 @@ class SessionDraw
   Language language;
   Product product;
   bool productAnomaly=false;
-  late List boosterDraws;
+  late List<BoosterDraw> boosterDraws;
 
   SessionDraw({required this.product, required this.language})
   {
@@ -896,7 +897,7 @@ class SessionDraw
   void addNewBooster() {
     BoosterDraw booster = boosterDraws.last;
 
-    boosterDraws.add(new BoosterDraw(creation: booster.subExtension, id: booster.id+1, nbCards: 0) );
+    boosterDraws.add(new BoosterDraw(creation: booster.subExtension, id: booster.id+1, nbCards: booster.nbCards) );
   }
 
   void deleteBooster(int id) {
@@ -906,7 +907,7 @@ class SessionDraw
     boosterDraws.removeAt(id);
     // Change Label ID
     id = 1;
-    boosterDraws.forEach((element) {element.id = id; id += 1; });
+    boosterDraws.forEach((BoosterDraw element) {element.id = id; id += 1; });
   }
 
   bool canDelete() {

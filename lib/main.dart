@@ -17,6 +17,7 @@ class StatitikApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // Define the default brightness and colors.
         brightness: Brightness.dark,
@@ -28,6 +29,7 @@ class StatitikApp extends StatelessWidget {
           headline1: TextStyle( color: Colors.grey[400], fontFamily: 'Pacifico', fontSize: 50.0,),
           headline3: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 30.0,),
           headline5: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 20.0,),
+          headline6: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 16.0,),
           bodyText2: TextStyle( color: Colors.white, fontSize: 16 ),
         ),
         textButtonTheme: TextButtonThemeData(

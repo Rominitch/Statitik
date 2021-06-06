@@ -20,7 +20,7 @@ class ProductQuery {
     }
   }
 }
-Future<List> readProducts(Language l, SubExtension se, int idCategorie, SubExtension? containsSe) async
+Future<List> readProducts(Language l, SubExtension se, int? idCategorie, SubExtension? containsSe) async
 {
   List produits = List<List<Product>>.generate(Environment.instance.collection.category, (index) { return []; });
 
@@ -29,8 +29,9 @@ Future<List> readProducts(Language l, SubExtension se, int idCategorie, SubExten
       Map<int, ProductBooster> boosters = {};
       var reqBoosters = await connection.query("SELECT `ProduitBooster`.`idSousExtension`, `ProduitBooster`.`nombre`, `ProduitBooster`.`carte` FROM `ProduitBooster`"
           " WHERE `ProduitBooster`.`idProduit` = ${row[0]}");
-      for (var row in reqBoosters) {
-        boosters[row[0]] = ProductBooster(nbBoosters: row[1], nbCardsPerBooster: row[2]);
+      for (var rowBooster in reqBoosters) {
+        var idBooster = rowBooster[0] == null ? 0 : rowBooster[0];
+        boosters[idBooster] = ProductBooster(nbBoosters: rowBooster[1], nbCardsPerBooster: rowBooster[2]);
       }
       int cat = row[3]-1;
       assert(0 <= cat && cat < produits.length);
@@ -43,8 +44,9 @@ WHERE `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`
 AND P.`idProduit` = `Produit`.`idProduit`) as count ''';
 
   String filter = '';
-  if(idCategorie > 0)
+  if(idCategorie != null) {
     filter = ' AND `Produit`.`idCategorie` = $idCategorie';
+  }
 
   await Environment.instance.db.transactionR( (connection) async {
     String query = "SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie`, $subQueryCount FROM `Produit`, `ProduitBooster` "

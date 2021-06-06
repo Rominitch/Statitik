@@ -35,7 +35,7 @@ class _ProductPageState extends State<ProductPage> {
       widgetProd!.clear();
     }
 
-    readProducts(widget.language, widget.subExt, -1, isMulti() ? widget.subExt : null ).then((products) {
+    readProducts(widget.language, widget.subExt, null, isMulti() ? widget.subExt : null ).then((products) {
       widgetProd = [];
       productFound = false;
 
@@ -175,17 +175,26 @@ class _ProductPageState extends State<ProductPage> {
               ),
               actions: [
                 Card(child: TextButton(
-                    child: Icon(Icons.help_outline,),
+                    child: Icon(Icons.add_photo_alternate_outlined,),
                     onPressed: () {
                       showDialog(
                           context: context,
-                          builder: (_) => new AlertDialog(
-                            title: new Text(StatitikLocale.of(context).read('help')),
-                            content: Text( StatitikLocale.of(context).read('TP_B1'),
-                                textAlign: TextAlign.justify),
-                            )
+                          builder: (_) => createRequest()
                       );
                     },
+                )),
+                Card(child: TextButton(
+                  child: Icon(Icons.help_outline,),
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (_) => new AlertDialog(
+                          title: new Text(StatitikLocale.of(context).read('help')),
+                          content: Text( StatitikLocale.of(context).read('TP_B1'),
+                              textAlign: TextAlign.justify),
+                        )
+                    );
+                  },
                 ))
               ],
             ),
@@ -202,6 +211,59 @@ class _ProductPageState extends State<ProductPage> {
                           ),
                       )
               )
+    );
+  }
+
+  AlertDialog createRequest()
+  {
+    String info="";
+    String eac="";
+    return new AlertDialog(
+      title: new Text(StatitikLocale.of(context).read('TP_B3')),
+      content: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [Text(StatitikLocale.of(context).read('TP_B4')),
+                TextField(
+                    onChanged: (value) {
+                      info = value;
+                    }
+                ),
+              ]),
+            )),
+            Card(child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [Text(StatitikLocale.of(context).read('TP_B5')),
+                TextField(
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    eac = value;
+                  }
+                ),
+              ]),
+            )),
+          ]
+      ),
+      actions: <Widget>[
+        TextButton(
+          child: Text(StatitikLocale.of(context).read('confirm')),
+          onPressed: () {
+            if(info.isNotEmpty) {
+              Environment.instance.sendRequestProduct(info, eac).then((value) => Navigator.of(context).pop());
+            }
+          },
+        ),
+        TextButton(
+          child: Text(StatitikLocale.of(context).read('cancel')),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
     );
   }
 }
