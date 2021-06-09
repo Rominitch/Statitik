@@ -83,6 +83,7 @@ class _PieExtensionState extends State<PieExtension> {
   void createPie() {
     sections.clear();
 
+    bool odd=false;
     final double ratio = 100.0 / widget.stats.subExt.cards!.cards.length;
     if( widget.visu == Visualize.Type) {
       for(var type in Type.values) {
@@ -90,17 +91,19 @@ class _PieExtensionState extends State<PieExtension> {
         final double radius = isTouched ? 130 : 100;
         int count = widget.stats.countByType[type.index];
         if (count > 0) {
+          var percent = count * ratio;
           sections.add(PieChartSectionData(
             color: typeColors[type.index],
             value: count.toDouble(),
-            title: ( count * ratio ).toStringAsFixed(2) + ' %',
+            title: "$count (${percent.toStringAsPrecision(2)}%)",
             radius: radius,
-            titlePositionPercentageOffset: 0.8,
+            titlePositionPercentageOffset: odd ? 0.7 : 0.4,
             titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
             badgeWidget: getImageType(type),
             badgePositionPercentageOffset: 1.15,
           )
           );
+          odd = !odd;
         }
       }
     } else {
@@ -109,17 +112,19 @@ class _PieExtensionState extends State<PieExtension> {
         final double radius = isTouched ? 130 : 100;
         int count = widget.stats.countByRarity[rarity.index];
         if (count > 0) {
+          var percent = count * ratio;
           sections.add(PieChartSectionData(
             color: rarityColors[rarity.index],
             value: count.toDouble(),
-            title: ( count * ratio ).toStringAsFixed(2) + ' %',
+            title: "$count (${percent.toStringAsPrecision(2)}%)",
             radius: radius,
-            titlePositionPercentageOffset: 0.8,
+            titlePositionPercentageOffset: odd ? 0.75 : 0.5,
             titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
             badgeWidget: Row( mainAxisSize: MainAxisSize.min,  children: getImageRarity(rarity), ),
             badgePositionPercentageOffset: 1.15,
           )
           );
+          odd = !odd;
         }
       }
     }

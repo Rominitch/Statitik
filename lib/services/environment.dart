@@ -334,7 +334,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.8.4';
+    final String version = '0.8.5';
 
     // State
     bool isInitialized=false;
@@ -463,7 +463,6 @@ class Environment
                         var cards = collection.getListCardsID(row[4]);
                         SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], year: row[6], chromatique: row[7],
                             cards: cards);
-                        assert(se.info() != null);
                         collection.addSubExtension(se);
                     } catch(e) {
                         print("Bad SubExtension: ${row[2]} $e");
@@ -529,7 +528,6 @@ class Environment
                 // Prepare data
                 List<List<Object>> draw = [];
                 for(BoosterDraw booster in currentDraw.boosterDraws) {
-                    assert(booster != null);
                     draw.add(booster.buildQuery(idAchat));
                 }
                 // Send data

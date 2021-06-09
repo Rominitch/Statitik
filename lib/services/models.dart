@@ -397,15 +397,16 @@ class ListCards
       assert(code.length % 2 != 1 || code.contains('*'));
 
       for (int i = 0; i < code.length; i += 2) {
-        Type t = convertType[code[i]];
-        if (t == null)
+        if (!convertType.containsKey(code[i]))
           throw Exception(
               'Data card list corruption: $i was found with type ${code[i]}');
-        Rarity r = convertRarity[code[i + 1]];
-        if (r == null)
+
+        if (!convertRarity.containsKey(code[i+1]))
           throw Exception(
               'Data card list corruption: $i was found with rarity ${code[i +
                   1]}');
+        Type t   = convertType[code[i]];
+        Rarity r = convertRarity[code[i + 1]];
 
         //Special alternative case
         bool alternative = false;
@@ -432,16 +433,18 @@ class ListCards
       pokemons.add(poke);
     }
 
+    /*
     if(local && pokemons.length != cards.length) {
       pokemons.forEach((element) { print( element.names[0] );});
 
       print('Named: ${pokemons.length} != Code ${cards.length}');
     }
     assert(pokemons.length == cards.length);
+    */
   }
 
   String getName(Language l, int id) {
-    if(pokemons != null && id < pokemons.length ) {
+    if(id < pokemons.length ) {
       return pokemons[id].names[l.id-1];
     }
     return "";

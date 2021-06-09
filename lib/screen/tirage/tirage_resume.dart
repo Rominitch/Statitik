@@ -15,8 +15,7 @@ class _ResumePageState extends State<ResumePage> {
 
   @override
   void initState() {
-    if( Environment.instance.currentDraw.product == null ||
-        Environment.instance.currentDraw.boosterDraws.length <= 0 )
+    if( Environment.instance.currentDraw.boosterDraws.length <= 0 )
       throw StatitikException(StatitikLocale.of(context).read('TR_B0'));
 
     super.initState();
@@ -46,12 +45,11 @@ class _ResumePageState extends State<ResumePage> {
       {
         // Quit page
         Navigator.of(context).pop();
-        if(subExt != null) {
-          boosterDraw.subExtension = subExt;
-          boosterDraw.fillCard();
-          // Go to booster fill
-          await fillBoosterInfo(context);
-        }
+
+        boosterDraw.subExtension = subExt;
+        boosterDraw.fillCard();
+        // Go to booster fill
+        await fillBoosterInfo(context);
       };
 
       Function navigateAndDisplaySelection = (BuildContext context) async {

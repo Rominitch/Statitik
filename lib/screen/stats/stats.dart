@@ -84,11 +84,17 @@ class _StatsPageState extends State<StatsPage> {
      if(widget.d.subExt!.info().validCard)
        finalWidget.add(
          Card(
-           color: Colors.grey[800],
+           color: Colors.grey[700],
            child: TextButton(
-               child: Text(StatitikLocale.of(context).read('S_B7')),
+               child: Row(
+                 mainAxisAlignment: MainAxisAlignment.center,
+                 children: [
+                   Icon(Icons.bar_chart_rounded),
+                   Text(StatitikLocale.of(context).read('S_B7'), style: Theme.of(context).textTheme.headline6)
+                ],
+               ),
                onPressed: () {
-                 Navigator.push(context, MaterialPageRoute(builder: (context) => StatsExtensionsPage(stats: widget.d.stats!)));
+                 Navigator.push(context, MaterialPageRoute(builder: (context) => StatsExtensionsPage(stats: widget.d.stats!, data: widget.d)));
                }
            ),
          ));
@@ -166,16 +172,6 @@ class _StatsPageState extends State<StatsPage> {
                      }).then( (result) { setState((){}); } );
                   }
               ),
-            /*
-            if(widget.d.userStats != null)
-              FlatButton(
-                child: Icon(Icons.share_outlined),
-                onPressed: () {
-                  _shareReport();
-                  //report.needUpdate.add(_shareReport);
-                }
-              ),
-             */
           ],
         ),
         body: SingleChildScrollView(

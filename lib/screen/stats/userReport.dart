@@ -1,17 +1,11 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:photo_manager/photo_manager.dart';
+
 import 'package:screenshot/screenshot.dart';
 import 'package:statitikcard/screen/stats/statView.dart';
+import 'package:statitikcard/screen/widgets/screenPrint.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -36,7 +30,7 @@ class UserReport extends StatefulWidget {
 
 class _UserReportState extends State<UserReport> {
   StatsData finalData = StatsData();
-  ScreenshotController screenshotController = ScreenshotController();
+  ScreenPrint print = ScreenPrint();
   bool compute = true;
   List<Widget> bestCards = [];
   List<Widget> products  = [];
@@ -135,56 +129,10 @@ class _UserReportState extends State<UserReport> {
     super.dispose();
   }
 
-  void _shareReport() {
-    // Demand to write on device
-    [ Permission.storage,
-    ].request().then( (Map<Permission, PermissionStatus> statuses) async {
-      // If accepted
-      if( statuses[Permission.storage]!.isGranted ) {
-        screenshotController
-            .capture()
-            .then((Uint8List? image) async {
-          final myImagePath = (await getApplicationSupportDirectory()).path;
-
-          var now = new DateTime.now();
-          final title = 'Statitik_${finalData.subExt!.icon}_${DateFormat(
-              'yyyyMMdd_kk_mm').format(now)}';
-          var file = File("$myImagePath/$title.png");
-          file.writeAsBytesSync(image!);
-
-          var result = await PhotoManager.requestPermission();
-          if (result) {
-            await PhotoManager.editor.saveImageWithPath(
-                file.path, title: title);
-
-            showDialog(
-                context: context,
-                builder: (_) =>
-                new AlertDialog(
-                  title: new Text(StatitikLocale.of(context).read('RE_B1')),
-                  content: Text(StatitikLocale.of(context).read('RE_B2')),
-                )
-            );
-          }
-        });
-      }
-    });
-  }
-  final _boundaryKey = GlobalKey();
-
-  Future<Uint8List> captureImage() async {
-    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
-    final boundary = _boundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-    final image = await boundary.toImage(pixelRatio: pixelRatio);
-    final data = await image.toByteData(format: ui.ImageByteFormat.png);
-    return data!.buffer.asUint8List();
-  }
-
   @override
   Widget build(BuildContext context) {
     assert(finalData.stats != null);
     var translator = StatitikLocale.of(context);
-    assert(translator != null);
 
     SystemChrome.setPreferredOrientations([current]);
 
@@ -215,7 +163,7 @@ class _UserReportState extends State<UserReport> {
             if(!compute) IconButton(
                 icon: Icon(Icons.share_outlined),
                 onPressed: () {
-                  _shareReport();
+                  print.shareReport(context, finalData.subExt!.icon);
                 }
             ),
           ],
@@ -225,7 +173,7 @@ class _UserReportState extends State<UserReport> {
           ? Center(child: Text(translator.read('loading'), style: Theme.of(context).textTheme.headline3))
           : SingleChildScrollView(
           child: Screenshot(
-            controller: screenshotController,
+            controller: print.screenshotController,
             child: Container(
               padding: EdgeInsets.all(5.0),
               color: Colors.grey[850],

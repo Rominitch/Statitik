@@ -50,69 +50,69 @@ class _DrawTutorialState extends State<DrawTutorial> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SimpleText(StatitikLocale.of(context).read('TUTO0_2')),
-              Title(StatitikLocale.of(context).read('TUTO0_3')),
-              CardTutoImage(StatitikLocale.of(context).read('TUTO0_4'), "tuto1", false),
-              CardTutoImage(StatitikLocale.of(context).read('TUTO0_5'), "tuto2", ),
-              CardTutoImage(StatitikLocale.of(context).read('TUTO0_6'), "tuto3", false),
-              CardTutoColumnChildren([
+              simpleText(StatitikLocale.of(context).read('TUTO0_2')),
+              title(StatitikLocale.of(context).read('TUTO0_3')),
+              cardTutoImage(StatitikLocale.of(context).read('TUTO0_4'), "tuto1", false),
+              cardTutoImage(StatitikLocale.of(context).read('TUTO0_5'), "tuto2", ),
+              cardTutoImage(StatitikLocale.of(context).read('TUTO0_6'), "tuto3", false),
+              cardTutoColumnChildren([
                 Text(StatitikLocale.of(context).read('TUTO0_7'), textAlign: TextAlign.justify, style: Theme.of(context).textTheme.headline5),
                 Text(StatitikLocale.of(context).read('TUTO0_8'), textAlign: TextAlign.justify),
               ]),
-              CardTutoColumnChildren([
+              cardTutoColumnChildren([
                 Text(StatitikLocale.of(context).read('TUTO0_9'), textAlign: TextAlign.justify, style: Theme.of(context).textTheme.headline5),
-                CardTutoCC(StatitikLocale.of(context).read('TUTO0_10'), <Widget>[
-                  SimpleText(StatitikLocale.of(context).read('TUTO0_11')),
+                cardTutoCC(StatitikLocale.of(context).read('TUTO0_10'), <Widget>[
+                  simpleText(StatitikLocale.of(context).read('TUTO0_11')),
                   Icon(Icons.add_photo_alternate_outlined),
-                  Conseil(StatitikLocale.of(context).read('TUTO0_12'), Colors.grey[400]!),
-                  SimpleText(StatitikLocale.of(context).read('TUTO0_13')),
-                  ImageTuto("tuto4", 40),
-                  SimpleText(StatitikLocale.of(context).read('TUTO0_14')),
+                  conseil(StatitikLocale.of(context).read('TUTO0_12'), Colors.grey[400]!),
+                  simpleText(StatitikLocale.of(context).read('TUTO0_13')),
+                  imageTuto("tuto4", 40),
+                  simpleText(StatitikLocale.of(context).read('TUTO0_14')),
                 ], Colors.grey[700]!),
-                CardTutoCC(StatitikLocale.of(context).read('TUTO0_15'), [
-                  SimpleText(StatitikLocale.of(context).read('TUTO0_16')),
+                cardTutoCC(StatitikLocale.of(context).read('TUTO0_15'), [
+                  simpleText(StatitikLocale.of(context).read('TUTO0_16')),
                 ], Colors.grey[700]!),
               ]),
-              Title(StatitikLocale.of(context).read('TUTO0_17')),
-              SimpleText(StatitikLocale.of(context).read('TUTO0_18')),
-              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_19'), "tuto5",[
-                SimpleText(StatitikLocale.of(context).read('TUTO0_20')),
+              title(StatitikLocale.of(context).read('TUTO0_17')),
+              simpleText(StatitikLocale.of(context).read('TUTO0_18')),
+              cardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_19'), "tuto5",[
+                simpleText(StatitikLocale.of(context).read('TUTO0_20')),
               ], true, 70),
-              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_21'), "tuto6",[
-                SimpleText(StatitikLocale.of(context).read('TUTO0_22')),
-                Conseil(StatitikLocale.of(context).read('TUTO0_23'), Colors.deepOrange),
+              cardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_21'), "tuto6",[
+                simpleText(StatitikLocale.of(context).read('TUTO0_22')),
+                conseil(StatitikLocale.of(context).read('TUTO0_23'), Colors.deepOrange),
               ], false, 80),
-              CardTutoCC(StatitikLocale.of(context).read('TUTO0_24'), [
-                SimpleText(StatitikLocale.of(context).read('TUTO0_25')),
-                SimpleText(StatitikLocale.of(context).read('TUTO0_26')),
+              cardTutoCC(StatitikLocale.of(context).read('TUTO0_24'), [
+                simpleText(StatitikLocale.of(context).read('TUTO0_25')),
+                simpleText(StatitikLocale.of(context).read('TUTO0_26')),
               ], Colors.grey[700]!),
-              Title(StatitikLocale.of(context).read('TUTO0_27')),
-              SimpleText(StatitikLocale.of(context).read('TUTO0_28')),
-              SimpleText(StatitikLocale.of(context).read('TUTO0_29')),
-              Conseil(StatitikLocale.of(context).read('TUTO0_30'), Colors.deepOrange),
-              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_31'), "tuto7",[
-                SimpleText(StatitikLocale.of(context).read('TUTO0_32')),
+              title(StatitikLocale.of(context).read('TUTO0_27')),
+              simpleText(StatitikLocale.of(context).read('TUTO0_28')),
+              simpleText(StatitikLocale.of(context).read('TUTO0_29')),
+              conseil(StatitikLocale.of(context).read('TUTO0_30'), Colors.deepOrange),
+              cardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_31'), "tuto7",[
+                simpleText(StatitikLocale.of(context).read('TUTO0_32')),
               ]),
-              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_33'), "tuto9",[
-                SimpleText(StatitikLocale.of(context).read('TUTO0_34')),
-                Conseil(StatitikLocale.of(context).read('TUTO0_35'), Colors.deepOrange),
+              cardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_33'), "tuto9",[
+                simpleText(StatitikLocale.of(context).read('TUTO0_34')),
+                conseil(StatitikLocale.of(context).read('TUTO0_35'), Colors.deepOrange),
               ]),
-              CardTutoColumnChildren([
-                SimpleText(StatitikLocale.of(context).read('TUTO0_36')),
+              cardTutoColumnChildren([
+                simpleText(StatitikLocale.of(context).read('TUTO0_36')),
               ]),
-              CardTutoColumnChildren([
-                SimpleText(StatitikLocale.of(context).read('TUTO0_37')),
-                SimpleText(StatitikLocale.of(context).read('TUTO0_38')),
-                SimpleText(StatitikLocale.of(context).read('TUTO0_39')),
-                SimpleText(StatitikLocale.of(context).read('TUTO0_40')),
-                Conseil(StatitikLocale.of(context).read('TUTO0_41'), Colors.deepOrange),
+              cardTutoColumnChildren([
+                simpleText(StatitikLocale.of(context).read('TUTO0_37')),
+                simpleText(StatitikLocale.of(context).read('TUTO0_38')),
+                simpleText(StatitikLocale.of(context).read('TUTO0_39')),
+                simpleText(StatitikLocale.of(context).read('TUTO0_40')),
+                conseil(StatitikLocale.of(context).read('TUTO0_41'), Colors.deepOrange),
               ]),
-              Title(StatitikLocale.of(context).read('TUTO0_42')),
-              CardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_43'), "tuto8", [
-                SimpleText(StatitikLocale.of(context).read('TUTO0_44')),
-                SimpleText(StatitikLocale.of(context).read('TUTO0_45'))
+              title(StatitikLocale.of(context).read('TUTO0_42')),
+              cardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_43'), "tuto8", [
+                simpleText(StatitikLocale.of(context).read('TUTO0_44')),
+                simpleText(StatitikLocale.of(context).read('TUTO0_45'))
               ], true, 70),
-              SimpleText(StatitikLocale.of(context).read('TUTO0_46')),
+              simpleText(StatitikLocale.of(context).read('TUTO0_46')),
               Center(child: drawImagePress(context, "PikaNoResult", 250.0))
             ],
           )
@@ -120,40 +120,40 @@ class _DrawTutorialState extends State<DrawTutorial> {
     );
   }
 
-  Widget SimpleText(String text) {
+  Widget simpleText(String text) {
     return Text(text, softWrap: true, maxLines: 5,  textAlign: TextAlign.justify, style: Theme.of(context).textTheme.bodyText2);
   }
 
-  Widget Title(String text) {
+  Widget title(String text) {
     return Text(text, style: Theme.of(context).textTheme.headline5);
   }
 
-  Widget ImageTuto(String image, double height) {
+  Widget imageTuto(String image, double height) {
     return CachedNetworkImage(imageUrl: '$adresseHTML/StatitikCard/tuto/$image.png',
       errorWidget: (context, url, error) => Icon(Icons.help_outline),
       placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
       height: height,
     );
   }
-  Widget CardTutoImage(String text, String image, [bool imageRight=true])
+  Widget cardTutoImage(String text, String image, [bool imageRight=true])
   {
     var content = imageRight ? <Widget>[
       Container(
         width: w2_3,
-        child: SimpleText(text),
+        child: simpleText(text),
       ),
-      ImageTuto(image, 150),
+      imageTuto(image, 150),
     ] : [
-      ImageTuto(image, 150),
+      imageTuto(image, 150),
       Container(
         width: w2_3,
-        child: SimpleText(text),
+        child: simpleText(text),
       ),
     ];
-    return CardTutoRowChildren(content);
+    return cardTutoRowChildren(content);
   }
 
-  Widget CardTutoTitleImage(String title, String image, List<Widget> subContent, [bool imageRight=true, double imageHeight=150])
+  Widget cardTutoTitleImage(String title, String image, List<Widget> subContent, [bool imageRight=true, double imageHeight=150])
   {
     var content = imageRight ? <Widget>[
       Container(
@@ -165,9 +165,9 @@ class _DrawTutorialState extends State<DrawTutorial> {
           ]+subContent
         )
       ),
-      ImageTuto(image, imageHeight),
+      imageTuto(image, imageHeight),
     ] : [
-      ImageTuto(image, imageHeight),
+      imageTuto(image, imageHeight),
       Container(
         width: w2_3,
         child: Column(
@@ -178,10 +178,10 @@ class _DrawTutorialState extends State<DrawTutorial> {
         )
       ),
     ];
-    return CardTutoRowChildren(content);
+    return cardTutoRowChildren(content);
   }
 
-  Widget CardTutoRowChildren(List<Widget> content)
+  Widget cardTutoRowChildren(List<Widget> content)
   {
     return Card(
       child: Container(
@@ -194,7 +194,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
       ),
     );
   }
-  Widget CardTutoColumnChildren(List<Widget> content)
+  Widget cardTutoColumnChildren(List<Widget> content)
   {
     return Card(
       child: Container(
@@ -208,7 +208,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
       ),
     );
   }
-  Widget CardTutoCC(String title, List<Widget> content, Color color)
+  Widget cardTutoCC(String title, List<Widget> content, Color color)
   {
     return Card(
       child: Container(
@@ -225,7 +225,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
     );
   }
 
-  Widget Conseil(String text, Color color) {
+  Widget conseil(String text, Color color) {
     return Text(text,
       softWrap: true, maxLines: 5,
       textAlign: TextAlign.justify, style: TextStyle(
