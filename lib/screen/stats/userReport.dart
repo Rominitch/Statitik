@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:statitikcard/screen/stats/statView.dart';
 import 'package:statitikcard/screen/widgets/screenPrint.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -170,7 +171,7 @@ class _UserReportState extends State<UserReport> {
         ),
         backgroundColor: Colors.grey[850],
         body: (compute)
-          ? Center(child: Text(translator.read('loading'), style: Theme.of(context).textTheme.headline3))
+          ? drawLoading(context)
           : SingleChildScrollView(
           child: Screenshot(
             controller: print.screenshotController,

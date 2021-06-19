@@ -98,3 +98,4 @@ private/
 assets/press/*.png
 assets/extensions/*.png
 assets/energie/*.png
+android/app/src/main/res/

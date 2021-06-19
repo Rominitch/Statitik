@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
 
 import 'connection.dart';
 
@@ -30,3 +31,24 @@ void printOutput(String s) {
     print(s);
 }
 
+Widget drawLoading(BuildContext context) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      SizedBox(height: 40),
+      Center(child: Text(StatitikLocale.of(context).read('loading'), style: Theme.of(context).textTheme.headline3)),
+      SizedBox(height: 20),
+      drawImagePress(context, 'Snorlax', 300),
+    ]);
+}
+
+Widget drawNothing(BuildContext context, String code) {
+  return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(height: 40),
+        Center(child: Text(StatitikLocale.of(context).read(code), style: Theme.of(context).textTheme.headline3)),
+        SizedBox(height: 20),
+        drawImagePress(context, 'Arrozard', 300),
+      ]);
+}

@@ -52,7 +52,7 @@ class _NewProductPageState extends State<NewProductPage> {
   @override
   void initState() {
     radioLangue = [];
-    for( Language l in Environment.instance.collection.languages)
+    for( Language l in Environment.instance.collection.languages.values)
     {
       radioLangue.add(Expanded( child:
       Container(

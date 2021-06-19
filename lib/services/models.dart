@@ -499,7 +499,7 @@ class Product
   int idDB;
   String name;
   String imageURL;
-  Map<int,ProductBooster> boosters;
+  Map<int, ProductBooster> boosters;
   Color color;
   int count;
 
@@ -798,6 +798,30 @@ class BoosterDraw {
         return Validator.ErrorTooManyGood;
     }
     return Validator.Valid;
+  }
+
+  void fill(SubExtension newSubExtension, bool abnormalBooster, List<int> newCardBin, List<int> newEnergiesBin)
+  {
+    subExtension = newSubExtension;
+    abnormal     = abnormalBooster;
+    count = 0;
+
+    fillCard();
+    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0,0); });
+
+    int id=0;
+    newCardBin.forEach((element) {
+      cardBin![id] = CodeDraw.fromInt(element);
+      count += cardBin![id].count();
+      id +=1;
+    });
+
+    id=0;
+    newEnergiesBin.forEach((element) {
+      energiesBin[id] = CodeDraw.fromInt(element);
+      count += energiesBin[id].count();
+      id += 1;
+    });
   }
 }
 

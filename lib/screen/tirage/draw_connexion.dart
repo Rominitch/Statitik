@@ -4,6 +4,7 @@ import 'package:statitikcard/screen/Admin/newProduct.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/commonPages/productPage.dart';
+import 'package:statitikcard/screen/tirage/DrawHistory.dart';
 import 'package:statitikcard/screen/tirage/tirage_resume.dart';
 import 'package:statitikcard/screen/tutorial/drawTuto.dart';
 import 'package:statitikcard/screen/view.dart';
@@ -27,7 +28,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
     if( Environment.instance.isLogged() ) {
       // First time: go to tutorial
       SharedPreferences.getInstance().then((prefs) {
-        var needTuto = prefs.getBool("TutorialDraw");
+        var needTuto = prefs.getBool('TutorialDraw');
         if(needTuto == null || !needTuto)
         {
           Navigator.push(context, MaterialPageRoute(builder: (context) => DrawTutorial()));
@@ -54,23 +55,64 @@ class _DrawHomePageState extends State<DrawHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(StatitikLocale.of(context).read('DC_B0')),
+                  SizedBox(height: 30),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Card( color: greenValid, 
+                            child: TextButton(child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.add_box_outlined),
+                                Text(StatitikLocale.of(context).read('DC_B1'), softWrap: true, maxLines: 2, ),
+                                SizedBox(width: 15.0),
+                                drawImagePress(context, 'Snorlax_Pikachu_Pose', 40.0),
+                              ],
+                            ),
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage)));
+                            }
+                          )
+                        ),
+                      ),
+                      Card( child: TextButton(child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.info_outline),
+                          Text(StatitikLocale.of(context).read('DC_B10') ),
+                          SizedBox(width: 15.0),
+                          drawImagePress(context, 'Snorlax_Pikachu', 40.0),
+                        ],
+                      ),
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => DrawTutorial()));
+                        },
+                      )),
+                    ],
+                  ),
+
+                  Card( child: TextButton(child: Center(child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      drawImagePress(context, 'CafeMix_Pikachu', 40.0),
+                      SizedBox(width: 15.0),
+                      Icon(Icons.history),
+                      Text(StatitikLocale.of(context).read('DC_B11') ),
+                      SizedBox(width: 15.0),
+                      drawImagePress(context, 'Piplup', 40.0),
+                    ],
+                  )),
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory()));
+                    },
+                  )),
                   drawImagePress(context, 'Zeraora', 370.0),
-                  Card( color: greenValid, child: TextButton(child: Text(StatitikLocale.of(context).read('DC_B1'), style: TextStyle(color: Colors.grey[800]) ),
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage)));
-                    },
-                  )),
-                  Card( child: TextButton(child: Text(StatitikLocale.of(context).read('DC_B10') ),
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => DrawTutorial()));
-                    },
-                  )),
-                  Text(StatitikLocale.of(context).read('DC_B2'), style: TextStyle( decoration: TextDecoration.underline, )),
+                  Text(StatitikLocale.of(context).read('DC_B2'), style: TextStyle(fontSize: 13, decoration: TextDecoration.underline, )),
                   SizedBox(height: 8.0,),
                   Row(children: [
                     Icon(Icons.help_outline),
                     SizedBox(width: 10.0),
-                    Flexible(child: Text(StatitikLocale.of(context).read('DC_B3'))),]),
+                    Flexible(child: Text(StatitikLocale.of(context).read('DC_B3'), style: TextStyle(fontSize: 11))),]),
                   if(Environment.instance.user!.admin)
                     CircleAvatar(
                       backgroundColor: Colors.lightGreen,

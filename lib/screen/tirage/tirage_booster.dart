@@ -6,8 +6,9 @@ import 'package:statitikcard/services/models.dart';
 class BoosterPage extends StatefulWidget {
   final BoosterDraw boosterDraw;
   final Language    language;
+  final bool        readOnly;
 
-  BoosterPage({required this.language, required this.boosterDraw});
+  BoosterPage({required this.language, required this.boosterDraw, required this.readOnly});
 
   @override
   _BoosterPageState createState() => _BoosterPageState();
@@ -30,14 +31,14 @@ class _BoosterPageState extends State<BoosterPage> {
     widgets = [];
     int id=0;
     for(PokeCard card in widget.boosterDraw.subExtension!.info().cards) {
-      widgets.add( PokemonCard(card: card, idCard: id, boosterDraw: widget.boosterDraw, refresh:refresh ) );
+      widgets.add( PokemonCard(card: card, idCard: id, boosterDraw: widget.boosterDraw, refresh:refresh, readOnly: widget.readOnly) );
       id += 1;
     }
 
     widgetEnergies = [];
     for(Type type in energies) {
       widgetEnergies.add(EnergyButton(
-          type: type, boosterDraw: widget.boosterDraw, refresh: refresh ));
+          type: type, boosterDraw: widget.boosterDraw, refresh: refresh, readOnly: widget.readOnly ));
     }
   }
 
@@ -113,8 +114,7 @@ class _BoosterPageState extends State<BoosterPage> {
                 title: Text(StatitikLocale.of(context).read('TB_B0')),
                 subtitle: Text(StatitikLocale.of(context).read('TB_B1'), style: TextStyle(fontSize: 12)),
                 value: widget.boosterDraw.abnormal,
-                onChanged: (newValue) async {
-
+                onChanged: widget.readOnly ? null : (newValue) async {
                     if(widget.boosterDraw.abnormal && widget.boosterDraw.needReset())
                     {
                       bool reset = await showDialog(

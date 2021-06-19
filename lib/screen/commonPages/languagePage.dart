@@ -20,7 +20,7 @@ class _LanguagePageState extends State<LanguagePage> {
   @override
   void initState() {
     widgetLanguage = [];
-    for( Language l in Environment.instance.collection.languages)
+    for( Language l in Environment.instance.collection.languages.values)
     {
       Widget Function(BuildContext) press = (ctx) {
         return ExtensionPage(language: l, afterSelected: widget.afterSelected);

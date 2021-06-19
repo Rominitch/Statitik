@@ -77,7 +77,7 @@ class _StatsPageState extends State<StatsPage> {
          SizedBox(height: 20.0),
          Padding(
            padding: const EdgeInsets.all(16.0),
-           child: drawImagePress(context, "PikaNoResult", 250.0),
+           child: drawImagePress(context, 'Arrozard', 250.0),
          )
         ];
      }
@@ -103,7 +103,14 @@ class _StatsPageState extends State<StatsPage> {
            Card(
              color: Colors.grey[800],
              child: TextButton(
-                 child: Text(StatitikLocale.of(context).read('S_B14')),
+                 child: Row(
+                   mainAxisAlignment: MainAxisAlignment.center,
+                   children: [
+                     Icon(Icons.account_circle),
+                     SizedBox(width: 5),
+                     Text(StatitikLocale.of(context).read('S_B14'), style: Theme.of(context).textTheme.headline5),
+                   ],
+                 ),
                  onPressed: () {
                    Navigator.push(context, MaterialPageRoute(builder: (context) => UserReport(data: widget.d)));
                  }
@@ -112,9 +119,7 @@ class _StatsPageState extends State<StatsPage> {
     } else {
       if( widget.d.subExt != null) {
         finalWidget = [
-          Text(StatitikLocale.of(context).read('loading')),
-          SizedBox(height: 20.0),
-          drawImagePress(context, 'Arrozard', 350.0),
+          drawLoading(context)
         ];
       } else {
         finalWidget = [
@@ -122,11 +127,14 @@ class _StatsPageState extends State<StatsPage> {
               SizedBox(width: 40.0),
               Image(image: AssetImage('assets/arrow.png'), height: 30.0,),
               SizedBox(width: 25.0),
-              Flexible(child: Text(StatitikLocale.of(context).read('S_B2'), style: Theme.of(context).textTheme.headline5,)),
+              Flexible(child: Text(StatitikLocale.of(context).read('S_B2'), style: Theme.of(context).textTheme.headline5)),
               ],)
           ),
           SizedBox(height: 20.0),
-          drawImagePress(context, 'Arrozard', 350.0),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: drawImagePress(context, 'PikaNoResult', 250.0),
+          )
         ];
       }
     }

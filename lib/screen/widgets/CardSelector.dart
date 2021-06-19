@@ -7,8 +7,9 @@ class CardSelector extends StatefulWidget {
   final int      id;
   final Function refresh;
   final bool     isEnergy;
+  final bool     readOnly;
 
-  CardSelector(this.boosterDraw, this.id, this.refresh, this.isEnergy);
+  CardSelector(this.boosterDraw, this.id, this.refresh, this.isEnergy, this.readOnly);
 
   @override
   _CardSelectorState createState() => _CardSelectorState();
@@ -24,18 +25,18 @@ class _CardSelectorState extends State<CardSelector> {
       CodeDraw code = widget.boosterDraw.energiesBin[widget.id];
       cardModes =
       [
-        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh),
-        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh),
+        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
+        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
       ];
     } else {
       PokeCard card = widget.boosterDraw.subExtension!.info().cards[widget.id];
       CodeDraw code = widget.boosterDraw.cardBin![widget.id];
       cardModes =
       [
-        if( widget.boosterDraw.abnormal || card.rarity != Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh),
-        if( widget.boosterDraw.abnormal || card.rarity.index <= Rarity.HoloRare.index) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh),
-        if( widget.boosterDraw.abnormal || card.rarity == Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Halo, refresh: widget.refresh),
-        if( widget.boosterDraw.abnormal || card.hasAlternative)            IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Alternative, refresh: widget.refresh),
+        if( widget.boosterDraw.abnormal || card.rarity != Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
+        if( widget.boosterDraw.abnormal || card.rarity.index <= Rarity.HoloRare.index) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
+        if( widget.boosterDraw.abnormal || card.rarity == Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Halo, refresh: widget.refresh, readOnly: widget.readOnly),
+        if( widget.boosterDraw.abnormal || card.hasAlternative)            IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Alternative, refresh: widget.refresh, readOnly: widget.readOnly),
       ];
     }
 
@@ -60,8 +61,9 @@ class IconCard extends StatefulWidget {
   final CodeDraw code;
   final Function refresh;
   final Mode mode;
+  final bool readOnly;
 
-  IconCard({required this.boosterDraw, required this.code, required this.mode, required this.refresh});
+  IconCard({required this.boosterDraw, required this.code, required this.mode, required this.refresh, required this.readOnly});
 
   @override
   _IconCardState createState() => _IconCardState();
@@ -87,7 +89,7 @@ class _IconCardState extends State<IconCard> {
                         Text(StatitikLocale.of(context).read(modeNames[widget.mode])),
                       ]),
                   style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
-                  onPressed: () {
+                  onPressed: widget.readOnly ? null : () {
                     widget.boosterDraw.setOtherRendering(widget.code, widget.mode);
                     Navigator.of(context).pop();
                     widget.refresh();
@@ -98,7 +100,7 @@ class _IconCardState extends State<IconCard> {
               Column(
                 children: [
                   ElevatedButton(
-                      onPressed: () {
+                      onPressed: widget.readOnly ? null : () {
                         setState(() {
                           widget.boosterDraw.increase(widget.code, widget.mode);
                         });
@@ -115,7 +117,7 @@ class _IconCardState extends State<IconCard> {
                       child: Text('$count', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),)
                   ),
                   ElevatedButton(
-                      onPressed: () {
+                      onPressed: widget.readOnly ? null : () {
                         setState(() {
                           widget.boosterDraw.decrease(widget.code, widget.mode);
                         });

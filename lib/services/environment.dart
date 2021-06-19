@@ -50,18 +50,21 @@ class Credential
         FirebaseAuth _auth = FirebaseAuth.instance;
 
         googleSignIn.signIn().then((GoogleSignInAccount? googleSignInAccount) {
-            googleSignInAccount!.authentication.then((GoogleSignInAuthentication googleSignInAuthentication) {
-                final AuthCredential credential = GoogleAuthProvider.credential(
-                    accessToken: googleSignInAuthentication.accessToken,
-                    idToken: googleSignInAuthentication.idToken,
-                );
+            if(googleSignInAccount != null) {
+                googleSignInAccount.authentication.then((
+                    GoogleSignInAuthentication googleSignInAuthentication) {
+                    final AuthCredential credential = GoogleAuthProvider
+                        .credential(
+                        accessToken: googleSignInAuthentication.accessToken,
+                        idToken: googleSignInAuthentication.idToken,
+                    );
 
-                _auth.signInWithCredential(credential).then((UserCredential authResult){
-                    onSuccess("google-" + authResult.user!.uid);
+                    _auth.signInWithCredential(credential).then((
+                        UserCredential authResult) {
+                        onSuccess("google-" + authResult.user!.uid);
+                    });
                 });
-
-
-            });
+            }
         });
     }
 
@@ -177,6 +180,9 @@ class Credential
     }
 
     AlertDialog enterPhone(BuildContext context) {
+        //final _text = TextEditingController();
+        //bool _validate = false;
+
         String smsCode="";
         return AlertDialog(
             title: Text(StatitikLocale.of(context).read('LOG_6')),
@@ -185,14 +191,20 @@ class Credential
                 onChanged: (value) {
                     smsCode = value;
                 },
-                //controller: _textFieldController,
-                decoration: InputDecoration(hintText: StatitikLocale.of(context).read('LOG_7'), hintStyle: TextStyle(fontSize: 10)),
+                //controller: _text,
+                decoration: InputDecoration(hintText: StatitikLocale.of(context).read('LOG_7'),
+                                            hintStyle: TextStyle(fontSize: 10),
+                                            //errorText: _validate ? 'Value Can\'t Be Empty' : null
+                )
             ),
             actions: <Widget>[
                 TextButton(
                     child: Text(StatitikLocale.of(context).read('confirm')),
                     onPressed: () {
-                        Navigator.of(context).pop(smsCode);
+                        //_validate = _text.text.isEmpty;
+                        if(smsCode.isNotEmpty) {
+                            Navigator.of(context).pop(smsCode);
+                        }
                     },
                 ),
                 TextButton(
@@ -239,9 +251,9 @@ class Database
 
 class Collection
 {
-    List languages = [];
+    Map languages = {};
     List extensions = [];
-    List subExtensions = [];
+    Map subExtensions = {};
     Map listCards = {};
     int category=0;
     Map pokemons = {};
@@ -257,14 +269,14 @@ class Collection
     }
 
     void addLanguage(Language l) {
-        languages.add(l);
+        languages[l.id] = l;
     }
 
     void addExtension(Extension e) {
         extensions.add(e);
     }
     void addSubExtension(SubExtension e) {
-        subExtensions.add(e);
+        subExtensions[e.id] = e;
     }
     void addListCards(ListCards l, int id) {
         listCards[id] = l;
@@ -282,7 +294,7 @@ class Collection
 
     List getSubExtensions(Extension e) {
         List l = [];
-        for(SubExtension se in subExtensions) {
+        for(SubExtension se in subExtensions.values) {
             if (se.idExtension == e.id) {
                 l.add(se);
             }
@@ -291,12 +303,7 @@ class Collection
     }
 
     SubExtension? getSubExtensionID(int id) {
-        for(SubExtension se in subExtensions) {
-            if (se.id == id) {
-                return se;
-            }
-        }
-        return null;
+        return subExtensions[id];
     }
 
     ListCards? getListCardsID(int id) {
@@ -334,7 +341,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.8.5';
+    final String version = '0.9.0';
 
     // State
     bool isInitialized=false;
@@ -628,7 +635,7 @@ class Environment
 
     void login(CredentialMode mode, context, Function(String?)? updateGUI) {
         var onSuccess = (uid) {
-            printOutput("Credential Success: "+uid);
+            //printOutput("Credential Success: "+uid);
             SharedPreferences.getInstance().then((prefs) {
                 // Save to preferences
                 prefs.setString('uid', uid);
@@ -642,7 +649,7 @@ class Environment
             });
         };
         var onError = (message, [code]) {
-            printOutput("Credential Error: "+message);
+            //printOutput("Credential Error: "+message);
             Environment.instance.user = null;
             if(updateGUI != null)
                 updateGUI(sprintf(StatitikLocale.of(context).read(message), [code]));
@@ -690,4 +697,58 @@ class Environment
       }
       return false;
   }
+
+    Future<List<SessionDraw>> getMyDraw() async
+    {
+        List<SessionDraw> myBooster = [];
+        if( isLogged() ) {
+            try {
+                await db.transactionR( (connection) async {
+                    String query = 'SELECT `idAchat`, `anomalie`, `Produit`.`idProduit`, `Produit`.`idLangue`, `Produit`.`nom`, `Produit`.`icone`'
+                        ' FROM `UtilisateurProduit`, `Produit`'
+                        ' WHERE `UtilisateurProduit`.`idUtilisateur`= \'${user!.idDB}\''
+                        ' AND `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`'
+                        ' ORDER BY `idAchat` DESC';
+                    //printOutput(query);
+
+                    var req = await connection.query(query);
+                    for (var row in req) {
+                        Map<int, ProductBooster> boosters = {};
+                        var reqBoosters = await connection.query("SELECT `idSousExtension`, `nombre`, `carte`"
+                            " FROM `ProduitBooster`"
+                            " WHERE `idProduit` = \'${row[2]}\'");
+                        for (var rowBooster in reqBoosters) {
+                            var idBooster = rowBooster[0] == null ? 0 : rowBooster[0];
+                            boosters[idBooster] = ProductBooster(nbBoosters: rowBooster[1], nbCardsPerBooster: rowBooster[2]);
+                        }
+
+                        // Start session
+                        var p = Product(idDB: row[2], name: row[4], imageURL: row[5], count: 1, boosters: boosters, color: Colors.grey[600]!);
+                        var l = collection.languages[row[3]];
+                        var session = SessionDraw(product: p, language: l);
+
+                        // Read user data
+                        var reqUserBoosters = await connection.query("SELECT `idSousExtension`, `anomalie`, `cartesBin`, `energieBin` "
+                            " FROM `TirageBooster`"
+                            " WHERE `idAchat` = \'${row[0]}\'");
+                        int id=0;
+                        for (var rowUserBooster in reqUserBoosters) {
+                            BoosterDraw booster;
+                            if(id >= session.boosterDraws.length) {
+                                session.addNewBooster();
+                            }
+                            booster = session.boosterDraws[id];
+                            booster.fill(collection.getSubExtensionID(rowUserBooster[0])!, rowUserBooster[1]==1, (rowUserBooster[2] as Blob).toBytes(), (rowUserBooster[3] as Blob).toBytes());
+
+                            id += 1;
+                        }
+                        myBooster.add(session);
+                    }
+                });
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
+        }
+        return myBooster;
+    }
 }

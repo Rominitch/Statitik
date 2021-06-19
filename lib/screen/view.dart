@@ -73,8 +73,7 @@ Widget createSubExtension(SubExtension se, BuildContext context, void Function()
   );
 }
 
-Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function press, Function update) {
-  SessionDraw current = Environment.instance.currentDraw;
+Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext context, Function press, Function update) {
   Color? color = Colors.grey[900];
   if( bd.isFinished() ) {
     final valid = bd.validationWorld(current.language);
@@ -136,8 +135,9 @@ class PokemonCard extends StatefulWidget {
   final PokeCard card;
   final BoosterDraw boosterDraw;
   final Function refresh;
+  final bool readOnly;
 
-  PokemonCard({required this.idCard, required this.card, required this.boosterDraw, required this.refresh});
+  PokemonCard({required this.idCard, required this.card, required this.boosterDraw, required this.refresh, required this.readOnly});
 
   @override
   _PokemonCardState createState() => _PokemonCardState();
@@ -188,13 +188,13 @@ class _PokemonCardState extends State<PokemonCard> {
               setState(() {
                 showDialog(
                     context: context,
-                    builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.idCard, update, false); }
+                    builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.idCard, update, false, widget.readOnly); }
                 );
                 widget.refresh();
               });
             }
           },
-          onPressed: () {
+          onPressed: widget.readOnly ? null : () {
             setState(() {
               widget.boosterDraw.toggleCard(widget.boosterDraw.cardBin![widget.idCard], widget.card.defaultMode());
               widget.refresh();
@@ -209,8 +209,9 @@ class EnergyButton extends StatefulWidget {
   final BoosterDraw boosterDraw;
   final Type type;
   final Function refresh;
+  final bool readOnly;
 
-  EnergyButton({required this.type, required this.boosterDraw, required this.refresh});
+  EnergyButton({required this.type, required this.boosterDraw, required this.refresh, required this.readOnly});
 
   @override
   _EnergyButtonState createState() => _EnergyButtonState();
@@ -260,7 +261,7 @@ class _EnergyButtonState extends State<EnergyButton> {
             setState(() {
               showDialog(
                   context: context,
-                  builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.type.index, update, true); }
+                  builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.type.index, update, true, widget.readOnly); }
               ).whenComplete(()  {
                 setState(() {
                   widget.boosterDraw.onEnergyChanged.add(true);
@@ -278,8 +279,13 @@ Widget signInButton(String nameId, CredentialMode mode, Function(String?) press,
   return  Card(
     child: TextButton(
         onPressed: () {
-          // Login
-          Environment.instance.login(mode, context, press);
+          try {
+            // Login
+            Environment.instance.login(mode, context, press);
+          }
+          catch (e) {
+
+          }
         },
         child:Padding(
           padding: const EdgeInsets.only(left: 10),

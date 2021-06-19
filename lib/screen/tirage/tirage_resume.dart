@@ -7,31 +7,37 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class ResumePage extends StatefulWidget {
+  final SessionDraw _activeSession;
+  final bool        _readOnly;
+
   @override
   _ResumePageState createState() => _ResumePageState();
+
+  ResumePage([activeSession]) :
+    this._readOnly      = activeSession != null,
+    this._activeSession = activeSession != null ? activeSession! : Environment.instance.currentDraw;
 }
 
 class _ResumePageState extends State<ResumePage> {
 
   @override
   void initState() {
-    if( Environment.instance.currentDraw.boosterDraws.length <= 0 )
+    if( widget._activeSession.boosterDraws.length <= 0 )
       throw StatitikException(StatitikLocale.of(context).read('TR_B0'));
 
     super.initState();
   }
   @override
   Widget build(BuildContext context) {
-    SessionDraw current = Environment.instance.currentDraw;
     Function update = () { setState(() {}); };
     List<Widget> boosters = [];
     bool allFinished = true;
     bool sameExt = true;
-    for( var boosterDraw in current.boosterDraws) {
+    for( var boosterDraw in widget._activeSession.boosterDraws) {
       Function fillBoosterInfo = (BuildContext context) async {
         final result = await Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => BoosterPage(language: current.language, boosterDraw: boosterDraw)),
+          MaterialPageRoute(builder: (context) => BoosterPage(language: widget._activeSession.language, boosterDraw: boosterDraw, readOnly: widget._readOnly,)),
         );
 
         //below you can get your result and update the view with setState
@@ -57,7 +63,7 @@ class _ResumePageState extends State<ResumePage> {
         if(!boosterDraw.hasSubExtension()) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ExtensionPage(language: current.language, afterSelected: afterSelectExtension)),
+            MaterialPageRoute(builder: (context) => ExtensionPage(language: widget._activeSession.language, afterSelected: afterSelectExtension)),
           );
         }
         else {
@@ -65,15 +71,15 @@ class _ResumePageState extends State<ResumePage> {
         }
       };
 
-      boosters.add(createBoosterDrawTitle(boosterDraw, context, navigateAndDisplaySelection, update));
+      boosters.add(createBoosterDrawTitle(widget._activeSession, boosterDraw, context, navigateAndDisplaySelection, update));
 
       allFinished &= boosterDraw.isFinished();
-      if( current.boosterDraws.first.subExtension != null && boosterDraw.subExtension != null)
-        sameExt &= (current.boosterDraws.first.subExtension!.idExtension == boosterDraw.subExtension!.idExtension);
+      if( widget._activeSession.boosterDraws.first.subExtension != null && boosterDraw.subExtension != null)
+        sameExt &= (widget._activeSession.boosterDraws.first.subExtension!.idExtension == boosterDraw.subExtension!.idExtension);
     }
 
     // Add booster button
-    if(current.productAnomaly) {
+    if(widget._activeSession.productAnomaly) {
       boosters.add(Card(
           color: Colors.grey[900],
           child: TextButton(
@@ -82,7 +88,7 @@ class _ResumePageState extends State<ResumePage> {
               ),
             onPressed: () {
               setState(() {
-                current.addNewBooster();
+                widget._activeSession.addNewBooster();
               });
             },
           )
@@ -92,15 +98,15 @@ class _ResumePageState extends State<ResumePage> {
 
     // Choose best color button on first error
     Color button = greenValid;
-    for( BoosterDraw booster in current.boosterDraws) {
-      if(booster.isFinished() && booster.validationWorld(current.language) != Validator.Valid) {
+    for( BoosterDraw booster in widget._activeSession.boosterDraws) {
+      if(booster.isFinished() && booster.validationWorld(widget._activeSession.language) != Validator.Valid) {
         button = Colors.deepOrange;
         break;
       }
     }
 
     List<Widget> actions = [];
-    if(allFinished) {
+    if(allFinished && !widget._readOnly) {
       actions.add(
           Padding(
             padding: const EdgeInsets.all(2.0),
@@ -137,17 +143,23 @@ class _ResumePageState extends State<ResumePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(current.product.name, style: TextStyle(fontSize: 15)),
+        title: Text(widget._activeSession.product.name, style: TextStyle(fontSize: 15)),
         actions: actions,
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back),
-          onPressed: () async {
-            bool exit = await showDialog(
+          onPressed: () {
+            if( widget._readOnly ) {
+              Navigator.of(context).pop(true);
+            } else {
+              showDialog(
                 context: context,
                 barrierDismissible: false, // user must tap button!
-                builder: (BuildContext context) { return showExit(context); });
-            if(exit)
-              Navigator.of(context).pop(true);
+                builder: (BuildContext context) { return showExit(context); }).then((exit)
+                  {
+                    if(exit)
+                      Navigator.of(context).pop(true);
+                  });
+            }
           },
         ),
       ),
@@ -167,9 +179,9 @@ class _ResumePageState extends State<ResumePage> {
               CheckboxListTile(
                 title: Text(StatitikLocale.of(context).read('TR_B5')),
                 subtitle: Text(StatitikLocale.of(context).read('TR_B6'), style: TextStyle(fontSize: 12)),
-                value: current.productAnomaly,
-                onChanged: (newValue) async {
-                    if(current.productAnomaly && current.needReset())
+                value: widget._activeSession.productAnomaly,
+                onChanged: widget._readOnly ? null : (newValue) async {
+                    if(widget._activeSession.productAnomaly && widget._activeSession.needReset())
                     {
                       bool reset = await showDialog(
                       context: context,
@@ -178,11 +190,11 @@ class _ResumePageState extends State<ResumePage> {
 
                       if(reset) {
                         setState(() {
-                          current.revertAnomaly();
+                          widget._activeSession.revertAnomaly();
                         });
                       }
                     } else { // Toggle
-                      setState(() { current.productAnomaly = !current.productAnomaly; });
+                      setState(() { widget._activeSession.productAnomaly = !widget._activeSession.productAnomaly; });
                     }
                 },
               ),

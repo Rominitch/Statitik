@@ -2,7 +2,7 @@
     package="fr.mouca.statitikcard">
    <application
         android:label="StatitikCard"
-        android:icon="@mipmap/launcher_icon"
+        android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
