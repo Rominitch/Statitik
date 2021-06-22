@@ -177,7 +177,8 @@ Images and illustrations used are the property of their respective authors.
       'TUTO0_44': "Realize step 3 until all boosters are filled.\n'Send' button will appear.",
       'TUTO0_45': "You can come back inside booster panel if needed.",
       'TUTO0_46': "Press on Send.",
-      'DH_B0':    "No draw"
+      'DH_B0':    "No draw",
+      'NE_T0':    'News'
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -350,6 +351,7 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'TUTO0_45': "Vous pouvez revenir dans vos boosters si besoin.",
       'TUTO0_46': "Appuyez sur Envoyer.",
       'DH_B0':    "Aucun tirage",
+      'NE_T0':    'Nouvelles'
     },
   };
 

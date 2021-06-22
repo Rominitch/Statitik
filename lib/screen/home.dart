@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/options.dart';
 import 'package:statitikcard/screen/tirage/draw_connexion.dart';
+import 'package:statitikcard/screen/widgets/NewsDialog.dart';
+import 'package:statitikcard/services/News.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 class Home extends StatefulWidget {
@@ -22,6 +25,25 @@ class _HomeState extends State<Home> {
       StatsPage(),
       OptionsPage(),
     ];
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      SharedPreferences.getInstance().then((prefs) {
+        var latestId = prefs.getInt('LatestNews') ?? 0;
+        News.readFromDB(StatitikLocale
+            .of(context)
+            .locale, latestId).then((news) {
+          if (news.isNotEmpty) {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return createNewDialog(context, news);
+                }
+            );
+            prefs.setInt('LatestNews', news[0].id);
+          }
+        });
+      });
+    });
   }
 
   void _onItemTapped(int index) {
