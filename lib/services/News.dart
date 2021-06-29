@@ -21,7 +21,7 @@ class News {
           ' FROM `News`'
           ' WHERE `idNews` > \'$latestId\''
           ' AND `language` = \'${locale.languageCode}\''
-          ' ORDER BY `idNews` DESC';
+          ' ORDER BY `idNews` DESC LIMIT 5';
       //printOutput(query);
 
       var req = await connection.query(query);

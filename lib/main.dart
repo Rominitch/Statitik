@@ -41,6 +41,11 @@ class StatitikApp extends StatelessWidget {
           {
               return states.contains(MaterialState.selected) ? Colors.orange[300]! : states.contains(MaterialState.disabled) ? Colors.grey[700] : Colors.white;
           }),
+        ),
+        radioTheme: RadioThemeData(fillColor: MaterialStateProperty.resolveWith((Set<MaterialState> states)
+          {
+            return states.contains(MaterialState.selected) ? Colors.orange[300]! : states.contains(MaterialState.disabled) ? Colors.grey[700] : Colors.white;
+          }),
         )
       ),
       title: 'StatitikCard',

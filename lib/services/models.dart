@@ -91,6 +91,7 @@ enum Rarity {
   JRR,
   VMax,
   JRRR,
+  BrillantRare, //PB
   UltraRare,
   ChromatiqueRare,
   Secret,
@@ -98,14 +99,15 @@ enum Rarity {
   ArcEnCiel,
   JHR,
   Gold,
+  HoloRareSecret,
   JUR,
   Unknown,
 }
 
 List<Color> rarityColors = [Colors.green, Colors.green, Colors.green[600]!, Colors.green[600]!, Colors.green[700]!, Colors.green[700]!,  // C JC P JU R JR
   Colors.blue, Colors.blue[600]!, Colors.blue[700]!, Colors.blue[800]!,                  // H M P C
-  Colors.purple, Colors.purple, Colors.purple[600]!, Colors.purple[600]!, Colors.purple[700]!, Colors.purple[800]!,         // Ch T V JRR Vm JRRR
-  Colors.yellow, Colors.yellow[600]!, Colors.yellow[600]!, Colors.yellow[700]!, Colors.yellow[700]!, Colors.yellow[800]!, Colors.yellow[800]!           // ChR S JSR A JHR G JUR
+  Colors.purple, Colors.purple, Colors.purple[600]!, Colors.purple[600]!, Colors.purple[700]!, Colors.purple[800]!, Colors.purple[800]!,         // Ch T V JRR Vm JRRR PB
+  Colors.yellow, Colors.yellow[600]!, Colors.yellow[600]!, Colors.yellow[700]!, Colors.yellow[700]!, Colors.yellow[800]!, Colors.yellow[800]!, Colors.yellow[800]!           // ChR S JSR A JHR G HS JUR
 ];
 
 const Map convertType =
@@ -144,6 +146,8 @@ const Map convertRarity =
   'S': Rarity.Secret,
   'A': Rarity.ArcEnCiel,
   'G': Rarity.Gold,
+  'B': Rarity.BrillantRare,
+  'h': Rarity.HoloRareSecret,
   //Japon
   'C': Rarity.JC,
   '0': Rarity.JU,
@@ -252,6 +256,9 @@ List<Widget> getImageRarity(Rarity rarity) {
       case Rarity.HoloRare:
         cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('H', style: TextStyle(fontSize: 12.0))];
         break;
+      case Rarity.BrillantRare:
+        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('PB', style: TextStyle(fontSize: 12.0))];
+        break;
       case Rarity.UltraRare:
         cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('U', style: TextStyle(fontSize: 12.0))];
         break;
@@ -260,6 +267,9 @@ List<Widget> getImageRarity(Rarity rarity) {
         break;
       case Rarity.Secret:
         cachedImageRarity[rarity.index] = [Icon(Icons.star_border), Text('S', style: TextStyle(fontSize: 12.0))];
+        break;
+      case Rarity.HoloRareSecret:
+        cachedImageRarity[rarity.index] = [Icon(Icons.star_border), Text('H', style: TextStyle(fontSize: 12.0))];
         break;
       case Rarity.ArcEnCiel:
         cachedImageRarity[rarity.index] = [Icon(Icons.looks)];

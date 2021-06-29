@@ -139,8 +139,7 @@ class _UserReportState extends State<UserReport> {
 
     StatsViewOptions options = StatsViewOptions();
     options.print = true;
-    options.showCount = true;
-    options.showLuck  = false;
+    options.showOption = OptionShowState.RealCount;
 
     final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
     double width = MediaQuery.of(context).size.width - 10;

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -5,6 +7,7 @@ import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/stats/statView.dart';
 import 'package:statitikcard/screen/stats/statsExtension.dart';
 import 'package:statitikcard/screen/commonPages/productPage.dart';
+import 'package:statitikcard/screen/stats/statsOptionDialog.dart';
 import 'package:statitikcard/screen/stats/userReport.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/Tools.dart';
@@ -14,6 +17,7 @@ import 'package:statitikcard/services/models.dart';
 
 class StatsPage extends StatefulWidget {
   final StatsData d = StatsData();
+  List<SubExtension> _se = [];
 
   @override
   _StatsPageState createState() => _StatsPageState();
@@ -21,6 +25,7 @@ class StatsPage extends StatefulWidget {
 
 class _StatsPageState extends State<StatsPage> {
   StatsViewOptions options = StatsViewOptions();
+  PageController _pageController = PageController(keepPage: false);
 
   void afterSelectExtension(BuildContext context, Language language, SubExtension subExt) {
     Navigator.popUntil(context, ModalRoute.withName('/'));
@@ -31,10 +36,22 @@ class _StatsPageState extends State<StatsPage> {
       // Change selection
       widget.d.language = language;
       widget.d.subExt   = subExt;
-    });
 
-    //Launch compute stats
-    waitStats();
+      widget._se.clear();
+      for(Extension e in Environment.instance.collection.getExtensions(language)) {
+        for(SubExtension se in Environment.instance.collection.getSubExtensions(e)) {
+          widget._se.insert(0, se);
+        }
+      }
+
+      var idPage = widget._se.indexOf(subExt);
+      //printOutput("Page after extension: $idPage");
+      //_pageController = widget._se.isNotEmpty ? PageController(initialPage: idPage) : PageController();
+      _pageController.jumpToPage(idPage);
+
+      //Launch compute stats
+      waitStats();
+    });
   }
 
   Future<void> waitStats() async {
@@ -147,77 +164,74 @@ class _StatsPageState extends State<StatsPage> {
             ),
           ),
           actions: [
-            if(widget.d.userStats != null)
+            if(widget._se.isNotEmpty)
               TextButton(
                   child: Icon(Icons.settings),
                   onPressed: () {
                     showDialog(
                       context: context,
-                      builder: (context)
-                      {
-                        return StatefulBuilder(
-                          builder: (context, setState) { return AlertDialog(
-                            title: Text(StatitikLocale.of(context).read('H_T2')),
-                            content: Container(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  CheckboxListTile(
-                                    title: Text(StatitikLocale.of(context).read('S_B10')),
-                                    value: options.delta,
-                                    onChanged: (newValue) {
-                                      setState(() {
-                                        options.delta = newValue!;
-                                      });
-                                    },
-                                  ),
-                                ]
-                              ),
-                            ),
-                          );
-                          }
-                      );
-                     }).then( (result) { setState((){}); } );
+                      builder: (context) {
+                        return createOptionDialog(context, options);
+                      }
+                    ).then( (result) { setState((){}); } );
                   }
               ),
           ],
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Row(
-                children: [
-                 Card(
-                    child: TextButton(
-                      child: widget.d.language != null ? Row(
-                        children: [
-                          Text(StatitikLocale.of(context).read('S_B0')),
-                          SizedBox(width: 8.0),
-                          Image(image: widget.d.language!.create(), height: 30),
-                          SizedBox(width: 8.0),
-                          widget.d.subExt!.image(hSize: 30),
-                      ]) : Text(StatitikLocale.of(context).read('S_B0')),
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension)));
-                      },
-                    )
-                  ),
-                  if( widget.d.language != null && widget.d.subExt != null )
-                    Expanded(
-                      child: Card( child: TextButton(
-                          child: Text(productButton, softWrap: true, style: TextStyle(fontSize: (productButton.length > 20) ? 10 : 14),),
-                          onPressed: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.MultiSelection, language: widget.d.language!, subExt: widget.d.subExt!, afterSelected: afterSelectProduct) ));
-                          },
-                        )
-                  ),
-                 ),
-              ]),
-            ] + finalWidget
-          ),
-        )
+        body: PageView.builder(
+            controller: _pageController,
+            itemCount: max(1, widget._se.length),
+            pageSnapping: true,
+            onPageChanged: (position) {
+              //printOutput("Page after change: $position");
+              setState(() {
+                var se = position < widget._se.length ? widget._se[position] : null;
+                if(se != widget.d.subExt) {
+                  widget.d.subExt = se;
+                  waitStats();
+                }
+              });
+            },
+            itemBuilder: (context, position) {
+              //printOutput("Page to redraw: $position");
+            return SingleChildScrollView(
+                child:Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Row(
+                  children: [
+                   Card(
+                      child: TextButton(
+                        child: widget.d.language != null ? Row(
+                          children: [
+                            Text(StatitikLocale.of(context).read('S_B0')),
+                            SizedBox(width: 8.0),
+                            Image(image: widget.d.language!.create(), height: 30),
+                            SizedBox(width: 8.0),
+                            widget.d.subExt!.image(hSize: 30),
+                        ]) : Text(StatitikLocale.of(context).read('S_B0')),
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension)));
+                        },
+                      )
+                    ),
+                    if( widget.d.language != null && widget.d.subExt != null )
+                      Expanded(
+                        child: Card( child: TextButton(
+                            child: Text(productButton, softWrap: true, style: TextStyle(fontSize: (productButton.length > 20) ? 10 : 14),),
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.MultiSelection, language: widget.d.language!, subExt: widget.d.subExt!, afterSelected: afterSelectProduct) ));
+                            },
+                          )
+                    ),
+                   ),
+                ]),
+              ] + finalWidget
+                )
+            );
+            }
+       ),
     );
   }
 

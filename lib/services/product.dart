@@ -82,7 +82,7 @@ AND P.`idProduit` = `Produit`.`idProduit`) as count ''';
         " GROUP BY `Produit`.`idProduit`"
         " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC";
 
-    printOutput(query);
+    //printOutput(query);
     exts = await connection.query(query);
     await fillProd(connection, exts, Colors.deepOrange[700]);
   });

@@ -6,11 +6,15 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
+enum OptionShowState {
+  RealCount,
+  BoosterLuck,
+}
+
 class StatsViewOptions {
   bool delta = false;
   bool print = false;
-  bool showCount = false;
-  bool showLuck  = true;
+  OptionShowState showOption = OptionShowState.BoosterLuck;
 }
 
 class StatsView extends StatelessWidget {
@@ -79,8 +83,8 @@ class StatsView extends StatelessWidget {
                 data.stats!.anomaly > 0 ? Text(sprintf(translator.read('S_B5'), [data.stats!.nbBoosters, data.stats!.anomaly]))
                     : Text(sprintf(translator.read('S_B13'), [data.stats!.nbBoosters]))
               ]),
-              if(!options.print) Text(sprintf(translator.read('S_B6'), [divider.toInt()])),
-              if(!options.print) SizedBox(height: 8.0,),
+              if(!options.print && options.showOption == OptionShowState.BoosterLuck) Text(sprintf(translator.read('S_B6'), [divider.toInt()])),
+              if(!options.print && options.showOption == OptionShowState.BoosterLuck) SizedBox(height: 8.0,),
               ListView(
                 shrinkWrap: true,
                 primary: false,
@@ -115,8 +119,8 @@ class StatsView extends StatelessWidget {
             percent: (luck / divider).clamp(0.0, 1.0),
             progressColor: color,
           )),
-          if(options.showLuck)  Container(child: Text('${luck.toStringAsFixed(3)}'), width: 45),
-          if(options.showCount) Container(child: Text(sum.toString()), width: 45),
+          if(options.showOption == OptionShowState.BoosterLuck) Container(child: Text('${luck.toStringAsFixed(3)}'), width: 45),
+          if(options.showOption == OptionShowState.RealCount)   Container(child: Text(sum.toString()), width: 45),
         ] + userInfo);
   }
 }

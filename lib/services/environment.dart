@@ -220,7 +220,7 @@ class Credential
 
 class Database
 {
-    final String version = '1.5';
+    final String version = '1.6';
     final ConnectionSettings settings = createConnection();
 
     Future<bool> transactionR(Function queries) async
@@ -341,7 +341,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.9.1';
+    final String version = '0.9.3';
 
     // State
     bool isInitialized=false;
@@ -590,7 +590,7 @@ class Environment
                             'AND `idSousExtension` = ${subExt.id} '
                             '$userReq;';
                 }
-                printOutput(query);
+                //printOutput(query);
 
                 var req = await connection.query(query);
                 for (var row in req) {
