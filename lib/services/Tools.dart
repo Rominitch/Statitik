@@ -6,15 +6,31 @@ import 'package:statitikcard/services/internationalization.dart';
 
 import 'connection.dart';
 
+
+CachedNetworkImage drawCachedImage(folder, image, {double? width, double? height}){
+  return CachedNetworkImage(
+    imageUrl: '$adresseHTTPS/StatitikCard/$folder/$image.png',
+    errorWidget: (context, url, error) {
+      if(Environment.instance.user != null && Environment.instance.user!.admin) {
+        return Tooltip(
+            message: '$adresseHTTPS\r\n$image\r\n$url\r\n$error\r\n',
+            child: Icon(Icons.help_outline));
+      } else {
+        return Icon(Icons.help_outline);
+      }
+    },
+    placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
+    width: width,
+    height: height,
+  );
+}
+
+
 Widget drawImagePress(BuildContext context, String image, double imgHeight) {
   if(Environment.instance.showPressImages) {
     double mediaH = MediaQuery.of(context).size.height;
     double finalH = (mediaH / 1000 * imgHeight).clamp(40.0, imgHeight);
-    return CachedNetworkImage(imageUrl: '$adresseHTML/StatitikCard/press/$image.png',
-      errorWidget: (context, url, error) => Icon(Icons.help_outline),
-      placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
-      height: finalH,
-    );
+    return drawCachedImage('press', image, height: finalH);
   } else {
     return SizedBox();
   }

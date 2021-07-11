@@ -4,7 +4,8 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/connection.dart';
+import 'package:intl/intl.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -468,10 +469,10 @@ class SubExtension
   String icon;
   ListCards? cards;
   int    idExtension;
-  int    year;
+  DateTime out;
   int?   chromatique;
 
-  SubExtension({ required this.id, required this.name, required this.icon, required this.idExtension, required this.year, required this.chromatique, required this.cards });
+  SubExtension({ required this.id, required this.name, required this.icon, required this.idExtension, required this.out, required this.chromatique, required this.cards });
 
   ListCards info() {
     return cards!;
@@ -479,12 +480,7 @@ class SubExtension
 
   Widget image({double? wSize, double? hSize})
   {
-    return CachedNetworkImage(imageUrl: '$adresseHTML/StatitikCard/extensions/$icon.png',
-      errorWidget: (context, url, error) => Icon(Icons.help_outline),
-      placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
-      width:  wSize,
-      height: hSize,
-    );
+    return drawCachedImage('extensions', icon, width: wSize, height: hSize);
   }
 
   String nameCard(int id) {
@@ -493,6 +489,10 @@ class SubExtension
     } else {
       return (id + 1).toString();
     }
+  }
+
+  String outDate() {
+    return DateFormat('yyyy-MM-dd').format(out);
   }
 }
 
@@ -521,11 +521,7 @@ class Product
 
   CachedNetworkImage image()
   {
-    return CachedNetworkImage(imageUrl: Environment.instance.serverImages+imageURL,
-      errorWidget: (context, url, error) => Icon(Icons.error),
-      placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
-      height: 70,
-    );
+    return drawCachedImage('products', imageURL, height: 70);
   }
 
   int countBoosters() {
@@ -539,7 +535,7 @@ class Product
     int id=1;
     boosters.forEach((key, value) {
       for( int i=0; i < value.nbBoosters; i+=1) {
-        SubExtension? se = key != null ? Environment.instance.collection.getSubExtensionID(key) : null;
+        SubExtension? se = Environment.instance.collection.getSubExtensionID(key);
         list.add(new BoosterDraw(creation: se, id: id, nbCards: value.nbCardsPerBooster));
         id += 1;
       }
@@ -650,6 +646,11 @@ class BoosterDraw {
       fillCard();
     }
   }
+
+  void closeStream() {
+    onEnergyChanged.close();
+  }
+
   bool isRandom() {
     return creation == null;
   }
@@ -924,11 +925,15 @@ class SessionDraw
   Language language;
   Product product;
   bool productAnomaly=false;
-  late List<BoosterDraw> boosterDraws;
+  List<BoosterDraw> boosterDraws;
 
-  SessionDraw({required this.product, required this.language})
-  {
-    boosterDraws = product.buildBoosterDraw();
+  SessionDraw({required this.product, required this.language}):
+        boosterDraws = product.buildBoosterDraw();
+
+  void closeStream() {
+    boosterDraws.forEach((booster) {
+      booster.closeStream();
+    });
   }
 
   void addNewBooster() {

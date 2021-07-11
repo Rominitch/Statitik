@@ -1,7 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/Tools.dart';
-import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 class DrawTutorial extends StatefulWidget {
@@ -129,11 +127,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
   }
 
   Widget imageTuto(String image, double height) {
-    return CachedNetworkImage(imageUrl: '$adresseHTML/StatitikCard/tuto/$image.png',
-      errorWidget: (context, url, error) => Icon(Icons.help_outline),
-      placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
-      height: height,
-    );
+    return drawCachedImage('tuto', image, height: height);
   }
   Widget cardTutoImage(String text, String image, [bool imageRight=true])
   {

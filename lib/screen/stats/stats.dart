@@ -17,7 +17,7 @@ import 'package:statitikcard/services/models.dart';
 
 class StatsPage extends StatefulWidget {
   final StatsData d = StatsData();
-  List<SubExtension> _se = [];
+  final List<SubExtension> _se = [];
 
   @override
   _StatsPageState createState() => _StatsPageState();
@@ -209,7 +209,8 @@ class _StatsPageState extends State<StatsPage> {
                             SizedBox(width: 8.0),
                             Image(image: widget.d.language!.create(), height: 30),
                             SizedBox(width: 8.0),
-                            widget.d.subExt!.image(hSize: 30),
+                            Tooltip(message: widget.d.subExt!.name,
+                                    child:widget.d.subExt!.image(hSize: 30)),
                         ]) : Text(StatitikLocale.of(context).read('S_B0')),
                         onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension)));

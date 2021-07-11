@@ -5,39 +5,32 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 
 class ProductQuery {
-
-  void fillProd(connection, List produits, exts, color) async {
+  static Future<void> fillProd(connection, produits, exts, color) async {
     for (var row in exts) {
-      Map<int, ProductBooster> boosters = {};
-      var reqBoosters = await connection.query("SELECT `ProduitBooster`.`idSousExtension`, `ProduitBooster`.`nombre`, `ProduitBooster`.`carte` FROM `ProduitBooster`"
-          " WHERE `ProduitBooster`.`idProduit` = ${row[0]}");
-      for (var row in reqBoosters) {
-        boosters[row[0]] = ProductBooster(nbBoosters: row[1], nbCardsPerBooster: row[2]);
-      }
+      // Get category
       int cat = row[3]-1;
       assert(0 <= cat && cat < produits.length);
-      produits[cat].add(Product(idDB: row[0], name: row[1], imageURL: row[2], count: row[4], boosters: boosters, color: color ));
+      // Search already existing
+      Iterable searching = produits[cat].where( (Product item) {return item.idDB == row[0];});
+      if(searching.isEmpty) {
+        // Get latest data
+        Map<int, ProductBooster> boosters = {};
+        var reqBoosters = await connection.query("SELECT `ProduitBooster`.`idSousExtension`, `ProduitBooster`.`nombre`, `ProduitBooster`.`carte` FROM `ProduitBooster`"
+            " WHERE `ProduitBooster`.`idProduit` = ${row[0]}");
+        for (var rowBooster in reqBoosters) {
+          var idBooster = rowBooster[0] == null ? 0 : rowBooster[0];
+          boosters[idBooster] = ProductBooster(nbBoosters: rowBooster[1], nbCardsPerBooster: rowBooster[2]);
+        }
+        // Add new product
+        produits[cat].add(Product(idDB: row[0], name: row[1], imageURL: row[2], count: row[4], boosters: boosters, color: color ));
+      }
     }
   }
 }
-Future<List> readProducts(Language l, SubExtension se, int? idCategorie, SubExtension? containsSe) async
+
+Future<List> readProducts(Language l, SubExtension se, int? idCategorie, SubExtension? containsSe, {bool showAll=true}) async
 {
   List produits = List<List<Product>>.generate(Environment.instance.collection.category, (index) { return []; });
-
-  Function fillProd = (connection, exts, color) async {
-    for (var row in exts) {
-      Map<int, ProductBooster> boosters = {};
-      var reqBoosters = await connection.query("SELECT `ProduitBooster`.`idSousExtension`, `ProduitBooster`.`nombre`, `ProduitBooster`.`carte` FROM `ProduitBooster`"
-          " WHERE `ProduitBooster`.`idProduit` = ${row[0]}");
-      for (var rowBooster in reqBoosters) {
-        var idBooster = rowBooster[0] == null ? 0 : rowBooster[0];
-        boosters[idBooster] = ProductBooster(nbBoosters: rowBooster[1], nbCardsPerBooster: rowBooster[2]);
-      }
-      int cat = row[3]-1;
-      assert(0 <= cat && cat < produits.length);
-      produits[cat].add(Product(idDB: row[0], name: row[1], imageURL: row[2], count: row[4], boosters: boosters, color: color ));
-    }
-  };
 
   String subQueryCount = '''(SELECT COUNT(*) FROM `Produit` as P, `UtilisateurProduit`
 WHERE `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit` 
@@ -59,32 +52,34 @@ AND P.`idProduit` = `Produit`.`idProduit`) as count ''';
 
     //printOutput(query);
     var exts = await connection.query(query);
-    await fillProd(connection, exts, Colors.grey[600]);
+    await ProductQuery.fillProd(connection, produits, exts, Colors.grey[600]);
 
-    String tableSE = "";
-    String filterSE = " AND `Produit`.`annee` >= ${se.year}";
-    if( containsSe != null ) {
-      tableSE  = ", `TirageBooster`, `UtilisateurProduit`";
-      filterSE =
-          " AND `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`"
-          " AND `TirageBooster`.`idAchat` = `UtilisateurProduit`.`idAchat` "
-          " AND `TirageBooster`.`idSousExtension` = ${containsSe.id}";
+    if(showAll) {
+      String tableSE = "";
+      String filterSE = " AND `Produit`.`sortie` >= STR_TO_DATE(${se.outDate()}, '%Y-%m-%d')";
+      if( containsSe != null ) {
+        tableSE  = ", `TirageBooster`, `UtilisateurProduit`";
+        filterSE =
+            " AND `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`"
+            " AND `TirageBooster`.`idAchat` = `UtilisateurProduit`.`idAchat` "
+            " AND `TirageBooster`.`idSousExtension` = ${containsSe.id}";
+      }
+
+      // Select random booster products
+      query ="SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie`, $subQueryCount FROM `Produit`, `ProduitBooster` $tableSE"
+          " WHERE `Produit`.`approuve` = 1"
+          " AND `Produit`.`idLangue` = ${l.id}"
+          " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
+          " AND `ProduitBooster`.`idSousExtension` IS NULL"
+          " $filter"
+          " $filterSE"
+          " GROUP BY `Produit`.`idProduit`"
+          " ORDER BY `Produit`.`sortie` DESC, `Produit`.`nom` ASC";
+
+      printOutput(query);
+      exts = await connection.query(query);
+      await ProductQuery.fillProd(connection, produits, exts, Colors.deepOrange[700]);
     }
-
-    // Select random booster products
-    query ="SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie`, $subQueryCount FROM `Produit`, `ProduitBooster` $tableSE"
-        " WHERE `Produit`.`approuve` = 1"
-        " AND `Produit`.`idLangue` = ${l.id}"
-        " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
-        " AND `ProduitBooster`.`idSousExtension` IS NULL"
-        " $filter"
-        " $filterSE"
-        " GROUP BY `Produit`.`idProduit`"
-        " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC";
-
-    //printOutput(query);
-    exts = await connection.query(query);
-    await fillProd(connection, exts, Colors.deepOrange[700]);
   });
   return produits;
 }
@@ -93,20 +88,6 @@ Future<List> readProductsForUser(Language l, SubExtension se, int idCategorie) a
 {
   assert(Environment.instance.user != null);
   List produits = List<List<Product>>.generate(Environment.instance.collection.category, (index) { return []; });
-
-  Function fillProd = (connection, exts, color) async {
-    for (var row in exts) {
-      Map<int, ProductBooster> boosters = {};
-      var reqBoosters = await connection.query("SELECT `ProduitBooster`.`idSousExtension`, `ProduitBooster`.`nombre`, `ProduitBooster`.`carte` FROM `ProduitBooster`"
-          " WHERE `ProduitBooster`.`idProduit` = ${row[0]}");
-      for (var row in reqBoosters) {
-        boosters[row[0]] = ProductBooster(nbBoosters: row[1], nbCardsPerBooster: row[2]);
-      }
-      int cat = row[3]-1;
-      assert(0 <= cat && cat < produits.length);
-      produits[cat].add(Product(idDB: row[0], name: row[1], imageURL: row[2], count: row[4], boosters: boosters, color: color ));
-    }
-  };
 
   String subQueryCount = '''(SELECT COUNT(*) FROM `Produit` as P, `UtilisateurProduit`
 WHERE `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`
@@ -129,7 +110,7 @@ AND `UtilisateurProduit`.`idUtilisateur` = ${Environment.instance.user!.idDB}) a
     //printOutput(query);
 
     var exts = await connection.query(query);
-    await fillProd(connection, exts, Colors.grey[600]);
+    await ProductQuery.fillProd(connection, produits, exts, Colors.grey[600]);
 
     String tableSE  = ", `TirageBooster`, `UtilisateurProduit`";
     String filterSE =
@@ -144,12 +125,12 @@ AND `UtilisateurProduit`.`idUtilisateur` = ${Environment.instance.user!.idDB}) a
         " AND `ProduitBooster`.`idSousExtension` IS NULL"
         " $filter $filterSE"
         " GROUP BY `Produit`.`idProduit`"
-        " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC";
+        " ORDER BY `Produit`.`sortie` DESC, `Produit`.`nom` ASC";
 
     //printOutput(query);
 
     exts = await connection.query(query);
-    await fillProd(connection, exts, Colors.deepOrange[700]);
+    await ProductQuery.fillProd(connection, produits, exts, Colors.deepOrange[700]);
   });
   return produits;
 }

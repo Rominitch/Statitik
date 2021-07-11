@@ -115,29 +115,33 @@ class _ResumePageState extends State<ResumePage> {
               child: Text(StatitikLocale.of(context).read('send')),
               onPressed: () async {
                 Environment env = Environment.instance;
-                bool valid = await env.sendDraw();
-
-                if( valid ) {
-                  await showDialog(
-                      context: context,
-                      builder: (_) => new AlertDialog(
-                        title: new Text(StatitikLocale.of(context).read('TR_B1')),
-                        content: Text(StatitikLocale.of(context).read('TR_B2')),
-                      )
-                  );
-                  Navigator.popUntil(context, ModalRoute.withName('/'));
-                } else {
+                env.sendDraw().then((valid) {
+                  if( valid ) {
+                    showDialog(
+                        context: context,
+                        builder: (_) => new AlertDialog(
+                          title: new Text(StatitikLocale.of(context).read('TR_B1')),
+                          content: Text(StatitikLocale.of(context).read('TR_B2')),
+                        )
+                    ).then((value) {
+                      Navigator.popUntil(context, ModalRoute.withName('/'));
+                      // Clean data
+                      env.currentDraw!.closeStream();
+                      env.currentDraw = null;
+                    });
+                  } else {
                   showDialog(
-                      context: context,
-                      builder: (_) => new AlertDialog(
-                          title: new Text(StatitikLocale.of(context).read('error')),
-                          content: Text(StatitikLocale.of(context).read('TR_B3')),
-                      )
-                  );
-                }
+                    context: context,
+                    builder: (_) => new AlertDialog(
+                    title: new Text(StatitikLocale.of(context).read('error')),
+                    content: Text(StatitikLocale.of(context).read('TR_B3')),
+                    )
+                    );
+                  }
+                });
               },
-          ),
-            )
+            ),
+          )
       );
     }
 
@@ -223,17 +227,22 @@ class _ResumePageState extends State<ResumePage> {
         ),
       ),
       actions: <Widget>[
-        TextButton(
-          child: Text(StatitikLocale.of(context).read('yes')),
-          onPressed: () {
-            Navigator.of(context).pop(true);
-          },
+        Card(
+          color: Colors.red,
+          child: TextButton(
+            child: Text(StatitikLocale.of(context).read('yes')),
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+          ),
         ),
-        TextButton(
-          child: Text(StatitikLocale.of(context).read('cancel')),
-          onPressed: () {
-            Navigator.of(context).pop(false);
-          },
+        Card(
+          child: TextButton(
+            child: Text(StatitikLocale.of(context).read('cancel')),
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+          ),
         ),
       ],
     );

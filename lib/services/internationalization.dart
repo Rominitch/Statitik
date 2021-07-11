@@ -32,6 +32,7 @@ class StatitikLocale {
       'DC_B10': 'Tutorial',
       'DC_B11': 'My draw',
       'DC_B12': 'Thanks to fill properly data the most right possible in order to help community.',
+      'DC_B13': 'Admin:',
       'S_B0': 'Expansion',
       'S_B1': 'No result',
       'S_B2': 'Start by selecting an expansion',
@@ -183,7 +184,8 @@ Images and illustrations used are the property of their respective authors.
       'TUTO0_45': "You can come back inside booster panel if needed.",
       'TUTO0_46': "Press on Send.",
       'DH_B0':    "No draw",
-      'NE_T0':    'News'
+      'NE_T0':    'News',
+      'NCE_T0':   'Add card\'s',
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -206,6 +208,7 @@ Images and illustrations used are the property of their respective authors.
       'DC_B10': 'Tutorial',
       'DC_B11': 'Mes tirages',
       'DC_B12': 'Merci de rentrer les informations les plus justes possibles afin d\'aider la communauté.',
+      'DC_B13': 'Admin:',
       'S_B0': 'Extension',
       'S_B1': 'Aucun résultat',
       'S_B2': 'Commencez en choisissant une extension',
@@ -361,7 +364,8 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'TUTO0_45': "Vous pouvez revenir dans vos boosters si besoin.",
       'TUTO0_46': "Appuyez sur Envoyer.",
       'DH_B0':    "Aucun tirage",
-      'NE_T0':    'Nouvelles'
+      'NE_T0':    'Nouvelles',
+      'NCE_T0':   'Ajout de carte',
     },
   };
 

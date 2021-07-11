@@ -25,6 +25,7 @@ class StatitikApp extends StatelessWidget {
         accentColor: Colors.orange[300],
         backgroundColor: Colors.grey[900],
         cardColor: Colors.grey[700],
+        //disabledColor: Colors.orange[200],
         textTheme: TextTheme(
           headline1: TextStyle( color: Colors.grey[400], fontFamily: 'Pacifico', fontSize: 50.0,),
           headline3: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 30.0,),
@@ -46,7 +47,10 @@ class StatitikApp extends StatelessWidget {
           {
             return states.contains(MaterialState.selected) ? Colors.orange[300]! : states.contains(MaterialState.disabled) ? Colors.grey[700] : Colors.white;
           }),
-        )
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(primary: Colors.orange[500]!)
+        ),
       ),
       title: 'StatitikCard',
       initialRoute: '/',

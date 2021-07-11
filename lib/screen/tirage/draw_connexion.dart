@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:statitikcard/screen/Admin/newCardExtensions.dart';
 import 'package:statitikcard/screen/Admin/newProduct.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
@@ -113,19 +114,37 @@ class _DrawHomePageState extends State<DrawHomePage> {
                     Icon(Icons.help_outline),
                     SizedBox(width: 10.0),
                     Flexible(child: Text(StatitikLocale.of(context).read('DC_B3'), style: TextStyle(fontSize: 11))),]),
-                  if(Environment.instance.user!.admin)
-                    CircleAvatar(
-                      backgroundColor: Colors.lightGreen,
-                      radius: 20,
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        icon: Icon(Icons.add_shopping_cart),
-                        color: Colors.white,
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => NewProductPage()));
-                        },
-                      ),
-                    ),
+                    if(Environment.instance.user!.admin)
+                      Card(
+                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Text(StatitikLocale.of(context).read('DC_B13')),
+                          CircleAvatar(
+                            backgroundColor: Colors.lightGreen,
+                            radius: 20,
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: Icon(Icons.add_shopping_cart),
+                              color: Colors.white,
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => NewProductPage()));
+                              },
+                            ),
+                          ),
+                          CircleAvatar(
+                            backgroundColor: Colors.deepOrange,
+                            radius: 20,
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              icon: Icon(Icons.post_add_outlined),
+                              color: Colors.white,
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => NewCardExtensions()));
+                              },
+                            ),
+                          ),
+                        ]),
+                      )
                 ]
               ),
             ),

@@ -220,7 +220,7 @@ class Credential
 
 class Database
 {
-    final String version = '1.6';
+    final String version = '1.9';
     final ConnectionSettings settings = createConnection();
 
     Future<bool> transactionR(Function queries) async
@@ -341,31 +341,32 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.9.3';
+    final String version = '0.9.6';
 
     // State
-    bool isInitialized=false;
-    bool startDB=false;
-    bool showExtensionName = false;
-    bool showPressImages = false;
+    bool isInitialized          = false;
+    bool startDB                = false;
+    bool showExtensionName      = false;
+    bool showPressImages        = false;
     bool showPressProductImages = false;
-    final String serverImages = '$adresseHTML/StatitikCard/products/';
 
     // Cached data
     Collection collection = Collection();
 
     // Current draw
     UserPoke? user;
-    late SessionDraw currentDraw;
+    SessionDraw? currentDraw;
 
     void initialize() async
     {
         if(!isInitialized) {
             // Sync event
             try {
+                if(!databaseReady())
+                    throw StatitikException('DB_1');
+
                 await Future.wait(
                     [
-                        databaseReady(),
                         credential.initialize(),
                         readStaticData(),
                     ]);
@@ -388,19 +389,21 @@ class Environment
         showExtensionName = ! showExtensionName;
     }
 
-    Future<void> databaseReady() async
+    bool databaseReady()
     {
-        await db.transactionR( (connection) async {
+        bool isValid = false;
+        db.transactionR( (connection) async {
             var info = await connection.query("SELECT * FROM `BaseInfo`");
-            bool isValid = false;
+
             for (var row in info) {
-                isValid = row[0] == db.version;
-                showPressImages = row[2] == 1;
+                isValid = (row[0] == db.version);
+                showPressImages        = (row[2] == 1);
                 showPressProductImages = showPressImages;
             }
-            if(info == null || !isValid)
-                throw StatitikException('DB_1');
+        }).whenComplete(() {
+            return isValid;
         });
+        return false;
     }
 
     Future<void> readStaticData() async
@@ -468,7 +471,7 @@ class Environment
                 for (var row in subExts) {
                     try {
                         var cards = collection.getListCardsID(row[4]);
-                        SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], year: row[6], chromatique: row[7],
+                        SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], out: row[6], chromatique: row[7],
                             cards: cards);
                         collection.addSubExtension(se);
                     } catch(e) {
@@ -529,12 +532,12 @@ class Environment
                 }
 
                 // Add new product
-                final queryStr = 'INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user!.idDB}, ${currentDraw.product.idDB}, ${currentDraw.productAnomaly ? 1 : 0})';
+                final queryStr = 'INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user!.idDB}, ${currentDraw!.product.idDB}, ${currentDraw!.productAnomaly ? 1 : 0})';
                 await connection.query(queryStr);
 
                 // Prepare data
                 List<List<Object>> draw = [];
-                for(BoosterDraw booster in currentDraw.boosterDraws) {
+                for(BoosterDraw booster in currentDraw!.boosterDraws) {
                     draw.add(booster.buildQuery(idAchat));
                 }
                 // Send data

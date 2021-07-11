@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/material.dart';
+import 'package:intl/intl.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -15,9 +16,9 @@ class NewProductBooster {
 class NewProduct {
   Language? l;
   String name = '';
-  String eac = '';
+  String? eac;
   String image = '';
-  int year = 2021;
+  DateTime out = DateTime.now();
   int? cat;
   List<NewProductBooster> boosters = [];
 
@@ -95,6 +96,19 @@ class _NewProductPageState extends State<NewProductPage> {
     super.initState();
   }
 
+  Future<Null> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: product.out,
+        initialDatePickerMode: DatePickerMode.day,
+        firstDate: DateTime(2015),
+        lastDate: DateTime(2101));
+    if (picked != null)
+      setState(() {
+        product.out = picked;
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Widget> formular = [];
@@ -133,15 +147,22 @@ class _NewProductPageState extends State<NewProductPage> {
           ),
           initialValue: product.eac,
           validator: (value) {
-            if (value!.contains(new RegExp(r'[a-z]'))) {
-              return 'EAN doit contenir des chiffres.';
+            if(value != null) {
+              if (value.contains(new RegExp(r'[a-z]'))) {
+                return 'EAN doit contenir des chiffres.';
+              }
+              product.eac = (value.isEmpty ? null : '"'+value+'"');
             }
-            product.eac = (value.isEmpty ? null : '"'+value+'"')!;
             return null;
           },
         ),
-        Center(
-          child: SpinBox(
+        Card(
+          child: TextButton(
+            onPressed: () { _selectDate(context); },
+            child: Text(DateFormat('yyyy-MM-dd').format(product.out)),
+          )
+          /*
+          SpinBox(
             value: product.year.toDouble(),
             min: 1996,
             max: 2100,
@@ -150,12 +171,14 @@ class _NewProductPageState extends State<NewProductPage> {
               product.year = value.toInt();
             },
           ),
+          */
         ),
       ] + bs + [
         SizedBox(height: 20),
         ElevatedButton(
           onPressed: () {
             if ( product.validate() && _formKey.currentState!.validate()) {
+              error = null;
               try {
                 Environment env = Environment.instance;
                 env.db.transactionR( (connection) async {
@@ -165,11 +188,12 @@ class _NewProductPageState extends State<NewProductPage> {
                     idAchat = row[0] + 1;
                   }
 
-                  String query = 'INSERT INTO `Produit` (idProduit, idLangue, idUtilisateur, nom, EAN, annee, idCategorie, icone, approuve) VALUES ($idAchat, ${product.l!.id}, ${env.user!.idDB}, "${product.name}", ${product.eac}, ${product.year}, ${product.cat}, "", 1);';
+                  var outDate = DateFormat('yyyy-MM-dd 00:00:00').format(product.out);
+                  String query = 'INSERT INTO `Produit` (idProduit, idLangue, idUtilisateur, nom, EAN, sortie, idCategorie, icone, approuve) VALUES ($idAchat, ${product.l!.id}, ${env.user!.idDB}, "${product.name}", ${product.eac}, "$outDate", ${product.cat}, "", 1);';
                   await connection.query(query);
 
                   // Prepare data
-                  List<List<dynamic>> pb = [];
+                  List<List<Object?>> pb = [];
                   for(NewProductBooster b in product.boosters) {
                     pb.add( [idAchat, b.ext == null ? null : b.ext!.id, b.count, b.nbCard]);
                   }
@@ -177,7 +201,10 @@ class _NewProductPageState extends State<NewProductPage> {
                   await connection.queryMulti('INSERT INTO `ProduitBooster` (idProduit, idSousExtension, nombre, carte) VALUES (?, ?, ?, ?);',
                       pb);
                 } ).then((value) {
-                  Navigator.pop(context);
+                  if(value)
+                    Navigator.pop(context);
+                }).onError((errorInfo, stackTrace) {
+                  error = errorInfo.toString();
                 });
               } catch (e) {
                 //print(e);
