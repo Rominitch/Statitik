@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
@@ -35,16 +36,23 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
           Row(children: [
             GridView.count(
               crossAxisCount: 7,
+              primary: false,
+              shrinkWrap: true,
+              children: [],
             )
           ]),
           Row(children: [
             GridView.count(
-                crossAxisCount: 7,
+              crossAxisCount: 7,
+              primary: false,
+              shrinkWrap: true,
             )
           ]),
           Row(children: [
             GridView.count(
               crossAxisCount: 3,
+              primary: false,
+              shrinkWrap: true,
             )
           ]),
         ],
@@ -56,23 +64,26 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     List<Widget> myCards = [];
     int id=0;
     _se!.cards!.cards.forEach((card) {
-      myCards.add(TextButton(
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(2.0),
+      myCards.add( Padding(
+        padding: const EdgeInsets.all(2.0),
+        child: TextButton(
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-              Text(_se!.nameCard(id)),
-              Row( mainAxisAlignment: MainAxisAlignment.center,
-                   children: [card.imageType(),]+card.imageRarity()),
-            ]),
-          ),
+                  Row( mainAxisAlignment: MainAxisAlignment.center,
+                       children: [card.imageType(),]+card.imageRarity()),
+                  Text(_se!.nameCard(id)),
+                  ]
+            ),
+            style: TextButton.styleFrom(
+                backgroundColor: Colors.grey[800],
+                padding: const EdgeInsets.all(2.0)
+            ),
+            onPressed: () {
+              int currentId=id;
+            },
         ),
-        onPressed: (){
-          int currentId=id;
-        },
       ));
       id +=1;
     });
@@ -88,7 +99,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(4.0),
+        padding: const EdgeInsets.all(2.0),
         child: Column(
           children: [
             Card(

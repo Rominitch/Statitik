@@ -166,37 +166,46 @@ class _ProductPageState extends State<ProductPage> {
               title: Container(
                 child: Row(
                   children:[
-                    Text(StatitikLocale.of(context).read('TP_T0')),
-                    SizedBox(width: 10.0),
+                    Text(StatitikLocale.of(context).read('TP_T0'), style: Theme.of(context).textTheme.headline5),
+                    SizedBox(width: 5),
                     widget.language.barIcon(),
-                    SizedBox(width: 10.0),
                     widget.subExt.image( wSize: iconSize ),
                   ],
                 ),
               ),
               actions: [
-                Card(child: TextButton(
-                    child: Icon(Icons.add_photo_alternate_outlined,),
-                    onPressed: () {
-                      showDialog(
-                          context: context,
-                          builder: (_) => createRequest()
-                      );
-                    },
-                )),
-                Card(child: TextButton(
-                  child: Icon(Icons.help_outline,),
-                  onPressed: () {
-                    showDialog(
-                        context: context,
-                        builder: (_) => new AlertDialog(
-                          title: new Text(StatitikLocale.of(context).read('help')),
-                          content: Text( StatitikLocale.of(context).read('TP_B1'),
-                              textAlign: TextAlign.justify),
-                        )
-                    );
-                  },
-                ))
+                CircleAvatar(
+                  backgroundColor: Colors.grey[800],
+                  radius: 20,
+                  child: TextButton(
+                      child: Icon(Icons.add_photo_alternate_outlined,),
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (_) => createRequest()
+                        );
+                      },
+                  ),
+                ),
+                SizedBox(width: 5),
+                CircleAvatar(
+                    backgroundColor: Colors.grey[800],
+                    radius: 20,
+                    child: TextButton(
+                      child: Icon(Icons.help_outline,),
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (_) => new AlertDialog(
+                              title: new Text(StatitikLocale.of(context).read('help')),
+                              content: Text( StatitikLocale.of(context).read('TP_B1'),
+                                  textAlign: TextAlign.justify),
+                            )
+                        );
+                      },
+                  ),
+                ),
+                SizedBox(width: 5),
               ],
             ),
             body:
