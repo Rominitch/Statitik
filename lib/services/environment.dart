@@ -341,7 +341,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.9.6';
+    final String version = '0.9.7';
 
     // State
     bool isInitialized          = false;
@@ -362,17 +362,40 @@ class Environment
         if(!isInitialized) {
             // Sync event
             try {
-                if(!databaseReady())
-                    throw StatitikException('DB_1');
+                bool isDBReady       = false;
+                bool isDatabaseMatch = false;
+                db.transactionR( (connection) async {
+                    var info = await connection.query("SELECT * FROM `BaseInfo`");
 
-                await Future.wait(
-                    [
-                        credential.initialize(),
-                        readStaticData(),
-                    ]);
+                    for (var row in info) {
+                        isDatabaseMatch = (row[0] == db.version);
+                        showPressImages        = (row[2] == 1);
+                        showPressProductImages = showPressImages;
+                    }
+                }).then( (result) {
+                    isDBReady = result;
+                }).whenComplete( () async {
+                    if(!isDBReady) {
+                        throw StatitikException('DB_0');
+                    }
+                    if(!isDatabaseMatch) {
+                        throw StatitikException('DB_1');
+                    }
+                    await Future.wait(
+                        [
+                            credential.initialize(),
+                            readStaticData(),
+                        ]);
 
-                isInitialized = true;
-                onInitialize.add(isInitialized);
+                    isInitialized = true;
+                    onInitialize.add(isInitialized);
+                }).catchError((error) {
+                    isInitialized = false;
+                    onServerError.add(error.msg);
+                }).onError((error, stackTrace) {
+                    isInitialized = false;
+                    //onServerError.add(error.msg);
+                });
             }
             on StatitikException catch(e) {
                 isInitialized = false;
@@ -387,23 +410,6 @@ class Environment
 
     void toggleShowExtensionName() {
         showExtensionName = ! showExtensionName;
-    }
-
-    bool databaseReady()
-    {
-        bool isValid = false;
-        db.transactionR( (connection) async {
-            var info = await connection.query("SELECT * FROM `BaseInfo`");
-
-            for (var row in info) {
-                isValid = (row[0] == db.version);
-                showPressImages        = (row[2] == 1);
-                showPressProductImages = showPressImages;
-            }
-        }).whenComplete(() {
-            return isValid;
-        });
-        return false;
     }
 
     Future<void> readStaticData() async

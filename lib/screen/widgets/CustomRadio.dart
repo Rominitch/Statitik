@@ -9,6 +9,9 @@ class CustomRadioController {
   CustomRadioController({required this.onChange});
 
   void register(CustomRadio cr) {
+    if(_radios.isEmpty) {
+      cr.activate(cr.value);
+    }
     _radios.add(cr);
   }
 
@@ -29,7 +32,7 @@ class CustomRadio extends StatefulWidget {
   bool   _activate=false;
   dynamic value;
 
-  final StreamController afterChange = StreamController();
+  final StreamController<bool> afterChange = StreamController<bool>();
 
   CustomRadio({required this.value, required this.controller, required this.widget}) {
     controller.register(this);
@@ -37,6 +40,7 @@ class CustomRadio extends StatefulWidget {
 
   void activate(cmpValue) {
     _activate = cmpValue == value;
+    afterChange.add(true);
   }
 
   void _closeEvent() {
@@ -52,7 +56,11 @@ class _CustomRadioState extends State<CustomRadio> {
   void initState() {
     super.initState();
 
-    //widget.afterChange.onListen!(refresh);
+    widget.afterChange.stream.listen((event) {
+      setState(() {
+
+      });
+    });
   }
 
   @override

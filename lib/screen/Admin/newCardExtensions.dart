@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
-import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
@@ -16,6 +16,11 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   Language?     _language;
   SubExtension? _se;
   List<Widget>  _cardInfo = [];
+  late CustomRadioController energyController = CustomRadioController(onChange: (value) { onTypeChanged(value); });
+
+  void onTypeChanged(value) {
+
+  }
 
   void afterSelectExtension(BuildContext context, Language language, SubExtension subExt) {
     Navigator.pop(context);
@@ -30,17 +35,22 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   }
 
   Widget cardCreator() {
+    List<Widget> typeCard = [];
+    energies.forEach((element) {
+      typeCard.add(CustomRadio(value: element, controller: energyController, widget: energyImage(element)));
+    });
+
     return Card(
       child: Column(
         children: [
-          Row(children: [
-            GridView.count(
-              crossAxisCount: 7,
+          GridView.count(
+              crossAxisCount: 8,
               primary: false,
               shrinkWrap: true,
-              children: [],
-            )
-          ]),
+              children: typeCard,
+          ),
+
+          /*
           Row(children: [
             GridView.count(
               crossAxisCount: 7,
@@ -55,6 +65,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
               shrinkWrap: true,
             )
           ]),
+          */
         ],
       )
     );
