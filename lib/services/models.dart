@@ -1016,7 +1016,7 @@ enum PokeRegion {
   Kalos,
   Alola,
   Galar,
-  //Limited 16 value (Number 1 byte)
+  //Limited 16 values (Number 1/2 byte)
 }
 
 enum PokeSpecial {
@@ -1025,7 +1025,7 @@ enum PokeSpecial {
   FormeFeu,
   FormeFroid,
   FormePsy,
-  //Limited 16 value (Number 1 byte)
+  //Limited 16 values (Number 1/2 byte)
 }
 
 enum CardMarker {
@@ -1037,7 +1037,11 @@ enum CardMarker {
   MillePoint,
   PointFinal,
   Turbo,
-  //Limited 8 value (Bit 2 bytes)
+  EX,
+  Mega,
+  Legende,
+  Restaure,
+  //Limited 24 values (Bit 3 bytes)
 }
 
 class CardInfo {

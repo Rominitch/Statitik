@@ -9,7 +9,7 @@ void main() {
       CardInfo(PokeRegion.Galar, PokeSpecial.FormeEau, [CardMarker.VMAX, CardMarker.MillePoint]),
       CardInfo(PokeRegion.Nothing, PokeSpecial.Nothing, []),
       CardInfo(PokeRegion.Kanto, PokeSpecial.Nothing, [CardMarker.VMAX]),
-      CardInfo(PokeRegion.Alola, PokeSpecial.FormeFroid, [CardMarker.Escouade, CardMarker.Turbo]),
+      CardInfo(PokeRegion.Alola, PokeSpecial.FormeFroid, [CardMarker.Escouade, CardMarker.Restaure]),
     ];
     for(CardInfo code in c) {
       CardInfo codeS = CardInfo.from(code.toCode());
@@ -18,9 +18,9 @@ void main() {
       expect(code.special,     codeS.special);
     }
 
-    expect(5144,  c[0].toCode());
-    expect(0,     c[1].toCode());
-    expect(1025,  c[2].toCode());
-    expect(16695, c[3].toCode());
+    expect(5144,   c[0].toCode());
+    expect(0,      c[1].toCode());
+    expect(1025,   c[2].toCode());
+    expect(262455, c[3].toCode());
   });
 }
