@@ -9,7 +9,7 @@ import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-double iconSize = 25.0;
+const double iconSize = 25.0;
 
 final Color greenValid = Colors.green[500]!;
 
@@ -109,18 +109,24 @@ enum Rarity {
   Unknown,
 }
 
-List<Color> rarityColors = [Colors.green, Colors.green, Colors.green[600]!, Colors.green[600]!, Colors.green[700]!, Colors.green[700]!,  // C JC P JU R JR
-  Colors.blue, Colors.blue[600]!, Colors.blue[700]!, Colors.blue[800]!,                  // H M P C
-  Colors.purple, Colors.purple, Colors.purple[600]!, Colors.purple[600]!, Colors.purple[700]!, Colors.purple[800]!, Colors.purple[800]!,         // Ch T V JRR Vm JRRR PB
-  Colors.yellow, Colors.yellow[600]!, Colors.yellow[600]!, Colors.yellow[700]!, Colors.yellow[700]!, Colors.yellow[800]!, Colors.yellow[800]!, Colors.yellow[800]!           // ChR S JSR A JHR G HS JUR
+const List<Color> rarityColors =
+[
+  // Green Green[600] Green[700]
+  Colors.green, Colors.green, Color(0xFF43A047), Color(0xFF43A047), Color(0xFF388E3C), Color(0xFF388E3C),  // C JC P JU R JR
+  // Blue Blue[600] Blue[700] Blue[800]
+  Colors.blue, Color(0xFF1E88E5), Color(0xFF1976D2), Color(0xFF1565C0),                  // H M P C
+  //purple 600 700 800
+  Colors.purple, Colors.purple, Color(0xFF8E24AA), Color(0xFF8E24AA), Color(0xFF7B1FA2), Color(0xFF6A1B9A), Color(0xFF6A1B9A),         // Ch T V JRR Vm JRRR PB
+  // Yellow 600 700 800
+  Colors.yellow, Color(0xFFFDD835), Color(0xFFFDD835), Color(0xFFFBC02D), Color(0xFFFBC02D), Color(0xFFF9A825), Color(0xFFF9A825), Color(0xFFF9A825)           // ChR S JSR A JHR G HS JUR
 ];
 
-List<Rarity> worldRarity = [Rarity.Commune, Rarity.PeuCommune, Rarity.Rare,
+const List<Rarity> worldRarity = [Rarity.Commune, Rarity.PeuCommune, Rarity.Rare,
   Rarity.HoloRare, Rarity.Magnifique, Rarity.Prism, Rarity.Chromatique, Rarity.Turbo,
   Rarity.V, Rarity.VMax, Rarity.BrillantRare, Rarity.UltraRare,
   Rarity.ChromatiqueRare, Rarity.Secret, Rarity.ArcEnCiel, Rarity.Gold, Rarity.HoloRareSecret,
 ];
-List<Rarity> japanRarity = [Rarity.JC, Rarity.JU, Rarity.JR, Rarity.JRR,
+const List<Rarity> japanRarity = [Rarity.JC, Rarity.JU, Rarity.JR, Rarity.JRR,
   Rarity.JRRR, Rarity.JSR, Rarity.JHR, Rarity.JUR
 ];
 
@@ -186,7 +192,7 @@ const Map modeColors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAcce
 
 const String emptyMode = '_';
 
-Map imageName = {
+const Map imageName = {
   Type.Plante: 'plante',
   Type.Feu: 'feu',
   Type.Eau: 'eau',
@@ -204,12 +210,12 @@ const List<Type> energies = [Type.Plante,  Type.Feu,  Type.Eau,
   Type.Electrique,  Type.Psy,  Type.Combat,  Type.Obscurite,
   Type.Metal, Type.Fee,  Type.Dragon, Type.Incolore];
 
-List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
-  Colors.yellow, Colors.purple[600]!, Colors.deepOrange[800]!, Colors.deepPurple[900]!,
-  Colors.grey[400]!,  Colors.pinkAccent, Colors.orange, Colors.white70,
+const List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
+  Colors.yellow, Color(0xFF8E24AA), Color(0xFFD84315), Color(0xFF311B92),
+  Color(0xFFBDBDBD),  Colors.pinkAccent, Colors.orange, Colors.white70,
 ];
 
-List<Color> typeColors = energiesColors + [Colors.blue[700]!, Colors.red[800]!, Colors.greenAccent[100]!, Colors.yellowAccent[100]!];
+List<Color> typeColors = energiesColors + [Color(0xFF1976D2), Color(0xFFC62828), Color(0xFFB9F6CA), Color(0xFFFFFF8D)];
 
 List<Widget?> cachedEnergies = List.filled(energies.length, null);
 
@@ -997,5 +1003,75 @@ class StatsData {
 
   bool isValid() {
     return language != null && subExt != null && stats != null;
+  }
+}
+
+enum PokeRegion {
+  Nothing,
+  Kanto,
+  Johto,
+  Hoenn,
+  Sinnoh,
+  Unova,
+  Kalos,
+  Alola,
+  Galar,
+  //Limited 16 value (Number 1 byte)
+}
+
+enum PokeSpecial {
+  Nothing,
+  FormeEau,
+  FormeFeu,
+  FormeFroid,
+  FormePsy,
+  //Limited 16 value (Number 1 byte)
+}
+
+enum CardMarker {
+  Nothing,
+  Escouade,
+  V,
+  VMAX,
+  GX,
+  MillePoint,
+  PointFinal,
+  Turbo,
+  //Limited 8 value (Bit 2 bytes)
+}
+
+class CardInfo {
+  PokeRegion       region  = PokeRegion.Nothing;
+  PokeSpecial      special = PokeSpecial.Nothing;
+  List<CardMarker> markers  = [];
+
+  CardInfo(this.region, this.special, this.markers);
+
+  CardInfo.from(int code) {
+    region  = PokeRegion.values[code & 0xF];
+    special = PokeSpecial.values[(code>>4 & 0xF)];
+
+    code = code>>8;
+    int id = 1;
+    while(code > 0)
+    {
+      if((code & 0x1) == 0x1) {
+        markers.add(CardMarker.values[id]);
+      }
+      id = id+1;
+      code = code >> 1;
+    }
+  }
+
+  int toCode() {
+    int code = region.index + (special.index<<4);
+    int marker = 0;
+
+    markers.forEach((element) {
+      if(element != CardMarker.Nothing)
+        marker |= (1<<(element.index-1));
+    });
+
+    return code | marker<<8;
   }
 }

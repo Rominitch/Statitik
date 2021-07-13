@@ -65,7 +65,7 @@ class StatitikApp extends StatelessWidget {
       ],
       routes: {
         '/': (context) => ApplicationWidget(),
-        '/home': (context) => Wrapper(),
+        '/home': (context) => ApplicationWidget(),
         '/stats': (context) => StatsPage(),
         '/support': (context) => SupportPage(),
         '/thanks': (context) => ThanksPage(),
