@@ -186,6 +186,9 @@ Images and illustrations used are the property of their respective authors.
       'DH_B0':    "No draw",
       'NE_T0':    'News',
       'NCE_T0':   'Add card\'s',
+      'NCE_B0':   'Add',
+      'NCE_B1':   'Save',
+      'NCE_B2':   'Auto',
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -366,6 +369,9 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'DH_B0':    "Aucun tirage",
       'NE_T0':    'Nouvelles',
       'NCE_T0':   'Ajout de carte',
+      'NCE_B0':   'Ajouter',
+      'NCE_B1':   'Envoyer',
+      'NCE_B2':   'Auto',
     },
   };
 

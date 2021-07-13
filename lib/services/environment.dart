@@ -760,4 +760,30 @@ class Environment
         }
         return myBooster;
     }
+
+    Future<bool> sendCardInfo(SubExtension se) async {
+        if( !isLogged() && !user!.admin)
+            return false;
+        try {
+            return await db.transactionR( (connection) async {
+                var rType   = convertType.map((k, v) => MapEntry(v, k));
+                var rRarity = convertRarity.map((k, v) => MapEntry(v, k));
+
+                String code = "";
+                se.cards!.cards.forEach((PokeCard card) {
+                    code += rType[card.type] + rRarity[card.rarity];
+                });
+
+                var query = 'UPDATE `listecartes`, `sousextension` SET `cartes` = "$code"'
+                ' WHERE `listecartes`.`idListeCartes` = `sousextension`.`idListeCartes`'
+                ' AND `sousextension`.`idSousExtension` = ${se.id}';
+                //printOutput(query);
+
+                await connection.query(query);
+            });
+        } catch( e ) {
+            printOutput("Database error $e");
+        }
+        return false;
+    }
 }

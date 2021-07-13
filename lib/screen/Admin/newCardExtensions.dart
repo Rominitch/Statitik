@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
@@ -17,9 +18,35 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   SubExtension? _se;
   List<Widget>  _cardInfo = [];
   late CustomRadioController energyController = CustomRadioController(onChange: (value) { onTypeChanged(value); });
+  late CustomRadioController rarityController = CustomRadioController(onChange: (value) { onRarityChanged(value); });
+
+  Type   _latestType   = Type.Plante;
+  Rarity _latestRarity = Rarity.Commune;
+  bool   _modify =  false;
+  bool   _auto   =  false;
 
   void onTypeChanged(value) {
+    _latestType = value;
+  }
+  void onRarityChanged(value) {
+    _latestRarity = value;
+    if(_auto)
+      onAddCard();
+  }
 
+  void onAddCard() {
+    setState((){
+      _modify = true;
+
+      // Remove default state
+      if( !_se!.cards!.validCard ) {
+        _se!.cards!.cards.clear();
+        _se!.cards!.validCard = true;
+      }
+      // Add new card
+      _se!.cards!.cards.add(PokeCard(type: _latestType, rarity: _latestRarity, hasAlternative: false));
+      _cardInfo = _cards();
+    });
   }
 
   void afterSelectExtension(BuildContext context, Language language, SubExtension subExt) {
@@ -36,8 +63,21 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
 
   Widget cardCreator() {
     List<Widget> typeCard = [];
-    energies.forEach((element) {
-      typeCard.add(CustomRadio(value: element, controller: energyController, widget: energyImage(element)));
+    Type.values.forEach((element) {
+      if( element != Type.Unknown)
+        typeCard.add(CustomRadio(value: element, controller: energyController, widget: getImageType(element)));
+    });
+
+    List<Widget> rarity = [];
+    var listRarity = _language!.isWorld() ? worldRarity : japanRarity;
+    listRarity.forEach((element) {
+      if( element != Rarity.Unknown)
+        rarity.add(CustomRadio(value: element, controller: rarityController,
+            widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: getImageRarity(element))
+                    )
+        );
     });
 
     return Card(
@@ -49,55 +89,64 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
               shrinkWrap: true,
               children: typeCard,
           ),
-
-          /*
+          GridView.count(
+            crossAxisCount: 6,
+            primary: false,
+            shrinkWrap: true,
+            children: rarity,
+          ),
           Row(children: [
-            GridView.count(
-              crossAxisCount: 7,
-              primary: false,
-              shrinkWrap: true,
+            Card(child: TextButton(
+              child: Text(StatitikLocale.of(context).read('NCE_B0')),
+              onPressed: onAddCard,
+              )
+            ),
+            Card(
+              color: _auto ? Colors.green : Colors.grey[800],
+              child: TextButton(
+                child: Text(StatitikLocale.of(context).read('NCE_B2')),
+                onPressed: () {
+                  setState((){
+                    _auto = !_auto;
+                  });
+                }
+              )
             )
-          ]),
-          Row(children: [
-            GridView.count(
-              crossAxisCount: 3,
-              primary: false,
-              shrinkWrap: true,
-            )
-          ]),
-          */
-        ],
-      )
+          ])
+        ]
+      ),
     );
   }
 
   List<Widget> _cards() {
     List<Widget> myCards = [];
     int id=0;
-    _se!.cards!.cards.forEach((card) {
-      myCards.add( Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: TextButton(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Row( mainAxisAlignment: MainAxisAlignment.center,
-                       children: [card.imageType(),]+card.imageRarity()),
-                  Text(_se!.nameCard(id)),
-                  ]
-            ),
-            style: TextButton.styleFrom(
-                backgroundColor: Colors.grey[800],
-                padding: const EdgeInsets.all(2.0)
-            ),
-            onPressed: () {
-              int currentId=id;
-            },
-        ),
-      ));
-      id +=1;
-    });
+    if( _se!.cards!.validCard ) {
+      _se!.cards!.cards.forEach((card) {
+        myCards.add( Padding(
+          padding: const EdgeInsets.all(2.0),
+          child: TextButton(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row( mainAxisAlignment: MainAxisAlignment.center,
+                         children: [card.imageType(),]+card.imageRarity()),
+                    Text(_se!.nameCard(id)),
+                    ]
+              ),
+              style: TextButton.styleFrom(
+                  backgroundColor: Colors.grey[800],
+                  padding: const EdgeInsets.all(2.0)
+              ),
+              onPressed: () {
+                //int currentId=id;
+              },
+          ),
+        ));
+        id +=1;
+      });
+    }
     return myCards;
   }
 
@@ -108,6 +157,15 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         title: Container(
           child: Text(StatitikLocale.of(context).read('NCE_T0')),
         ),
+        actions: [if(_modify) Card(child: TextButton(
+          child: Text(StatitikLocale.of(context).read('NCE_B1')),
+          onPressed: (){
+            Environment.instance.sendCardInfo(_se!).then( (isValid) {
+              if(isValid)
+                Navigator.of(context).pop();
+            });
+          },
+        )) ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(2.0),

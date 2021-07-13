@@ -39,6 +39,10 @@ class Language
     height: AppBar().preferredSize.height * 0.4,
     );
   }
+
+  bool isWorld() {
+    return id != 3;
+  }
 }
 
 class Extension
@@ -109,6 +113,15 @@ List<Color> rarityColors = [Colors.green, Colors.green, Colors.green[600]!, Colo
   Colors.blue, Colors.blue[600]!, Colors.blue[700]!, Colors.blue[800]!,                  // H M P C
   Colors.purple, Colors.purple, Colors.purple[600]!, Colors.purple[600]!, Colors.purple[700]!, Colors.purple[800]!, Colors.purple[800]!,         // Ch T V JRR Vm JRRR PB
   Colors.yellow, Colors.yellow[600]!, Colors.yellow[600]!, Colors.yellow[700]!, Colors.yellow[700]!, Colors.yellow[800]!, Colors.yellow[800]!, Colors.yellow[800]!           // ChR S JSR A JHR G HS JUR
+];
+
+List<Rarity> worldRarity = [Rarity.Commune, Rarity.PeuCommune, Rarity.Rare,
+  Rarity.HoloRare, Rarity.Magnifique, Rarity.Prism, Rarity.Chromatique, Rarity.Turbo,
+  Rarity.V, Rarity.VMax, Rarity.BrillantRare, Rarity.UltraRare,
+  Rarity.ChromatiqueRare, Rarity.Secret, Rarity.ArcEnCiel, Rarity.Gold, Rarity.HoloRareSecret,
+];
+List<Rarity> japanRarity = [Rarity.JC, Rarity.JU, Rarity.JR, Rarity.JRR,
+  Rarity.JRRR, Rarity.JSR, Rarity.JHR, Rarity.JUR
 ];
 
 const Map convertType =

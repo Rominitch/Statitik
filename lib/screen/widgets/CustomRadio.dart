@@ -27,20 +27,17 @@ class CustomRadioController {
 }
 
 class CustomRadio extends StatefulWidget {
-  CustomRadioController controller;
-  Widget widget;
-  bool   _activate=false;
-  dynamic value;
-
-  final StreamController<bool> afterChange = StreamController<bool>();
+  final CustomRadioController controller;
+  final Widget widget;
+  final dynamic value;
+  final StreamController<dynamic> afterChange = StreamController<dynamic>();
 
   CustomRadio({required this.value, required this.controller, required this.widget}) {
     controller.register(this);
   }
 
   void activate(cmpValue) {
-    _activate = cmpValue == value;
-    afterChange.add(true);
+    afterChange.add(cmpValue);
   }
 
   void _closeEvent() {
@@ -52,13 +49,15 @@ class CustomRadio extends StatefulWidget {
 }
 
 class _CustomRadioState extends State<CustomRadio> {
+  bool _activate = false;
+
   @override
   void initState() {
     super.initState();
 
-    widget.afterChange.stream.listen((event) {
+    widget.afterChange.stream.listen((cmpValue) {
       setState(() {
-
+        _activate = cmpValue == widget.value;
       });
     });
   }
@@ -84,7 +83,7 @@ class _CustomRadioState extends State<CustomRadio> {
       padding: EdgeInsets.all(2.0),
       child: TextButton(
         style: TextButton.styleFrom(
-          backgroundColor: widget._activate ? Colors.green : Colors.grey[800],
+          backgroundColor: _activate ? Colors.green : Colors.grey[800],
         ),
         child: widget.widget,
         onPressed: () {
