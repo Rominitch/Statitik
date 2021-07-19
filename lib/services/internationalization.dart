@@ -372,6 +372,9 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'NCE_B0':   'Ajouter',
       'NCE_B1':   'Envoyer',
       'NCE_B2':   'Auto',
+      'NCE_B3':   'Actions',
+      'NCE_B4':   'Ajouter ici',
+      'NCE_B5':   'Supprimer',
     },
   };
 

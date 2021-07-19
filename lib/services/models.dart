@@ -391,25 +391,34 @@ class PokeCard
 class NamedInfo
 {
   List<String> names;
+  CardInfo     info;
 
-  NamedInfo({required this.names});
+  NamedInfo({required this.names, required this.info});
 }
 
 class PokemonInfo extends NamedInfo
 {
   int          generation;
 
-  PokemonInfo({required List<String> names, required this.generation}) :
-  super(names: names)
+  PokemonInfo({required List<String> names, required this.generation, required CardInfo info}) :
+  super(names: names, info: info)
   {
    assert(names.length == 3);
   }
+}
+
+class CodeCardInfo {
+  int name;
+  int info;
+
+  CodeCardInfo(this.name, this.info);
 }
 
 class ListCards
 {
   List<PokeCard>    cards    = [];
   List              pokemons = [];
+
   bool   validCard = true;
 
   void extractCard(String? code)
@@ -449,17 +458,18 @@ class ListCards
     }
   }
 
-  void extractNamed(List<int> pokeList) {
-    for( int pokeID in pokeList ) {
+  void extractCardInfo(List<CodeCardInfo> pokeList) {
+    for( CodeCardInfo pokeID in pokeList ) {
       var poke;
-      if( pokeID >= 10000 ) {
-        poke = Environment.instance.collection.getNamedID(pokeID);
+      if( pokeID.name >= 10000 ) {
+        poke = Environment.instance.collection.getNamedID(pokeID.name);
 
       } else {
-        poke = Environment.instance.collection.getPokemonID(pokeID);
+        poke = Environment.instance.collection.getPokemonID(pokeID.name);
       }
 
       assert(poke != null); // Missing item into DB
+      poke.info = CardInfo.from(pokeID.info);
       pokemons.add(poke);
     }
 
@@ -1042,6 +1052,50 @@ enum CardMarker {
   Legende,
   Restaure,
   //Limited 24 values (Bit 3 bytes)
+}
+
+List<Widget?> cachedMarkers = List.filled(CardMarker.values.length, null);
+Widget pokeMarker(CardMarker marker) {
+  if( cachedMarkers[marker.index] == null ) {
+    switch(marker) {
+      case CardMarker.Escouade:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'escouade');
+      break;
+      case CardMarker.V:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'v');
+        break;
+      case CardMarker.VMAX:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'vmax');
+        break;
+      case CardMarker.GX:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'gx');
+        break;
+      case CardMarker.MillePoint:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'millepoint');
+        break;
+      case CardMarker.PointFinal:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'pointfinal');
+        break;
+      case CardMarker.Turbo:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'turbo');
+        break;
+      case CardMarker.EX:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'ex');
+        break;
+      case CardMarker.Legende:
+        cachedMarkers[marker.index] = Text('Legende');
+        break;
+      case CardMarker.Restaure:
+        cachedMarkers[marker.index] = Text('Restaure');
+        break;
+      case CardMarker.Mega:
+        cachedMarkers[marker.index] = Text('Mega');
+        break;
+      default:
+        cachedMarkers[marker.index] = Text('Unknown');
+    }
+  }
+  return cachedMarkers[marker.index]!;
 }
 
 class CardInfo {

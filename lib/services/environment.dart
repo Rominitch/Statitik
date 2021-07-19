@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/collection.dart';
+import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 import 'package:statitikcard/services/models.dart';
@@ -18,204 +15,6 @@ import 'package:statitikcard/services/connection.dart';
 class StatitikException implements Exception {
     String msg;
     StatitikException(this.msg);
-}
-
-enum CredentialMode
-{
-    Google,
-    Phone,
-    AutoLog
-}
-
-class Credential
-{
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-
-    Future<void> initialize() async
-    {
-        try {
-            await Firebase.initializeApp();
-
-            // Auto login
-            var prefs = await SharedPreferences.getInstance();
-            if( prefs.getString('uid') != null ) {
-                Environment.instance.login(CredentialMode.AutoLog, null, null);
-            }
-        } catch(e) {
-            Environment.instance.user = null;
-        }
-    }
-
-    void signInWithGoogle(onSuccess) {
-        FirebaseAuth _auth = FirebaseAuth.instance;
-
-        googleSignIn.signIn().then((GoogleSignInAccount? googleSignInAccount) {
-            if(googleSignInAccount != null) {
-                googleSignInAccount.authentication.then((
-                    GoogleSignInAuthentication googleSignInAuthentication) {
-                    final AuthCredential credential = GoogleAuthProvider
-                        .credential(
-                        accessToken: googleSignInAuthentication.accessToken,
-                        idToken: googleSignInAuthentication.idToken,
-                    );
-
-                    _auth.signInWithCredential(credential).then((
-                        UserCredential authResult) {
-                        onSuccess("google-" + authResult.user!.uid);
-                    });
-                });
-            }
-        });
-    }
-
-    Future<void> signInWithPhone(BuildContext? context, onError, onSuccess) async {
-        try {
-            FirebaseAuth auth = FirebaseAuth.instance;
-
-            showDialog(
-                context: context!,
-                barrierDismissible: false, // user must tap button!
-                builder: (BuildContext context) { return enterPhone(context); })
-                .then( (myPhoneNumber) {
-                    if(myPhoneNumber != "") {
-                        auth.verifyPhoneNumber(
-                            phoneNumber: myPhoneNumber,
-                            verificationCompleted: (
-                                PhoneAuthCredential credential) {
-                                // Sign the user in (or link) with the auto-generated credential
-                                auth.signInWithCredential(credential).then((
-                                    UserCredential authResult) {
-                                    String uid = "telephone-" +
-                                        authResult.user!.uid;
-                                    onSuccess(uid);
-                                }).onError((error, stackTrace) =>
-                                    onError('LOG_5', myPhoneNumber));
-                            },
-                            verificationFailed: (FirebaseAuthException e) {
-                                onError('LOG_5', myPhoneNumber);
-                            },
-                            codeSent: (String verificationId,
-                                int? resendToken) async {
-                                // Update the UI - wait for the user to enter the SMS code
-                                showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    // user must tap button!
-                                    builder: (BuildContext context) {
-                                        return showAlert(context);
-                                    })
-                                    .then((smsCode) {
-                                        if(smsCode!="") {
-                                            // Create a PhoneAuthCredential with the code
-                                            PhoneAuthCredential credential = PhoneAuthProvider
-                                                .credential(
-                                                verificationId: verificationId,
-                                                smsCode: smsCode);
-
-                                            // Sign the user in (or link) with the credential
-                                            auth.signInWithCredential(credential).then((
-                                                UserCredential authResult) {
-                                                String uid = "telephone-" +
-                                                    authResult.user!.uid;
-                                                onSuccess(uid);
-                                            }).onError((error, stackTrace) =>
-                                                onError('LOG_5', myPhoneNumber));
-                                        } else {
-                                            onError('LOG_8', null);
-                                        }
-                                });
-                            },
-                            timeout: const Duration(seconds: 2 * 60),
-                            codeAutoRetrievalTimeout: (
-                                String verificationId) {},
-                        ).then((value) {}
-                        ).onError((error, stackTrace) =>
-                            onError('LOG_5', error));
-                    } else {
-                        onError('LOG_8', null);
-                    }
-                }
-            );
-        }
-        catch(e) {
-            onError(e);
-        }
-    }
-
-    Future<void> signOutGoogle() async {
-        Environment.instance.user = null;
-        await googleSignIn.signOut();
-
-        var prefs = await SharedPreferences.getInstance();
-        prefs.remove('uid');
-    }
-
-    AlertDialog showAlert(BuildContext context) {
-        String smsCode="";
-        return AlertDialog(
-            title: Text(StatitikLocale.of(context).read('LOG_1')),
-            content:  TextField(
-                keyboardType: TextInputType.number,
-                onChanged: (value) {
-                    smsCode = value;
-                },
-                //controller: _textFieldController,
-                decoration: InputDecoration(hintText: "Sms code"),
-            ),
-            actions: <Widget>[
-                TextButton(
-                    child: Text(StatitikLocale.of(context).read('confirm')),
-                    onPressed: () {
-                        Navigator.of(context).pop(smsCode);
-                    },
-                ),
-                TextButton(
-                    child: Text(StatitikLocale.of(context).read('cancel')),
-                    onPressed: () {
-                        Navigator.of(context).pop("");
-                    },
-                ),
-            ],
-        );
-    }
-
-    AlertDialog enterPhone(BuildContext context) {
-        //final _text = TextEditingController();
-        //bool _validate = false;
-
-        String smsCode="";
-        return AlertDialog(
-            title: Text(StatitikLocale.of(context).read('LOG_6')),
-            content:  TextField(
-                keyboardType: TextInputType.phone,
-                onChanged: (value) {
-                    smsCode = value;
-                },
-                //controller: _text,
-                decoration: InputDecoration(hintText: StatitikLocale.of(context).read('LOG_7'),
-                                            hintStyle: TextStyle(fontSize: 10),
-                                            //errorText: _validate ? 'Value Can\'t Be Empty' : null
-                )
-            ),
-            actions: <Widget>[
-                TextButton(
-                    child: Text(StatitikLocale.of(context).read('confirm')),
-                    onPressed: () {
-                        //_validate = _text.text.isEmpty;
-                        if(smsCode.isNotEmpty) {
-                            Navigator.of(context).pop(smsCode);
-                        }
-                    },
-                ),
-                TextButton(
-                    child: Text(StatitikLocale.of(context).read('cancel')),
-                    onPressed: () {
-                        Navigator.of(context).pop("");
-                    },
-                ),
-            ],
-        );
-    }
 }
 
 class Database
@@ -246,83 +45,6 @@ class Database
             connection.close();
         }
         return valid;
-    }
-}
-
-class Collection
-{
-    Map languages = {};
-    List extensions = [];
-    Map subExtensions = {};
-    Map listCards = {};
-    int category=0;
-    Map pokemons = {};
-    Map otherNames = {};
-
-    void clear() {
-        languages.clear();
-        extensions.clear();
-        subExtensions.clear();
-        listCards.clear();
-        pokemons.clear();
-        category=0;
-    }
-
-    void addLanguage(Language l) {
-        languages[l.id] = l;
-    }
-
-    void addExtension(Extension e) {
-        extensions.add(e);
-    }
-    void addSubExtension(SubExtension e) {
-        subExtensions[e.id] = e;
-    }
-    void addListCards(ListCards l, int id) {
-        listCards[id] = l;
-    }
-
-    List getExtensions(Language language) {
-        List l = [];
-        for(Extension e in extensions) {
-            if (e.idLanguage == language.id) {
-                l.add(e);
-            }
-        }
-        return l;
-    }
-
-    List getSubExtensions(Extension e) {
-        List l = [];
-        for(SubExtension se in subExtensions.values) {
-            if (se.idExtension == e.id) {
-                l.add(se);
-            }
-        }
-        return l;
-    }
-
-    SubExtension? getSubExtensionID(int id) {
-        return subExtensions[id];
-    }
-
-    ListCards? getListCardsID(int id) {
-        return listCards[id];
-    }
-
-    void addPokemon(PokemonInfo p, int id) {
-        pokemons[id] = p;
-    }
-    void addNamed(NamedInfo p, int id) {
-        otherNames[id] = p;
-    }
-
-    PokemonInfo getPokemonID(int id) {
-        return id > 0 ? pokemons[id] : null;
-    }
-
-    NamedInfo getNamedID(int id) {
-        return id >= 10000 ? otherNames[id] : null;
     }
 }
 
@@ -431,7 +153,7 @@ class Environment
                 var pokes = await connection.query("SELECT * FROM `Pokemon`");
                 for (var row in pokes) {
                     try {
-                        PokemonInfo p = PokemonInfo(names: row[2].split('|'), generation: row[1]);
+                        PokemonInfo p = PokemonInfo(names: row[2].split('|'), generation: row[1], info: CardInfo.from(0));
                         collection.addPokemon(p, row[0]);
                     } catch(e) {
                         print("Bad pokemon: ${row[0]} $e");
@@ -440,7 +162,7 @@ class Environment
                 var objSup = await connection.query("SELECT * FROM `DresseurObjet`");
                 for (var row in objSup) {
                     try {
-                        collection.addNamed(NamedInfo(names: row[1].split('|')), row[0]);
+                        collection.addNamed(NamedInfo(names: row[1].split('|'), info: CardInfo.from(0)), row[0]);
                     } catch(e) {
                         print("Bad Object: ${row[0]} $e");
                     }
@@ -452,17 +174,19 @@ class Environment
                     try {
                         c.extractCard(row[1]);
                         assert(c.cards.isNotEmpty);
-                        List<int> pokeCode = [];
+                        List<CodeCardInfo> pokeCode = [];
                         if( row[2] != null) {
                             try {
                                 final byteData = (row[2] as Blob)
                                     .toBytes()
                                     .toList();
-                                for (int id = 0; id < byteData.length; id += 2) {
-                                    pokeCode.add(
-                                        (byteData[id] << 8) + byteData[id + 1]);
+                                assert((byteData.length % (2+4)) == 0);
+
+                                for (int id = 0; id < byteData.length; id += 6) {
+                                    pokeCode.add(CodeCardInfo( (byteData[id] << 8) + byteData[id + 1],
+                                        (((byteData[id+2] << 8) | byteData[id+3]) << 8 | byteData[id+4]) << 8 | byteData[id+5]));
                                 }
-                                c.extractNamed(pokeCode);
+                                c.extractCardInfo(pokeCode);
                             } catch(e) {
                                 print("Data corruption: ListCard ${row[0]} $e");
                             }
@@ -707,16 +431,18 @@ class Environment
       return false;
   }
 
-    Future<List<SessionDraw>> getMyDraw() async
+    Future<List<SessionDraw>> getMyDraw([bool showAll=false]) async
     {
         List<SessionDraw> myBooster = [];
         if( isLogged() ) {
             try {
+                String filteredUser = (showAll && user!.admin) ? '' : ' `UtilisateurProduit`.`idUtilisateur`= \'${user!.idDB}\' AND ';
+
                 await db.transactionR( (connection) async {
                     String query = 'SELECT `idAchat`, `anomalie`, `Produit`.`idProduit`, `Produit`.`idLangue`, `Produit`.`nom`, `Produit`.`icone`'
                         ' FROM `UtilisateurProduit`, `Produit`'
-                        ' WHERE `UtilisateurProduit`.`idUtilisateur`= \'${user!.idDB}\''
-                        ' AND `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`'
+                        ' WHERE $filteredUser'
+                        ' `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`'
                         ' ORDER BY `idAchat` DESC';
                     //printOutput(query);
 

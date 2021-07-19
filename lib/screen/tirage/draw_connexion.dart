@@ -10,6 +10,7 @@ import 'package:statitikcard/screen/tirage/tirage_resume.dart';
 import 'package:statitikcard/screen/tutorial/drawTuto.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -143,6 +144,17 @@ class _DrawHomePageState extends State<DrawHomePage> {
                               },
                             ),
                           ),
+                          CircleAvatar(
+                              backgroundColor: Colors.blueAccent,
+                              radius: 20,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: Icon(Icons.remove_red_eye_rounded),
+                                color: Colors.white,
+                                onPressed: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory(true)));
+                                },
+                          )),
                         ]),
                       )
                 ]

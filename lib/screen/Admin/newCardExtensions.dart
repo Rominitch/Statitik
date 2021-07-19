@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
-import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -17,24 +17,10 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   Language?     _language;
   SubExtension? _se;
   List<Widget>  _cardInfo = [];
-  late CustomRadioController energyController = CustomRadioController(onChange: (value) { onTypeChanged(value); });
-  late CustomRadioController rarityController = CustomRadioController(onChange: (value) { onRarityChanged(value); });
+  bool _modify = false;
+  CardData data = CardData();
 
-  Type   _latestType   = Type.Plante;
-  Rarity _latestRarity = Rarity.Commune;
-  bool   _modify =  false;
-  bool   _auto   =  false;
-
-  void onTypeChanged(value) {
-    _latestType = value;
-  }
-  void onRarityChanged(value) {
-    _latestRarity = value;
-    if(_auto)
-      onAddCard();
-  }
-
-  void onAddCard() {
+  void onAddCard(int? pos) {
     setState((){
       _modify = true;
 
@@ -44,7 +30,13 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         _se!.cards!.validCard = true;
       }
       // Add new card
-      _se!.cards!.cards.add(PokeCard(type: _latestType, rarity: _latestRarity, hasAlternative: false));
+      if( pos == null) {
+        _se!.cards!.cards.add(PokeCard(
+            type: data.type, rarity: data.rarity, hasAlternative: false));
+      } else {
+        _se!.cards!.cards.insert(pos, PokeCard(
+            type: data.type, rarity: data.rarity, hasAlternative: false));
+      }
       _cardInfo = _cards();
     });
   }
@@ -56,66 +48,8 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
       // Change selection
       _language = language;
       _se       = subExt;
-
       _cardInfo = _cards();
     });
-  }
-
-  Widget cardCreator() {
-    List<Widget> typeCard = [];
-    Type.values.forEach((element) {
-      if( element != Type.Unknown)
-        typeCard.add(CustomRadio(value: element, controller: energyController, widget: getImageType(element)));
-    });
-
-    List<Widget> rarity = [];
-    var listRarity = _language!.isWorld() ? worldRarity : japanRarity;
-    listRarity.forEach((element) {
-      if( element != Rarity.Unknown)
-        rarity.add(CustomRadio(value: element, controller: rarityController,
-            widget: Row(mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: getImageRarity(element))
-                    )
-        );
-    });
-
-    return Card(
-      child: Column(
-        children: [
-          GridView.count(
-              crossAxisCount: 8,
-              primary: false,
-              shrinkWrap: true,
-              children: typeCard,
-          ),
-          GridView.count(
-            crossAxisCount: 6,
-            primary: false,
-            shrinkWrap: true,
-            children: rarity,
-          ),
-          Row(children: [
-            Card(child: TextButton(
-              child: Text(StatitikLocale.of(context).read('NCE_B0')),
-              onPressed: onAddCard,
-              )
-            ),
-            Card(
-              color: _auto ? Colors.green : Colors.grey[800],
-              child: TextButton(
-                child: Text(StatitikLocale.of(context).read('NCE_B2')),
-                onPressed: () {
-                  setState((){
-                    _auto = !_auto;
-                  });
-                }
-              )
-            )
-          ])
-        ]
-      ),
-    );
   }
 
   List<Widget> _cards() {
@@ -123,6 +57,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     int id=0;
     if( _se!.cards!.validCard ) {
       _se!.cards!.cards.forEach((card) {
+        int localId = id;
         myCards.add( Padding(
           padding: const EdgeInsets.all(2.0),
           child: TextButton(
@@ -132,15 +67,59 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                   children: [
                     Row( mainAxisAlignment: MainAxisAlignment.center,
                          children: [card.imageType(),]+card.imageRarity()),
-                    Text(_se!.nameCard(id)),
+                    Text(_se!.nameCard(localId)),
                     ]
               ),
               style: TextButton.styleFrom(
                   backgroundColor: Colors.grey[800],
                   padding: const EdgeInsets.all(2.0)
               ),
+              onLongPress: () {
+                setState(() {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SimpleDialog(
+                            title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.headline3)),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                            children: [
+                              Card(
+                                color: Colors.grey[700],
+                                child: TextButton(
+                                  child: Text(StatitikLocale.of(context).read('NCE_B4')),
+                                  onPressed: () {
+                                    onAddCard(localId);
+                                    Navigator.of(context).pop();
+                                  },
+                              )),
+                              Card(
+                                color: Colors.red,
+                                child: TextButton(
+                                child: Text(StatitikLocale.of(context).read('NCE_B5')),
+                                onPressed: () {
+                                    _se!.cards!.cards.removeAt(localId);
+                                    Navigator.of(context).pop();
+                                },
+                              )),
+                            ]
+                        );
+                      }
+                  );
+                });
+              },
               onPressed: () {
-                //int currentId=id;
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return SimpleDialog(
+                        title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.headline3)),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                        children: [
+
+                        ]
+                    );
+                  }
+                );
               },
           ),
         ));
@@ -187,7 +166,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                 },
               )
             ),
-            if(_se != null) cardCreator(),
+            if(_se != null) CardCreator(data, onAddCard, _language!.isWorld()),
             if(_se != null && _se!.cards != null) GridView.count(
                 primary: false,
                 children: _cardInfo,

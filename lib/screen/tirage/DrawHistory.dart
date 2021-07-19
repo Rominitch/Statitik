@@ -6,7 +6,8 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class DrawHistory extends StatefulWidget {
-  const DrawHistory({Key? key}) : super(key: key);
+  final bool isAdmin;
+  DrawHistory([this.isAdmin=false]);
 
   @override
   _DrawHistoryState createState() => _DrawHistoryState();
@@ -19,7 +20,7 @@ class _DrawHistoryState extends State<DrawHistory> {
   @override
   void initState() {
 
-    Environment.instance.getMyDraw().then((List<SessionDraw> value) {
+    Environment.instance.getMyDraw(widget.isAdmin).then((List<SessionDraw> value) {
       myDraw = value;
       myDrawWidgets = [];
       setState(() {
