@@ -394,8 +394,7 @@ class Environment
                 credential.signInWithPhone(context, onError, onSuccess);
             } else if(mode==CredentialMode.Google) {
                 credential.signInWithGoogle(onSuccess);
-            }
-            else if(mode==CredentialMode.AutoLog){
+            } else if(mode==CredentialMode.AutoLog) {
                 SharedPreferences.getInstance().then((prefs) {
                     onSuccess(prefs.getString('uid'));
                 });
@@ -488,27 +487,26 @@ class Environment
     }
 
     Future<bool> sendCardInfo(SubExtension se) async {
-        if( !isLogged() && !user!.admin)
-            return false;
-        try {
-            return await db.transactionR( (connection) async {
-                var rType   = convertType.map((k, v) => MapEntry(v, k));
-                var rRarity = convertRarity.map((k, v) => MapEntry(v, k));
+        if( isLogged() && user!.admin) {
+            try {
+                return await db.transactionR( (connection) async {
+                    var rType   = convertType.map((k, v)   => MapEntry(v, k));
+                    var rRarity = convertRarity.map((k, v) => MapEntry(v, k));
 
-                String code = "";
-                se.cards!.cards.forEach((PokeCard card) {
-                    code += rType[card.type] + rRarity[card.rarity];
+                    String code = "";
+                    se.cards!.cards.forEach((PokeCard card) {
+                        code += rType[card.type] + rRarity[card.rarity];
+                    });
+
+                    var query = 'UPDATE `listecartes`, `sousextension` SET `cartes` = "$code"'
+                    ' WHERE `listecartes`.`idListeCartes` = `sousextension`.`idListeCartes`'
+                    ' AND `sousextension`.`idSousExtension` = ${se.id}';
+
+                    await connection.query(query);
                 });
-
-                var query = 'UPDATE `listecartes`, `sousextension` SET `cartes` = "$code"'
-                ' WHERE `listecartes`.`idListeCartes` = `sousextension`.`idListeCartes`'
-                ' AND `sousextension`.`idSousExtension` = ${se.id}';
-                //printOutput(query);
-
-                await connection.query(query);
-            });
-        } catch( e ) {
-            printOutput("Database error $e");
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
         }
         return false;
     }
