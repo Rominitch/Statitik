@@ -1029,6 +1029,19 @@ enum PokeRegion {
   //Limited 16 values (Number 1/2 byte)
 }
 
+const List<String> regionNames =
+[
+  "Sans nom",
+  "Kanto",
+  "Johto",
+  "Hoenn",
+  "Sinnoh",
+  "Unova",
+  "Kalos",
+  "Alola",
+  "Galar",
+];
+
 enum PokeSpecial {
   Nothing,
   FormeEau,
@@ -1055,32 +1068,32 @@ enum CardMarker {
 }
 
 List<Widget?> cachedMarkers = List.filled(CardMarker.values.length, null);
-Widget pokeMarker(CardMarker marker) {
+Widget pokeMarker(CardMarker marker, {double? height}) {
   if( cachedMarkers[marker.index] == null ) {
     switch(marker) {
       case CardMarker.Escouade:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'escouade');
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'escouade', height: height);
       break;
       case CardMarker.V:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'v');
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'v', height: height);
         break;
       case CardMarker.VMAX:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'vmax');
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'vmax', height: height);
         break;
       case CardMarker.GX:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'gx');
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'gx', height: height);
         break;
       case CardMarker.MillePoint:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'millepoint');
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'millepoint', height: height);
         break;
       case CardMarker.PointFinal:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'pointfinal');
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'pointfinal', height: height);
         break;
       case CardMarker.Turbo:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'turbo');
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'turbo', height: height);
         break;
       case CardMarker.EX:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'ex');
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'ex', height: height);
         break;
       case CardMarker.Legende:
         cachedMarkers[marker.index] = Text('Legende');

@@ -24,18 +24,26 @@ class CardCreator extends StatefulWidget {
 class _CardCreatorState extends State<CardCreator> {
   late CustomRadioController energyController = CustomRadioController(onChange: (value) { onTypeChanged(value); });
   late CustomRadioController rarityController = CustomRadioController(onChange: (value) { onRarityChanged(value); });
+  late CustomRadioController regionController = CustomRadioController(onChange: (value) { onRegionChanged(value); });
 
   List<Widget> typeCard = [];
   List<Widget> rarity   = [];
+  List<Widget> region   = [];
+  List<Widget> marker   = [];
   bool         _auto    = false;
 
   void onTypeChanged(value) {
     widget.data.type = value;
   }
+
   void onRarityChanged(value) {
     widget.data.rarity = value;
     if(_auto)
       widget.onAddCard(widget.positionId);
+  }
+
+  void onRegionChanged(value) {
+    widget.data.info.region = value;
   }
 
   @override
@@ -54,6 +62,24 @@ class _CardCreatorState extends State<CardCreator> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: getImageRarity(element))
         )
+      );
+    });
+
+    regionNames.forEach((element) {
+        region.add(CustomRadio(value: element, controller: regionController,
+          widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [Text(element)])
+         )
+        );
+    });
+
+    CardMarker.values.forEach((element) {
+      marker.add(CustomRadio(value: element, controller: regionController,
+          widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [pokeMarker(element, height: 15)])
+      )
       );
     });
   }
@@ -75,6 +101,20 @@ class _CardCreatorState extends State<CardCreator> {
             shrinkWrap: true,
             children: rarity,
           ),
+          if(widget.positionId != null)
+            GridView.count(
+              crossAxisCount: 6,
+              primary: false,
+              shrinkWrap: true,
+              children: region,
+            ),
+          if(widget.positionId != null)
+            GridView.count(
+              crossAxisCount: 6,
+              primary: false,
+              shrinkWrap: true,
+              children: marker,
+            ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

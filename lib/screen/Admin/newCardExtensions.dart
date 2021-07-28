@@ -115,7 +115,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                         title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.headline3)),
                         contentPadding: EdgeInsets.symmetric(horizontal: 10),
                         children: [
-
+                          //CardCreator(data, onAddCard, _language!.isWorld(), localId)
                         ]
                     );
                   }
