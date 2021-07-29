@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:statitikcard/services/internationalization.dart';
 
 const double iconSize = 25.0;
 
@@ -240,95 +241,100 @@ String typeToString(Type type) {
 
 List<List<Widget>?> cachedImageRarity = List.filled(Rarity.values.length, null);
 
-List<Widget> getImageRarity(Rarity rarity) {
-  if(cachedImageRarity[rarity.index] == null) {
+List<Widget> getImageRarity(Rarity rarity, {fontSize=12.0, generate=false}) {
+  if(generate || cachedImageRarity[rarity.index] == null) {
+    List<Widget> rendering;
     //star_border
     switch(rarity) {
       case Rarity.Commune:
-        cachedImageRarity[rarity.index] = [Icon(Icons.circle)];
+        rendering = [Icon(Icons.circle)];
         break;
       case Rarity.PeuCommune:
-        cachedImageRarity[rarity.index] = [Transform.rotate(
+        rendering = [Transform.rotate(
             angle: pi / 4.0,
             child: Icon(Icons.stop))];
         break;
       case Rarity.Rare:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star)];
+        rendering = [Icon(Icons.star)];
         break;
       case Rarity.Prism:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('P', style: TextStyle(fontSize: 12.0))];
+        rendering = [Icon(Icons.star), Text('P', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.Chromatique:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('CH', style: TextStyle(fontSize: 10.0))];
+        rendering = [Icon(Icons.star), Text('CH', style: TextStyle(fontSize: fontSize-2.0))];
         break;
       case Rarity.ChromatiqueRare:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star_border), Text('CH', style: TextStyle(fontSize: 10.0))];
+        rendering = [Icon(Icons.star_border), Text('CH', style: TextStyle(fontSize: fontSize-2.0))];
         break;
       case Rarity.V:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star_border)];
+        rendering = [Icon(Icons.star_border)];
         break;
       case Rarity.VMax:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('X', style: TextStyle(fontSize: 12.0))];
+        rendering = [Icon(Icons.star), Text('X', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.Turbo:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('T', style: TextStyle(fontSize: 12.0))];
+        rendering = [Icon(Icons.star), Text('T', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.HoloRare:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('H', style: TextStyle(fontSize: 12.0))];
+        rendering = [Icon(Icons.star), Text('H', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.BrillantRare:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('PB', style: TextStyle(fontSize: 12.0))];
+        rendering = [Icon(Icons.star), Text('PB', style: TextStyle(fontSize: fontSize-2.0))];
         break;
       case Rarity.UltraRare:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('U', style: TextStyle(fontSize: 12.0))];
+        rendering = [Icon(Icons.star), Text('U', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.Magnifique:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('M', style: TextStyle(fontSize: 12.0))];
+        rendering = [Icon(Icons.star), Text('M', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.Secret:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star_border), Text('S', style: TextStyle(fontSize: 12.0))];
+        rendering = [Icon(Icons.star_border), Text('S', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.HoloRareSecret:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star_border), Text('H', style: TextStyle(fontSize: 12.0))];
+        rendering = [Icon(Icons.star_border), Text('H', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.ArcEnCiel:
-        cachedImageRarity[rarity.index] = [Icon(Icons.looks)];
+        rendering = [Icon(Icons.looks)];
         break;
       case Rarity.Gold:
-        cachedImageRarity[rarity.index] = [Icon(Icons.local_play, color: Colors.yellow[300])];
+        rendering = [Icon(Icons.local_play, color: Colors.yellow[300])];
         break;
       case Rarity.Unknown:
-        cachedImageRarity[rarity.index] = [Icon(Icons.help_outline)];
+        rendering = [Icon(Icons.help_outline)];
         break;
 
       case Rarity.JC:
-        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('C', style: TextStyle(fontSize: 12.0))];
+        rendering = [SizedBox(width: 4), Text('C', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JU:
-        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('U', style: TextStyle(fontSize: 12.0))];
+        rendering = [SizedBox(width: 4), Text('U', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JR:
-        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('R', style: TextStyle(fontSize: 12.0))];
+        rendering = [SizedBox(width: 4), Text('R', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JRR:
-        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('RR', style: TextStyle(fontSize: 12.0))];
+        rendering = [SizedBox(width: 4), Text('RR', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JRRR:
-        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('RRR', style: TextStyle(fontSize: 12.0))];
+        rendering = [SizedBox(width: 4), Text('RRR', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JSR:
-        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('SR', style: TextStyle(fontSize: 12.0))];
+        rendering = [SizedBox(width: 4), Text('SR', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JHR:
-        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('HR', style: TextStyle(fontSize: 12.0))];
+        rendering = [SizedBox(width: 4), Text('HR', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JUR:
-        cachedImageRarity[rarity.index] = [SizedBox(width: 4), Text('UR', style: TextStyle(fontSize: 12.0))];
+        rendering = [SizedBox(width: 4), Text('UR', style: TextStyle(fontSize: fontSize))];
         break;
 
       default:
         throw Exception("Unknown rarity: $rarity");
     }
+    if(generate)
+      return rendering;
+    else
+      cachedImageRarity[rarity.index] = rendering;
   }
   return cachedImageRarity[rarity.index]!;
 }
@@ -360,9 +366,11 @@ Widget getImageType(Type type)
 
 class PokeCard
 {
-  Type   type;
-  Rarity rarity;
-  bool   hasAlternative;
+  Type      type;
+  Rarity    rarity;
+  CardInfo  info = CardInfo(PokeRegion.Nothing, PokeSpecial.Nothing, []);
+  bool      hasAlternative;
+  dynamic   name; // PokemonInfo or NamedInfo
 
   PokeCard({required this.type, required this.rarity, required this.hasAlternative});
 
@@ -386,24 +394,50 @@ class PokeCard
   Mode defaultMode() {
     return rarity == Rarity.HoloRare ? Mode.Halo : Mode.Normal;
   }
+
+  List<int> byteInfo() {
+    List<int> b = [];
+
+    //2 Bytes
+    int id = 0;
+    if(name != null) {
+      if( name.isPokemon() ) {
+        var rPokemon = Environment.instance.collection.pokemons.map((k, v) => MapEntry(v, k));
+        id = rPokemon[name];
+      } else {
+        var rOther = Environment.instance.collection.otherNames.map((k, v) => MapEntry(v, k));
+        id = rOther[name];
+      }
+    }
+    CodeCardInfo i = CodeCardInfo(id, info.toCode());
+    i.encode(b);
+    return b;
+  }
 }
 
 class NamedInfo
 {
   List<String> names;
-  CardInfo     info;
+  NamedInfo({required this.names});
 
-  NamedInfo({required this.names, required this.info});
+  bool isPokemon() {
+    return false;
+  }
 }
 
 class PokemonInfo extends NamedInfo
 {
   int          generation;
 
-  PokemonInfo({required List<String> names, required this.generation, required CardInfo info}) :
-  super(names: names, info: info)
+  PokemonInfo({required List<String> names, required this.generation}) :
+  super(names: names)
   {
    assert(names.length == 3);
+  }
+
+  @override
+  bool isPokemon() {
+    return true;
   }
 }
 
@@ -412,14 +446,30 @@ class CodeCardInfo {
   int info;
 
   CodeCardInfo(this.name, this.info);
+
+  CodeCardInfo.fromByte(byteData, int id) :
+    this.name = (byteData[id] << 8) + byteData[id + 1],
+    this.info = (((byteData[id+2] << 8) | byteData[id+3]) << 8 | byteData[id+4]) << 8 | byteData[id+5];
+
+  void encode(b)
+  {
+    //2 Bytes
+    b.add((name & 0xFF00) >> 8);
+    b.add(name & 0xFF);
+
+    //4 Bytes
+    b.add((info & 0xFF000000) >> 24);
+    b.add((info & 0xFF0000) >> 16);
+    b.add((info & 0xFF00) >> 8);
+    b.add(info & 0xFF);
+  }
 }
 
 class ListCards
 {
-  List<PokeCard>    cards    = [];
-  List              pokemons = [];
-
-  bool   validCard = true;
+  List<PokeCard> cards = [];
+  bool validCard = true;
+  bool hasAdditionnalInfo = false;
 
   void extractCard(String? code)
   {
@@ -459,33 +509,30 @@ class ListCards
   }
 
   void extractCardInfo(List<CodeCardInfo> pokeList) {
+    assert(pokeList.length == cards.length);
+
+    int idCard=0;
     for( CodeCardInfo pokeID in pokeList ) {
       var poke;
-      if( pokeID.name >= 10000 ) {
-        poke = Environment.instance.collection.getNamedID(pokeID.name);
+      if( pokeID.name != 0 ) {
+        if( pokeID.name >= 10000 ) {
+          poke = Environment.instance.collection.getNamedID(pokeID.name);
 
-      } else {
-        poke = Environment.instance.collection.getPokemonID(pokeID.name);
+        } else {
+          poke = Environment.instance.collection.getPokemonID(pokeID.name);
+        }
       }
+      cards[idCard].info = CardInfo.from(pokeID.info);
+      cards[idCard].name = poke;
 
-      assert(poke != null); // Missing item into DB
-      poke.info = CardInfo.from(pokeID.info);
-      pokemons.add(poke);
+      idCard += 1;
     }
-
-    /*
-    if(local && pokemons.length != cards.length) {
-      pokemons.forEach((element) { print( element.names[0] );});
-
-      print('Named: ${pokemons.length} != Code ${cards.length}');
-    }
-    assert(pokemons.length == cards.length);
-    */
+    hasAdditionnalInfo=true;
   }
 
   String getName(Language l, int id) {
-    if(id < pokemons.length ) {
-      return pokemons[id].names[l.id-1];
+    if(id < cards.length ) {
+      return cards[id].name.names[l.id-1];
     }
     return "";
   }
@@ -1029,18 +1076,9 @@ enum PokeRegion {
   //Limited 16 values (Number 1/2 byte)
 }
 
-const List<String> regionNames =
-[
-  "Sans nom",
-  "Kanto",
-  "Johto",
-  "Hoenn",
-  "Sinnoh",
-  "Unova",
-  "Kalos",
-  "Alola",
-  "Galar",
-];
+String regionName(BuildContext context, PokeRegion id) {
+  return StatitikLocale.of(context).read('REG_${id.index}');
+}
 
 enum PokeSpecial {
   Nothing,
@@ -1049,6 +1087,10 @@ enum PokeSpecial {
   FormeFroid,
   FormePsy,
   //Limited 16 values (Number 1/2 byte)
+}
+
+String specialName(BuildContext context, PokeSpecial id) {
+  return StatitikLocale.of(context).read('SPE_${id.index}');
 }
 
 enum CardMarker {
@@ -1090,22 +1132,23 @@ Widget pokeMarker(CardMarker marker, {double? height}) {
         cachedMarkers[marker.index] = drawCachedImage('logo', 'pointfinal', height: height);
         break;
       case CardMarker.Turbo:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'turbo', height: height);
+        var newheight = (height != null) ? height-7 : null;
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'turbo', height: newheight);
         break;
       case CardMarker.EX:
         cachedMarkers[marker.index] = drawCachedImage('logo', 'ex', height: height);
         break;
       case CardMarker.Legende:
-        cachedMarkers[marker.index] = Text('Legende');
+        cachedMarkers[marker.index] = Text('Legende', style: TextStyle(fontSize: 9));
         break;
       case CardMarker.Restaure:
-        cachedMarkers[marker.index] = Text('Restaure');
+        cachedMarkers[marker.index] = Text('Restaure', style: TextStyle(fontSize: 9));
         break;
       case CardMarker.Mega:
-        cachedMarkers[marker.index] = Text('Mega');
+        cachedMarkers[marker.index] = Text('Mega', style: TextStyle(fontSize: 12));
         break;
       default:
-        cachedMarkers[marker.index] = Text('Unknown');
+        cachedMarkers[marker.index] = Text('Unknown', style: TextStyle(fontSize: 12));
     }
   }
   return cachedMarkers[marker.index]!;

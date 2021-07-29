@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import 'package:mysql1/mysql1.dart';
@@ -63,7 +64,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.9.7';
+    final String version = '0.9.8';
 
     // State
     bool isInitialized          = false;
@@ -153,7 +154,7 @@ class Environment
                 var pokes = await connection.query("SELECT * FROM `Pokemon`");
                 for (var row in pokes) {
                     try {
-                        PokemonInfo p = PokemonInfo(names: row[2].split('|'), generation: row[1], info: CardInfo.from(0));
+                        PokemonInfo p = PokemonInfo(names: row[2].split('|'), generation: row[1]);
                         collection.addPokemon(p, row[0]);
                     } catch(e) {
                         print("Bad pokemon: ${row[0]} $e");
@@ -162,7 +163,7 @@ class Environment
                 var objSup = await connection.query("SELECT * FROM `DresseurObjet`");
                 for (var row in objSup) {
                     try {
-                        collection.addNamed(NamedInfo(names: row[1].split('|'), info: CardInfo.from(0)), row[0]);
+                        collection.addNamed(NamedInfo(names: row[1].split('|')), row[0]);
                     } catch(e) {
                         print("Bad Object: ${row[0]} $e");
                     }
@@ -183,8 +184,7 @@ class Environment
                                 assert((byteData.length % (2+4)) == 0);
 
                                 for (int id = 0; id < byteData.length; id += 6) {
-                                    pokeCode.add(CodeCardInfo( (byteData[id] << 8) + byteData[id + 1],
-                                        (((byteData[id+2] << 8) | byteData[id+3]) << 8 | byteData[id+4]) << 8 | byteData[id+5]));
+                                    pokeCode.add(CodeCardInfo.fromByte( byteData, id));
                                 }
                                 c.extractCardInfo(pokeCode);
                             } catch(e) {
@@ -493,16 +493,18 @@ class Environment
                     var rType   = convertType.map((k, v)   => MapEntry(v, k));
                     var rRarity = convertRarity.map((k, v) => MapEntry(v, k));
 
+                    List<int> byteInfo = [];
                     String code = "";
                     se.cards!.cards.forEach((PokeCard card) {
                         code += rType[card.type] + rRarity[card.rarity];
+                        byteInfo += card.byteInfo();
                     });
 
-                    var query = 'UPDATE `listecartes`, `sousextension` SET `cartes` = "$code"'
-                    ' WHERE `listecartes`.`idListeCartes` = `sousextension`.`idListeCartes`'
-                    ' AND `sousextension`.`idSousExtension` = ${se.id}';
+                    var query = 'UPDATE `ListeCartes`, `SousExtension` SET `cartes` = ?, `pokemons` = ?'
+                    ' WHERE `ListeCartes`.`idListeCartes` = `SousExtension`.`idListeCartes`'
+                    ' AND `SousExtension`.`idSousExtension` = ${se.id}';
 
-                    await connection.query(query);
+                    await connection.queryMulti(query, [[code, Int8List.fromList(byteInfo)]]);
                 });
             } catch( e ) {
                 printOutput("Database error $e");

@@ -3,47 +3,46 @@ import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
-class CardData {
-  Type     type   = Type.Plante;
-  Rarity   rarity = Rarity.Commune;
-  CardInfo info   = CardInfo(PokeRegion.Nothing, PokeSpecial.Nothing, []);
-}
-
 class CardCreator extends StatefulWidget {
-  final CardData       data;
-  final int?           positionId;
-  final Function(int?) onAddCard;
-  final List           listRarity;
+  final bool            editor;
+  final PokeCard        card;
+  final Function(int?)? onAppendCard;
+  final List            listRarity;
 
-  CardCreator(this.data,  this.onAddCard, bool isWorldCard, [this.positionId]) : listRarity = (isWorldCard ? worldRarity : japanRarity);
+  CardCreator.editor(this.card, bool isWorldCard): editor=true, onAppendCard=null, listRarity = (isWorldCard ? worldRarity : japanRarity);
+  CardCreator.quick(this.card,  this.onAppendCard, bool isWorldCard): editor=false, listRarity = (isWorldCard ? worldRarity : japanRarity);
 
   @override
   _CardCreatorState createState() => _CardCreatorState();
 }
 
 class _CardCreatorState extends State<CardCreator> {
-  late CustomRadioController energyController = CustomRadioController(onChange: (value) { onTypeChanged(value); });
-  late CustomRadioController rarityController = CustomRadioController(onChange: (value) { onRarityChanged(value); });
-  late CustomRadioController regionController = CustomRadioController(onChange: (value) { onRegionChanged(value); });
+  late CustomRadioController typeController    = CustomRadioController(onChange: (value) { onTypeChanged(value); });
+  late CustomRadioController rarityController  = CustomRadioController(onChange: (value) { onRarityChanged(value); });
+  late CustomRadioController regionController  = CustomRadioController(onChange: (PokeRegion value) { onRegionChanged(value); });
+  late CustomRadioController specialController = CustomRadioController(onChange: (PokeSpecial value) { onSpecialChanged(value); });
 
   List<Widget> typeCard = [];
   List<Widget> rarity   = [];
-  List<Widget> region   = [];
   List<Widget> marker   = [];
   bool         _auto    = false;
 
   void onTypeChanged(value) {
-    widget.data.type = value;
+    widget.card.type = value;
   }
 
   void onRarityChanged(value) {
-    widget.data.rarity = value;
+    widget.card.rarity = value;
     if(_auto)
-      widget.onAddCard(widget.positionId);
+      widget.onAppendCard!(null);
   }
 
-  void onRegionChanged(value) {
-    widget.data.info.region = value;
+  void onRegionChanged(PokeRegion value) {
+    widget.card.info.region = value;
+  }
+
+  void onSpecialChanged(PokeSpecial value) {
+    widget.card.info.special = value;
   }
 
   @override
@@ -52,7 +51,7 @@ class _CardCreatorState extends State<CardCreator> {
 
     Type.values.forEach((element) {
       if( element != Type.Unknown)
-        typeCard.add(CustomRadio(value: element, controller: energyController, widget: getImageType(element)));
+        typeCard.add(CustomRadio(value: element, controller: typeController, widget: getImageType(element)));
     });
 
     widget.listRarity.forEach((element) {
@@ -60,32 +59,57 @@ class _CardCreatorState extends State<CardCreator> {
       rarity.add(CustomRadio(value: element, controller: rarityController,
         widget: Row(mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: getImageRarity(element))
+        children: getImageRarity(element, fontSize: 8.0, generate: true))
         )
       );
     });
 
-    regionNames.forEach((element) {
-        region.add(CustomRadio(value: element, controller: regionController,
-          widget: Row(mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [Text(element)])
-         )
-        );
-    });
+    if(widget.editor) {
+      CardMarker.values.forEach((element) {
+        if (element != CardMarker.Nothing)
+          marker.add(ButtonCheck(widget.card, element));
+      });
+    }
 
-    CardMarker.values.forEach((element) {
-      marker.add(CustomRadio(value: element, controller: regionController,
-          widget: Row(mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [pokeMarker(element, height: 15)])
-      )
-      );
-    });
+    // Set current value
+    typeController.afterPress(widget.card.type);
+    rarityController.afterPress(widget.card.rarity);
   }
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> region   = [];
+    List<Widget> special  = [];
+    if(widget.editor) {
+      PokeRegion.values.forEach((element) {
+        region.add(CustomRadio(value: element, controller: regionController,
+            widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(child: Center(child: Text(
+                    regionName(context, element),
+                    style: TextStyle(fontSize: 9),)))
+                ])
+        )
+        );
+      });
+
+      PokeSpecial.values.forEach((element) {
+        special.add(CustomRadio(value: element, controller: specialController,
+            widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(child: Center(child: Text(
+                    specialName(context, element),
+                    style: TextStyle(fontSize: 9),)))
+                ])
+        )
+        );
+      });
+      regionController.afterPress(widget.card.info.region);
+      specialController.afterPress(widget.card.info.special);
+    }
+
     return Card(
       child: Column(
         children: [
@@ -96,26 +120,33 @@ class _CardCreatorState extends State<CardCreator> {
             children: typeCard,
           ),
           GridView.count(
-            crossAxisCount: 6,
+            crossAxisCount: 7,
             primary: false,
             shrinkWrap: true,
             children: rarity,
           ),
-          if(widget.positionId != null)
+          if(widget.editor)
             GridView.count(
-              crossAxisCount: 6,
+              crossAxisCount: 7,
               primary: false,
               shrinkWrap: true,
               children: region,
             ),
-          if(widget.positionId != null)
+          if(widget.editor)
+            GridView.count(
+              crossAxisCount: 6,
+              primary: false,
+              shrinkWrap: true,
+              children: special,
+            ),
+          if(widget.editor)
             GridView.count(
               crossAxisCount: 6,
               primary: false,
               shrinkWrap: true,
               children: marker,
             ),
-          Row(
+          if( !widget.editor ) Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
             Card(
@@ -123,11 +154,11 @@ class _CardCreatorState extends State<CardCreator> {
               child: TextButton(
               child: Text(StatitikLocale.of(context).read('NCE_B0')),
                 onPressed: (){
-                  widget.onAddCard(null);
+                  widget.onAppendCard!(null);
                 },
               )
             ),
-            Card(
+            if( !widget.editor ) Card(
               color: _auto ? Colors.green : Colors.grey[800],
               child: TextButton(
                 child: Text(StatitikLocale.of(context).read('NCE_B2')),
@@ -140,6 +171,40 @@ class _CardCreatorState extends State<CardCreator> {
             )
           ])
       ]),
+    );
+  }
+}
+
+class ButtonCheck extends StatefulWidget {
+  final CardMarker mark;
+  final PokeCard   card;
+
+  const ButtonCheck(this.card, this.mark);
+
+  @override
+  _ButtonCheckState createState() => _ButtonCheckState();
+}
+
+class _ButtonCheckState extends State<ButtonCheck> {
+  @override
+  Widget build(BuildContext context) {
+    var cm = widget.card.info.markers;
+    return Card(
+      color: cm.contains(widget.mark) ? Colors.green : Colors.grey[800],
+      child: TextButton(
+        child: Row(mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [pokeMarker(widget.mark, height: 15)]),
+        onPressed: (){
+          setState(() {
+            if( cm.contains(widget.mark) ) {
+              cm.remove(widget.mark);
+            } else {
+              cm.add(widget.mark);
+            }
+          });
+        },
+      ),
     );
   }
 }

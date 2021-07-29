@@ -24,9 +24,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
   String? message;
 
   @override
-  void initState() {
-    super.initState();
-
+  Widget build(BuildContext context) {
     if( Environment.instance.isLogged() ) {
       // First time: go to tutorial
       SharedPreferences.getInstance().then((prefs) {
@@ -38,12 +36,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
           prefs.setBool('TutorialDraw', true);
         }
       });
-    }
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    if( Environment.instance.isLogged() ) {
       return Scaffold(
           appBar: AppBar(
           title: Center(

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
+import 'package:statitikcard/screen/Admin/cardEditor.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -18,7 +19,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   SubExtension? _se;
   List<Widget>  _cardInfo = [];
   bool _modify = false;
-  CardData data = CardData();
+  PokeCard data = PokeCard(type: Type.Plante, rarity: Rarity.Commune, hasAlternative: false);
 
   void onAddCard(int? pos) {
     setState((){
@@ -108,18 +109,14 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                 });
               },
               onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return SimpleDialog(
-                        title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.headline3)),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                        children: [
-                          //CardCreator(data, onAddCard, _language!.isWorld(), localId)
-                        ]
-                    );
-                  }
-                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CardEditor(card, _language!.isWorld())),
+                ).then((value) =>
+                    setState(() {
+                      _cardInfo = _cards();
+                      _modify   = true;
+                    }));
               },
           ),
         ));
@@ -166,7 +163,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                 },
               )
             ),
-            if(_se != null) CardCreator(data, onAddCard, _language!.isWorld()),
+            if(_se != null) CardCreator.quick(data, onAddCard, _language!.isWorld()),
             if(_se != null && _se!.cards != null) GridView.count(
                 primary: false,
                 children: _cardInfo,

@@ -69,7 +69,7 @@ class _UserReportState extends State<UserReport> {
             break;
 
           final cardName = c.name;
-          if(finalData.subExt!.info().pokemons.isNotEmpty)
+          if(finalData.subExt!.info().hasAdditionnalInfo)
             bestCards.add(Card(
               color: Colors.grey[600],
               child: Padding(
@@ -226,7 +226,7 @@ class _UserReportState extends State<UserReport> {
   }
 
   Widget buildBestCards(translator, limit) {
-    if(finalData.subExt!.info().pokemons.isNotEmpty)
+    if(finalData.subExt!.cards!.hasAdditionnalInfo)
       return Card(
           child: Column(
               mainAxisSize: MainAxisSize.min,

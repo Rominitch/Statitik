@@ -23,4 +23,13 @@ void main() {
     expect(1025,   c[2].toCode());
     expect(262455, c[3].toCode());
   });
+  test('Encoding', () {
+    var c = CodeCardInfo( 3456, 55668);
+    List<int> b = [];
+    c.encode(b);
+
+    var d = CodeCardInfo.fromByte(b, 0);
+    expect(c.name,  d.name);
+    expect(c.info,  d.info);
+  });
 }
