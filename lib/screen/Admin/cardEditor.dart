@@ -1,15 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class CardEditor extends StatefulWidget {
+  final int       id;
+  final ListCards cards;
   final PokeCard  card;
   final bool      isWorldCard;
 
-  const CardEditor(this.card, this.isWorldCard);
+  const CardEditor(this.card, this.isWorldCard, this.cards, this.id);
 
   @override
   _CardEditorState createState() => _CardEditorState();
@@ -20,13 +23,34 @@ class _CardEditorState extends State<CardEditor> {
 
   @override
   Widget build(BuildContext context) {
-    dynamic name = widget.card.name;
+    NamedInfo? name = widget.card.name;
 
     return Scaffold(
         appBar: AppBar(
           title: Container(
-            child: Text(StatitikLocale.of(context).read('CE_T0')),
+            child: Text(sprintf("%s: %d %s",
+                [StatitikLocale.of(context).read('CE_T0'), widget.id+1, name != null ? name.defaultName() : ""]
+              ),
+              style: Theme.of(context).textTheme.headline6,
+              softWrap: true,
+              maxLines: 2,
+            ),
           ),
+          actions: [
+            if(widget.id+1 < widget.cards.cards.length)
+              Card(
+                  color: Colors.grey[800],
+                  child: TextButton(
+                    child: Text(StatitikLocale.of(context).read('NCE_B6')),
+                    onPressed: (){
+                      int nextId = widget.id+1;
+                      Navigator.pushReplacement(context,
+                        MaterialPageRoute(builder: (context) => CardEditor(widget.cards.cards[nextId], widget.isWorldCard, widget.cards, nextId)),
+                      );
+                    },
+                  )
+              ),
+          ],
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(2.0),
@@ -37,7 +61,7 @@ class _CardEditorState extends State<CardEditor> {
               Card(
                 color: Colors.grey[700],
                 child: TextButton(
-                  child: Text((name != null && name.isPokemon()) ? name.names[0] : ""),
+                  child: Text((name != null && name.isPokemon()) ? name.defaultName() : ""),
                   onPressed: (){
                     Navigator.push(
                       context,
@@ -55,7 +79,7 @@ class _CardEditorState extends State<CardEditor> {
               Card(
                   color: Colors.grey[700],
                   child: TextButton(
-                    child: Text((name != null && !name.isPokemon()) ? name.names[0] : ""),
+                    child: Text((name != null && !name.isPokemon()) ? name.defaultName() : ""),
                     onPressed: (){
                       Navigator.push(
                         context,
@@ -100,7 +124,7 @@ class ChooserCardName extends StatelessWidget {
                   onPressed: (){
                     Navigator.pop(context, info);
                   },
-                  child: Text(info.names[0])
+                  child: Text(info.defaultName())
                 )
             );
           },

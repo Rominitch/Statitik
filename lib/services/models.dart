@@ -119,7 +119,8 @@ const List<Color> rarityColors =
   //purple 600 700 800
   Colors.purple, Colors.purple, Color(0xFF8E24AA), Color(0xFF8E24AA), Color(0xFF7B1FA2), Color(0xFF6A1B9A), Color(0xFF6A1B9A),         // Ch T V JRR Vm JRRR PB
   // Yellow 600 700 800
-  Colors.yellow, Color(0xFFFDD835), Color(0xFFFDD835), Color(0xFFFBC02D), Color(0xFFFBC02D), Color(0xFFF9A825), Color(0xFFF9A825), Color(0xFFF9A825)           // ChR S JSR A JHR G HS JUR
+  Colors.yellow, Color(0xFFFDD835), Color(0xFFFDD835), Color(0xFFFBC02D), Color(0xFFFBC02D), Color(0xFFF9A825), Color(0xFFF9A825), Color(0xFFF9A825),           // ChR S JSR A JHR G HS JUR
+  Colors.black // unknown
 ];
 
 const List<Rarity> worldRarity = [Rarity.Commune, Rarity.PeuCommune, Rarity.Rare,
@@ -216,14 +217,18 @@ const List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
   Color(0xFFBDBDBD),  Colors.pinkAccent, Colors.orange, Colors.white70,
 ];
 
-List<Color> typeColors = energiesColors + [Color(0xFF1976D2), Color(0xFFC62828), Color(0xFFB9F6CA), Color(0xFFFFFF8D)];
+const List<Color> generationColor = [
+  Colors.black, Colors.blue, Colors.red, Colors.green, Colors.brown,
+  Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal
+];
+
+List<Color> typeColors = energiesColors + [Color(0xFF1976D2), Color(0xFFC62828), Color(0xFFB9F6CA), Color(0xFFFFFF8D), Colors.black];
 
 List<Widget?> cachedEnergies = List.filled(energies.length, null);
 
 Widget energyImage(Type type) {
+  assert (type != Type.Unknown);
   if(cachedEnergies[type.index] == null) {
-    if (type == Type.Unknown)
-      cachedEnergies[type.index] = Icon(Icons.help_outline);
     if (imageName[type].isNotEmpty) {
       cachedEnergies[type.index] = Image(
         image: AssetImage('assets/energie/${imageName[type]}.png'),
@@ -357,6 +362,9 @@ Widget getImageType(Type type)
       case Type.Energy:
         cachedImageType[type.index] = Icon(Icons.battery_charging_full);
         break;
+      case Type.Unknown:
+        cachedImageType[type.index] = Icon(Icons.help_outline);
+        break;
       default:
         cachedImageType[type.index] = energyImage(type);
     }
@@ -368,7 +376,7 @@ class PokeCard
 {
   Type      type;
   Rarity    rarity;
-  CardInfo  info = CardInfo(PokeRegion.Nothing, PokeSpecial.Nothing, []);
+  CardInfo  info = CardInfo();
   bool      hasAlternative;
   dynamic   name; // PokemonInfo or NamedInfo
 
@@ -417,8 +425,23 @@ class PokeCard
 
 class NamedInfo
 {
-  List<String> names;
-  NamedInfo({required this.names});
+  List<String> _names;
+  NamedInfo(this._names){
+    assert(_names.length == 3);
+  }
+
+  String fullname(Language l) {
+    return name(l);
+  }
+
+  String defaultName() {
+    return _names[0];
+  }
+
+  String name(Language l) {
+    assert(0 <= l.id-1 && l.id-1 < _names.length);
+    return _names[l.id-1];
+  }
 
   bool isPokemon() {
     return false;
@@ -427,12 +450,18 @@ class NamedInfo
 
 class PokemonInfo extends NamedInfo
 {
-  int          generation;
+  int generation;
+  int id;
 
-  PokemonInfo({required List<String> names, required this.generation}) :
-  super(names: names)
+  PokemonInfo({required List<String> names, required this.generation, required this.id}) :
+  super(names)
   {
    assert(names.length == 3);
+  }
+
+  @override
+  String fullname(Language l) {
+    return name(l) + " - n°" + id.toString();
   }
 
   @override
@@ -1076,6 +1105,11 @@ enum PokeRegion {
   //Limited 16 values (Number 1/2 byte)
 }
 
+const List<Color> regionColors = [
+  Colors.white70, Colors.blue, Colors.red, Colors.green, Colors.brown,
+  Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal
+];
+
 String regionName(BuildContext context, PokeRegion id) {
   return StatitikLocale.of(context).read('REG_${id.index}');
 }
@@ -1108,6 +1142,12 @@ enum CardMarker {
   Restaure,
   //Limited 24 values (Bit 3 bytes)
 }
+
+const List<Color> markerColors = [
+  Colors.white70, Colors.blue, Colors.red, Colors.green, Colors.brown,
+  Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal,
+  Colors.indigo, Colors.deepOrange, Colors.lime, Colors.purpleAccent
+];
 
 List<Widget?> cachedMarkers = List.filled(CardMarker.values.length, null);
 Widget pokeMarker(CardMarker marker, {double? height}) {
@@ -1157,9 +1197,9 @@ Widget pokeMarker(CardMarker marker, {double? height}) {
 class CardInfo {
   PokeRegion       region  = PokeRegion.Nothing;
   PokeSpecial      special = PokeSpecial.Nothing;
-  List<CardMarker> markers  = [];
+  List<CardMarker> markers = [];
 
-  CardInfo(this.region, this.special, this.markers);
+  CardInfo([this.region = PokeRegion.Nothing, this.special = PokeSpecial.Nothing, markers = const []]) : this.markers = List.from(markers);
 
   CardInfo.from(int code) {
     region  = PokeRegion.values[code & 0xF];
@@ -1187,5 +1227,73 @@ class CardInfo {
     });
 
     return code | marker<<8;
+  }
+}
+
+class CardStats {
+  int count = 0;
+  List<int>              countRegion = List.filled(PokeRegion.values.length, 0);
+  Map<SubExtension, List<int>> countSubExtension = {};
+  Map<CardMarker, int>   countMarker = {};
+  Map<Rarity, int>       countRarity = {};
+  Map<Type, int>         countType   = {};
+
+  bool hasData() {
+    return countSubExtension.isNotEmpty;
+  }
+
+  int nbCards() {
+    return count;
+  }
+
+  void add(SubExtension se, PokeCard card, int idCard) {
+    count += 1;
+    countRegion[card.info.region.index] += 1;
+
+    countRarity[card.rarity] = countRarity[card.rarity] != null ? countRarity[card.rarity]! + 1 : 1;
+    countType[card.type]     = countType[card.type]     != null ? countType[card.type]! + 1     : 1;
+    if(countSubExtension[se] != null) {
+      countSubExtension[se]!.add(idCard);
+    } else {
+      countSubExtension[se] = [idCard];
+    }
+    card.info.markers.forEach((marker) {
+      countMarker[marker] = countMarker[marker] != null ? countMarker[marker]! + 1 : 1;
+    });
+  }
+}
+
+class CardResults {
+  NamedInfo? specificCard;
+  CardInfo   filter = CardInfo();
+  CardStats? stats;
+
+  bool isSelected(PokeCard card){
+    bool select = true;
+    if(specificCard != null) {
+      select = card.name == specificCard;
+    }
+    if(select && filter.region != PokeRegion.Nothing) {
+      select = card.info.region == filter.region;
+    }
+    if(select && filter.markers.isNotEmpty) {
+      select = false;
+      filter.markers.forEach((element) {
+        select |= card.info.markers.contains(element);
+      });
+    }
+    return select;
+  }
+
+  bool isSpecific() {
+    return specificCard != null;
+  }
+
+  bool isFiltered() {
+    return filter.markers.isNotEmpty || filter.region != PokeRegion.Nothing;
+  }
+
+  bool hasStats() {
+    return stats != null;
   }
 }

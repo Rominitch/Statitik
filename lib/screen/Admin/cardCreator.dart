@@ -67,7 +67,7 @@ class _CardCreatorState extends State<CardCreator> {
     if(widget.editor) {
       CardMarker.values.forEach((element) {
         if (element != CardMarker.Nothing)
-          marker.add(ButtonCheck(widget.card, element));
+          marker.add(ButtonCheck(widget.card.info, element));
       });
     }
 
@@ -168,7 +168,7 @@ class _CardCreatorState extends State<CardCreator> {
                   });
                 }
               )
-            )
+            ),
           ])
       ]),
     );
@@ -177,7 +177,7 @@ class _CardCreatorState extends State<CardCreator> {
 
 class ButtonCheck extends StatefulWidget {
   final CardMarker mark;
-  final PokeCard   card;
+  final CardInfo   card;
 
   const ButtonCheck(this.card, this.mark);
 
@@ -188,7 +188,7 @@ class ButtonCheck extends StatefulWidget {
 class _ButtonCheckState extends State<ButtonCheck> {
   @override
   Widget build(BuildContext context) {
-    var cm = widget.card.info.markers;
+    var cm = widget.card.markers;
     return Card(
       color: cm.contains(widget.mark) ? Colors.green : Colors.grey[800],
       child: TextButton(

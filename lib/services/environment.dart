@@ -64,7 +64,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.9.8';
+    final String version = '1.0.0';
 
     // State
     bool isInitialized          = false;
@@ -82,6 +82,10 @@ class Environment
 
     void initialize() async
     {
+        // General data control
+        assert(Rarity.values.length == rarityColors.length);
+        assert(Type.values.length   == typeColors.length);
+
         if(!isInitialized) {
             // Sync event
             try {
@@ -151,11 +155,13 @@ class Environment
                 for (var row in exts) {
                     collection.addExtension(Extension(id: row[0], name: row[2], idLanguage: row[1]));
                 }
+                int idPoke=1;
                 var pokes = await connection.query("SELECT * FROM `Pokemon`");
                 for (var row in pokes) {
                     try {
-                        PokemonInfo p = PokemonInfo(names: row[2].split('|'), generation: row[1]);
+                        PokemonInfo p = PokemonInfo(names: row[2].split('|'), generation: row[1], id: idPoke);
                         collection.addPokemon(p, row[0]);
+                        idPoke += 1;
                     } catch(e) {
                         print("Bad pokemon: ${row[0]} $e");
                     }
@@ -163,7 +169,7 @@ class Environment
                 var objSup = await connection.query("SELECT * FROM `DresseurObjet`");
                 for (var row in objSup) {
                     try {
-                        collection.addNamed(NamedInfo(names: row[1].split('|')), row[0]);
+                        collection.addNamed(NamedInfo(row[1].split('|')), row[0]);
                     } catch(e) {
                         print("Bad Object: ${row[0]} $e");
                     }
@@ -186,6 +192,7 @@ class Environment
                                 for (int id = 0; id < byteData.length; id += 6) {
                                     pokeCode.add(CodeCardInfo.fromByte( byteData, id));
                                 }
+                                assert( c.cards.length == pokeCode.length);
                                 c.extractCardInfo(pokeCode);
                             } catch(e) {
                                 print("Data corruption: ListCard ${row[0]} $e");

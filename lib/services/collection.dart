@@ -33,8 +33,8 @@ class Collection
     listCards[id] = l;
   }
 
-  List getExtensions(Language language) {
-    List l = [];
+  List<Extension> getExtensions(Language language) {
+    List<Extension> l = [];
     for(Extension e in extensions) {
       if (e.idLanguage == language.id) {
         l.add(e);
@@ -43,8 +43,8 @@ class Collection
     return l;
   }
 
-  List getSubExtensions(Extension e) {
-    List l = [];
+  List<SubExtension> getSubExtensions(Extension e) {
+    List<SubExtension> l = [];
     for(SubExtension se in subExtensions.values) {
       if (se.idExtension == e.id) {
         l.add(se);

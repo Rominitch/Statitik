@@ -36,7 +36,16 @@ class _LoadingState extends State<Loading> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          color: Colors.grey[900],
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  Colors.lightBlue[800]!,
+                  Colors.green[900]!,
+                ],
+              )
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,

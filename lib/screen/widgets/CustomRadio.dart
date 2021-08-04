@@ -4,18 +4,25 @@ import 'package:flutter/material.dart';
 
 class CustomRadioController {
   List<CustomRadio> _radios = [];
-  Function onChange;
+  Function  onChange;
+  dynamic   currentValue;
 
   CustomRadioController({required this.onChange});
 
   void register(CustomRadio cr) {
-    if(_radios.isEmpty) {
+    if(currentValue == null) {
       cr.activate(cr.value);
+      currentValue = cr.value;
     }
     _radios.add(cr);
   }
 
+  void unregister(CustomRadio cr) {
+    _radios.remove(cr);
+  }
+
   void afterPress(value) {
+    currentValue = value;
     // Refresh all radio
     _radios.forEach((element) {
       element.activate(value);
@@ -53,17 +60,19 @@ class _CustomRadioState extends State<CustomRadio> {
 
   @override
   void initState() {
-    super.initState();
+    _activate = widget.controller.currentValue == widget.value;
 
     widget.afterChange.stream.listen((cmpValue) {
       setState(() {
         _activate = cmpValue == widget.value;
       });
     });
+    super.initState();
   }
 
   @override
   void dispose() {
+    widget.controller.unregister(widget);
     widget._closeEvent();
     super.dispose();
   }
@@ -77,9 +86,11 @@ class _CustomRadioState extends State<CustomRadio> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      /*
       constraints: BoxConstraints(
         maxWidth: 55.0,
       ),
+       */
       padding: EdgeInsets.all(2.0),
       child: TextButton(
         style: TextButton.styleFrom(

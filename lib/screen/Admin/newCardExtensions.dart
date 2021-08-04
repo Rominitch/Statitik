@@ -111,7 +111,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CardEditor(card, _language!.isWorld())),
+                  MaterialPageRoute(builder: (context) => CardEditor(card, _language!.isWorld(), _se!.cards!, localId)),
                 ).then((value) =>
                     setState(() {
                       _cardInfo = _cards();
@@ -146,6 +146,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(2.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Card(
               child: TextButton(
