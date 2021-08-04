@@ -218,6 +218,11 @@ Images and illustrations used are the property of their respective authors.
       'CA_B4':    'Filters',
       'CA_B5':    'Search',
       'CA_B6':    'Number of cards : %d',
+      'CA_B7':    'Cards by marker',
+      'CA_B8':    'Cards by region',
+      'CA_B9':    'Cards by type',
+      'CA_B10':   'Cards by rarity',
+      'CA_B11':   'Number inside expansion'
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -431,6 +436,11 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'CA_B4':    'Filtres',
       'CA_B5':    'Recherche',
       'CA_B6':    'Nombre de cartes : %d',
+      'CA_B7':    'Cartes par marqueur',
+      'CA_B8':    'Cartes par région',
+      'CA_B9':    'Cartes par type',
+      'CA_B10':   'Cartes par rareté',
+      'CA_B11':   'Numéro dans les extensions',
     },
   };
 

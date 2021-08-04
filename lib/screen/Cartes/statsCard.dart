@@ -121,30 +121,35 @@ class _StatsCardState extends State<StatsCard> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Center(child: Text(sprintf(StatitikLocale.of(context).read('CA_B6'), [widget.stats.stats!.nbCards()]), style: Theme.of(context).textTheme.headline5)),
-          ListView(
+          if(subEx.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B11'), style: Theme.of(context).textTheme.headline5),
+          if(subEx.isNotEmpty) ListView(
             primary: false,
             shrinkWrap: true,
             children: subEx,
           ),
+          Text(StatitikLocale.of(context).read('CA_B10'), style: Theme.of(context).textTheme.headline5),
           ListView(
             primary: false,
             shrinkWrap: true,
             children: rarity,
           ),
           SizedBox(height: 10.0),
+          Text(StatitikLocale.of(context).read('CA_B9'), style: Theme.of(context).textTheme.headline5),
           ListView(
             primary: false,
             shrinkWrap: true,
             children: type,
           ),
-          SizedBox(height: 10.0),
-          ListView(
+          if(markers.isNotEmpty) SizedBox(height: 10.0),
+          if(markers.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B7'), style: Theme.of(context).textTheme.headline5),
+          if(markers.isNotEmpty) ListView(
             primary: false,
             shrinkWrap: true,
             children: markers,
           ),
-          SizedBox(height: 10.0),
-          ListView(
+          if(regions.isNotEmpty) SizedBox(height: 10.0),
+          if(regions.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B8'), style: Theme.of(context).textTheme.headline5),
+          if(regions.isNotEmpty) ListView(
             primary: false,
             shrinkWrap: true,
             children: regions,
