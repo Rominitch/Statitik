@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:statitikcard/screen/Cartes/CardFilterSelector.dart';
 import 'package:statitikcard/screen/Cartes/CardNameSelector.dart';
 import 'package:statitikcard/screen/Cartes/statsCard.dart';
@@ -128,7 +129,7 @@ class _CardStatisticPageState extends State<CardStatisticPage> {
                       setState(() {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => CardFilterSelector(_cardResults.filter)),
+                          MaterialPageRoute(builder: (context) => CardFilterSelector(_cardResults)),
                         ).then((value) {
                           setState(() {
                             afterDataFilled();

@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
@@ -38,6 +38,14 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         _se!.cards!.cards.insert(pos, PokeCard(
             type: data.type, rarity: data.rarity, hasAlternative: false));
       }
+      _cardInfo = _cards();
+    });
+  }
+
+  void removeCard(int localId) {
+    setState(() {
+      _modify = true;
+      _se!.cards!.cards.removeAt(localId);
       _cardInfo = _cards();
     });
   }
@@ -98,8 +106,8 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                                 child: TextButton(
                                 child: Text(StatitikLocale.of(context).read('NCE_B5')),
                                 onPressed: () {
-                                    _se!.cards!.cards.removeAt(localId);
-                                    Navigator.of(context).pop();
+                                  removeCard(localId);
+                                  Navigator.of(context).pop();
                                 },
                               )),
                             ]

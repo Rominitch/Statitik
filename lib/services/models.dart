@@ -5,9 +5,10 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 const double iconSize = 25.0;
@@ -374,11 +375,11 @@ Widget getImageType(Type type)
 
 class PokeCard
 {
-  Type      type;
-  Rarity    rarity;
-  CardInfo  info = CardInfo();
-  bool      hasAlternative;
-  dynamic   name; // PokemonInfo or NamedInfo
+  Type           type;
+  Rarity         rarity;
+  List<CardName> names = [];
+  CardInfo       info = CardInfo();
+  bool           hasAlternative;
 
   PokeCard({required this.type, required this.rarity, required this.hasAlternative});
 
@@ -403,22 +404,75 @@ class PokeCard
     return rarity == Rarity.HoloRare ? Mode.Halo : Mode.Normal;
   }
 
-  List<int> byteInfo() {
+  int extractNameByte(int id, byteData) {
+    assert(id+4 <= byteData.length);
+    int nbNames = byteData[id];
+    id += 1;
+    for(var i=0; i < nbNames; i+=1) {
+      assert(id+3 <= byteData.length);
+      // Decode
+      int codeName   = byteData[id] << 8 | byteData[id+1];
+      int codeRegion = byteData[id+2];
+      id += 3;
+
+      // Build name
+      CardName cname = CardName.from(codeRegion);
+      if( codeName != 0 ) {
+        if( codeName >= 10000 ) {
+          cname.name = Environment.instance.collection.getNamedID(codeName);
+
+        } else {
+          cname.name = Environment.instance.collection.getPokemonID(codeName);
+        }
+      }
+      names.add(cname);
+    }
+    return id;
+  }
+
+  List<int> nameByte() {
     List<int> b = [];
 
+    // Clean invalid name
+    names.removeWhere((element) => element.name==null);
+
     //2 Bytes
-    int id = 0;
-    if(name != null) {
-      if( name.isPokemon() ) {
-        var rPokemon = Environment.instance.collection.pokemons.map((k, v) => MapEntry(v, k));
-        id = rPokemon[name];
+    b.add(names.length);
+    for(var n in names) {
+      int id=0;
+      if (n.name.isPokemon()) {
+        var rPokemon = Environment.instance.collection.pokemons.map((k, v) =>
+            MapEntry(v, k));
+        id = rPokemon[n.name];
       } else {
-        var rOther = Environment.instance.collection.otherNames.map((k, v) => MapEntry(v, k));
-        id = rOther[name];
+        var rOther = Environment.instance.collection.otherNames.map((k, v) =>
+            MapEntry(v, k));
+        id = rOther[n.name];
       }
+
+      //2 Bytes
+      b.add((id & 0xFF00) >> 8);
+      b.add(id & 0xFF);
+      b.add(n.toCode());
     }
-    CodeCardInfo i = CodeCardInfo(id, info.toCode());
-    i.encode(b);
+    return b;
+  }
+
+  int extractInfoByte(int id, byteData) {
+    assert(id+3 <= byteData.length);
+
+    int code = ((byteData[id] << 8) | byteData[id+1]) << 8 | byteData[id+2];
+    info = CardInfo.from(code);
+    return id + 3;
+  }
+
+  List<int> infoByte() {
+    List<int> b = [];
+    var i = info.toCode();
+    //4 Bytes
+    b.add((i & 0xFF0000) >> 16);
+    b.add((i & 0xFF00) >> 8);
+    b.add(i & 0xFF);
     return b;
   }
 }
@@ -450,47 +504,23 @@ class NamedInfo
 
 class PokemonInfo extends NamedInfo
 {
-  int generation;
-  int id;
+  int         generation;
+  int         idPokedex;
 
-  PokemonInfo({required List<String> names, required this.generation, required this.id}) :
+  PokemonInfo({required List<String> names, required this.generation, required this.idPokedex}) :
   super(names)
   {
-   assert(names.length == 3);
+    assert(names.length == 3);
   }
 
   @override
   String fullname(Language l) {
-    return name(l) + " - n°" + id.toString();
+    return name(l) + " - n°" + idPokedex.toString();
   }
 
   @override
   bool isPokemon() {
     return true;
-  }
-}
-
-class CodeCardInfo {
-  int name;
-  int info;
-
-  CodeCardInfo(this.name, this.info);
-
-  CodeCardInfo.fromByte(byteData, int id) :
-    this.name = (byteData[id] << 8) + byteData[id + 1],
-    this.info = (((byteData[id+2] << 8) | byteData[id+3]) << 8 | byteData[id+4]) << 8 | byteData[id+5];
-
-  void encode(b)
-  {
-    //2 Bytes
-    b.add((name & 0xFF00) >> 8);
-    b.add(name & 0xFF);
-
-    //4 Bytes
-    b.add((info & 0xFF000000) >> 24);
-    b.add((info & 0xFF0000) >> 16);
-    b.add((info & 0xFF00) >> 8);
-    b.add(info & 0xFF);
   }
 }
 
@@ -537,31 +567,15 @@ class ListCards
     }
   }
 
-  void extractCardInfo(List<CodeCardInfo> pokeList) {
-    assert(pokeList.length == cards.length);
-
-    int idCard=0;
-    for( CodeCardInfo pokeID in pokeList ) {
-      var poke;
-      if( pokeID.name != 0 ) {
-        if( pokeID.name >= 10000 ) {
-          poke = Environment.instance.collection.getNamedID(pokeID.name);
-
-        } else {
-          poke = Environment.instance.collection.getPokemonID(pokeID.name);
-        }
-      }
-      cards[idCard].info = CardInfo.from(pokeID.info);
-      cards[idCard].name = poke;
-
-      idCard += 1;
-    }
-    hasAdditionnalInfo=true;
-  }
-
   String getName(Language l, int id) {
     if(id < cards.length ) {
-      return cards[id].name.names[l.id-1];
+      List<String> names = [];
+      cards[id].names.forEach((element) {
+        if(element.name != null) {
+          names.add(element.name.name(l));
+        }
+      });
+      return names.join("&");
     }
     return "";
   }
@@ -1194,18 +1208,29 @@ Widget pokeMarker(CardMarker marker, {double? height}) {
   return cachedMarkers[marker.index]!;
 }
 
-class CardInfo {
-  PokeRegion       region  = PokeRegion.Nothing;
-  PokeSpecial      special = PokeSpecial.Nothing;
-  List<CardMarker> markers = [];
+class CardName {
+  dynamic     name; // PokemonInfo or NamedInfo
+  PokeRegion  region  = PokeRegion.Nothing;
+  PokeSpecial special = PokeSpecial.Nothing;
 
-  CardInfo([this.region = PokeRegion.Nothing, this.special = PokeSpecial.Nothing, markers = const []]) : this.markers = List.from(markers);
+  CardName([this.region = PokeRegion.Nothing, this.special = PokeSpecial.Nothing]);
 
-  CardInfo.from(int code) {
+  CardName.from(int code) {
     region  = PokeRegion.values[code & 0xF];
     special = PokeSpecial.values[(code>>4 & 0xF)];
+  }
 
-    code = code>>8;
+  int toCode() {
+    return region.index + (special.index<<4);
+  }
+}
+
+class CardInfo {
+  List<CardMarker> markers = [];
+
+  CardInfo([markers = const []]) : this.markers = List.from(markers);
+
+  CardInfo.from(int code) {
     int id = 1;
     while(code > 0)
     {
@@ -1218,15 +1243,12 @@ class CardInfo {
   }
 
   int toCode() {
-    int code = region.index + (special.index<<4);
     int marker = 0;
-
     markers.forEach((element) {
       if(element != CardMarker.Nothing)
         marker |= (1<<(element.index-1));
     });
-
-    return code | marker<<8;
+    return marker;
   }
 }
 
@@ -1248,8 +1270,9 @@ class CardStats {
 
   void add(SubExtension se, PokeCard card, int idCard) {
     count += 1;
-    countRegion[card.info.region.index] += 1;
-
+    for(var n in card.names) {
+      countRegion[n.region.index] += 1;
+    }
     countRarity[card.rarity] = countRarity[card.rarity] != null ? countRarity[card.rarity]! + 1 : 1;
     countType[card.type]     = countType[card.type]     != null ? countType[card.type]! + 1     : 1;
     if(countSubExtension[se] != null) {
@@ -1266,15 +1289,22 @@ class CardStats {
 class CardResults {
   NamedInfo? specificCard;
   CardInfo   filter = CardInfo();
+  PokeRegion filterRegion = PokeRegion.Nothing;
   CardStats? stats;
 
   bool isSelected(PokeCard card){
     bool select = true;
     if(specificCard != null) {
-      select = card.name == specificCard;
+      select = false;
+      for(var n in card.names) {
+        select |= (n.name == specificCard);
+      }
     }
-    if(select && filter.region != PokeRegion.Nothing) {
-      select = card.info.region == filter.region;
+    if(select && filterRegion != PokeRegion.Nothing) {
+      select = false;
+      for(var n in card.names) {
+        select |= (n.region == filterRegion);
+      }
     }
     if(select && filter.markers.isNotEmpty) {
       select = false;
@@ -1290,7 +1320,7 @@ class CardResults {
   }
 
   bool isFiltered() {
-    return filter.markers.isNotEmpty || filter.region != PokeRegion.Nothing;
+    return filter.markers.isNotEmpty || filterRegion != PokeRegion.Nothing;
   }
 
   bool hasStats() {

@@ -5,9 +5,9 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class CardFilterSelector extends StatefulWidget {
-  final CardInfo filter;
+  final CardResults result;
 
-  CardFilterSelector(this.filter);
+  CardFilterSelector(this.result);
 
   @override
   _CardFilterSelectorState createState() => _CardFilterSelectorState();
@@ -19,17 +19,17 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
   List<Widget> widgetMarkers = [];
   List<Widget> region        = [];
   void onRegionChanged(PokeRegion value) {
-    widget.filter.region = value;
+    widget.result.filterRegion = value;
   }
 
   @override
   void initState() {
     CardMarker.values.forEach((element) {
       if (element != CardMarker.Nothing)
-        widgetMarkers.add(ButtonCheck(widget.filter, element));
+        widgetMarkers.add(ButtonCheck(widget.result.filter, element));
     });
 
-    regionController.currentValue = widget.filter.region;
+    regionController.currentValue = widget.result.filterRegion;
 
     super.initState();
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/Admin/cardEditor.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
@@ -19,8 +21,6 @@ class CardCreator extends StatefulWidget {
 class _CardCreatorState extends State<CardCreator> {
   late CustomRadioController typeController    = CustomRadioController(onChange: (value) { onTypeChanged(value); });
   late CustomRadioController rarityController  = CustomRadioController(onChange: (value) { onRarityChanged(value); });
-  late CustomRadioController regionController  = CustomRadioController(onChange: (PokeRegion value) { onRegionChanged(value); });
-  late CustomRadioController specialController = CustomRadioController(onChange: (PokeSpecial value) { onSpecialChanged(value); });
 
   List<Widget> typeCard = [];
   List<Widget> rarity   = [];
@@ -35,14 +35,6 @@ class _CardCreatorState extends State<CardCreator> {
     widget.card.rarity = value;
     if(_auto)
       widget.onAppendCard!(null);
-  }
-
-  void onRegionChanged(PokeRegion value) {
-    widget.card.info.region = value;
-  }
-
-  void onSpecialChanged(PokeSpecial value) {
-    widget.card.info.special = value;
   }
 
   @override
@@ -78,38 +70,6 @@ class _CardCreatorState extends State<CardCreator> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> region   = [];
-    List<Widget> special  = [];
-    if(widget.editor) {
-      PokeRegion.values.forEach((element) {
-        region.add(CustomRadio(value: element, controller: regionController,
-            widget: Row(mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Flexible(child: Center(child: Text(
-                    regionName(context, element),
-                    style: TextStyle(fontSize: 9),)))
-                ])
-        )
-        );
-      });
-
-      PokeSpecial.values.forEach((element) {
-        special.add(CustomRadio(value: element, controller: specialController,
-            widget: Row(mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Flexible(child: Center(child: Text(
-                    specialName(context, element),
-                    style: TextStyle(fontSize: 9),)))
-                ])
-        )
-        );
-      });
-      regionController.afterPress(widget.card.info.region);
-      specialController.afterPress(widget.card.info.special);
-    }
-
     return Card(
       child: Column(
         children: [
@@ -125,20 +85,7 @@ class _CardCreatorState extends State<CardCreator> {
             shrinkWrap: true,
             children: rarity,
           ),
-          if(widget.editor)
-            GridView.count(
-              crossAxisCount: 7,
-              primary: false,
-              shrinkWrap: true,
-              children: region,
-            ),
-          if(widget.editor)
-            GridView.count(
-              crossAxisCount: 6,
-              primary: false,
-              shrinkWrap: true,
-              children: special,
-            ),
+
           if(widget.editor)
             GridView.count(
               crossAxisCount: 6,
@@ -174,6 +121,129 @@ class _CardCreatorState extends State<CardCreator> {
     );
   }
 }
+
+class PokeCardNaming extends StatefulWidget {
+  final PokeCard  card;
+  final int       idName;
+  const PokeCardNaming(this.card, this.idName);
+
+  CardName getName() {
+    return card.names[idName];
+  }
+
+  @override
+  _PokeCardNamingState createState() => _PokeCardNamingState();
+}
+
+class _PokeCardNamingState extends State<PokeCardNaming> {
+  late CustomRadioController specialController = CustomRadioController(onChange: (PokeSpecial value) { onSpecialChanged(value); });
+  late CustomRadioController regionController  = CustomRadioController(onChange: (PokeRegion value) { onRegionChanged(value); });
+
+  void onRegionChanged(PokeRegion value) {
+    widget.getName().region = value;
+  }
+
+  void onSpecialChanged(PokeSpecial value) {
+    widget.getName().special = value;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var name = widget.getName();
+    List<Widget> region   = [];
+    List<Widget> special  = [];
+    PokeRegion.values.forEach((element) {
+      region.add(CustomRadio(value: element, controller: regionController,
+          widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(child: Center(child: Text(
+                  regionName(context, element),
+                  style: TextStyle(fontSize: 9),)))
+              ])
+      )
+      );
+    });
+
+    PokeSpecial.values.forEach((element) {
+      special.add(CustomRadio(value: element, controller: specialController,
+          widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(child: Center(child: Text(
+                  specialName(context, element),
+                  style: TextStyle(fontSize: 9),)))
+              ])
+      )
+      );
+    });
+    regionController.afterPress(name.region);
+    specialController.afterPress(name.special);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+          Row(
+            children: [
+              Expanded(
+                child: Card(
+                    color: Colors.grey[700],
+                    child: TextButton(
+                      child: Text((name.name != null && name.name.isPokemon()) ? name.name.defaultName() : ""),
+                      onPressed: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ChooserCardName(Environment.instance.collection.pokemons.values.toList(), name)),
+                        ).then((value) {
+                          if(value != null) {
+                            setState(() {
+                              name.name = value;
+                            });
+                          }
+                        });
+                      },
+                    )
+                ),
+              ),
+              Expanded(
+                child: Card(
+                    color: Colors.grey[700],
+                    child: TextButton(
+                      child: Text((name.name != null && !name.name.isPokemon()) ? name.name.defaultName() : ""),
+                      onPressed: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ChooserCardName(Environment.instance.collection.otherNames.values.toList(), name)),
+                        ).then((value) {
+                          if(value != null) {
+                            setState(() {
+                              name.name = value;
+                            });
+                          }
+                        });
+                      },
+                    )
+                ),
+              ),
+            ],
+          ),
+          GridView.count(
+            crossAxisCount: 7,
+            primary: false,
+            shrinkWrap: true,
+            children: region,
+          ),
+          GridView.count(
+            crossAxisCount: 6,
+            primary: false,
+            shrinkWrap: true,
+            children: special,
+          ),
+      ],
+    );
+  }
+}
+
 
 class ButtonCheck extends StatefulWidget {
   final CardMarker mark;

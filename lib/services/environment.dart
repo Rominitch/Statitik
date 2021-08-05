@@ -159,7 +159,7 @@ class Environment
                 var pokes = await connection.query("SELECT * FROM `Pokemon`");
                 for (var row in pokes) {
                     try {
-                        PokemonInfo p = PokemonInfo(names: row[2].split('|'), generation: row[1], id: idPoke);
+                        PokemonInfo p = PokemonInfo(names: row[2].split('|'), generation: row[1], idPokedex: idPoke);
                         collection.addPokemon(p, row[0]);
                         idPoke += 1;
                     } catch(e) {
@@ -175,29 +175,45 @@ class Environment
                     }
                 }
 
-                var lstCards = await connection.query("SELECT * FROM `ListeCartes`");
+                var lstCards = await connection.query("SELECT `idListeCartes`, `cartes`, `carteNoms`, `carteInfos` FROM `ListeCartes`");
                 for (var row in lstCards) {
                     ListCards c = ListCards();
                     try {
                         c.extractCard(row[1]);
                         assert(c.cards.isNotEmpty);
-                        List<CodeCardInfo> pokeCode = [];
-                        if( row[2] != null) {
+                        // Extract Names
+                        if( row[2] != null ) {
                             try {
-                                final byteData = (row[2] as Blob)
-                                    .toBytes()
-                                    .toList();
-                                assert((byteData.length % (2+4)) == 0);
+                                final byteData = (row[2] as Blob).toBytes().toList();
+                                const byteCard = 1+2+1;
+                                assert((byteData.length % byteCard) == 0);
 
-                                for (int id = 0; id < byteData.length; id += 6) {
-                                    pokeCode.add(CodeCardInfo.fromByte( byteData, id));
+                                int idCard=0;
+                                for (int id = 0; id < byteData.length; ) {
+                                    var card = c.cards[idCard];
+                                    id = card.extractNameByte(id, byteData);
+                                    idCard+=1;
                                 }
-                                assert( c.cards.length == pokeCode.length);
-                                c.extractCardInfo(pokeCode);
                             } catch(e) {
                                 print("Data corruption: ListCard ${row[0]} $e");
                             }
                         }
+                        // Extract Info
+                        if( row[3] != null ) {
+                            try {
+                                final byteData = (row[3] as Blob).toBytes().toList();
+
+                                int idCard=0;
+                                for (int id = 0; id < byteData.length; ) {
+                                    var card = c.cards[idCard];
+                                    id = card.extractInfoByte(id, byteData);
+                                    idCard+=1;
+                                }
+                            } catch(e) {
+                                print("Data corruption: ListCard ${row[0]} $e");
+                            }
+                        }
+                        c.hasAdditionnalInfo = true;
                         collection.addListCards(c, row[0]);
                     } catch(e) {
                         print("Bad cards list: $e");
@@ -500,18 +516,20 @@ class Environment
                     var rType   = convertType.map((k, v)   => MapEntry(v, k));
                     var rRarity = convertRarity.map((k, v) => MapEntry(v, k));
 
-                    List<int> byteInfo = [];
+                    List<int> byteInfo  = [];
+                    List<int> byteNames = [];
                     String code = "";
                     se.cards!.cards.forEach((PokeCard card) {
                         code += rType[card.type] + rRarity[card.rarity];
-                        byteInfo += card.byteInfo();
+                        byteNames += card.nameByte();
+                        byteInfo  += card.infoByte();
                     });
 
-                    var query = 'UPDATE `ListeCartes`, `SousExtension` SET `cartes` = ?, `pokemons` = ?'
+                    var query = 'UPDATE `ListeCartes`, `SousExtension` SET `cartes` = ?, `carteNoms` = ?, `carteInfos` = ?'
                     ' WHERE `ListeCartes`.`idListeCartes` = `SousExtension`.`idListeCartes`'
                     ' AND `SousExtension`.`idSousExtension` = ${se.id}';
 
-                    await connection.queryMulti(query, [[code, Int8List.fromList(byteInfo)]]);
+                    await connection.queryMulti(query, [[code, Int8List.fromList(byteNames), Int8List.fromList(byteInfo)]]);
                 });
             } catch( e ) {
                 printOutput("Database error $e");
