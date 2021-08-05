@@ -1134,6 +1134,8 @@ enum PokeSpecial {
   FormeFeu,
   FormeFroid,
   FormePsy,
+  Noir,
+  Blanc
   //Limited 16 values (Number 1/2 byte)
 }
 
@@ -1154,13 +1156,15 @@ enum CardMarker {
   Mega,
   Legende,
   Restaure,
+  UltraChimere
   //Limited 24 values (Bit 3 bytes)
 }
 
 const List<Color> markerColors = [
   Colors.white70, Colors.blue, Colors.red, Colors.green, Colors.brown,
   Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal,
-  Colors.indigo, Colors.deepOrange, Colors.lime, Colors.purpleAccent
+  Colors.indigo, Colors.deepOrange, Colors.lime, Colors.purpleAccent,
+  //Colors.greenAccent
 ];
 
 List<Widget?> cachedMarkers = List.filled(CardMarker.values.length, null);
@@ -1200,6 +1204,9 @@ Widget pokeMarker(CardMarker marker, {double? height}) {
         break;
       case CardMarker.Mega:
         cachedMarkers[marker.index] = Text('Mega', style: TextStyle(fontSize: 12));
+        break;
+      case CardMarker.UltraChimere:
+        cachedMarkers[marker.index] = Text('Ultra', style: TextStyle(fontSize: 12));
         break;
       default:
         cachedMarkers[marker.index] = Text('Unknown', style: TextStyle(fontSize: 12));

@@ -83,8 +83,9 @@ class Environment
     void initialize() async
     {
         // General data control
-        assert(Rarity.values.length == rarityColors.length);
-        assert(Type.values.length   == typeColors.length);
+        assert(Rarity.values.length     == rarityColors.length);
+        assert(Type.values.length       == typeColors.length);
+        assert(CardMarker.values.length == markerColors.length);
 
         if(!isInitialized) {
             // Sync event
@@ -185,8 +186,6 @@ class Environment
                         if( row[2] != null ) {
                             try {
                                 final byteData = (row[2] as Blob).toBytes().toList();
-                                const byteCard = 1+2+1;
-                                assert((byteData.length % byteCard) == 0);
 
                                 int idCard=0;
                                 for (int id = 0; id < byteData.length; ) {
