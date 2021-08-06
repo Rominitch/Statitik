@@ -64,7 +64,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.0.0';
+    final String version = '1.0.1';
 
     // State
     bool isInitialized          = false;
@@ -86,6 +86,9 @@ class Environment
         assert(Rarity.values.length     == rarityColors.length);
         assert(Type.values.length       == typeColors.length);
         assert(CardMarker.values.length == markerColors.length);
+        assert(CardMarker.values.length <= 24);
+        assert(PokeRegion.values.length <= 16);
+        assert(PokeSpecial.values.length <= 16);
 
         if(!isInitialized) {
             // Sync event
@@ -109,14 +112,15 @@ class Environment
                     if(!isDatabaseMatch) {
                         throw StatitikException('DB_1');
                     }
-                    await Future.wait(
+                    Future.wait(
                         [
                             credential.initialize(),
                             readStaticData(),
-                        ]);
-
-                    isInitialized = true;
-                    onInitialize.add(isInitialized);
+                        ]
+                    ).whenComplete(() {
+                        isInitialized = true;
+                        onInitialize.add(isInitialized);
+                    });
                 }).catchError((error) {
                     isInitialized = false;
                     onServerError.add(error.msg);
@@ -184,17 +188,18 @@ class Environment
                         assert(c.cards.isNotEmpty);
                         // Extract Names
                         if( row[2] != null ) {
+                            int idCard=0;
                             try {
                                 final byteData = (row[2] as Blob).toBytes().toList();
 
-                                int idCard=0;
                                 for (int id = 0; id < byteData.length; ) {
+                                    assert( idCard < c.cards.length );
                                     var card = c.cards[idCard];
                                     id = card.extractNameByte(id, byteData);
                                     idCard+=1;
                                 }
                             } catch(e) {
-                                print("Data corruption: ListCard ${row[0]} $e");
+                                print("Data corruption: ListCardName ${row[0]} : $idCard = $e");
                             }
                         }
                         // Extract Info
@@ -209,7 +214,7 @@ class Environment
                                     idCard+=1;
                                 }
                             } catch(e) {
-                                print("Data corruption: ListCard ${row[0]} $e");
+                                print("Data corruption: ListCardInfo ${row[0]} $e");
                             }
                         }
                         c.hasAdditionnalInfo = true;

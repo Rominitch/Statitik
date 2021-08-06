@@ -16,8 +16,9 @@ class CardFilterSelector extends StatefulWidget {
 class _CardFilterSelectorState extends State<CardFilterSelector> {
   late CustomRadioController regionController  = CustomRadioController(onChange: (PokeRegion value) { onRegionChanged(value); });
 
-  List<Widget> widgetMarkers = [];
-  List<Widget> region        = [];
+  List<Widget> widgetMarkers    = [];
+  List<Widget> longMarkerWidget = [];
+  List<Widget> region           = [];
   void onRegionChanged(PokeRegion value) {
     widget.result.filterRegion = value;
   }
@@ -25,8 +26,11 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
   @override
   void initState() {
     CardMarker.values.forEach((element) {
-      if (element != CardMarker.Nothing)
+      if (element != CardMarker.Nothing && !longMarker.contains(element))
         widgetMarkers.add(ButtonCheck(widget.result.filter, element));
+    });
+    longMarker.forEach((element) {
+      longMarkerWidget.add(ButtonCheck(widget.result.filter, element));
     });
 
     regionController.currentValue = widget.result.filterRegion;
@@ -72,6 +76,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
               shrinkWrap: true,
               children: widgetMarkers,
             ),
+            Row(children: longMarkerWidget),
           ],
         )
       )

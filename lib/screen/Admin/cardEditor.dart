@@ -50,7 +50,7 @@ class _CardEditorState extends State<CardEditor> {
         appBar: AppBar(
           title: Container(
             child: Text(sprintf("%s: %d %s",
-                [StatitikLocale.of(context).read('CE_T0'), widget.id+1, widget.cards.getName(Language(id: 0, image: ""), widget.id)]
+                [StatitikLocale.of(context).read('CE_T0'), widget.id+1, widget.cards.getName(Language(id: 1, image: ""), widget.id)]
               ),
               style: Theme.of(context).textTheme.headline6,
               softWrap: true,

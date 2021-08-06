@@ -25,6 +25,7 @@ class _CardCreatorState extends State<CardCreator> {
   List<Widget> typeCard = [];
   List<Widget> rarity   = [];
   List<Widget> marker   = [];
+  List<Widget> longMarkerWidget = [];
   bool         _auto    = false;
 
   void onTypeChanged(value) {
@@ -58,8 +59,11 @@ class _CardCreatorState extends State<CardCreator> {
 
     if(widget.editor) {
       CardMarker.values.forEach((element) {
-        if (element != CardMarker.Nothing)
+        if (element != CardMarker.Nothing && !longMarker.contains(element))
           marker.add(ButtonCheck(widget.card.info, element));
+      });
+      longMarker.forEach((element) {
+        longMarkerWidget.add(ButtonCheck(widget.card.info, element));
       });
     }
 
@@ -93,6 +97,8 @@ class _CardCreatorState extends State<CardCreator> {
               shrinkWrap: true,
               children: marker,
             ),
+          if(widget.editor)
+            Row(children: longMarkerWidget),
           if( !widget.editor ) Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

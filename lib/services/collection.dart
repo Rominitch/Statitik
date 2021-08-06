@@ -69,10 +69,20 @@ class Collection
   }
 
   PokemonInfo getPokemonID(int id) {
-    return id > 0 ? pokemons[id] : null;
+    //if(local) {
+    //  if(!pokemons.containsKey(id))
+    //    throw StatitikException("pokemons: Missing $id");
+    //}
+    assert(0 < id && id < (pokemons.length+1));
+    return pokemons[id];
   }
 
   NamedInfo getNamedID(int id) {
-    return id >= 10000 ? otherNames[id] : null;
+    //if(local) {
+    //  if(!otherNames.containsKey(id))
+    //    throw StatitikException("otherNames: Missing $id");
+    //}
+    assert(10000 <= id && (id-10000) < otherNames.length);
+    return otherNames[id];
   }
 }

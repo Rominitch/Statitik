@@ -215,7 +215,7 @@ const List<Type> energies = [Type.Plante,  Type.Feu,  Type.Eau,
 
 const List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
   Colors.yellow, Color(0xFF8E24AA), Color(0xFFD84315), Color(0xFF311B92),
-  Color(0xFFBDBDBD),  Colors.pinkAccent, Colors.orange, Colors.white70,
+  Color(0xFF7D7D7D),  Colors.pinkAccent, Colors.orange, Colors.white70,
 ];
 
 const List<Color> generationColor = [
@@ -405,7 +405,7 @@ class PokeCard
   }
 
   int extractNameByte(int id, byteData) {
-    assert(id+4 <= byteData.length);
+    assert(id+1 <= byteData.length);
     int nbNames = byteData[id];
     id += 1;
     for(var i=0; i < nbNames; i+=1) {
@@ -420,7 +420,6 @@ class PokeCard
       if( codeName != 0 ) {
         if( codeName >= 10000 ) {
           cname.name = Environment.instance.collection.getNamedID(codeName);
-
         } else {
           cname.name = Environment.instance.collection.getPokemonID(codeName);
         }
@@ -1156,7 +1155,10 @@ enum CardMarker {
   Mega,
   Legende,
   Restaure,
-  UltraChimere
+  Ultra,
+  UltraChimere,
+  Talent,
+  PrismStar,
   //Limited 24 values (Bit 3 bytes)
 }
 
@@ -1164,8 +1166,10 @@ const List<Color> markerColors = [
   Colors.white70, Colors.blue, Colors.red, Colors.green, Colors.brown,
   Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal,
   Colors.indigo, Colors.deepOrange, Colors.lime, Colors.purpleAccent,
-  //Colors.greenAccent
+  Colors.greenAccent, Colors.blueGrey, Colors.deepPurple,
 ];
+
+const List longMarker = [CardMarker.Escouade, CardMarker.UltraChimere, CardMarker.Talent];
 
 List<Widget?> cachedMarkers = List.filled(CardMarker.values.length, null);
 Widget pokeMarker(CardMarker marker, {double? height}) {
@@ -1205,8 +1209,17 @@ Widget pokeMarker(CardMarker marker, {double? height}) {
       case CardMarker.Mega:
         cachedMarkers[marker.index] = Text('Mega', style: TextStyle(fontSize: 12));
         break;
-      case CardMarker.UltraChimere:
+      case CardMarker.Ultra:
         cachedMarkers[marker.index] = Text('Ultra', style: TextStyle(fontSize: 12));
+        break;
+      case CardMarker.UltraChimere:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'ultra-chimere', height: height);
+        break;
+      case CardMarker.Talent:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'talent', height: height);
+        break;
+      case CardMarker.PrismStar:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'prismstar', height: height);
         break;
       default:
         cachedMarkers[marker.index] = Text('Unknown', style: TextStyle(fontSize: 12));
