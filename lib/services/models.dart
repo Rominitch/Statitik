@@ -1170,7 +1170,7 @@ const List<Color> markerColors = [
   Colors.greenAccent, Colors.blueGrey, Colors.deepPurple, Colors.pinkAccent,
 ];
 
-const List longMarker = [CardMarker.Escouade, CardMarker.UltraChimere, CardMarker.Talent];
+const List longMarker = [CardMarker.Escouade, CardMarker.UltraChimere, CardMarker.Talent, CardMarker.Fusion];
 
 List<Widget?> cachedMarkers = List.filled(CardMarker.values.length, null);
 Widget pokeMarker(CardMarker marker, {double? height}) {
