@@ -71,7 +71,10 @@ class _CardStatisticPageState extends State<CardStatisticPage> {
   Widget computeStatsGUI(BuildContext context) {
     if (_cardResults.hasStats()) {
       if (_cardResults.stats!.hasData()) {
-        return StatsCard(this._cardResults);
+        return Card(child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: StatsCard(this._cardResults))
+               );
       } else {
         return Padding(
           padding: const EdgeInsets.all(20.0),

@@ -91,7 +91,7 @@ class _CustomRadioState extends State<CustomRadio> {
         maxWidth: 55.0,
       ),
        */
-      padding: EdgeInsets.all(2.0),
+      padding: EdgeInsets.all(1.0),
       child: TextButton(
         style: TextButton.styleFrom(
           backgroundColor: _activate ? Colors.green : Colors.grey[800],

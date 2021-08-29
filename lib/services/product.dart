@@ -56,7 +56,7 @@ AND P.`idProduit` = `Produit`.`idProduit`) as count ''';
 
     if(showAll) {
       String tableSE = "";
-      String filterSE = " AND `Produit`.`sortie` >= STR_TO_DATE(${se.outDate()}, '%Y-%m-%d')";
+      String filterSE = " AND `Produit`.`sortie` >= ${se.outDate()}";
       if( containsSe != null ) {
         tableSE  = ", `TirageBooster`, `UtilisateurProduit`";
         filterSE =

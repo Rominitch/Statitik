@@ -30,7 +30,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
         widgetMarkers.add(ButtonCheck(widget.result.filter, element));
     });
     longMarker.forEach((element) {
-      longMarkerWidget.add(ButtonCheck(widget.result.filter, element));
+      longMarkerWidget.add(Expanded(child: ButtonCheck(widget.result.filter, element)));
     });
 
     regionController.currentValue = widget.result.filterRegion;
@@ -56,27 +56,40 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-        child: Text( StatitikLocale.of(context).read('CA_T2'), style: Theme.of(context).textTheme.headline3, ),
-        ),
+        title: Text( StatitikLocale.of(context).read('CA_T2'), style: Theme.of(context).textTheme.headline3, ),
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            GridView.count(
-              crossAxisCount: 7,
-              primary: false,
-              shrinkWrap: true,
-              children: region,
+            Card(
+              child: Column(
+                children: [
+                  Text( StatitikLocale.of(context).read('CA_B13'), style: Theme.of(context).textTheme.headline5),
+                  GridView.count(
+                    crossAxisCount: 7,
+                    primary: false,
+                    shrinkWrap: true,
+                    children: region,
+                  ),
+                ],
+              ),
             ),
-            GridView.count(
-              crossAxisCount: 6,
-              primary: false,
-              shrinkWrap: true,
-              children: widgetMarkers,
+            Card(
+              child: Column(
+                children: [
+                  Text( StatitikLocale.of(context).read('CA_B12'), style: Theme.of(context).textTheme.headline5),
+                  GridView.count(
+                    crossAxisCount: 6,
+                    primary: false,
+                    shrinkWrap: true,
+                    children: widgetMarkers,
+                  ),
+                  Row(children: longMarkerWidget.sublist(0,3)),
+                  Row(children: longMarkerWidget.sublist(3)),
+                ],
+              ),
             ),
-            Row(children: longMarkerWidget),
           ],
         )
       )

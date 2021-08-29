@@ -11,6 +11,8 @@ import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
+import 'connection.dart';
+
 const double iconSize = 25.0;
 
 final Color greenValid = Colors.green[500]!;
@@ -91,8 +93,10 @@ enum Rarity {
   JR,
   HoloRare,
   Magnifique,
+  JA,
   Prism,
   Chromatique,
+  JS,
   Turbo,
   V, // or GX /Ex
   JRR,
@@ -101,6 +105,7 @@ enum Rarity {
   BrillantRare, //PB
   UltraRare,
   ChromatiqueRare,
+  JSSR,
   Secret,
   JSR,
   ArcEnCiel,
@@ -113,14 +118,10 @@ enum Rarity {
 
 const List<Color> rarityColors =
 [
-  // Green Green[600] Green[700]
   Colors.green, Colors.green, Color(0xFF43A047), Color(0xFF43A047), Color(0xFF388E3C), Color(0xFF388E3C),  // C JC P JU R JR
-  // Blue Blue[600] Blue[700] Blue[800]
-  Colors.blue, Color(0xFF1E88E5), Color(0xFF1976D2), Color(0xFF1565C0),                  // H M P C
-  //purple 600 700 800
-  Colors.purple, Colors.purple, Color(0xFF8E24AA), Color(0xFF8E24AA), Color(0xFF7B1FA2), Color(0xFF6A1B9A), Color(0xFF6A1B9A),         // Ch T V JRR Vm JRRR PB
-  // Yellow 600 700 800
-  Colors.yellow, Color(0xFFFDD835), Color(0xFFFDD835), Color(0xFFFBC02D), Color(0xFFFBC02D), Color(0xFFF9A825), Color(0xFFF9A825), Color(0xFFF9A825),           // ChR S JSR A JHR G HS JUR
+  Colors.blue, Color(0xFF1E88E5), Color(0xFF1E88E5), Color(0xFF1976D2), Color(0xFF1565C0),                  // H M JA P C
+  Colors.purple, Colors.purple, Colors.purple, Color(0xFF8E24AA), Color(0xFF8E24AA), Color(0xFF7B1FA2), Color(0xFF6A1B9A), Color(0xFF6A1B9A),         // Ch JS T V JRR Vm JRRR PB
+  Colors.yellow, Colors.yellow, Color(0xFFFDD835), Color(0xFFFDD835), Color(0xFFFBC02D), Color(0xFFFBC02D), Color(0xFFF9A825), Color(0xFFF9A825), Color(0xFFF9A825),           // ChR JSSR S JSR A JHR G HS JUR
   Colors.black // unknown
 ];
 
@@ -130,7 +131,7 @@ const List<Rarity> worldRarity = [Rarity.Commune, Rarity.PeuCommune, Rarity.Rare
   Rarity.ChromatiqueRare, Rarity.Secret, Rarity.ArcEnCiel, Rarity.Gold, Rarity.HoloRareSecret,
 ];
 const List<Rarity> japanRarity = [Rarity.JC, Rarity.JU, Rarity.JR, Rarity.JRR,
-  Rarity.JRRR, Rarity.JSR, Rarity.JHR, Rarity.JUR
+  Rarity.JRRR, Rarity.JSR, Rarity.JHR, Rarity.JUR, Rarity.JA, Rarity.JS, Rarity.JSSR
 ];
 
 const Map convertType =
@@ -179,7 +180,10 @@ const Map convertRarity =
   '3': Rarity.JRRR,
   '4': Rarity.JSR,
   '5': Rarity.JHR,
-  '6': Rarity.JUR
+  '6': Rarity.JUR,
+  '7': Rarity.JA,
+  '8': Rarity.JS,
+  '9': Rarity.JSSR,
 };
 
 enum Mode {
@@ -310,28 +314,37 @@ List<Widget> getImageRarity(Rarity rarity, {fontSize=12.0, generate=false}) {
         break;
 
       case Rarity.JC:
-        rendering = [SizedBox(width: 4), Text('C', style: TextStyle(fontSize: fontSize))];
+        rendering = [Text('C', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JU:
-        rendering = [SizedBox(width: 4), Text('U', style: TextStyle(fontSize: fontSize))];
+        rendering = [Text('U', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JR:
-        rendering = [SizedBox(width: 4), Text('R', style: TextStyle(fontSize: fontSize))];
+        rendering = [Text('R', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JRR:
-        rendering = [SizedBox(width: 4), Text('RR', style: TextStyle(fontSize: fontSize))];
+        rendering = [Text('RR', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JRRR:
-        rendering = [SizedBox(width: 4), Text('RRR', style: TextStyle(fontSize: fontSize))];
+        rendering = [Text('RRR', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JSR:
-        rendering = [SizedBox(width: 4), Text('SR', style: TextStyle(fontSize: fontSize))];
+        rendering = [Text('SR', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JHR:
-        rendering = [SizedBox(width: 4), Text('HR', style: TextStyle(fontSize: fontSize))];
+        rendering = [Text('HR', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JUR:
-        rendering = [SizedBox(width: 4), Text('UR', style: TextStyle(fontSize: fontSize))];
+        rendering = [Text('UR', style: TextStyle(fontSize: fontSize))];
+        break;
+      case Rarity.JA:
+        rendering = [drawCachedImage('logo', 'a', height: 20)];
+        break;
+      case Rarity.JS:
+        rendering = [Text('S', style: TextStyle(fontSize: fontSize))];
+        break;
+      case Rarity.JSSR:
+        rendering = [Text('SSR', style: TextStyle(fontSize: fontSize))];
         break;
 
       default:
@@ -474,6 +487,16 @@ class PokeCard
     b.add(i & 0xFF);
     return b;
   }
+
+  Widget? showImportantMarker(BuildContext context, {double? height}) {
+    var importantMarkers = [CardMarker.Escouade, CardMarker.EX, CardMarker.GX, CardMarker.V, CardMarker.VMAX];
+    for(var m in importantMarkers) {
+      if(info.markers.contains(m)) {
+        return pokeMarker(context, m, height: height);
+      }
+    }
+    return null;
+  }
 }
 
 class NamedInfo
@@ -544,16 +567,21 @@ class ListCards
       assert(code.length % 2 != 1 || code.contains('*'));
 
       for (int i = 0; i < code.length; i += 2) {
-        if (!convertType.containsKey(code[i]))
-          throw Exception(
-              'Data card list corruption: $i was found with type ${code[i]}');
+        Type t   = Type.Unknown;
+        Rarity r = Rarity.Unknown;
+        if (!convertType.containsKey(code[i])) {
+          if(local)
+            throw Exception('Data card list corruption: $i was found with type ${code[i]}');
+        } else {
+          t = convertType[code[i]];
+        }
 
-        if (!convertRarity.containsKey(code[i+1]))
-          throw Exception(
-              'Data card list corruption: $i was found with rarity ${code[i +
-                  1]}');
-        Type t   = convertType[code[i]];
-        Rarity r = convertRarity[code[i + 1]];
+        if (!convertRarity.containsKey(code[i+1])) {
+          if (local)
+            throw Exception('Data card list corruption: $i was found with rarity ${code[i + 1]}');
+        } else {
+          r = convertRarity[code[i + 1]];
+        }
 
         //Special alternative case
         bool alternative = false;
@@ -601,7 +629,7 @@ class SubExtension
     return drawCachedImage('extensions', icon, width: wSize, height: hSize);
   }
 
-  String nameCard(int id) {
+  String numberOfCard(int id) {
     if(chromatique != null) {
       return id < chromatique! ? (id+1).toString() : 'SV' + (id-chromatique!+1).toString();
     } else {
@@ -610,7 +638,7 @@ class SubExtension
   }
 
   String outDate() {
-    return DateFormat('yyyy-MM-dd').format(out);
+    return DateFormat('yyyyMMdd').format(out);
   }
 }
 
@@ -1099,6 +1127,7 @@ class StatsData {
   int               category = -1;
   Stats?            stats;
   Stats?            userStats;
+  CardResults       cardStats = CardResults();
 
   bool isValid() {
     return language != null && subExt != null && stats != null;
@@ -1160,6 +1189,7 @@ enum CardMarker {
   Talent,
   PrismStar,
   Fusion,
+  OutilsPokemon,
   //Limited 24 values (Bit 3 bytes)
 }
 
@@ -1168,12 +1198,13 @@ const List<Color> markerColors = [
   Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal,
   Colors.indigo, Colors.deepOrange, Colors.lime, Colors.purpleAccent,
   Colors.greenAccent, Colors.blueGrey, Colors.deepPurple, Colors.pinkAccent,
+  Colors.lightBlue,
 ];
 
-const List longMarker = [CardMarker.Escouade, CardMarker.UltraChimere, CardMarker.Talent, CardMarker.Fusion];
+const List longMarker = [CardMarker.MillePoint, CardMarker.PointFinal, CardMarker.UltraChimere, CardMarker.Talent, CardMarker.Fusion];
 
 List<Widget?> cachedMarkers = List.filled(CardMarker.values.length, null);
-Widget pokeMarker(CardMarker marker, {double? height}) {
+Widget pokeMarker(BuildContext context, CardMarker marker, {double? height=15.0}) {
   if( cachedMarkers[marker.index] == null ) {
     switch(marker) {
       case CardMarker.Escouade:
@@ -1202,16 +1233,16 @@ Widget pokeMarker(CardMarker marker, {double? height}) {
         cachedMarkers[marker.index] = drawCachedImage('logo', 'ex', height: height);
         break;
       case CardMarker.Legende:
-        cachedMarkers[marker.index] = Text('Legende', style: TextStyle(fontSize: 9));
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_0'), style: TextStyle(fontSize: 9));
         break;
       case CardMarker.Restaure:
-        cachedMarkers[marker.index] = Text('Restaure', style: TextStyle(fontSize: 9));
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_1'), style: TextStyle(fontSize: 9));
         break;
       case CardMarker.Mega:
-        cachedMarkers[marker.index] = Text('Mega', style: TextStyle(fontSize: 12));
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_2'), style: TextStyle(fontSize: 12));
         break;
       case CardMarker.Ultra:
-        cachedMarkers[marker.index] = Text('Ultra', style: TextStyle(fontSize: 12));
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_3'), style: TextStyle(fontSize: 12));
         break;
       case CardMarker.UltraChimere:
         cachedMarkers[marker.index] = drawCachedImage('logo', 'ultra-chimere', height: height);
@@ -1225,8 +1256,11 @@ Widget pokeMarker(CardMarker marker, {double? height}) {
       case CardMarker.Fusion:
         cachedMarkers[marker.index] = drawCachedImage('logo', 'fusion', height: height);
         break;
+      case CardMarker.OutilsPokemon:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_4'), style: TextStyle(fontSize: 8));
+        break;
       default:
-        cachedMarkers[marker.index] = Text('Unknown', style: TextStyle(fontSize: 12));
+        cachedMarkers[marker.index] = Icon(Icons.help_outline);
     }
   }
   return cachedMarkers[marker.index]!;

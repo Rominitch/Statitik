@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
@@ -63,7 +64,7 @@ class _CardCreatorState extends State<CardCreator> {
           marker.add(ButtonCheck(widget.card.info, element));
       });
       longMarker.forEach((element) {
-        longMarkerWidget.add(ButtonCheck(widget.card.info, element));
+        longMarkerWidget.add(Expanded(child: ButtonCheck(widget.card.info, element)));
       });
     }
 
@@ -98,7 +99,9 @@ class _CardCreatorState extends State<CardCreator> {
               children: marker,
             ),
           if(widget.editor)
-            Row(children: longMarkerWidget),
+            Row(children: longMarkerWidget.sublist(0, 3)),
+          if(widget.editor)
+            Row(children: longMarkerWidget.sublist(3, 5)),
           if( !widget.editor ) Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -268,9 +271,7 @@ class _ButtonCheckState extends State<ButtonCheck> {
     return Card(
       color: cm.contains(widget.mark) ? Colors.green : Colors.grey[800],
       child: TextButton(
-        child: Row(mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [pokeMarker(widget.mark, height: 15)]),
+        child: pokeMarker(context, widget.mark, height: 15),
         onPressed: (){
           setState(() {
             if( cm.contains(widget.mark) ) {

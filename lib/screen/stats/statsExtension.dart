@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:statitikcard/screen/Cartes/statsCard.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
 import 'package:statitikcard/screen/widgets/screenPrint.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -50,7 +51,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
                    ? '-'
                    : "$count (${percent.toStringAsPrecision(2)}%)";
       String realCardName = widget.stats.subExt.info().getName(widget.data.language!, id);
-      final cardName = widget.stats.subExt.nameCard(id);
+      final cardName = widget.stats.subExt.numberOfCard(id);
       cards.add(Card(
         color: Colors.grey[800],
         child: isCard ? Column(
@@ -91,6 +92,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
       ));
       id += 1;
     }
+
     return Scaffold(
         appBar: AppBar(
           title: Text(
@@ -139,10 +141,12 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
                                 PieExtension(stats: statsExtension, visu: Visualize.Type),
                                 SizedBox(height: 10.0,),
                                 PieExtension(stats: statsExtension, visu: Visualize.Rarity),
+                                if (widget.data.cardStats.hasStats() && widget.data.cardStats.stats!.hasData()) StatsCard(widget.data.cardStats, showByRarity: false, showBySubEx: false, showTitle: false, showByType: false),
                               ]
                           ),
                         )
                     ),
+
                     SizedBox(height: 10.0,),
                     Card(
                         child: Padding(

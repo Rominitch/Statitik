@@ -6,9 +6,30 @@ import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
+enum StatsVisualization
+{
+  Title,
+  ByRarity,
+  ByType,
+  ByMarker,
+  ByRegion,
+}
+
 class StatsCard extends StatefulWidget {
   final CardResults stats;
-  StatsCard(this.stats);
+  final bool showTitle;
+  final bool showByRarity;
+  final bool showByType;
+  final bool showByMarker;
+  final bool showByRegion;
+  final bool showBySubEx;
+
+  StatsCard(this.stats, { this.showTitle=true,
+  this.showByRarity=true,
+  this.showByType=true,
+  this.showByMarker=true,
+  this.showByRegion=true,
+  this.showBySubEx=true});
 
   @override
   _StatsCardState createState() => _StatsCardState();
@@ -78,7 +99,7 @@ class _StatsCardState extends State<StatsCard> {
     s.countMarker.entries.forEach((item) {
       var r = item.value.toDouble();
       markers.add( Row(
-          children: [ Container(child: pokeMarker(item.key, height: 15.0), alignment: Alignment.centerLeft, width: _spaceBefore),
+          children: [ Container(child: pokeMarker(context, item.key, height: 15.0), alignment: Alignment.centerLeft, width: _spaceBefore),
             Expanded(child: LinearPercentIndicator(
               lineHeight: 8.0,
               percent: ( r / count).clamp(0.0, 1.0),
@@ -117,48 +138,44 @@ class _StatsCardState extends State<StatsCard> {
     // Brutal
     updateContent(subEx, rarity, type, markers, regions);
 
-    return Card(child: Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Center(child: Text(sprintf(StatitikLocale.of(context).read('CA_B6'), [widget.stats.stats!.nbCards()]), style: Theme.of(context).textTheme.headline5)),
-          if(subEx.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B11'), style: Theme.of(context).textTheme.headline5),
-          if(subEx.isNotEmpty) ListView(
+          if(widget.showTitle) Center(child: Text(sprintf(StatitikLocale.of(context).read('CA_B6'), [widget.stats.stats!.nbCards()]), style: Theme.of(context).textTheme.headline5)),
+          if(widget.showBySubEx && subEx.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B11'), style: Theme.of(context).textTheme.headline5),
+          if(widget.showBySubEx && subEx.isNotEmpty) ListView(
             primary: false,
             shrinkWrap: true,
             children: subEx,
           ),
-          Text(StatitikLocale.of(context).read('CA_B10'), style: Theme.of(context).textTheme.headline5),
-          ListView(
+          if(widget.showByRarity) Text(StatitikLocale.of(context).read('CA_B10'), style: Theme.of(context).textTheme.headline5),
+          if(widget.showByRarity) ListView(
             primary: false,
             shrinkWrap: true,
             children: rarity,
           ),
-          SizedBox(height: 10.0),
-          Text(StatitikLocale.of(context).read('CA_B9'), style: Theme.of(context).textTheme.headline5),
-          ListView(
+          if(widget.showByType) SizedBox(height: 10.0),
+          if(widget.showByType) Text(StatitikLocale.of(context).read('CA_B9'), style: Theme.of(context).textTheme.headline5),
+          if(widget.showByType) ListView(
             primary: false,
             shrinkWrap: true,
             children: type,
           ),
-          if(markers.isNotEmpty) SizedBox(height: 10.0),
-          if(markers.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B7'), style: Theme.of(context).textTheme.headline5),
-          if(markers.isNotEmpty) ListView(
+          if(widget.showByMarker && markers.isNotEmpty) SizedBox(height: 10.0),
+          if(widget.showByMarker && markers.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B7'), style: Theme.of(context).textTheme.headline5),
+          if(widget.showByMarker && markers.isNotEmpty) ListView(
             primary: false,
             shrinkWrap: true,
             children: markers,
           ),
-          if(regions.isNotEmpty) SizedBox(height: 10.0),
-          if(regions.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B8'), style: Theme.of(context).textTheme.headline5),
-          if(regions.isNotEmpty) ListView(
+          if(widget.showByRegion && regions.isNotEmpty) SizedBox(height: 10.0),
+          if(widget.showByRegion && regions.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B8'), style: Theme.of(context).textTheme.headline5),
+          if(widget.showByRegion && regions.isNotEmpty) ListView(
             primary: false,
             shrinkWrap: true,
             children: regions,
           ),
         ]
-      ),
-    )
     );
   }
 }

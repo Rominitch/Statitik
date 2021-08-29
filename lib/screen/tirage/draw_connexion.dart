@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:statitikcard/screen/Admin/newCardExtensions.dart';
@@ -148,6 +149,17 @@ class _DrawHomePageState extends State<DrawHomePage> {
                                   Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory(true)));
                                 },
                           )),
+                          CircleAvatar(
+                              backgroundColor: Colors.blueAccent,
+                              radius: 20,
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                icon: Icon(Icons.refresh),
+                                color: Colors.white,
+                                onPressed: () {
+                                  if(imageCache!=null) imageCache!.clear();
+                                },
+                              )),
                         ]),
                       )
                 ]

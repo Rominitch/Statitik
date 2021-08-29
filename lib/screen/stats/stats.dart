@@ -58,11 +58,19 @@ class _StatsPageState extends State<StatsPage> {
     // Clean old result
     widget.d.userStats = null;
     widget.d.stats     = null;
+    widget.d.cardStats.stats = CardStats();
 
     // Get data from DB
     Environment env = Environment.instance;
     env.getStats(widget.d.subExt!, widget.d.product, widget.d.category).then( (stats) {
       widget.d.stats = stats;
+      // Compute Cards stats
+      int idCard=0;
+      widget.d.subExt!.info().cards.forEach((card) {
+        widget.d.cardStats.stats!.add(widget.d.subExt!, card, idCard);
+        idCard +=1;
+      });
+
       // Get user info after
       if(env.user != null) {
         env.getStats(widget.d.subExt!, widget.d.product, widget.d.category, env.user!.idDB).then( (ustats) {

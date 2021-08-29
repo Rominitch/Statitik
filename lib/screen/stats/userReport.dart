@@ -59,7 +59,7 @@ class _UserReportState extends State<UserReport> {
         if (finalData.stats!.count[i] > 0 &&
             card.rarity.index >= Rarity.HoloRare.index) {
           String rname = finalData.subExt!.info().getName(finalData.language!, i);
-          cardSort[card.rarity.index].add(FullCard(finalData.subExt!.nameCard(i), card, rname));
+          cardSort[card.rarity.index].add(FullCard(finalData.subExt!.numberOfCard(i), card, rname));
         }
       }
 
@@ -69,7 +69,8 @@ class _UserReportState extends State<UserReport> {
             break;
 
           final cardName = c.name;
-          if(finalData.subExt!.info().hasAdditionnalInfo)
+          if(finalData.subExt!.info().hasAdditionnalInfo) {
+            Widget? markerInfo = c.card.showImportantMarker(context, height: 15);
             bestCards.add(Card(
               color: Colors.grey[600],
               child: Padding(
@@ -79,15 +80,17 @@ class _UserReportState extends State<UserReport> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children:
                     [
-                      Container(child: Text( c.name ), width: 40),
-                      Container(child:Row(children: [c.card.imageType()] + c.card.imageRarity()), width:80),
+                      Container(child: Text(c.name), width: 40),
+                      Container(child: Row(children: [c.card.imageType()] +
+                          c.card.imageRarity()), width: 80),
                       SizedBox(width: 6.0),
-                      Flexible(child:Text( c.realName, style: TextStyle(fontSize: c.realName.length > 10 ? 10 : 13) )),
+                      Flexible(child: Text(c.realName, style: TextStyle(fontSize: c.realName.length > 10 ? 10 : 13))),
+                      if(markerInfo != null) markerInfo,
                     ]),
               ),
-              )
+            )
             );
-          else
+          } else
             bestCards.add(Card(
               color: Colors.grey[600],
               child: Column(

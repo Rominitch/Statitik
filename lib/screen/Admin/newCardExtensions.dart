@@ -76,7 +76,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                   children: [
                     Row( mainAxisAlignment: MainAxisAlignment.center,
                          children: [card.imageType(),]+card.imageRarity()),
-                    Text(_se!.nameCard(localId)),
+                    Text(_se!.numberOfCard(localId)),
                     ]
               ),
               style: TextButton.styleFrom(
@@ -119,7 +119,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CardEditor(card, _language!.isWorld(), _se!.cards!, localId)),
+                  MaterialPageRoute(builder: (context) => CardEditor(card, _language!.isWorld(), _se!, localId)),
                 ).then((value) =>
                     setState(() {
                       _cardInfo = _cards();
@@ -140,6 +140,23 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
       appBar: AppBar(
         title: Container(
           child: Text(StatitikLocale.of(context).read('NCE_T0')),
+        ),
+        leading: new IconButton(
+          icon: new Icon(Icons.arrow_back),
+          onPressed: () {
+            if( !_modify ) {
+              Navigator.of(context).pop(true);
+            } else {
+              showDialog(
+                  context: context,
+                  barrierDismissible: false, // user must tap button!
+                  builder: (BuildContext context) { return showExit(context); }).then((exit)
+              {
+                if(exit)
+                  Navigator.of(context).pop(true);
+              });
+            }
+          },
         ),
         actions: [if(_modify) Card(child: TextButton(
           child: Text(StatitikLocale.of(context).read('NCE_B1')),
@@ -183,6 +200,38 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         )
 
       )
+    );
+  }
+
+  AlertDialog showExit(BuildContext context) {
+    return AlertDialog(
+      title: Text(StatitikLocale.of(context).read('warning')),
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: <Widget>[
+            Text(StatitikLocale.of(context).read('NCE_B8')),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        Card(
+          color: Colors.red,
+          child: TextButton(
+            child: Text(StatitikLocale.of(context).read('yes')),
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+          ),
+        ),
+        Card(
+          child: TextButton(
+            child: Text(StatitikLocale.of(context).read('cancel')),
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+          ),
+        ),
+      ],
     );
   }
 }

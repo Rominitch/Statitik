@@ -7,12 +7,12 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class CardEditor extends StatefulWidget {
-  final int       id;
-  final ListCards cards;
-  final PokeCard  card;
-  final bool      isWorldCard;
+  final int          id;
+  final SubExtension se;
+  final PokeCard     card;
+  final bool         isWorldCard;
 
-  CardEditor(this.card, this.isWorldCard, this.cards, this.id) {
+  CardEditor(this.card, this.isWorldCard, this.se, this.id) {
     // Add minimal name (can be empty)
     if(card.names.isEmpty) {
       card.names.add(CardName());
@@ -49,8 +49,8 @@ class _CardEditorState extends State<CardEditor> {
     return Scaffold(
         appBar: AppBar(
           title: Container(
-            child: Text(sprintf("%s: %d %s",
-                [StatitikLocale.of(context).read('CE_T0'), widget.id+1, widget.cards.getName(Language(id: 1, image: ""), widget.id)]
+            child: Text(sprintf("%s: %s %s",
+                [StatitikLocale.of(context).read('CE_T0'), widget.se.numberOfCard(widget.id), widget.se.info().getName(Language(id: 1, image: ""), widget.id)]
               ),
               style: Theme.of(context).textTheme.headline6,
               softWrap: true,
@@ -58,7 +58,7 @@ class _CardEditorState extends State<CardEditor> {
             ),
           ),
           actions: [
-            if(widget.id+1 < widget.cards.cards.length)
+            if(widget.id+1 < widget.se.info().cards.length)
               Card(
                   color: Colors.grey[800],
                   child: TextButton(
@@ -66,7 +66,7 @@ class _CardEditorState extends State<CardEditor> {
                     onPressed: (){
                       int nextId = widget.id+1;
                       Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => CardEditor(widget.cards.cards[nextId], widget.isWorldCard, widget.cards, nextId)),
+                        MaterialPageRoute(builder: (context) => CardEditor(widget.se.info().cards[nextId], widget.isWorldCard, widget.se, nextId)),
                       );
                     },
                   )
