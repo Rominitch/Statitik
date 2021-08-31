@@ -64,7 +64,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.0.5';
+    final String version = '1.0.6';
 
     // State
     bool isInitialized          = false;
@@ -86,7 +86,7 @@ class Environment
         assert(Rarity.values.length     == rarityColors.length);
         assert(Type.values.length       == typeColors.length);
         assert(CardMarker.values.length == markerColors.length);
-        assert(CardMarker.values.length <= 24);
+        assert(CardMarker.values.length <= 40);
         assert(PokeRegion.values.length <= 16);
         assert(PokeSpecial.values.length <= 16);
 
@@ -207,11 +207,22 @@ class Environment
                             try {
                                 final byteData = (row[3] as Blob).toBytes().toList();
 
-                                int idCard=0;
-                                for (int id = 0; id < byteData.length; ) {
-                                    var card = c.cards[idCard];
-                                    id = card.extractInfoByte(id, byteData);
-                                    idCard+=1;
+                                if( byteData.length == c.cards.length * 3 ) {
+                                    int idCard = 0;
+                                    for (int id = 0; id < byteData.length;) {
+                                        var card = c.cards[idCard];
+                                        id = card.extractInfoByte3(id, byteData);
+                                        idCard += 1;
+                                    }
+                                } else if( byteData.length == c.cards.length * 5 ) {
+                                    int idCard = 0;
+                                    for (int id = 0; id < byteData.length;) {
+                                        var card = c.cards[idCard];
+                                        id = card.extractInfoByte5(id, byteData);
+                                        idCard += 1;
+                                    }
+                                } else {
+                                    throw StatitikException("Bad data info size.");
                                 }
                             } catch(e) {
                                 print("Data corruption: ListCardInfo ${row[0]} $e");

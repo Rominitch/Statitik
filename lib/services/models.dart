@@ -470,21 +470,44 @@ class PokeCard
     return b;
   }
 
-  int extractInfoByte(int id, byteData) {
+  int extractInfoByte3(int id, byteData) {
     assert(id+3 <= byteData.length);
 
-    int code = ((byteData[id] << 8) | byteData[id+1]) << 8 | byteData[id+2];
-    info = CardInfo.from(code);
+    List<int> fullcode =
+    [
+      0,
+      ((byteData[id] << 8) | byteData[id+1]) << 8 | byteData[id+2]
+    ];
+    info = CardInfo.from(fullcode);
     return id + 3;
+  }
+
+  int extractInfoByte5(int id, byteData) {
+    assert(id+5 <= byteData.length);
+
+    List<int> fullcode =
+    [
+      byteData[id] << 8 | byteData[id+1],
+      ((byteData[id+2] << 8 | byteData[id+3]) << 8 | byteData[id+4]) << 8 | byteData[id+5]
+    ];
+    info = CardInfo.from(fullcode);
+    return id + 5;
   }
 
   List<int> infoByte() {
     List<int> b = [];
     var i = info.toCode();
+
+    assert(i[0] == 0); // Not reach
+    //5 Bytes
+    b.add(i[0] & 0xFF);
+
     //4 Bytes
-    b.add((i & 0xFF0000) >> 16);
-    b.add((i & 0xFF00) >> 8);
-    b.add(i & 0xFF);
+    b.add((i[1] & 0xFF000000) >> 24);
+    b.add((i[1] & 0xFF0000) >> 16);
+    b.add((i[1] & 0xFF00) >> 8);
+    b.add(i[1] & 0xFF);
+
     return b;
   }
 
@@ -1190,7 +1213,16 @@ enum CardMarker {
   PrismStar,
   Fusion,
   OutilsPokemon,
-  //Limited 24 values (Bit 3 bytes)
+  Primal,
+  TeamFlare,
+  PlusDelta,
+  EvolutionDelta,
+  BarriereOmega,
+  OffensiveOmega,
+  CroissanceAlpha,
+  RegenerationAlpha,
+  //First Limited 24 values (Bit 3 bytes)
+  //Limited 40 values (Bit 5 bytes)
 }
 
 const List<Color> markerColors = [
@@ -1198,7 +1230,9 @@ const List<Color> markerColors = [
   Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal,
   Colors.indigo, Colors.deepOrange, Colors.lime, Colors.purpleAccent,
   Colors.greenAccent, Colors.blueGrey, Colors.deepPurple, Colors.pinkAccent,
-  Colors.lightBlue,
+  Colors.lightBlue, Colors.black26, Colors.redAccent,
+  Color(0xFF1B5E20), Color(0xFF1B5E20), Color(0xFFB71C1C), Color(0xFFB71C1C),
+  Color(0xFF0D47A1), Color(0xFF0D47A1),
 ];
 
 const List longMarker = [CardMarker.MillePoint, CardMarker.PointFinal, CardMarker.UltraChimere, CardMarker.Talent, CardMarker.Fusion];
@@ -1259,6 +1293,30 @@ Widget pokeMarker(BuildContext context, CardMarker marker, {double? height=15.0}
       case CardMarker.OutilsPokemon:
         cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_4'), style: TextStyle(fontSize: 8));
         break;
+      case CardMarker.Primal:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_5'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.TeamFlare:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_6'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.PlusDelta:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_7'), style: TextStyle(fontSize: 8, color: Color(0xFF1B5E20)));
+        break;
+      case CardMarker.EvolutionDelta:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_8'), style: TextStyle(fontSize: 8, color: Color(0xFF1B5E20)));
+        break;
+      case CardMarker.BarriereOmega:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_9'), style: TextStyle(fontSize: 8, color: Color(0xFFB71C1C)));
+        break;
+      case CardMarker.OffensiveOmega:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_10'), style: TextStyle(fontSize: 8, color: Color(0xFFB71C1C)));
+        break;
+      case CardMarker.CroissanceAlpha:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_11'), style: TextStyle(fontSize: 8, color: Color(0xFF0D47A1)));
+        break;
+      case CardMarker.RegenerationAlpha:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_12'), style: TextStyle(fontSize: 8, color: Color(0xFF0D47A1)));
+        break;
       default:
         cachedMarkers[marker.index] = Icon(Icons.help_outline);
     }
@@ -1288,25 +1346,32 @@ class CardInfo {
 
   CardInfo([markers = const []]) : this.markers = List.from(markers);
 
-  CardInfo.from(int code) {
+  CardInfo.from(List<int> fullcode) {
     int id = 1;
+    fullcode.reversed.forEach((code) {
     while(code > 0)
-    {
-      if((code & 0x1) == 0x1) {
-        markers.add(CardMarker.values[id]);
+      {
+        if((code & 0x1) == 0x1) {
+          markers.add(CardMarker.values[id]);
+        }
+        id = id+1;
+        code = code >> 1;
       }
-      id = id+1;
-      code = code >> 1;
-    }
+    });
   }
 
-  int toCode() {
-    int marker = 0;
+  List<int> toCode() {
+    List<int> codeMarkers = [0, 0];
     markers.forEach((element) {
-      if(element != CardMarker.Nothing)
-        marker |= (1<<(element.index-1));
+      if(element != CardMarker.Nothing) {
+        if(element.index < 32) {
+          codeMarkers[1] |= (1<<(element.index-1));
+        } else {
+          codeMarkers[0] |= (1<<(element.index-32-1));
+        }
+      }
     });
-    return marker;
+    return codeMarkers;
   }
 }
 

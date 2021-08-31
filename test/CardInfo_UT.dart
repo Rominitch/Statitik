@@ -10,15 +10,17 @@ void main() {
       CardInfo([]),
       CardInfo([CardMarker.VMAX]),
       CardInfo([CardMarker.Escouade, CardMarker.Restaure]),
+      CardInfo([CardMarker.Restaure, CardMarker.RegenerationAlpha]),
     ];
     for(CardInfo code in c) {
       CardInfo codeS = CardInfo.from(code.toCode());
       expect(code.markers,     codeS.markers);
     }
 
-    expect(20,     c[0].toCode());
-    expect(0,      c[1].toCode());
-    expect(4,      c[2].toCode());
-    expect(1025,   c[3].toCode());
+    expect([0,20],        c[0].toCode());
+    expect([0,0],         c[1].toCode());
+    expect([0,4],         c[2].toCode());
+    expect([0, 1025],     c[3].toCode());
+    expect([0, 16778240], c[4].toCode());
   });
 }
