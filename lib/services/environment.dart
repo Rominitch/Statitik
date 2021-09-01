@@ -20,7 +20,7 @@ class StatitikException implements Exception {
 
 class Database
 {
-    final String version = '1.9';
+    final String version = '2.0';
     final ConnectionSettings settings = createConnection();
 
     Future<bool> transactionR(Function queries) async
@@ -180,6 +180,7 @@ class Environment
                     }
                 }
 
+                List<ListCards> toUpdateCards =[];
                 var lstCards = await connection.query("SELECT `idListeCartes`, `cartes`, `carteNoms`, `carteInfos` FROM `ListeCartes`");
                 for (var row in lstCards) {
                     ListCards c = ListCards();
@@ -214,6 +215,8 @@ class Environment
                                         id = card.extractInfoByte3(id, byteData);
                                         idCard += 1;
                                     }
+                                    toUpdateCards.add(c);
+
                                 } else if( byteData.length == c.cards.length * 5 ) {
                                     int idCard = 0;
                                     for (int id = 0; id < byteData.length;) {
@@ -239,9 +242,33 @@ class Environment
                 for (var row in subExts) {
                     try {
                         var cards = collection.getListCardsID(row[4]);
-                        SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], out: row[6], chromatique: row[7],
+
+                        List<CodeNaming> cn = [];
+                        if(row[7] != null) {
+                            row[7].toString().split("|").forEach((element) {
+                                if(element.isNotEmpty) {
+                                    var item = element.split(":");
+                                    assert(item.length == 2);
+                                    cn.add(CodeNaming(int.parse(item[0]), item[1]));
+                                }
+                            });
+                        }
+
+                        SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], out: row[6], rangedNaming: cn,
                             cards: cards);
                         collection.addSubExtension(se);
+
+                        // Auto-Update when admin login
+                        if(user != null && user!.admin) {
+                            if( toUpdateCards.contains(cards) ) {
+                                printOutput("Admin: Update ${se.name} to latest version");
+                                sendCardInfo(se).then((value){
+                                    var msg = value ? "success" : "failed";
+                                    printOutput("Admin: Update $msg");
+                                });
+                            }
+                        }
+
                     } catch(e) {
                         print("Bad SubExtension: ${row[2]} $e");
                     }

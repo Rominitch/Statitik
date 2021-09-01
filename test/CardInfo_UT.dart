@@ -21,6 +21,6 @@ void main() {
     expect([0,0],         c[1].toCode());
     expect([0,4],         c[2].toCode());
     expect([0, 1025],     c[3].toCode());
-    expect([0, 16778240], c[4].toCode());
+    expect([0, 33555456], c[4].toCode());
   });
 }

@@ -6,6 +6,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:sprintf/sprintf.dart';
 
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -487,8 +488,8 @@ class PokeCard
 
     List<int> fullcode =
     [
-      byteData[id] << 8 | byteData[id+1],
-      ((byteData[id+2] << 8 | byteData[id+3]) << 8 | byteData[id+4]) << 8 | byteData[id+5]
+      byteData[id],
+      ((byteData[id+1] << 8 | byteData[id+2]) << 8 | byteData[id+3]) << 8 | byteData[id+4]
     ];
     info = CardInfo.from(fullcode);
     return id + 5;
@@ -631,6 +632,14 @@ class ListCards
   }
 }
 
+class CodeNaming
+{
+  int    idStart = 0;
+  String naming = "%d";
+
+  CodeNaming([this.idStart=0, this.naming="%d"]);
+}
+
 class SubExtension
 {
   int    id;
@@ -639,9 +648,9 @@ class SubExtension
   ListCards? cards;
   int    idExtension;
   DateTime out;
-  int?   chromatique;
+  List<CodeNaming> rangedNaming = [];
 
-  SubExtension({ required this.id, required this.name, required this.icon, required this.idExtension, required this.out, required this.chromatique, required this.cards });
+  SubExtension({ required this.id, required this.name, required this.icon, required this.idExtension, required this.out, required this.rangedNaming, required this.cards });
 
   ListCards info() {
     return cards!;
@@ -653,11 +662,14 @@ class SubExtension
   }
 
   String numberOfCard(int id) {
-    if(chromatique != null) {
-      return id < chromatique! ? (id+1).toString() : 'SV' + (id-chromatique!+1).toString();
-    } else {
-      return (id + 1).toString();
+    CodeNaming cn = CodeNaming();
+    if(rangedNaming.isNotEmpty) {
+      rangedNaming.forEach((element) {
+        if( id >= element.idStart)
+          cn = element;
+      });
     }
+    return sprintf(cn.naming, [(id-cn.idStart + 1)]);// .toString();
   }
 
   String outDate() {
@@ -825,8 +837,8 @@ class BoosterDraw {
   }
 
   String nameCard(int id) {
-    if(subExtension != null && subExtension!.chromatique != null) {
-      return id < subExtension!.chromatique! ? (id+1).toString() : 'SV' + (id-subExtension!.chromatique!+1).toString();
+    if(subExtension != null) {
+      return subExtension!.numberOfCard(id);
     } else {
       return (id + 1).toString();
     }
@@ -1214,6 +1226,7 @@ enum CardMarker {
   Fusion,
   OutilsPokemon,
   Primal,
+  TeamPlasma,
   TeamFlare,
   PlusDelta,
   EvolutionDelta,
@@ -1221,6 +1234,15 @@ enum CardMarker {
   OffensiveOmega,
   CroissanceAlpha,
   RegenerationAlpha,
+  CapSpe,
+  PokePower,
+  PokeBody,
+  TeamGalaxy,
+  PokemonChampion,
+  SP,
+  Yon,
+  EspeceDelta,
+  TeamRocket,
   //First Limited 24 values (Bit 3 bytes)
   //Limited 40 values (Bit 5 bytes)
 }
@@ -1230,12 +1252,14 @@ const List<Color> markerColors = [
   Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal,
   Colors.indigo, Colors.deepOrange, Colors.lime, Colors.purpleAccent,
   Colors.greenAccent, Colors.blueGrey, Colors.deepPurple, Colors.pinkAccent,
-  Colors.lightBlue, Colors.black26, Colors.redAccent,
-  Color(0xFF1B5E20), Color(0xFF1B5E20), Color(0xFFB71C1C), Color(0xFFB71C1C),
-  Color(0xFF0D47A1), Color(0xFF0D47A1),
+  Colors.lightBlue, Colors.black26, Colors.redAccent, Colors.redAccent,
+  Color(0xFF558B2F),Color(0xFF558B2F), Color(0xFFB71C1C), Color(0xFFB71C1C),
+  Color(0xFF0D47A1), Color(0xFF0D47A1), Colors.redAccent, Color(0xFFB71C1C),
+  Color(0xFF558B2F), Colors.amber, Colors.brown, Colors.deepPurpleAccent,
+  Colors.teal, Colors.lightGreen, Colors.deepPurpleAccent,
 ];
 
-const List longMarker = [CardMarker.MillePoint, CardMarker.PointFinal, CardMarker.UltraChimere, CardMarker.Talent, CardMarker.Fusion];
+const List longMarker = [CardMarker.Escouade, CardMarker.UltraChimere, CardMarker.Talent, CardMarker.MillePoint, CardMarker.PointFinal, CardMarker.Fusion];
 
 List<Widget?> cachedMarkers = List.filled(CardMarker.values.length, null);
 Widget pokeMarker(BuildContext context, CardMarker marker, {double? height=15.0}) {
@@ -1316,6 +1340,36 @@ Widget pokeMarker(BuildContext context, CardMarker marker, {double? height=15.0}
         break;
       case CardMarker.RegenerationAlpha:
         cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_12'), style: TextStyle(fontSize: 8, color: Color(0xFF0D47A1)));
+        break;
+      case CardMarker.TeamPlasma:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_13'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.CapSpe:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_14'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.PokePower:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_15'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.PokeBody:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_16'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.TeamGalaxy:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'teamGalaxy', height: height);
+        break;
+      case CardMarker.PokemonChampion:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'pokeChampion', height: height);
+        break;
+      case CardMarker.SP:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'SP', height: height);
+        break;
+      case CardMarker.Yon:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_17'), style: TextStyle(fontSize: 20));
+        break;
+      case CardMarker.EspeceDelta:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_18'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.TeamRocket:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_19'), style: TextStyle(fontSize: 8));
         break;
       default:
         cachedMarkers[marker.index] = Icon(Icons.help_outline);

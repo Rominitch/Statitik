@@ -49,7 +49,7 @@ class _StatsCardState extends State<StatsCard> {
   void updateContent(subEx, rarity, type, markers, regions) {
     var s = widget.stats.stats!;
 
-    if(widget.stats.isSpecific()) {
+    if(widget.stats.isSpecific() || widget.stats.isFiltered()) {
       s.countSubExtension.entries.forEach( (item)
       {
         subEx.add( Row(

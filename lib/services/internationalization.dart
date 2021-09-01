@@ -242,6 +242,13 @@ Images and illustrations used are the property of their respective authors.
       'MARK_10' : '\u03A9 Barrage ',
       'MARK_11' : '\u03B1 Growth',
       'MARK_12' : '\u03B1 Recovery',
+      'MARK_13' : 'Team Plasma',
+      'MARK_14' : 'Cap Spe',
+      'MARK_15' : 'Poke Power',
+      'MARK_16' : 'Poke Body',
+      'MARK_17' : '\u56DB',
+      'MARK_18' : '\u03B4 Species',
+      'MARK_19' : 'Team Rocket',
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -479,6 +486,13 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'MARK_10' : 'Offensive \u03A9',
       'MARK_11' : 'Croissance \u03B1',
       'MARK_12' : 'Régénération \u03B1',
+      'MARK_13' : 'Team Plasma',
+      'MARK_14' : 'Cap Spe',
+      'MARK_15' : 'Poke Power',
+      'MARK_16' : 'Poke Body',
+      'MARK_17' : '\u56DB',
+      'MARK_18' : 'Espèce \u03B4',
+      'MARK_19' : 'Team Rocket',
     },
   };
 

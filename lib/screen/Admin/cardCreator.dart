@@ -101,7 +101,7 @@ class _CardCreatorState extends State<CardCreator> {
           if(widget.editor)
             Row(children: longMarkerWidget.sublist(0, 3)),
           if(widget.editor)
-            Row(children: longMarkerWidget.sublist(3, 5)),
+            Row(children: longMarkerWidget.sublist(3)),
           if( !widget.editor ) Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
