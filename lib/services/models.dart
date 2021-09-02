@@ -11,6 +11,7 @@ import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 
 import 'connection.dart';
 
@@ -64,6 +65,12 @@ enum Validator {
   ErrorReverse,
   ErrorEnergy,
   ErrorTooManyGood,
+}
+
+enum Level {
+  Base,
+  Level1,
+  Level2,
 }
 
 // Fr type / rarity
@@ -648,9 +655,11 @@ class SubExtension
   ListCards? cards;
   int    idExtension;
   DateTime out;
-  List<CodeNaming> rangedNaming = [];
 
-  SubExtension({ required this.id, required this.name, required this.icon, required this.idExtension, required this.out, required this.rangedNaming, required this.cards });
+  SubExtensionCards? seCards;
+  List<CodeNaming>   rangedNaming = [];
+
+  SubExtension(this.id, this.name, this.icon, this.idExtension, this.out, this.rangedNaming, this.seCards);
 
   ListCards info() {
     return cards!;
