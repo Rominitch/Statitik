@@ -48,7 +48,7 @@ class Collection
     return formes[id];
   }
 
-  PokemonCard getCard(int id) {
+  PokemonCardData getCard(int id) {
     return cards[id];
   }
 
@@ -168,7 +168,7 @@ class Collection
         var typeBytes = (row[3] as Blob).toBytes().toList();
         var type      = Type.values[typeBytes[0]];
 
-        PokemonCard p = PokemonCard(pokemons, level, type);
+        PokemonCardData p = PokemonCardData(pokemons, level, type);
         if(typeBytes.length > 1) {
           p.typeExtended = Type.values[typeBytes[1]];
         }
@@ -206,7 +206,7 @@ class Collection
     rOther       = Environment.instance.collection.otherNames.map((k, v) => MapEntry(v, k));
   }
 
-  void readOldDatabaseToConvert(connection) async {
+  Future<void> readOldDatabaseToConvert(connection) async {
     bool update = false;
     List<ListCards> toUpdateCards =[];
     var lstCards = await connection.query("SELECT `idListeCartes`, `cartes`, `carteNoms`, `carteInfos` FROM `ListeCartes`");
@@ -283,7 +283,7 @@ class Collection
           pokeName.add(Pokemon(name.name, region: r));
         });
         // Create new card
-        PokemonCard newCard = new PokemonCard(pokeName, Level.Base, card.type);
+        PokemonCardData newCard = new PokemonCardData(pokeName, Level.Base, card.type);
         newCard.saveDatabase(connection, idCard, true);
         Environment.instance.collection.cards[idCard] = newCard;
 
@@ -302,6 +302,7 @@ class Collection
       await connection.query("DELETE FROM `ListeCartes` WHERE `idListeCartes` = ${row[0]};");
       printOutput("Migration Done for ListeCartes=${row[0]}");
     }
+
     if( update ) {
       migration = true;
       printOutput("Migration effectuée !");

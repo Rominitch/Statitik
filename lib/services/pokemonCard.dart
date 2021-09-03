@@ -88,14 +88,14 @@ class Illustrator {
 }
 
 /// Full card definition except Number/Extension/Rarity
-class PokemonCard {
+class PokemonCardData {
   List<Pokemon> pokemons;
   Level         level;
   Type          type;
   Type?         typeExtended; //Double energy can exists but less than 20 card !
   Illustrator?  illustrator;
 
-  PokemonCard(this.pokemons, this.level, this.type);
+  PokemonCardData(this.pokemons, this.level, this.type);
 
   Future<void> saveDatabase(connection, int id, [bool creation=false]) async {
     List<int> nameBytes = [];
@@ -118,8 +118,8 @@ class PokemonCard {
 }
 
 class PokemonCardExtension {
-  PokemonCard  card;
-  Rarity       rarity;
+  PokemonCardData  card;
+  Rarity           rarity;
 
   PokemonCardExtension(this.card, this.rarity);
 
