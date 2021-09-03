@@ -1,6 +1,6 @@
-
 import 'dart:typed_data';
 
+import 'package:mysql1/mysql1.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 
@@ -46,8 +46,12 @@ class Pokemon {
   static const int byteLength = 4;
 
   static Pokemon loadBytes(pointer, bytes) {
-    int idName = bytes[pointer] << 8 + bytes[pointer+1];
-    Pokemon p = Pokemon(Environment.instance.collection.getNamedID(idName));
+    int idName = bytes[pointer] << 8 | bytes[pointer+1];
+    assert(idName != 0);
+
+    Pokemon p = Pokemon(idName < 10000
+              ? Environment.instance.collection.getPokemonID(idName)
+              : Environment.instance.collection.getNamedID(idName));
     int idRegion = bytes[pointer+2];
     if(idRegion > 0)
       p.region = Environment.instance.collection.getRegion(idRegion);
@@ -63,21 +67,16 @@ class Pokemon {
   List<int> toByte() {
     int id=0;
     if (name.isPokemon()) {
-      var rPokemon = Environment.instance.collection.pokemons.map((k, v) => MapEntry(v, k));
-      id = rPokemon[name];
+      id = Environment.instance.collection.rPokemon[name];
     } else {
-      var rOther = Environment.instance.collection.otherNames.map((k, v) => MapEntry(v, k));
-      id = rOther[name];
+      id = Environment.instance.collection.rOther[name];
     }
-    var rRegion = Environment.instance.collection.regions.map((k, v) => MapEntry(v, k));
-    var rFormes = Environment.instance.collection.formes.map((k, v) => MapEntry(v, k));
-
     return <int>
     [
       id & 0xFF00,
       id & 0xFF,
-      region != null ? rRegion[region] : 0,
-      forme  != null ? rFormes[forme]  : 0,
+      region != null ? Environment.instance.collection.rRegions[region] : 0,
+      forme  != null ? Environment.instance.collection.rFormes[forme]   : 0,
     ];
   }
 }
@@ -98,18 +97,17 @@ class PokemonCard {
 
   PokemonCard(this.pokemons, this.level, this.type);
 
-  void saveDatabase(connection, int id, [bool creation=false]) async {
+  Future<void> saveDatabase(connection, int id, [bool creation=false]) async {
     List<int> nameBytes = [];
     pokemons.forEach((element) { nameBytes += element.toByte(); });
 
-    var rIllustrator = Environment.instance.collection.regions.map((k, v) => MapEntry(v, k));
-    int? idIllustrator = illustrator != null ? rIllustrator[illustrator] : null;
+    int? idIllustrator = illustrator != null ? Environment.instance.collection.rIllustrator[illustrator] : null;
 
-    List data = [Int8List.fromList(nameBytes), level.index, type, null, null, null, null, null, null, idIllustrator, null];
+    List data = [Int8List.fromList(nameBytes), level.index, type.index, null, null, null, null, null, null, idIllustrator, null];
     var query = "";
     if (creation) {
       data.insert(0, id);
-      query = 'INSERT INTO `Cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, );';
+      query = 'INSERT INTO `Cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
     } else {
       query = 'UPDATE `Cartes` SET `nom` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?, `image` = ?'
       ' WHERE `Cartes`.`idCartes` = ${id}';
@@ -124,10 +122,69 @@ class PokemonCardExtension {
   Rarity       rarity;
 
   PokemonCardExtension(this.card, this.rarity);
+
+  static const int byteSize = 3;
+  PokemonCardExtension.fromByte(pointer, bytes) :
+    card = Environment.instance.collection.getCard(bytes[pointer] << 8 | bytes[pointer+1]),
+    rarity = Rarity.values[bytes[pointer+2]]
+  {
+    pointer+=3;
+  }
+
+  List<int> toByte() {
+    int idCard = Environment.instance.collection.rCard[card];
+    return <int>[
+      idCard & 0xFF00,
+      idCard & 0xFF,
+      rarity.index
+    ];
+  }
 }
 
 class SubExtensionCards {
   List<List<PokemonCardExtension>> cards;
+  List<CodeNaming>                 codeNaming = [];
 
   SubExtensionCards(this.cards);
+
+  SubExtensionCards.build(byteCard, naming) : this.cards=[] {
+    // Extract card
+    int pointer = 0;
+    while(pointer < byteCard.length) {
+      List<PokemonCardExtension> numberedCard = [];
+      for( int cardId=0; cardId < byteCard[pointer]; cardId +=1) {
+        numberedCard.add(PokemonCardExtension.fromByte(pointer+1, byteCard));
+      }
+      cards.add(numberedCard);
+    }
+    // Extract code naming
+    if(naming != null) {
+      naming.toString().split("|").forEach((element) {
+        if(element.isNotEmpty) {
+          var item = element.split(":");
+          assert(item.length == 2);
+          codeNaming.add(CodeNaming(int.parse(item[0]), item[1]));
+        }
+      });
+    }
+  }
+
+  List<int> toByte() {
+    List<int> cardBytes = [];
+    cards.forEach((cardById) {
+      // Add nb cards by number
+      cardBytes.add(cardById.length);
+      // Add card code
+      cardById.forEach((card) {
+        cardBytes += card.toByte();
+      });
+    });
+    return cardBytes;
+  }
+
+  Future<void> saveDatabase(connection, int id) async {
+    var query = 'UPDATE `CartesExtension` SET `cartes` = ?'
+        ' WHERE `CartesExtension`.`idCartesExtension` = $id';
+    await connection.query(query, [Int8List.fromList(toByte())]);
+  }
 }

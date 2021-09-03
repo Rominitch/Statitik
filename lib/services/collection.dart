@@ -1,14 +1,16 @@
 import 'package:mysql1/mysql1.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 class Collection
 {
+  bool migration = false;
   Map languages = {};
   List extensions = [];
   Map subExtensions = {};
-  Map listCards = {};
+  Map cardsExtensions = {};
   int category=0;
   Map pokemons = {};
   Map otherNames = {};
@@ -17,24 +19,25 @@ class Collection
   Map cards  = {};
   Map illustrator  = {};
 
+  // Admin part
+  Map rIllustrator = {};
+  Map rRegions     = {};
+  Map rCard        = {};
+  Map rFormes      = {};
+  Map rPokemon     = {};
+  Map rOther       = {};
+
   void clear() {
     languages.clear();
     extensions.clear();
     subExtensions.clear();
-    listCards.clear();
+    cardsExtensions.clear();
     pokemons.clear();
     regions.clear();
     formes.clear();
     illustrator.clear();
     cards.clear();
     category=0;
-  }
-
-  void addSubExtension(SubExtension e) {
-    subExtensions[e.id] = e;
-  }
-  void addListCards(ListCards l, int id) {
-    listCards[id] = l;
   }
 
   Region getRegion(int id) {
@@ -73,10 +76,6 @@ class Collection
     return subExtensions[id];
   }
 
-  ListCards? getListCardsID(int id) {
-    return listCards[id];
-  }
-
   PokemonInfo getPokemonID(int id) {
     //if(local) {
     //  if(!pokemons.containsKey(id))
@@ -91,7 +90,8 @@ class Collection
     //  if(!otherNames.containsKey(id))
     //    throw StatitikException("otherNames: Missing $id");
     //}
-    assert(10000 <= id && (id-10000) < otherNames.length);
+    assert(10000 <= id );
+    assert((id-10000) < otherNames.length);
     return otherNames[id];
   }
 
@@ -161,7 +161,7 @@ class Collection
         var nameBytes = (row[1] as Blob).toBytes().toList();
         int pointerName = 0;
         while(pointerName < nameBytes.length) {
-          pokemons.add(Pokemon.loadBytes(nameBytes, pointerName));
+          pokemons.add(Pokemon.loadBytes(pointerName, nameBytes));
         }
 
         var level     = Level.values[row[2]];
@@ -175,50 +175,46 @@ class Collection
         cards[row[0]] = p;
       }
 
+      var cardsExtensionRes = await connection.query("SELECT * FROM `CartesExtension`;");
+      for(var row in cardsExtensionRes) {
+        if(row[1] != null) {
+          cardsExtensions[row[0]] = SubExtensionCards.build((row[1] as Blob).toBytes().toList(), row[2]);
+        }
+      }
+
       var subExts = await connection.query("SELECT * FROM `SousExtension` ORDER BY `code` DESC");
       for (var row in subExts) {
         try {
-          var cards = getListCardsID(row[4]);
-
-          List<CodeNaming> cn = [];
-          if(row[7] != null) {
-            row[7].toString().split("|").forEach((element) {
-              if(element.isNotEmpty) {
-                var item = element.split(":");
-                assert(item.length == 2);
-                cn.add(CodeNaming(int.parse(item[0]), item[1]));
-              }
-            });
-          }
-
-          SubExtension se = SubExtension(row[0], row[2], row[3], row[1], row[6], cn, null);
-          se.cards = cards;
-          addSubExtension(se);
+          subExtensions[row[0]] = SubExtension(row[0], row[2], row[3], row[1], row[6], cardsExtensions[row[4]]);
         } catch(e) {
           print("Bad SubExtension: ${row[2]} $e");
         }
       }
 
-      var catExts = await connection.query("SELECT COUNT(*) FROM `Categorie`");
+      var catExts = await connection.query("SELECT COUNT(*) FROM `Categorie`;");
       for (var row in catExts) {
         category = row[0];
       }
   }
 
-  Future<bool> readOldDatabaseToConvert(connection) async {
+  void adminReverse() {
+    rIllustrator = Environment.instance.collection.illustrator.map((k, v) => MapEntry(v, k));
+    rRegions     = Environment.instance.collection.regions.map((k, v) => MapEntry(v, k));
+    rCard        = Environment.instance.collection.cards.map((k, v) => MapEntry(v, k));
+    rFormes      = Environment.instance.collection.formes.map((k, v) => MapEntry(v, k));
+    rPokemon     = Environment.instance.collection.pokemons.map((k, v) => MapEntry(v, k));
+    rOther       = Environment.instance.collection.otherNames.map((k, v) => MapEntry(v, k));
+  }
+
+  void readOldDatabaseToConvert(connection) async {
     bool update = false;
-    List<int> alreadyMigrate = [];
-    var newlstCards = await connection.query("SELECT * FROM `CartesExtensions`");
-    for (var row in newlstCards) {
-      alreadyMigrate.add(row[0]);
-    }
     List<ListCards> toUpdateCards =[];
     var lstCards = await connection.query("SELECT `idListeCartes`, `cartes`, `carteNoms`, `carteInfos` FROM `ListeCartes`");
     for (var row in lstCards) {
       ListCards c = ListCards();
       try {
         // Skip already migrate
-        if(alreadyMigrate.contains(row[0]))
+        if(cardsExtensions.containsKey(row[0]))
           continue;
 
         update = true;
@@ -238,7 +234,7 @@ class Collection
               idCard+=1;
             }
           } catch(e) {
-            print("Data corruption: ListCardName ${row[0]} : $idCard = $e");
+            printOutput("Data corruption: ListCardName ${row[0]} : $idCard = $e");
           }
         }
         // Extract Info
@@ -266,15 +262,16 @@ class Collection
               throw StatitikException("Bad data info size.");
             }
           } catch(e) {
-            print("Data corruption: ListCardInfo ${row[0]} $e");
+            printOutput("Data corruption: ListCardInfo ${row[0]} $e");
           }
         }
       } catch(e) {
-        print("Bad cards list: $e");
+        printOutput("Bad cards list: $e");
       }
 
       // Convert
-      int idCard = cards.length;
+      int idCard = cards.length + 1;
+      List<List<PokemonCardExtension>> allCardEx = [];
       c.cards.forEach((card) {
         List<Pokemon> pokeName = [];
         card.names.forEach((name) {
@@ -287,9 +284,27 @@ class Collection
         });
         // Create new card
         PokemonCard newCard = new PokemonCard(pokeName, Level.Base, card.type);
+        newCard.saveDatabase(connection, idCard, true);
+        Environment.instance.collection.cards[idCard] = newCard;
 
+        idCard += 1;
+        // Add into List
+        allCardEx.add([PokemonCardExtension(newCard, card.rarity)]);
       });
+
+      // Update Collection data
+      rCard = Environment.instance.collection.cards.map((k, v) => MapEntry(v, k));
+
+      SubExtensionCards extensions = SubExtensionCards(allCardEx);
+      await extensions.saveDatabase(connection, row[0]);
+
+      // Remove migrate data to never migrate again
+      await connection.query("DELETE FROM `ListeCartes` WHERE `idListeCartes` = ${row[0]};");
+      printOutput("Migration Done for ListeCartes=${row[0]}");
     }
-    return update;
+    if( update ) {
+      migration = true;
+      printOutput("Migration effectuée !");
+    }
   }
 }

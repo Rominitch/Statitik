@@ -659,7 +659,7 @@ class SubExtension
   SubExtensionCards? seCards;
   List<CodeNaming>   rangedNaming = [];
 
-  SubExtension(this.id, this.name, this.icon, this.idExtension, this.out, this.rangedNaming, this.seCards);
+  SubExtension(this.id, this.name, this.icon, this.idExtension, this.out, this.seCards);
 
   ListCards info() {
     return cards!;

@@ -39,8 +39,9 @@ class Database
             await connection.transaction(queries);
 
             valid = true;
-        } catch( e ) {
+        } catch( e, stacktrace ) {
             printOutput(e.toString());
+            printOutput(stacktrace.toString());
         }
         finally {
             connection.close();
@@ -118,8 +119,32 @@ class Environment
                             readStaticData(),
                         ]
                     ).whenComplete(() {
-                        isInitialized = true;
-                        onInitialize.add(isInitialized);
+                        if(local) {
+                            collection.adminReverse();
+
+                            db.transactionR(
+                                collection.readOldDatabaseToConvert
+                            ).whenComplete(() {
+                                if(collection.migration ) {
+                                    isInitialized = false;
+                                    onServerError.add("Migration effectuée!");
+                                } else {
+                                    isInitialized = true;
+                                    onInitialize.add(isInitialized);
+                                }
+                            }).catchError((error) {
+                                isInitialized = false;
+                                onServerError.add(error.msg);
+                            }).onError((error, stackTrace) {
+                                printOutput(error.toString());
+                                printOutput(stackTrace.toString());
+                                isInitialized = false;
+                                return false;
+                            });
+                        } else {
+                            isInitialized = true;
+                            onInitialize.add(isInitialized);
+                        }
                     });
                 }).catchError((error) {
                     isInitialized = false;
