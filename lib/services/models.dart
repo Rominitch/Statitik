@@ -1185,7 +1185,7 @@ class CardStats {
 
 class CardResults {
   NamedInfo?  specificCard;
-  CardMarkers filter = CardMarkers.from([]);
+  CardMarkers filter = CardMarkers();
   Region?     filterRegion;
   CardStats?  stats;
 

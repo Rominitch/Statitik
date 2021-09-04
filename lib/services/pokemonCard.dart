@@ -48,6 +48,9 @@ class Pokemon {
 
   static Pokemon loadBytes(ByteParser parser) {
     int idName = parser.byteArray[parser.pointer] << 8 | parser.byteArray[parser.pointer+1];
+    if(idName == 0) {
+      throw StatitikException("Pokemon: Missing bad name $idName");
+    }
     assert(idName != 0);
 
     Pokemon p = Pokemon(idName < 10000
@@ -72,13 +75,18 @@ class Pokemon {
     } else {
       id = Environment.instance.collection.rOther[name];
     }
-    return <int>
+    assert(id != 0);
+
+    var bytes = <int>
     [
-      id & 0xFF00,
+      (id & 0xFF00) >> 8,
       id & 0xFF,
       region != null ? Environment.instance.collection.rRegions[region] : 0,
       forme  != null ? Environment.instance.collection.rFormes[forme]   : 0,
     ];
+    assert((bytes[0] | bytes[1]) != 0);
+    assert(bytes[0] <= 0xFF && bytes[1] <= 0xFF);
+    return bytes;
   }
 
   String titleOfCard(Language l) {
@@ -101,6 +109,8 @@ class Illustrator {
 
 class CardMarkers {
   List<CardMarker> markers = [];
+
+  CardMarkers();
 
   CardMarkers.from(markers) : this.markers = markers;
 
@@ -138,9 +148,9 @@ class CardMarkers {
     });
     return <int>[
       codeMarkers[0] & 0xFF,
-      codeMarkers[1] & 0xFF000000,
-      codeMarkers[1] & 0xFF0000,
-      codeMarkers[1] & 0xFF00,
+      (codeMarkers[1] & 0xFF000000) >> 8,
+      (codeMarkers[1] & 0xFF0000) >> 8,
+      (codeMarkers[1] & 0xFF00) >> 8,
       codeMarkers[1] & 0xFF,
     ];
   }
@@ -159,7 +169,9 @@ class PokemonCardData {
 
   Future<void> saveDatabase(connection, int id, [bool creation=false]) async {
     List<int> nameBytes = [];
-    title.forEach((element) { nameBytes += element.toByte(); });
+    title.forEach((element) {
+      nameBytes += element.toByte();
+    });
 
     int? idIllustrator = illustrator != null ? Environment.instance.collection.rIllustrator[illustrator] : null;
 
@@ -167,8 +179,9 @@ class PokemonCardData {
     if( typeExtended != null) {
       typesByte.add(typeExtended!.index);
     }
+    var namedData = nameBytes.isNotEmpty ? Int8List.fromList(nameBytes) : null;
 
-    List data = [Int8List.fromList(nameBytes), level.index, Int8List.fromList(typesByte), null, Int8List.fromList(markers.toByte()), null, null, null, null, idIllustrator, null];
+    List data = [namedData, level.index, Int8List.fromList(typesByte), null, Int8List.fromList(markers.toByte()), null, null, null, null, idIllustrator, null];
     var query = "";
     if (creation) {
       data.insert(0, id);
@@ -198,16 +211,18 @@ class PokemonCardExtension {
 
   static const int byteSize = 3;
   PokemonCardExtension.fromByte(ByteParser parser) :
-    data = Environment.instance.collection.getCard(parser.byteArray[parser.pointer] << 8 | parser.byteArray[parser.pointer+1]),
+    data   = Environment.instance.collection.pokemonCards[parser.byteArray[parser.pointer] << 8 | parser.byteArray[parser.pointer+1]],
     rarity = Rarity.values[parser.byteArray[parser.pointer+2]]
   {
-    parser.pointer+=3;
+    parser.pointer+=byteSize;
   }
 
   List<int> toByte() {
-    int idCard = Environment.instance.collection.rCard[data];
+    int idCard = Environment.instance.collection.rPokemonCards[data];
+    assert(idCard != 0);
+
     return <int>[
-      idCard & 0xFF00,
+      (idCard & 0xFF00) >> 8,
       idCard & 0xFF,
       rarity.index
     ];
@@ -260,7 +275,8 @@ class SubExtensionCards {
     // Extract card
     while(parser.pointer < parser.byteArray.length) {
       List<PokemonCardExtension> numberedCard = [];
-      for( int cardId=0; cardId < parser.byteArray[parser.pointer]; cardId +=1) {
+      int nbTitle = parser.byteArray[parser.pointer];
+      for( int cardId=0; cardId < nbTitle; cardId +=1) {
         parser.pointer += 1;
         numberedCard.add(PokemonCardExtension.fromByte(parser));
       }

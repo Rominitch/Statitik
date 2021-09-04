@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import 'package:mysql1/mysql1.dart';
@@ -82,7 +81,7 @@ class Environment
     UserPoke? user;
     SessionDraw? currentDraw;
 
-    void initialize() async
+    Future<void> initialize() async
     {
         // General data control
         assert(Rarity.values.length     == rarityColors.length);
@@ -114,39 +113,43 @@ class Environment
                     if(!isDatabaseMatch) {
                         throw StatitikException('DB_1');
                     }
-                    Future.wait(
-                        [
-                            credential.initialize(),
-                            readStaticData(),
-                        ]
-                    ).whenComplete(() {
-                        if(local) {
-                            collection.adminReverse();
+                    credential.initialize().
+                    whenComplete( () {
+                        readStaticData().whenComplete(() {
+                            if (user != null && user!.admin) {
+                                printOutput("Admin is launched !");
+                                collection.adminReverse();
+                            }
+                            /*
+                            if(local) {
+                                collection.adminReverse();
 
-                            collection.readOldDatabaseToConvert()
-                            .whenComplete(() {
-                                if( collection.migration ) {
+                                collection.readOldDatabaseToConvert()
+                                .whenComplete(() {
+                                    if( collection.migration ) {
+                                        isInitialized = false;
+                                        onServerError.add("Migration effectuée!");
+                                    } else {
+                                        collection.convertNewDrawFormat();
+
+                                        isInitialized = true;
+                                        onInitialize.add(isInitialized);
+                                    }
+                                }).catchError((error) {
                                     isInitialized = false;
-                                    onServerError.add("Migration effectuée!");
-                                } else {
-                                    collection.convertNewDrawFormat();
-
-                                    isInitialized = true;
-                                    onInitialize.add(isInitialized);
-                                }
-                            }).catchError((error) {
-                                isInitialized = false;
-                                onServerError.add(error.msg);
-                            }).onError((error, stackTrace) {
-                                printOutput(error.toString());
-                                printOutput(stackTrace.toString());
-                                isInitialized = false;
-                                return false;
-                            });
-                        } else {
+                                    onServerError.add(error.msg);
+                                }).onError((error, stackTrace) {
+                                    printOutput(error.toString());
+                                    printOutput(stackTrace.toString());
+                                    isInitialized = false;
+                                    return false;
+                                });
+                            }
+                            else
+                            */
                             isInitialized = true;
                             onInitialize.add(isInitialized);
-                        }
+                        });
                     });
                 }).catchError((error) {
                     isInitialized = false;
@@ -174,9 +177,11 @@ class Environment
     Future<void> readStaticData() async
     {
         if(!startDB) {
+            printOutput("Clean Database");
             // Avoid reentrance
             collection.clear();
 
+            printOutput("Read Database");
             await db.transactionR( collection.readStaticData );
 
             startDB = true;

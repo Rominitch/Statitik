@@ -6,9 +6,7 @@ import 'package:statitikcard/services/internationalization.dart';
 class Loading extends StatefulWidget {
   Loading() : super()
   {
-    // Make long operation
     Environment env = Environment.instance;
-    env.initialize();
   }
 
   @override
@@ -27,6 +25,8 @@ class _LoadingState extends State<Loading> {
         msgError = event;
       });
     });
+    // Make long operation
+    Environment.instance.initialize();
 
     super.initState();
   }
