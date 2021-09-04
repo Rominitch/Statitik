@@ -10,6 +10,7 @@ import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 import 'package:statitikcard/services/product.dart';
 
 class FullCard {
@@ -49,28 +50,30 @@ class _UserReportState extends State<UserReport> {
     finalData.category = widget.data.category;
     finalData.subExt   = widget.data.subExt;
 
-    List<List<FullCard>> cardSort = List.generate(Rarity.values.length, (id) => []);
+    List<Map<int,PokemonCardExtension>> cardSort = List.generate(Rarity.values.length, (id) => {});
 
     bestCards.clear();
 
     if(finalData.stats != null) {
-      for (int i = 0; i < finalData.stats!.count.length; i += 1) {
-        PokeCard card = finalData.subExt!.info().cards[i];
-        if (finalData.stats!.count[i] > 0 &&
-            card.rarity.index >= Rarity.HoloRare.index) {
-          String rname = finalData.subExt!.info().getName(finalData.language!, i);
-          cardSort[card.rarity.index].add(FullCard(finalData.subExt!.numberOfCard(i), card, rname));
+
+      // Just keep best card for report
+      for (int idCardNumber = 0; idCardNumber < finalData.stats!.count.length; idCardNumber += 1) {
+        for (int idCard = 0; idCard < finalData.stats!.count[idCardNumber].length; idCard += 1) {
+          var card = finalData.subExt!.seCards.cards[idCardNumber][idCard];
+          if (finalData.stats!.count[idCardNumber][idCard] > 0 && card.isForReport() ) {
+            cardSort[card.rarity.index][idCardNumber] = card;
+          }
         }
       }
 
-      for (final cards in cardSort.reversed) {
-        for (final c in cards) {
+      cardSort.reversed.forEach((cards) {
+        for(var c in cards.entries) {
           if (bestCards.length > 14)
             break;
 
-          final cardName = c.name;
-          if(finalData.subExt!.info().hasAdditionnalInfo) {
-            Widget? markerInfo = c.card.showImportantMarker(context, height: 15);
+          if(finalData.subExt!.seCards.cards.isNotEmpty) {
+            String realName = c.value.data.titleOfCard(finalData.subExt!.extension.language);
+            Widget? markerInfo = c.value.showImportantMarker(context, height: 15);
             bestCards.add(Card(
               color: Colors.grey[600],
               child: Padding(
@@ -80,11 +83,11 @@ class _UserReportState extends State<UserReport> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children:
                     [
-                      Container(child: Text(c.name), width: 40),
-                      Container(child: Row(children: [c.card.imageType()] +
-                          c.card.imageRarity()), width: 80),
+                      Container(child: Text(finalData.subExt!.seCards.numberOfCard(c.key)), width: 40),
+                      Container(child: Row(children: [c.value.imageType()] +
+                          c.value.imageRarity()), width: 80),
                       SizedBox(width: 6.0),
-                      Flexible(child: Text(c.realName, style: TextStyle(fontSize: c.realName.length > 10 ? 10 : 13))),
+                      Flexible(child: Text(realName, style: TextStyle(fontSize: realName.length > 10 ? 10 : 13))),
                       if(markerInfo != null) markerInfo,
                     ]),
               ),
@@ -99,14 +102,14 @@ class _UserReportState extends State<UserReport> {
                   children:
                   [
                     Row(mainAxisAlignment: MainAxisAlignment.center,
-                        children: [c.card.imageType()] + c.card.imageRarity()),
+                        children: [c.value.imageType()] + c.value.imageRarity()),
                     SizedBox(height: 6.0),
-                    Text(cardName),
+                    Text(c.key.toString()),
                   ]),
             )
             );
         }
-      }
+      });
 
       products.clear();
       if (finalData.product != null) {
@@ -229,7 +232,7 @@ class _UserReportState extends State<UserReport> {
   }
 
   Widget buildBestCards(translator, limit) {
-    if(finalData.subExt!.cards!.hasAdditionnalInfo)
+    //if(finalData.subExt!.seCards)
       return Card(
           child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -243,6 +246,7 @@ class _UserReportState extends State<UserReport> {
               ]
           )
       );
+      /*
     else
       return Card(
           child: Column(
@@ -258,6 +262,7 @@ class _UserReportState extends State<UserReport> {
               ]
           )
       );
+      */
   }
 
   Widget buildProducts(translator, limit) {

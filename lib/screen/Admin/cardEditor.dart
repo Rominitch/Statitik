@@ -3,21 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 
 class CardEditor extends StatefulWidget {
-  final int          id;
-  final SubExtension se;
-  final PokeCard     card;
-  final bool         isWorldCard;
+  final int                  id;
+  final int                  idAlternative = 0;
+  final SubExtension         se;
+  final PokemonCardExtension card;
+  final bool                 isWorldCard;
 
-  CardEditor(this.card, this.isWorldCard, this.se, this.id) {
-    // Add minimal name (can be empty)
-    if(card.names.isEmpty) {
-      card.names.add(CardName());
-    }
-  }
+  CardEditor(this.card, this.isWorldCard, this.se, this.id);
 
   @override
   _CardEditorState createState() => _CardEditorState();
@@ -30,7 +28,7 @@ class _CardEditorState extends State<CardEditor> {
   Widget build(BuildContext context) {
     List<Widget> namedWidgets = [];
     int id=0;
-    widget.card.names.forEach((element) {
+    widget.card.data.title.forEach((element) {
       namedWidgets.add(PokeCardNaming(widget.card, id));
       id+=1;
     });
@@ -39,7 +37,7 @@ class _CardEditorState extends State<CardEditor> {
           child: Text(StatitikLocale.of(context).read('NCE_B7')),
             onPressed: () {
               setState(() {
-                widget.card.names.add(CardName());
+                widget.card.data.title.add(Pokemon(Environment.instance.collection.pokemons[1]));
               });
             },
           )
@@ -50,7 +48,7 @@ class _CardEditorState extends State<CardEditor> {
         appBar: AppBar(
           title: Container(
             child: Text(sprintf("%s: %s %s",
-                [StatitikLocale.of(context).read('CE_T0'), widget.se.numberOfCard(widget.id), widget.se.info().getName(Language(id: 1, image: ""), widget.id)]
+                [StatitikLocale.of(context).read('CE_T0'), widget.se.seCards.numberOfCard(widget.id), widget.se.seCards.titleOfCard(Language(id: 1, image: ""), widget.id, widget.idAlternative)]
               ),
               style: Theme.of(context).textTheme.headline6,
               softWrap: true,
@@ -58,7 +56,7 @@ class _CardEditorState extends State<CardEditor> {
             ),
           ),
           actions: [
-            if(widget.id+1 < widget.se.info().cards.length)
+            if(widget.id+1 < widget.se.seCards.cards.length)
               Card(
                   color: Colors.grey[800],
                   child: TextButton(
@@ -66,7 +64,7 @@ class _CardEditorState extends State<CardEditor> {
                     onPressed: (){
                       int nextId = widget.id+1;
                       Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => CardEditor(widget.se.info().cards[nextId], widget.isWorldCard, widget.se, nextId)),
+                        MaterialPageRoute(builder: (context) => CardEditor(widget.se.seCards.cards[nextId][0], widget.isWorldCard, widget.se, nextId)),
                       );
                     },
                   )
@@ -78,7 +76,7 @@ class _CardEditorState extends State<CardEditor> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              CardCreator.editor(widget.card, widget.isWorldCard),
+              CardCreator.editor(widget.se.extension.language, widget.card, widget.isWorldCard),
             ] + namedWidgets
           )
         )

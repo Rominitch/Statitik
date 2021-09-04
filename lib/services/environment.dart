@@ -6,6 +6,7 @@ import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/collection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -122,13 +123,14 @@ class Environment
                         if(local) {
                             collection.adminReverse();
 
-                            db.transactionR(
-                                collection.readOldDatabaseToConvert
-                            ).whenComplete(() {
-                                if(collection.migration ) {
+                            collection.readOldDatabaseToConvert()
+                            .whenComplete(() {
+                                if( collection.migration ) {
                                     isInitialized = false;
                                     onServerError.add("Migration effectuée!");
                                 } else {
+                                    collection.convertNewDrawFormat();
+
                                     isInitialized = true;
                                     onInitialize.add(isInitialized);
                                 }
@@ -290,7 +292,17 @@ class Environment
                 var req = await connection.query(query);
                 for (var row in req) {
                     try {
-                        stats.addBoosterDraw((row[0] as Blob).toBytes(), (row[1] as Blob).toBytes(), row[2]);
+                        List<List<int>> cardsDraw = [];
+                        var bytes = (row[0] as Blob).toBytes();
+                        int pointer = 0;
+                        while(pointer < bytes.length) {
+                            int count = bytes[pointer];
+                            pointer += 1;
+
+                            cardsDraw.add(bytes.sublist(pointer, count));
+                            pointer += count;
+                        }
+                        stats.addBoosterDraw(cardsDraw, (row[1] as Blob).toBytes(), row[2]);
                     } catch(e) {}
                 }
             });
@@ -434,7 +446,9 @@ class Environment
                                 session.addNewBooster();
                             }
                             booster = session.boosterDraws[id];
-                            booster.fill(collection.getSubExtensionID(rowUserBooster[0])!, rowUserBooster[1]==1, (rowUserBooster[2] as Blob).toBytes(), (rowUserBooster[3] as Blob).toBytes());
+
+                            var edc = ExtensionDrawCards.fromByte((rowUserBooster[2] as Blob).toBytes());
+                            booster.fill(collection.subExtensions[rowUserBooster[0]], rowUserBooster[1]==1, edc, (rowUserBooster[3] as Blob).toBytes());
 
                             id += 1;
                         }
@@ -450,6 +464,7 @@ class Environment
 
     Future<bool> sendCardInfo(SubExtension se) async {
         if( isLogged() && user!.admin) {
+            /*
             try {
                 return await db.transactionR( (connection) async {
                     var rType   = convertType.map((k, v)   => MapEntry(v, k));
@@ -473,6 +488,7 @@ class Environment
             } catch( e ) {
                 printOutput("Database error $e");
             }
+            */
         }
         return false;
     }

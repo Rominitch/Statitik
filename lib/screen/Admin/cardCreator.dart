@@ -5,15 +5,17 @@ import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 
 class CardCreator extends StatefulWidget {
-  final bool            editor;
-  final PokeCard        card;
-  final Function(int?)? onAppendCard;
-  final List            listRarity;
+  final Language              activeLanguage;
+  final bool                  editor;
+  final PokemonCardExtension  card;
+  final Function(int?)?       onAppendCard;
+  final List                  listRarity;
 
-  CardCreator.editor(this.card, bool isWorldCard): editor=true, onAppendCard=null, listRarity = (isWorldCard ? worldRarity : japanRarity);
-  CardCreator.quick(this.card,  this.onAppendCard, bool isWorldCard): editor=false, listRarity = (isWorldCard ? worldRarity : japanRarity);
+  CardCreator.editor(this.activeLanguage, this.card, bool isWorldCard): editor=true, onAppendCard=null, listRarity = (isWorldCard ? worldRarity : japanRarity);
+  CardCreator.quick(this.activeLanguage,  this.card,  this.onAppendCard, bool isWorldCard): editor=false, listRarity = (isWorldCard ? worldRarity : japanRarity);
 
   @override
   _CardCreatorState createState() => _CardCreatorState();
@@ -30,7 +32,7 @@ class _CardCreatorState extends State<CardCreator> {
   bool         _auto    = false;
 
   void onTypeChanged(value) {
-    widget.card.type = value;
+    widget.card.data.type = value;
   }
 
   void onRarityChanged(value) {
@@ -61,15 +63,15 @@ class _CardCreatorState extends State<CardCreator> {
     if(widget.editor) {
       CardMarker.values.forEach((element) {
         if (element != CardMarker.Nothing && !longMarker.contains(element))
-          marker.add(ButtonCheck(widget.card.info, element));
+          marker.add(ButtonCheck(widget.card.data.markers, element));
       });
       longMarker.forEach((element) {
-        longMarkerWidget.add(Expanded(child: ButtonCheck(widget.card.info, element)));
+        longMarkerWidget.add(Expanded(child: ButtonCheck(widget.card.data.markers, element)));
       });
     }
 
     // Set current value
-    typeController.afterPress(widget.card.type);
+    typeController.afterPress(widget.card.data.type);
     rarityController.afterPress(widget.card.rarity);
   }
 
@@ -132,12 +134,12 @@ class _CardCreatorState extends State<CardCreator> {
 }
 
 class PokeCardNaming extends StatefulWidget {
-  final PokeCard  card;
-  final int       idName;
+  final PokemonCardExtension  card;
+  final int                   idName;
   const PokeCardNaming(this.card, this.idName);
 
-  CardName getName() {
-    return card.names[idName];
+  Pokemon nameInfo() {
+    return card.data.title[idName];
   }
 
   @override
@@ -145,20 +147,20 @@ class PokeCardNaming extends StatefulWidget {
 }
 
 class _PokeCardNamingState extends State<PokeCardNaming> {
-  late CustomRadioController specialController = CustomRadioController(onChange: (PokeSpecial value) { onSpecialChanged(value); });
-  late CustomRadioController regionController  = CustomRadioController(onChange: (PokeRegion value) { onRegionChanged(value); });
+  late CustomRadioController specialController = CustomRadioController(onChange: (Forme value)  { onSpecialChanged(value); });
+  late CustomRadioController regionController  = CustomRadioController(onChange: (Region value) { onRegionChanged(value); });
 
-  void onRegionChanged(PokeRegion value) {
-    widget.getName().region = value;
+  void onRegionChanged(Region value) {
+    widget.nameInfo().region = value;
   }
 
-  void onSpecialChanged(PokeSpecial value) {
-    widget.getName().special = value;
+  void onSpecialChanged(Forme value) {
+    widget.nameInfo().forme = value;
   }
 
   @override
   Widget build(BuildContext context) {
-    var name = widget.getName();
+    var name = widget.nameInfo();
     List<Widget> region   = [];
     List<Widget> special  = [];
     PokeRegion.values.forEach((element) {
@@ -187,7 +189,7 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
       );
     });
     regionController.afterPress(name.region);
-    specialController.afterPress(name.special);
+    specialController.afterPress(name.forme);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -198,7 +200,7 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
                 child: Card(
                     color: Colors.grey[700],
                     child: TextButton(
-                      child: Text((name.name != null && name.name.isPokemon()) ? name.name.defaultName() : ""),
+                      child: Text((name.name.isPokemon()) ? name.name.defaultName() : ""),
                       onPressed: (){
                         Navigator.push(
                           context,
@@ -218,7 +220,7 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
                 child: Card(
                     color: Colors.grey[700],
                     child: TextButton(
-                      child: Text((name.name != null && !name.name.isPokemon()) ? name.name.defaultName() : ""),
+                      child: Text((!name.name.isPokemon()) ? name.name.defaultName() : ""),
                       onPressed: (){
                         Navigator.push(
                           context,
@@ -255,10 +257,10 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
 
 
 class ButtonCheck extends StatefulWidget {
-  final CardMarker mark;
-  final CardInfo   card;
+  final CardMarker  mark;
+  final CardMarkers cardMarkers;
 
-  const ButtonCheck(this.card, this.mark);
+  const ButtonCheck(this.cardMarkers, this.mark);
 
   @override
   _ButtonCheckState createState() => _ButtonCheckState();
@@ -267,7 +269,7 @@ class ButtonCheck extends StatefulWidget {
 class _ButtonCheckState extends State<ButtonCheck> {
   @override
   Widget build(BuildContext context) {
-    var cm = widget.card.markers;
+    var cm = widget.cardMarkers.markers;
     return Card(
       color: cm.contains(widget.mark) ? Colors.green : Colors.grey[800],
       child: TextButton(

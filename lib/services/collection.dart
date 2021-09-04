@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:mysql1/mysql1.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -8,7 +10,7 @@ class Collection
 {
   bool migration = false;
   Map languages = {};
-  List extensions = [];
+  Map extensions = {};
   Map subExtensions = {};
   Map cardsExtensions = {};
   int category=0;
@@ -54,8 +56,8 @@ class Collection
 
   List<Extension> getExtensions(Language language) {
     List<Extension> l = [];
-    for(Extension e in extensions) {
-      if (e.idLanguage == language.id) {
+    for(Extension e in extensions.values) {
+      if (e.language == language) {
         l.add(e);
       }
     }
@@ -65,15 +67,11 @@ class Collection
   List<SubExtension> getSubExtensions(Extension e) {
     List<SubExtension> l = [];
     for(SubExtension se in subExtensions.values) {
-      if (se.idExtension == e.id) {
+      if (se.extension == e) {
         l.add(se);
       }
     }
     return l;
-  }
-
-  SubExtension? getSubExtensionID(int id) {
-    return subExtensions[id];
   }
 
   PokemonInfo getPokemonID(int id) {
@@ -104,7 +102,7 @@ class Collection
 
       var exts = await connection.query("SELECT * FROM `Extension` ORDER BY `code` DESC");
       for (var row in exts) {
-        extensions.add(Extension(id: row[0], name: row[2], idLanguage: row[1]));
+        extensions[row[0]] = Extension(row[0], row[2], languages[row[1]]);
       }
       int idPoke=1;
       var pokes = await connection.query("SELECT * FROM `Pokemon`");
@@ -113,7 +111,7 @@ class Collection
           pokemons[row[0]] = PokemonInfo(names: row[2].split('|'), generation: row[1], idPokedex: idPoke);
           idPoke += 1;
         } catch(e) {
-          print("Bad pokemon: ${row[0]} $e");
+          printOutput("Bad pokemon: ${row[0]} $e");
         }
       }
       var objSup = await connection.query("SELECT * FROM `DresseurObjet`");
@@ -121,7 +119,7 @@ class Collection
         try {
           otherNames[row[0]] = NamedInfo(row[1].split('|'));
         } catch(e) {
-          print("Bad Object: ${row[0]} $e");
+          printOutput("Bad Object: ${row[0]} $e");
         }
       }
 
@@ -130,7 +128,7 @@ class Collection
         try {
           regions[row[0]] = Region(row[1].split('|'), row[2].split('|'));
         } catch(e) {
-          print("Bad Region: ${row[0]} $e");
+          printOutput("Bad Region: ${row[0]} $e");
         }
       }
 
@@ -139,7 +137,7 @@ class Collection
         try {
           formes[row[0]] = Forme(row[1].split('|'));
         } catch(e) {
-          print("Bad Forme: ${row[0]} $e");
+          printOutput("Bad Forme: ${row[0]} $e");
         }
       }
 
@@ -148,7 +146,7 @@ class Collection
         try {
           illustrator[row[0]] = Illustrator(row[1]);
         } catch(e) {
-          print("Bad Illustrateur: ${row[0]} $e");
+          printOutput("Bad Illustrateur: ${row[0]} $e");
         }
       }
 
@@ -158,17 +156,25 @@ class Collection
         List<Pokemon> pokemons = [];
 
         // Extract name
-        var nameBytes = (row[1] as Blob).toBytes().toList();
-        int pointerName = 0;
-        while(pointerName < nameBytes.length) {
-          pokemons.add(Pokemon.loadBytes(pointerName, nameBytes));
+        ByteParser nameBytes = ByteParser((row[1] as Blob).toBytes().toList());
+
+        while(nameBytes.pointer < nameBytes.byteArray.length) {
+          pokemons.add(Pokemon.loadBytes(nameBytes));
         }
 
         var level     = Level.values[row[2]];
         var typeBytes = (row[3] as Blob).toBytes().toList();
         var type      = Type.values[typeBytes[0]];
 
-        PokemonCardData p = PokemonCardData(pokemons, level, type);
+        // Extract markers
+        CardMarkers markers;
+        if( row[5] != null) {
+          markers = CardMarkers.fromByte(ByteParser((row[5] as Blob).toBytes().toList()));
+        } else {
+          markers = CardMarkers.from([]);
+        }
+
+        PokemonCardData p = PokemonCardData(pokemons, level, type, markers);
         if(typeBytes.length > 1) {
           p.typeExtended = Type.values[typeBytes[1]];
         }
@@ -177,17 +183,35 @@ class Collection
 
       var cardsExtensionRes = await connection.query("SELECT * FROM `CartesExtension`;");
       for(var row in cardsExtensionRes) {
-        if(row[1] != null) {
-          cardsExtensions[row[0]] = SubExtensionCards.build((row[1] as Blob).toBytes().toList(), row[2]);
+        try {
+          var naming = row[2];
+          List<CodeNaming> codeNaming = [];
+          // Extract code naming
+          if(naming != null) {
+            naming.split("|").forEach((element) {
+              if(element.isNotEmpty) {
+                var item = element.split(":");
+                assert(item.length == 2);
+                codeNaming.add(CodeNaming(int.parse(item[0]), item[1]));
+              }
+            });
+          }
+
+          cardsExtensions[row[0]] = (row[1] != null)
+              ? SubExtensionCards.build(ByteParser((row[1] as Blob).toBytes().toList()), codeNaming)
+              : SubExtensionCards([], codeNaming);
+        } catch(e) {
+          printOutput("Bad SubExtensionCards: ${row[0]} $e");
         }
       }
 
       var subExts = await connection.query("SELECT * FROM `SousExtension` ORDER BY `code` DESC");
       for (var row in subExts) {
         try {
-          subExtensions[row[0]] = SubExtension(row[0], row[2], row[3], row[1], row[6], cardsExtensions[row[4]]);
+          SubExtensionCards seCards = cardsExtensions[row[4]];
+          subExtensions[row[0]] = SubExtension(row[0], row[2], row[3], extensions[row[1]], row[6], seCards);
         } catch(e) {
-          print("Bad SubExtension: ${row[2]} $e");
+          printOutput("Bad SubExtension: ${row[0]} $e");
         }
       }
 
@@ -206,15 +230,22 @@ class Collection
     rOther       = Environment.instance.collection.otherNames.map((k, v) => MapEntry(v, k));
   }
 
-  Future<void> readOldDatabaseToConvert(connection) async {
+  Future<void> readOldDatabaseToConvert() async {
+    migration = false;
+    var lstCards;
+    await Environment.instance.db.transactionR(
+        (connection) async {
+          lstCards = await connection.query("SELECT `idListeCartes`, `cartes`, `carteNoms`, `carteInfos` FROM `ListeCartes`");
+        }
+    );
+
     bool update = false;
-    List<ListCards> toUpdateCards =[];
-    var lstCards = await connection.query("SELECT `idListeCartes`, `cartes`, `carteNoms`, `carteInfos` FROM `ListeCartes`");
     for (var row in lstCards) {
       ListCards c = ListCards();
       try {
         // Skip already migrate
-        if(cardsExtensions.containsKey(row[0]))
+        SubExtensionCards cardsEx = cardsExtensions[row[0]];
+        if(cardsEx.cards.length > 0)
           continue;
 
         update = true;
@@ -249,8 +280,6 @@ class Collection
                 id = card.extractInfoByte3(id, byteData);
                 idCard += 1;
               }
-              toUpdateCards.add(c);
-
             } else if( byteData.length == c.cards.length * 5 ) {
               int idCard = 0;
               for (int id = 0; id < byteData.length;) {
@@ -268,44 +297,96 @@ class Collection
       } catch(e) {
         printOutput("Bad cards list: $e");
       }
+      printOutput("Migration Start for ListeCartes=${row[0]}");
+      await Environment.instance.db.transactionR((connection) async {
+        // Convert
+        int idCard = cards.length + 1;
+        List<List<PokemonCardExtension>> allCardEx = [];
+        c.cards.forEach((card) {
+          // Read name
+          List<Pokemon> pokeName = [];
+          card.names.forEach((name) {
+            Region? r;
+            if (name.region == PokeRegion.Alola)
+              r = regions[1];
+            if (name.region == PokeRegion.Galar)
+              r = regions[2];
+            pokeName.add(Pokemon(name.name, region: r));
+          });
 
-      // Convert
-      int idCard = cards.length + 1;
-      List<List<PokemonCardExtension>> allCardEx = [];
-      c.cards.forEach((card) {
-        List<Pokemon> pokeName = [];
-        card.names.forEach((name) {
-          Region? r;
-          if(name.region == PokeRegion.Alola)
-            r = regions[1];
-          if(name.region == PokeRegion.Galar)
-            r = regions[2];
-          pokeName.add(Pokemon(name.name, region: r));
+          // Read markers
+          CardMarkers markers = CardMarkers.from(card.info.markers);
+
+          // Create new card
+          PokemonCardData newCard = new PokemonCardData(
+              pokeName, Level.Base, card.type, markers);
+          newCard.saveDatabase(connection, idCard, true);
+          Environment.instance.collection.cards[idCard] = newCard;
+
+          idCard += 1;
+          // Add into List
+          allCardEx.add([PokemonCardExtension(newCard, card.rarity)]);
         });
-        // Create new card
-        PokemonCardData newCard = new PokemonCardData(pokeName, Level.Base, card.type);
-        newCard.saveDatabase(connection, idCard, true);
-        Environment.instance.collection.cards[idCard] = newCard;
 
-        idCard += 1;
-        // Add into List
-        allCardEx.add([PokemonCardExtension(newCard, card.rarity)]);
+        // Update Collection data
+        rCard =
+            Environment.instance.collection.cards.map((k, v) => MapEntry(v, k));
+
+        SubExtensionCards extensions = cardsExtensions[row[0]];
+        await extensions.saveDatabase(connection, row[0]);
+
+        // Remove migrate data to never migrate again
+        await connection.query(
+            "DELETE FROM `ListeCartes` WHERE `idListeCartes` = ${row[0]};");
+        printOutput("Migration Done for ListeCartes=${row[0]}");
       });
-
-      // Update Collection data
-      rCard = Environment.instance.collection.cards.map((k, v) => MapEntry(v, k));
-
-      SubExtensionCards extensions = SubExtensionCards(allCardEx);
-      await extensions.saveDatabase(connection, row[0]);
-
-      // Remove migrate data to never migrate again
-      await connection.query("DELETE FROM `ListeCartes` WHERE `idListeCartes` = ${row[0]};");
-      printOutput("Migration Done for ListeCartes=${row[0]}");
     }
 
     if( update ) {
       migration = true;
       printOutput("Migration effectuée !");
     }
+  }
+
+  Future<void> convertNewDrawFormat() async
+  {
+      // Migration boosterDraw
+      await Environment.instance.db.transactionR((connection) async {
+        // Get all data
+        var boosterDraw = await connection.query("SELECT * FROM `TirageBooster`;");
+
+        // Convert
+        var data = [];
+        for(var row in boosterDraw) {
+          var drawData = (row[4] as Blob).toBytes().toList();
+
+          // Stupid check to see if migration is done
+          if(drawData[0] == 1 && drawData[2] == 1 && drawData[4] == 1 )
+            return;
+
+          assert(subExtensions.containsKey(row[1]));
+          SubExtension se = subExtensions[row[1]];
+          List<int> draw = [];
+          int idCard=0;
+          drawData.forEach((code) {
+            var allCards = se.seCards.cards[idCard];
+            draw.add(allCards.length);
+            draw.add(code);
+            for(int i=1; i < allCards.length; i+=1) {
+              draw.add(0);
+            }
+            idCard += 1;
+          });
+          data += [row[0], row[1], row[2], row[3], Int8List.fromList(draw)];
+        }
+
+        // Remove all
+        await connection.query("TRUNCATE TABLE `TirageBooster`;");
+        // Add
+        await connection.queryMulti("INSERT INTO `TirageBooster` VALUES(?, ?, ?, ?, ?);", data);
+      });
+
+      migration = true;
+      printOutput("Migration effectuée !");
   }
 }

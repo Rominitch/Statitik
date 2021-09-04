@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
@@ -29,14 +30,15 @@ class _CardSelectorState extends State<CardSelector> {
         IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
       ];
     } else {
-      PokeCard card = widget.boosterDraw.subExtension!.info().cards[widget.id];
-      CodeDraw code = widget.boosterDraw.cardBin![widget.id];
+      // WARNING: always work on first (migration)
+      var card = widget.boosterDraw.subExtension!.seCards.cards[widget.id][0];
+      CodeDraw code = widget.boosterDraw.cardDrawing!.draw[widget.id][0];
       cardModes =
       [
         if( widget.boosterDraw.abnormal || card.rarity != Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
         if( widget.boosterDraw.abnormal || card.rarity.index <= Rarity.HoloRare.index) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
         if( widget.boosterDraw.abnormal || card.rarity == Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Halo, refresh: widget.refresh, readOnly: widget.readOnly),
-        if( widget.boosterDraw.abnormal || card.hasAlternative)            IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Alternative, refresh: widget.refresh, readOnly: widget.readOnly),
+        //if( widget.boosterDraw.abnormal || card.hasAlternative)            IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Alternative, refresh: widget.refresh, readOnly: widget.readOnly),
       ];
     }
 

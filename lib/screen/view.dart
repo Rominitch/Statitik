@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
+import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 
 Widget createLanguage(Language l, BuildContext context, Widget Function(BuildContext) press)
 {
@@ -132,11 +134,11 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
 }
 
 class PokemonCard extends StatefulWidget {
-  final int idCard;
-  final PokeCard card;
-  final BoosterDraw boosterDraw;
-  final Function refresh;
-  final bool readOnly;
+  final int                  idCard;
+  final PokemonCardExtension card;
+  final BoosterDraw          boosterDraw;
+  final Function             refresh;
+  final bool                 readOnly;
 
   PokemonCard({required this.idCard, required this.card, required this.boosterDraw, required this.refresh, required this.readOnly});
 
@@ -161,8 +163,10 @@ class _PokemonCardState extends State<PokemonCard> {
 
   @override
   Widget build(BuildContext context) {
-    CodeDraw cardValue = widget.boosterDraw.cardBin![widget.idCard];
-    int nbCard = cardValue.count();
+    List<CodeDraw> cardValues = widget.boosterDraw.cardDrawing!.draw[widget.idCard];
+    var cardValue = cardValues[0];
+    int nbCard = 0;
+    cardValues.forEach((card) { nbCard += cardValue.count(); });
     Function update = () {
       setState(() {});
       widget.refresh();
@@ -185,7 +189,8 @@ class _PokemonCardState extends State<PokemonCard> {
             padding: const EdgeInsets.all(2.0)
           ),
           onLongPress: () {
-            if( widget.card.hasAnotherRendering() || widget.card.hasAlternative ) {
+            // Show more info if many rendering of more cards
+            if( widget.card.hasAnotherRendering() || cardValues.length > 1 ) {
               setState(() {
                 showDialog(
                     context: context,
@@ -197,7 +202,8 @@ class _PokemonCardState extends State<PokemonCard> {
           },
           onPressed: widget.readOnly ? null : () {
             setState(() {
-              widget.boosterDraw.toggleCard(widget.boosterDraw.cardBin![widget.idCard], widget.card.defaultMode());
+              // WARNING: default press is always on first
+              widget.boosterDraw.toggleCard(widget.boosterDraw.cardDrawing!.draw[widget.idCard], widget.card.defaultMode());
               widget.refresh();
             });
           }
@@ -254,7 +260,7 @@ class _EnergyButtonState extends State<EnergyButton> {
           child: energyImage(widget.type),
           onPressed: () {
             setState(() {
-              widget.boosterDraw.toggleCard(code, Mode.Normal);
+              widget.boosterDraw.toggleCard([code], Mode.Normal);
               widget.boosterDraw.onEnergyChanged.add(true);
             });
           },

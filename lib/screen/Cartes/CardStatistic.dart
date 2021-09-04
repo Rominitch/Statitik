@@ -8,6 +8,7 @@ import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 
 class CardStatisticPage extends StatefulWidget {
   const CardStatisticPage({Key? key}) : super(key: key);
@@ -54,13 +55,15 @@ class _CardStatisticPageState extends State<CardStatisticPage> {
 
     Environment.instance.collection.getExtensions(langueController.currentValue).forEach((ext) {
       Environment.instance.collection.getSubExtensions(ext).forEach((SubExtension subExt) {
-        if( subExt.info().validCard ) {
+        if( subExt.seCards.isValid ) {
           int id=1;
-          subExt.info().cards.forEach((PokeCard card) {
-            if( _cardResults.isSelected(card) ) {
-              stats.add(subExt, card, id);
-            }
-            id += 1;
+          subExt.seCards.cards.forEach((List<PokemonCardExtension> cards) {
+            cards.forEach((singleCard) {
+              if( _cardResults.isSelected(singleCard) ) {
+                stats.add(subExt, singleCard, id);
+              }
+              id += 1;
+            });
           });
         }
        });
@@ -71,9 +74,10 @@ class _CardStatisticPageState extends State<CardStatisticPage> {
   Widget computeStatsGUI(BuildContext context) {
     if (_cardResults.hasStats()) {
       if (_cardResults.stats!.hasData()) {
+        assert(langueController.currentValue != null);
         return Card(child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: StatsCard(this._cardResults))
+                  child: StatsCard(langueController.currentValue, this._cardResults))
                );
       } else {
         return Padding(

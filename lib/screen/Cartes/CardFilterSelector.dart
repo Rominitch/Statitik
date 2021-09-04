@@ -3,6 +3,7 @@ import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 
 class CardFilterSelector extends StatefulWidget {
   final CardResults result;
@@ -14,12 +15,12 @@ class CardFilterSelector extends StatefulWidget {
 }
 
 class _CardFilterSelectorState extends State<CardFilterSelector> {
-  late CustomRadioController regionController  = CustomRadioController(onChange: (PokeRegion value) { onRegionChanged(value); });
+  late CustomRadioController regionController  = CustomRadioController(onChange: (Region? value) { onRegionChanged(value); });
 
   List<Widget> widgetMarkers    = [];
   List<Widget> longMarkerWidget = [];
   List<Widget> region           = [];
-  void onRegionChanged(PokeRegion value) {
+  void onRegionChanged(Region? value) {
     widget.result.filterRegion = value;
   }
 

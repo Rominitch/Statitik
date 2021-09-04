@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/tirage/tirage_booster.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -75,7 +76,7 @@ class _ResumePageState extends State<ResumePage> {
 
       allFinished &= boosterDraw.isFinished();
       if( widget._activeSession.boosterDraws.first.subExtension != null && boosterDraw.subExtension != null)
-        sameExt &= (widget._activeSession.boosterDraws.first.subExtension!.idExtension == boosterDraw.subExtension!.idExtension);
+        sameExt &= (widget._activeSession.boosterDraws.first.subExtension!.extension == boosterDraw.subExtension!.extension);
     }
 
     // Add booster button

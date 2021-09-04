@@ -1,14 +1,12 @@
-import 'dart:async';
 import 'dart:core';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:sprintf/sprintf.dart';
 
 import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
@@ -18,6 +16,14 @@ import 'connection.dart';
 const double iconSize = 25.0;
 
 final Color greenValid = Colors.green[500]!;
+
+class ByteParser
+{
+  int       pointer=0;
+  List<int> byteArray;
+
+  ByteParser(this.byteArray);
+}
 
 class UserPoke {
   int idDB;
@@ -53,11 +59,11 @@ class Language
 
 class Extension
 {
-  int    id;
-  String name;
-  int    idLanguage;
+  int      id;
+  String   name;
+  Language language;
 
-  Extension({ required this.id, required this.name, required this.idLanguage });
+  Extension(this.id, this.name, this.language);
 }
 
 enum Validator {
@@ -649,38 +655,21 @@ class CodeNaming
 
 class SubExtension
 {
-  int    id;
-  String name;
-  String icon;
-  ListCards? cards;
-  int    idExtension;
-  DateTime out;
+  int               id;           ///< ID into database
+  String            name;         ///< Name of extension (translate)
+  String            icon;         ///< Path to extension's icon
+  DateTime          out;
+  SubExtensionCards seCards;
+  Extension         extension;
 
-  SubExtensionCards? seCards;
-  List<CodeNaming>   rangedNaming = [];
+  SubExtension(this.id, this.name, this.icon, this.extension, this.out, this.seCards);
 
-  SubExtension(this.id, this.name, this.icon, this.idExtension, this.out, this.seCards);
-
-  ListCards info() {
-    return cards!;
-  }
-
-  Widget image({double? wSize, double? hSize})
-  {
+  /// Show Extension image
+  Widget image({double? wSize, double? hSize}) {
     return drawCachedImage('extensions', icon, width: wSize, height: hSize);
   }
 
-  String numberOfCard(int id) {
-    CodeNaming cn = CodeNaming();
-    if(rangedNaming.isNotEmpty) {
-      rangedNaming.forEach((element) {
-        if( id >= element.idStart)
-          cn = element;
-      });
-    }
-    return sprintf(cn.naming, [(id-cn.idStart + 1)]);// .toString();
-  }
-
+  /// Get formated release date of product
   String outDate() {
     return DateFormat('yyyyMMdd').format(out);
   }
@@ -725,7 +714,7 @@ class Product
     int id=1;
     boosters.forEach((key, value) {
       for( int i=0; i < value.nbBoosters; i+=1) {
-        SubExtension? se = Environment.instance.collection.getSubExtensionID(key);
+        SubExtension? se = Environment.instance.collection.subExtensions[key];
         list.add(new BoosterDraw(creation: se, id: id, nbCards: value.nbCardsPerBooster));
         id += 1;
       }
@@ -738,300 +727,12 @@ class Product
   }
 }
 
-class CodeDraw {
-  late int countNormal;
-  late int countReverse;
-  late int countHalo;
-  late int countAlternative;
-
-  CodeDraw(this.countNormal, this.countReverse, this.countHalo, this.countAlternative){
-    assert(this.countNormal <= 7);
-    assert(this.countReverse <= 7);
-    assert(this.countHalo <= 7);
-    assert(this.countAlternative <= 7);
-  }
-
-  CodeDraw.fromInt(int code) {
-    countNormal      = code & 0x07;
-    countReverse     = (code>>3) & 0x07;
-    countHalo        = (code>>6) & 0x07;
-    countAlternative = (code>>9) & 0x07;
-  }
-
-  int getCountFrom(Mode mode) {
-    List<int> byMode = [countNormal, countReverse, countHalo, countAlternative];
-    return byMode[mode.index];
-  }
-
-  int toInt() {
-    int code = countNormal
-             + (countReverse<<3)
-             + (countHalo   <<6)
-             + (countAlternative <<9);
-    return code;
-  }
-  int count() {
-    return countNormal+countReverse+countHalo+countAlternative;
-  }
-
-  bool isEmpty() {
-    return count()==0;
-  }
-
-  Color color() {
-    return countHalo > 0
-      ? modeColors[Mode.Halo]
-      : (countReverse > 0
-        ?modeColors[Mode.Reverse]
-        : (countAlternative > 0
-          ? modeColors[Mode.Alternative]
-          :(countNormal > 0
-            ? modeColors[Mode.Normal]
-            : Colors.grey[900])));
-  }
-
-  void increase(Mode mode) {
-    if( mode == Mode.Normal)
-      countNormal = min(countNormal + 1, 7);
-    else if( mode == Mode.Reverse)
-      countReverse = min(countReverse + 1, 7);
-    else if( mode == Mode.Alternative)
-      countAlternative = min(countAlternative + 1, 7);
-    else
-      countHalo = min(countHalo + 1, 7);
-  }
-
-  void decrease(Mode mode) {
-    if( mode == Mode.Normal)
-      countNormal = max(countNormal - 1, 0);
-    else if( mode == Mode.Reverse)
-      countReverse = max(countReverse - 1, 0);
-    else if( mode == Mode.Alternative)
-      countAlternative = max(countAlternative - 1, 0);
-    else
-      countHalo = max(countHalo - 1, 0);
-  }
-}
-
-class BoosterDraw {
-  late int id;
-  final SubExtension? creation;    ///< Keep product extension.
-  final int nbCards;               ///< Number of cards inside booster
-  ///
-  late List<CodeDraw> energiesBin;     ///< Energy inside booster.
-  late List<CodeDraw>? cardBin;         ///< All card select by extension.
-  late SubExtension? subExtension;     ///< Current extensions.
-  int count = 0;
-  bool abnormal = false;          ///< Packaging error
-
-  // Event
-  final StreamController onEnergyChanged = new StreamController.broadcast();
-
-  BoosterDraw({this.creation, required this.id, required this.nbCards })
-  {
-    assert(this.nbCards > 0);
-    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0,0); });
-    subExtension = creation;
-    if(hasSubExtension()) {
-      fillCard();
-    }
-  }
-
-  void closeStream() {
-    onEnergyChanged.close();
-  }
-
-  bool isRandom() {
-    return creation == null;
-  }
-
-  String nameCard(int id) {
-    if(subExtension != null) {
-      return subExtension!.numberOfCard(id);
-    } else {
-      return (id + 1).toString();
-    }
-  }
-
-  void resetBooster() {
-    count    = 0;
-    abnormal = false;
-    cardBin  = null;
-    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0,0); });
-  }
-
-  void resetExtensions() {
-    resetBooster();
-    cardBin  = null;
-    subExtension = null;
-  }
-
-  void fillCard() {
-      cardBin = List<CodeDraw>.generate(subExtension!.info().cards.length, (index) { return CodeDraw(0,0,0,0); });
-  }
-
-  bool isFinished() {
-    return abnormal ? count >=1 : count == nbCards;
-  }
-
-  bool hasSubExtension() {
-    return subExtension != null;
-  }
-
-  bool canAdd() {
-    return abnormal ? true : count < nbCards;
-  }
-
-  int countEnergy() {
-    int count=0;
-    for( CodeDraw c in energiesBin ){
-      count += c.count();
-    }
-    return count;
-  }
-
-  void toggleCard(CodeDraw code, Mode mode) {
-    count -= code.count();
-    if(code.isEmpty()) {
-      if(canAdd()) {
-        code.countNormal      = mode==Mode.Normal      ? 1 : 0;
-        code.countReverse     = mode==Mode.Reverse     ? 1 : 0;
-        code.countHalo        = mode==Mode.Halo        ? 1 : 0;
-        code.countAlternative = mode==Mode.Alternative ? 1 : 0;
-      }
-    } else {
-      code.countNormal      = 0;
-      code.countReverse     = 0;
-      code.countHalo        = 0;
-      code.countAlternative = 0;
-    }
-    count += code.count();
-  }
-
-  void increase(CodeDraw code, Mode mode) {
-    if(canAdd()) {
-      count -= code.count();
-      code.increase(mode);
-      count += code.count();
-    }
-  }
-
-  void decrease(CodeDraw code, Mode mode) {
-    if(count > 0) {
-      count -= code.count();
-      code.decrease(mode);
-      count += code.count();
-    }
-  }
-
-  void setOtherRendering(CodeDraw code, Mode mode) {
-    if(canAdd()) {
-      count -= code.count();
-
-      code.countNormal      = mode==Mode.Normal      ? 1 : 0;
-      code.countReverse     = mode==Mode.Reverse     ? 1 : 0;
-      code.countHalo        = mode==Mode.Halo        ? 1 : 0;
-      code.countAlternative = mode==Mode.Alternative ? 1 : 0;
-
-      count += code.count();
-    }
-  }
-
-  bool needReset() {
-    return true;
-  }
-
-  void revertAnomaly() {
-    resetBooster();
-    fillCard();
-  }
-
-  List<Object> buildQuery(int idAchat) {
-    // Clean code to minimal binary data
-    List<int> elements = [];
-    for(CodeDraw c in cardBin!) {
-      elements.add(c.toInt());
-    }
-    while(elements.isNotEmpty && elements.last == 0) {
-      elements.removeLast();
-    }
-
-    List<int> energyCode = [];
-    for(CodeDraw c in energiesBin) {
-      energyCode.add(c.toInt());
-    }
-    while(energyCode.isNotEmpty && energyCode.last == 0) {
-      energyCode.removeLast();
-    }
-
-    return [idAchat, subExtension!.id, abnormal ? 1 : 0, Int8List.fromList(energyCode), Int8List.fromList(elements)];
-  }
-
-  Validator validationWorld(final Language language) {
-    if(abnormal)
-      return Validator.Valid;
-
-    // Fr and US
-    if(language.id == 1 || language.id == 2) {
-      int count = 0;
-      energiesBin.forEach((element) {
-        count += element.count();
-      });
-      if (count != 1 && count != 2)
-        return Validator.ErrorEnergy;
-
-      int goodCard = 0;
-      int reverse = 0;
-      int id = 0;
-      cardBin!.forEach((element) {
-        if (subExtension!.info().cards.isNotEmpty) {
-          count = element.count();
-          if (count > 0 &&
-              subExtension!.info().cards[id].rarity.index > Rarity.Rare.index)
-            goodCard += count;
-        }
-        reverse += element.countReverse;
-        id += 1;
-      });
-      if (reverse != 1 && reverse != 2)
-        return Validator.ErrorReverse;
-      if (goodCard > 3)
-        return Validator.ErrorTooManyGood;
-    }
-    return Validator.Valid;
-  }
-
-  void fill(SubExtension newSubExtension, bool abnormalBooster, List<int> newCardBin, List<int> newEnergiesBin)
-  {
-    subExtension = newSubExtension;
-    abnormal     = abnormalBooster;
-    count = 0;
-
-    fillCard();
-    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0,0); });
-
-    int id=0;
-    newCardBin.forEach((element) {
-      cardBin![id] = CodeDraw.fromInt(element);
-      count += cardBin![id].count();
-      id +=1;
-    });
-
-    id=0;
-    newEnergiesBin.forEach((element) {
-      energiesBin[id] = CodeDraw.fromInt(element);
-      count += energiesBin[id].count();
-      id += 1;
-    });
-  }
-}
-
 class Stats {
   final SubExtension subExt;
   int nbBoosters = 0;
   int cardByBooster = 0;
   int anomaly = 0;
-  late List<int> count;
+  late List<List<int>> count;
   int totalCards = 0;
 
   // Cached
@@ -1042,7 +743,9 @@ class Stats {
   late List<int> countEnergy;
 
   Stats({required this.subExt}) {
-    count         = List<int>.filled(subExt.info().cards.length, 0);
+    count         = List<List<int>>.generate(subExt.seCards.cards.length, (id) {
+      return List<int>.filled(subExt.seCards.cards[id].length, 0);
+    });
     countByType   = List<int>.filled(Type.values.length, 0);
     countByRarity = List<int>.filled(Rarity.values.length, 0);
     countByMode   = List<int>.filled(Mode.values.length, 0);
@@ -1057,8 +760,8 @@ class Stats {
     return false;
   }
 
-  void addBoosterDraw(List<int> draw, List<int> energy , int anomaly) {
-    if( draw.length > subExt.info().cards.length)
+  void addBoosterDraw(List<List<int>> draw, List<int> energy , int anomaly) {
+    if( draw.length > subExt.seCards.cards.length)
       throw StatitikException('Corruption des données de tirages');
 
     anomaly += anomaly;
@@ -1072,22 +775,24 @@ class Stats {
       assert((c.countHalo + c.countAlternative) == 0);
     }
 
-    for(int cardI=0; cardI < draw.length; cardI +=1) {
-      CodeDraw c = CodeDraw.fromInt(draw[cardI]);
-      int nbCard = c.count();
-      if( nbCard > 0 ) {
-        cardByBooster += nbCard;
-        if(subExt.info().validCard) {
-          // Count
-          countByType[subExt.info().cards[cardI].type.index] += nbCard;
-          countByRarity[subExt.info().cards[cardI].rarity.index] += nbCard;
+    for(int cardsId=0; cardsId < draw.length; cardsId +=1) {
+      for(int card=0; card < draw[cardsId].length; card +=1) {
+        CodeDraw c = CodeDraw.fromInt(draw[cardsId][card]);
+        int nbCard = c.count();
+        if( nbCard > 0 ) {
+          cardByBooster += nbCard;
+          if(subExt.seCards.isValid) {
+            // Count
+            countByType[subExt.seCards.cards[cardsId][card].data.type.index] += nbCard;
+            countByRarity[subExt.seCards.cards[cardsId][card].rarity.index]  += nbCard;
+          }
+          totalCards           += nbCard;
+          count[cardsId][card] += nbCard;
+          countByMode[Mode.Normal.index]      += c.countNormal;
+          countByMode[Mode.Reverse.index]     += c.countReverse;
+          countByMode[Mode.Halo.index]        += c.countHalo;
+          countByMode[Mode.Alternative.index] += c.countAlternative;
         }
-        totalCards   += nbCard;
-        count[cardI] += nbCard;
-        countByMode[Mode.Normal.index]      += c.countNormal;
-        countByMode[Mode.Reverse.index]     += c.countReverse;
-        countByMode[Mode.Halo.index]        += c.countHalo;
-        countByMode[Mode.Alternative.index] += c.countAlternative;
       }
     }
   }
@@ -1103,10 +808,12 @@ class StatsExtension {
     countByType   = List<int>.filled(Type.values.length, 0);
     countByRarity = List<int>.filled(Rarity.values.length, 0);
 
-    for(PokeCard c in subExt.info().cards) {
-      countByType[c.type.index]     += 1;
-      countByRarity[c.rarity.index] += 1;
-    }
+    subExt.seCards.cards.forEach((cards) {
+      cards.forEach((c) {
+        countByType[c.data.type.index] += 1;
+        countByRarity[c.rarity.index]  += 1;
+      });
+    });
   }
 }
 
@@ -1440,11 +1147,11 @@ class CardInfo {
 
 class CardStats {
   int count = 0;
-  List<int>              countRegion = List.filled(PokeRegion.values.length, 0);
+  Map<Region, int>             countRegion = {};
   Map<SubExtension, List<int>> countSubExtension = {};
-  Map<CardMarker, int>   countMarker = {};
-  Map<Rarity, int>       countRarity = {};
-  Map<Type, int>         countType   = {};
+  Map<CardMarker, int>         countMarker = {};
+  Map<Rarity, int>             countRarity = {};
+  Map<Type, int>               countType   = {};
 
   bool hasData() {
     return countSubExtension.isNotEmpty;
@@ -1454,48 +1161,52 @@ class CardStats {
     return count;
   }
 
-  void add(SubExtension se, PokeCard card, int idCard) {
+  void add(SubExtension se, PokemonCardExtension card, int idCard) {
     count += 1;
-    for(var n in card.names) {
-      countRegion[n.region.index] += 1;
+
+    var d = card.data;
+    for(var pokemon in d.title) {
+      if(pokemon.region != null) {
+        countRegion[pokemon.region!] = countRegion[pokemon.region!] != null ? countRegion[pokemon.region!]! + 1 : 1;
+      }
     }
     countRarity[card.rarity] = countRarity[card.rarity] != null ? countRarity[card.rarity]! + 1 : 1;
-    countType[card.type]     = countType[card.type]     != null ? countType[card.type]! + 1     : 1;
+    countType[d.type]        = countType[d.type]        != null ? countType[d.type]!        + 1 : 1;
     if(countSubExtension[se] != null) {
       countSubExtension[se]!.add(idCard);
     } else {
       countSubExtension[se] = [idCard];
     }
-    card.info.markers.forEach((marker) {
+    d.markers.markers.forEach((marker) {
       countMarker[marker] = countMarker[marker] != null ? countMarker[marker]! + 1 : 1;
     });
   }
 }
 
 class CardResults {
-  NamedInfo? specificCard;
-  CardInfo   filter = CardInfo();
-  PokeRegion filterRegion = PokeRegion.Nothing;
-  CardStats? stats;
+  NamedInfo?  specificCard;
+  CardMarkers filter = CardMarkers.from([]);
+  Region?     filterRegion;
+  CardStats?  stats;
 
-  bool isSelected(PokeCard card){
+  bool isSelected(PokemonCardExtension card){
     bool select = true;
     if(specificCard != null) {
       select = false;
-      for(var n in card.names) {
+      for(var n in card.data.title) {
         select |= (n.name == specificCard);
       }
     }
-    if(select && filterRegion != PokeRegion.Nothing) {
+    if(select && filterRegion != null) {
       select = false;
-      for(var n in card.names) {
+      for(var n in card.data.title) {
         select |= (n.region == filterRegion);
       }
     }
     if(select && filter.markers.isNotEmpty) {
       select = false;
-      filter.markers.forEach((element) {
-        select |= card.info.markers.contains(element);
+      filter.markers.forEach((marker) {
+        select |= card.data.markers.markers.contains(marker);
       });
     }
     return select;
@@ -1506,7 +1217,7 @@ class CardResults {
   }
 
   bool isFiltered() {
-    return filter.markers.isNotEmpty || filterRegion != PokeRegion.Nothing;
+    return filter.markers.isNotEmpty || filterRegion != null;
   }
 
   bool hasStats() {

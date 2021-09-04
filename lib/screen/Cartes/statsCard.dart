@@ -16,6 +16,7 @@ enum StatsVisualization
 }
 
 class StatsCard extends StatefulWidget {
+  final Language    l;
   final CardResults stats;
   final bool showTitle;
   final bool showByRarity;
@@ -24,7 +25,7 @@ class StatsCard extends StatefulWidget {
   final bool showByRegion;
   final bool showBySubEx;
 
-  StatsCard(this.stats, { this.showTitle=true,
+  StatsCard(this.l, this.stats, { this.showTitle=true,
   this.showByRarity=true,
   this.showByType=true,
   this.showByMarker=true,
@@ -109,21 +110,25 @@ class _StatsCardState extends State<StatsCard> {
           ]));
     });
 
-    PokeRegion.values.forEach((item) {
-      var r = s.countRegion[item.index];
-      if(r > 0) {
-        if(item != PokeRegion.Nothing)
-          regions.add(Row(
-              children: [ Container(child: Text(regionName(context, item), style: TextStyle(fontSize: 10.0)), width: _spaceBefore),
-                Expanded(child: LinearPercentIndicator(
-                  lineHeight: 8.0,
-                  percent: (r / count).clamp(0.0, 1.0),
-                  progressColor: regionColors[item.index],
-                )),
-                createCountWidget(r),
-              ])
-          );
-      }
+    const List<Color> regionColors = [
+      Colors.white70, Colors.blue, Colors.red, Colors.green, Colors.brown,
+      Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal
+    ];
+
+    int idColor = 0;
+    s.countRegion.forEach((region, stat) {
+        regions.add(Row(
+            children: [ Container(child: Text(region.name(widget.l), style: TextStyle(fontSize: 10.0)), width: _spaceBefore),
+              Expanded(child: LinearPercentIndicator(
+                lineHeight: 8.0,
+                percent: (stat / count).clamp(0.0, 1.0),
+                progressColor: regionColors[idColor],
+              )),
+              createCountWidget(stat),
+            ])
+        );
+        // Next color
+        idColor = (idColor+1 < regionColors.length) ? idColor + 1 : 0;
     });
   }
 
@@ -179,11 +184,3 @@ class _StatsCardState extends State<StatsCard> {
     );
   }
 }
-/*
-Container(child: Row( children: label), width: 50,),
-          Expanded(child: LinearPercentIndicator(
-            lineHeight: 8.0,
-            percent: (luck / divider).clamp(0.0, 1.0),
-            progressColor: color,
-          )),
- */

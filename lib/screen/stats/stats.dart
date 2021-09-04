@@ -66,9 +66,11 @@ class _StatsPageState extends State<StatsPage> {
       widget.d.stats = stats;
       // Compute Cards stats
       int idCard=0;
-      widget.d.subExt!.info().cards.forEach((card) {
-        widget.d.cardStats.stats!.add(widget.d.subExt!, card, idCard);
-        idCard +=1;
+      widget.d.subExt!.seCards.cards.forEach((listCardSE) {
+        listCardSE.forEach((cardSE) {
+          widget.d.cardStats.stats!.add(widget.d.subExt!, cardSE, idCard);
+          idCard +=1;
+        });
       });
 
       // Get user info after
@@ -106,7 +108,7 @@ class _StatsPageState extends State<StatsPage> {
          )
         ];
      }
-     if(widget.d.subExt!.info().validCard)
+     if(widget.d.subExt!.seCards.isValid)
        finalWidget.add(
          Card(
            color: Colors.grey[700],

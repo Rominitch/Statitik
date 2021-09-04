@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
@@ -30,8 +31,8 @@ class _BoosterPageState extends State<BoosterPage> {
     Function refresh = () => setState( () {} );
     widgets = [];
     int id=0;
-    for(PokeCard card in widget.boosterDraw.subExtension!.info().cards) {
-      widgets.add( PokemonCard(card: card, idCard: id, boosterDraw: widget.boosterDraw, refresh:refresh, readOnly: widget.readOnly) );
+    for(var cards in widget.boosterDraw.subExtension!.seCards.cards) {
+      widgets.add( PokemonCard(card: cards[0], idCard: id, boosterDraw: widget.boosterDraw, refresh:refresh, readOnly: widget.readOnly) );
       id += 1;
     }
 

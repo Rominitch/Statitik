@@ -6,6 +6,7 @@ import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 
 class NewCardExtensions extends StatefulWidget {
   const NewCardExtensions({Key? key}) : super(key: key);
@@ -19,24 +20,24 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   SubExtension? _se;
   List<Widget>  _cardInfo = [];
   bool _modify = false;
-  PokeCard data = PokeCard(type: Type.Plante, rarity: Rarity.Commune, hasAlternative: false);
+  PokemonCardExtension data = PokemonCardExtension(PokemonCardData([], Level.Base, Type.Plante, CardMarkers.from([])) , Rarity.Commune);
 
   void onAddCard(int? pos) {
     setState((){
       _modify = true;
 
       // Remove default state
-      if( !_se!.cards!.validCard ) {
-        _se!.cards!.cards.clear();
-        _se!.cards!.validCard = true;
+      if( !_se!.seCards.isValid ) {
+        _se!.seCards.cards.clear();
+        _se!.seCards.isValid = true;
       }
       // Add new card
+      var newItem = PokemonCardExtension(PokemonCardData([], data.data.level, data.data.type, CardMarkers.from([])),
+                    data.rarity);
       if( pos == null) {
-        _se!.cards!.cards.add(PokeCard(
-            type: data.type, rarity: data.rarity, hasAlternative: false));
+        _se!.seCards.cards.add([newItem]);
       } else {
-        _se!.cards!.cards.insert(pos, PokeCard(
-            type: data.type, rarity: data.rarity, hasAlternative: false));
+        _se!.seCards.cards.insert(pos, [newItem]);
       }
       _cardInfo = _cards();
     });
@@ -45,7 +46,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   void removeCard(int localId) {
     setState(() {
       _modify = true;
-      _se!.cards!.cards.removeAt(localId);
+      _se!.seCards.cards.removeAt(localId);
       _cardInfo = _cards();
     });
   }
@@ -64,8 +65,10 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   List<Widget> _cards() {
     List<Widget> myCards = [];
     int id=0;
-    if( _se!.cards!.validCard ) {
-      _se!.cards!.cards.forEach((card) {
+    if( _se!.seCards.isValid ) {
+      _se!.seCards.cards.forEach((cardList) {
+        // Select only first
+        var card = cardList[0];
         int localId = id;
         myCards.add( Padding(
           padding: const EdgeInsets.all(2.0),
@@ -75,8 +78,8 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Row( mainAxisAlignment: MainAxisAlignment.center,
-                         children: [card.imageType(),]+card.imageRarity()),
-                    Text(_se!.numberOfCard(localId)),
+                         children: [card.imageType()]+card.imageRarity()),
+                    Text(_se!.seCards.numberOfCard(localId)),
                     ]
               ),
               style: TextButton.styleFrom(
@@ -189,8 +192,8 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                 },
               )
             ),
-            if(_se != null) CardCreator.quick(data, onAddCard, _language!.isWorld()),
-            if(_se != null && _se!.cards != null) GridView.count(
+            if(_se != null) CardCreator.quick(_language!, data, onAddCard, _language!.isWorld()),
+            if(_se != null && _se!.seCards.cards.isNotEmpty) GridView.count(
                 primary: false,
                 children: _cardInfo,
                 shrinkWrap: true,

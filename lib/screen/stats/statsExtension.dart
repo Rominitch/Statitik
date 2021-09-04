@@ -35,63 +35,82 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
     final double uniform = 100.0 / widget.stats.count.length;
     ScreenPrint print = ScreenPrint();
 
-    for(int count in widget.stats.count) {
-      PokeCard pc = widget.stats.subExt.info().cards[id];
-      double percent = widget.stats.totalCards > 0 ? count * ratio : 0;
-      Color col = percent == 0.0
-                ? Colors.red
-                : percent < uniform * 0.01
-                ? Colors.yellow
-                : percent < uniform * 0.1
-                ? Colors.purple
-                : percent < uniform
-                ? Colors.blue
-                : Colors.green;
-      String label = percent == 0.0
-                   ? '-'
-                   : "$count (${percent.toStringAsPrecision(2)}%)";
-      String realCardName = widget.stats.subExt.info().getName(widget.data.language!, id);
-      final cardName = widget.stats.subExt.numberOfCard(id);
-      cards.add(Card(
-        color: Colors.grey[800],
-        child: isCard ? Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children:[
-              Row(
-                mainAxisSize: MainAxisSize.min,
+    widget.stats.count.forEach((countByCard) {
+      int idCard=0;
+      var cardByPosition = widget.stats.subExt.seCards.cards[id];
+      cardByPosition.forEach((pc) {
+        int count = countByCard[idCard];
+        double percent = widget.stats.totalCards > 0 ? count * ratio : 0;
+        Color col = percent == 0.0
+            ? Colors.red
+            : percent < uniform * 0.01
+            ? Colors.yellow
+            : percent < uniform * 0.1
+            ? Colors.purple
+            : percent < uniform
+            ? Colors.blue
+            : Colors.green;
+        String label = percent == 0.0
+            ? '-'
+            : "$count (${percent.toStringAsPrecision(2)}%)";
+        String realCardName = widget.stats.subExt.seCards.titleOfCard(
+            widget.data.language!, id);
+        final cardName = widget.stats.subExt.seCards.numberOfCard(id);
+        cards.add(Card(
+          color: Colors.grey[800],
+          child: isCard ? Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(cardName, style: cardName.length > 4
+                          ? TextStyle(fontSize: 10.0)
+                          : TextStyle(fontSize: 12.0)),
+                      SizedBox(width: 5.0),
+                      pc.imageType(),
+                      SizedBox(width: 5.0)]
+                        + pc.imageRarity()
+                ),
+                Center(
+                    child: Text(realCardName, maxLines: 3,
+                        softWrap: true,
+                        style: TextStyle(fontSize: 9.0))
+                ),
+                Center(child: Text(label,
+                    style: TextStyle(color: col, fontWeight: FontWeight.bold))),
+              ]) : Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Row(
                 children: [
-                  Text(cardName, style: cardName.length > 4 ? TextStyle(fontSize: 10.0) : TextStyle(fontSize: 12.0)),
+                  Container(width: 25,
+                      child: Text(cardName, style: cardName.length > 4
+                          ? TextStyle(fontSize: 10.0)
+                          : TextStyle(fontSize: 12.0))),
                   SizedBox(width: 5.0),
-                  pc.imageType(),
-                  SizedBox(width: 5.0)]
-                  +pc.imageRarity()
-              ),
-              Center(
-                  child: Text(realCardName, maxLines: 3, softWrap: true, style: TextStyle(fontSize: 9.0))
-              ),
-              Center(child: Text(label, style: TextStyle(color: col, fontWeight: FontWeight.bold))),
-        ]) : Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: Row(
-            children: [
-              Container(width: 25, child: Text(cardName, style: cardName.length > 4 ? TextStyle(fontSize: 10.0) : TextStyle(fontSize: 12.0))),
-              SizedBox(width: 5.0),
-              Container(width: 70,
-                child: Row(
-                  children: [
-                    pc.imageType(),
-                    SizedBox(width: 5.0)
-                  ] + pc.imageRarity()
-                )
-              ),
-              Expanded(child: Text(realCardName, maxLines: 3, softWrap: true, style: TextStyle(fontSize: 9.0))),
-              Container(width: 55, child: Text(label, style: TextStyle(fontSize: 11.0, color: col, fontWeight: FontWeight.bold)))
-            ]
+                  Container(width: 70,
+                      child: Row(
+                          children: [
+                            pc.imageType(),
+                            SizedBox(width: 5.0)
+                          ] + pc.imageRarity()
+                      )
+                  ),
+                  Expanded(child: Text(realCardName, maxLines: 3,
+                      softWrap: true,
+                      style: TextStyle(fontSize: 9.0))),
+                  Container(width: 55,
+                      child: Text(label, style: TextStyle(fontSize: 11.0,
+                          color: col,
+                          fontWeight: FontWeight.bold)))
+                ]
+            ),
           ),
-        ),
-      ));
+        ));
+        idCard += 1;
+      });
       id += 1;
-    }
+    });
 
     return Scaffold(
         appBar: AppBar(
@@ -141,7 +160,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
                                 PieExtension(stats: statsExtension, visu: Visualize.Type),
                                 SizedBox(height: 10.0,),
                                 PieExtension(stats: statsExtension, visu: Visualize.Rarity),
-                                if (widget.data.cardStats.hasStats() && widget.data.cardStats.stats!.hasData()) StatsCard(widget.data.cardStats, showByRarity: false, showBySubEx: false, showTitle: false, showByType: false),
+                                if (widget.data.cardStats.hasStats() && widget.data.cardStats.stats!.hasData()) StatsCard(widget.data.language!, widget.data.cardStats, showByRarity: false, showBySubEx: false, showTitle: false, showByType: false),
                               ]
                           ),
                         )

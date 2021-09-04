@@ -46,7 +46,7 @@ class StatsView extends StatelessWidget {
       }
     }
 
-    if( data.subExt!.info().validCard ) {
+    if( data.subExt!.seCards.isValid ) {
       for( var rare in Rarity.values ) {
         if(rare == Rarity.Unknown)
           continue;
