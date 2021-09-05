@@ -10,7 +10,7 @@ class CustomRadioController {
   CustomRadioController({required this.onChange});
 
   void register(CustomRadio cr) {
-    if(currentValue == null) {
+    if(_radios.isEmpty) {
       cr.activate(cr.value);
       currentValue = cr.value;
     }

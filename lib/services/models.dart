@@ -202,12 +202,11 @@ enum Mode {
   Normal,
   Reverse,
   Halo,
-  Alternative,
 }
 
-const Map modeImgs   = {Mode.Normal: "normal", Mode.Reverse: "reverse", Mode.Halo: "halo", Mode.Alternative: 'alternative'};
-const Map modeNames  = {Mode.Normal: "SET_0", Mode.Reverse: "SET_1", Mode.Halo: "SET_2", Mode.Alternative: 'Alternative'};
-const Map modeColors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAccent, Mode.Halo: Colors.purple, Mode.Alternative: Colors.deepOrange};
+const Map modeImgs   = {Mode.Normal: "normal", Mode.Reverse: "reverse", Mode.Halo: "halo", };
+const Map modeNames  = {Mode.Normal: "SET_0", Mode.Reverse: "SET_1", Mode.Halo: "SET_2"};
+const Map modeColors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAccent, Mode.Halo: Colors.purple};
 
 const String emptyMode = '_';
 
@@ -428,7 +427,7 @@ class PokemonInfo extends NamedInfo
   int         generation;
   int         idPokedex;
 
-  PokemonInfo({required List<String> names, required this.generation, required this.idPokedex}) :
+  PokemonInfo(List<String> names, this.generation, this.idPokedex) :
   super(names)
   {
     assert(names.length == 3);
@@ -443,14 +442,6 @@ class PokemonInfo extends NamedInfo
   bool isPokemon() {
     return true;
   }
-}
-
-class CodeNaming
-{
-  int    idStart = 0;
-  String naming = "%d";
-
-  CodeNaming([this.idStart=0, this.naming="%d"]);
 }
 
 class SubExtension
@@ -572,7 +563,7 @@ class Stats {
       countEnergy[energyI] += c.count();
       // Energy can be reverse
       countByMode[Mode.Reverse.index] += c.countReverse;
-      assert((c.countHalo + c.countAlternative) == 0);
+      assert((c.countHalo) == 0);
     }
 
     int cardsId=0;
@@ -592,7 +583,6 @@ class Stats {
           countByMode[Mode.Normal.index]      += card.countNormal;
           countByMode[Mode.Reverse.index]     += card.countReverse;
           countByMode[Mode.Halo.index]        += card.countHalo;
-          countByMode[Mode.Alternative.index] += card.countAlternative;
         }
         cardId += 1;
       }
@@ -864,6 +854,16 @@ Widget pokeMarker(BuildContext context, CardMarker marker, {double? height=15.0}
   }
   return cachedMarkers[marker.index]!;
 }
+
+class CodeNaming
+{
+  int    idStart = 0;
+  String naming = "%d";
+
+  CodeNaming([this.idStart=0, this.naming="%d"]);
+}
+
+
 
 class CardStats {
   int count = 0;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
+import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -375,5 +376,36 @@ String categoryName(BuildContext context, int id) {
   } catch (e) {
     return StatitikLocale.of(context).read('error');
   }
+}
+
+List<Widget> createRegionsWidget(context, regionController, Language language) {
+  List<Widget> regionsWidget = [];
+
+  // No region item
+  regionsWidget.add(CustomRadio(value: null, controller: regionController,
+      widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Flexible(child: Center(child: Text(
+              StatitikLocale.of(context).read('REG_0'),
+              style: TextStyle(fontSize: 9),)))
+          ])
+    )
+  );
+
+  // parse region
+  Environment.instance.collection.regions.values.forEach((region) {
+    regionsWidget.add(CustomRadio(value: region, controller: regionController,
+        widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(child: Center(child: Text(
+                region.name(language),
+                style: TextStyle(fontSize: 9),)))
+            ])
+      )
+    );
+  });
+  return regionsWidget;
 }
 

@@ -119,17 +119,18 @@ class Environment
                                 printOutput("Admin is launched !");
                                 collection.adminReverse();
                             }
-                            /*
+/*
                             if(local) {
                                 collection.adminReverse();
 
                                 collection.readOldDatabaseToConvert()
-                                .whenComplete(() {
+                                .whenComplete(() async {
                                     if( collection.migration ) {
                                         isInitialized = false;
                                         onServerError.add("Migration effectuée!");
                                     } else {
-                                        collection.convertNewDrawFormat();
+                                        await collection.convertNewDrawFormat();
+                                        await collection.convertETCToV3();
 
                                         isInitialized = true;
                                         onInitialize.add(isInitialized);
@@ -144,8 +145,11 @@ class Environment
                                     return false;
                                 });
                             }
-                            else
-                            */
+                            else {
+                                isInitialized = true;
+                                onInitialize.add(isInitialized);
+                            }
+ */
                             isInitialized = true;
                             onInitialize.add(isInitialized);
                         });
@@ -297,7 +301,7 @@ class Environment
                 for (var row in req) {
                     try {
                         var bytes = (row[0] as Blob).toBytes().toList();
-                        ExtensionDrawCards edc = ExtensionDrawCards.fromByte(bytes);
+                        ExtensionDrawCards edc = ExtensionDrawCards.fromBytes(bytes);
 
                         stats.addBoosterDraw(edc, (row[1] as Blob).toBytes(), row[2]);
                     } catch(e) {
@@ -446,7 +450,7 @@ class Environment
                             }
                             booster = session.boosterDraws[id];
 
-                            var edc = ExtensionDrawCards.fromByte((rowUserBooster[2] as Blob).toBytes());
+                            var edc = ExtensionDrawCards.fromBytes((rowUserBooster[2] as Blob).toBytes());
                             booster.fill(collection.subExtensions[rowUserBooster[0]], rowUserBooster[1]==1, edc, (rowUserBooster[3] as Blob).toBytes());
 
                             id += 1;

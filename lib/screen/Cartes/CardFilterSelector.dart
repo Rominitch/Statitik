@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
+import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -43,18 +44,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
   @override
   Widget build(BuildContext context) {
     if( regionsWidget.isEmpty ) {
-      Environment.instance.collection.regions.values.forEach((region) {
-        regionsWidget.add(CustomRadio(value: region, controller: regionController,
-            widget: Row(mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Flexible(child: Center(child: Text(
-                    region.name(widget.language),
-                    style: TextStyle(fontSize: 9),)))
-                ])
-        )
-        );
-      });
+      regionsWidget = createRegionsWidget(context, regionController, widget.language);
     }
 
     return Scaffold(

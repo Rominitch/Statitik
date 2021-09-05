@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
+import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -148,34 +149,22 @@ class PokeCardNaming extends StatefulWidget {
 }
 
 class _PokeCardNamingState extends State<PokeCardNaming> {
-  late CustomRadioController specialController = CustomRadioController(onChange: (Forme value)  { onSpecialChanged(value); });
-  late CustomRadioController regionController  = CustomRadioController(onChange: (Region value) { onRegionChanged(value); });
+  late CustomRadioController specialController = CustomRadioController(onChange: (Forme?  value) { onSpecialChanged(value); });
+  late CustomRadioController regionController  = CustomRadioController(onChange: (Region? value) { onRegionChanged(value); });
 
-  void onRegionChanged(Region value) {
+  void onRegionChanged(Region? value) {
     widget.nameInfo().region = value;
   }
 
-  void onSpecialChanged(Forme value) {
+  void onSpecialChanged(Forme? value) {
     widget.nameInfo().forme = value;
   }
 
   @override
   Widget build(BuildContext context) {
     var name = widget.nameInfo();
-    List<Widget> regionsWidget = [];
+    List<Widget> regionsWidget = createRegionsWidget(context, regionController, widget.language);
     List<Widget> formeWidget   = [];
-    Environment.instance.collection.regions.values.forEach((region) {
-      regionsWidget.add(CustomRadio(value: region, controller: regionController,
-          widget: Row(mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Flexible(child: Center(child: Text(
-                  region.name(widget.language),
-                  style: TextStyle(fontSize: 9),)))
-              ])
-      )
-      );
-    });
 
     Environment.instance.collection.formes.values.forEach((element) {
       formeWidget.add(CustomRadio(value: element, controller: specialController,
