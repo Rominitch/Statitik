@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 class CardFilterSelector extends StatefulWidget {
   final CardResults result;
+  final Language    language;
 
-  CardFilterSelector(this.result);
+  CardFilterSelector(this.language, this.result);
 
   @override
   _CardFilterSelectorState createState() => _CardFilterSelectorState();
@@ -19,7 +21,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
 
   List<Widget> widgetMarkers    = [];
   List<Widget> longMarkerWidget = [];
-  List<Widget> region           = [];
+  List<Widget> regionsWidget           = [];
   void onRegionChanged(Region? value) {
     widget.result.filterRegion = value;
   }
@@ -40,14 +42,14 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
   }
   @override
   Widget build(BuildContext context) {
-    if( region.isEmpty ) {
-      PokeRegion.values.forEach((element) {
-        region.add(CustomRadio(value: element, controller: regionController,
+    if( regionsWidget.isEmpty ) {
+      Environment.instance.collection.regions.values.forEach((region) {
+        regionsWidget.add(CustomRadio(value: region, controller: regionController,
             widget: Row(mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Flexible(child: Center(child: Text(
-                    regionName(context, element),
+                    region.name(widget.language),
                     style: TextStyle(fontSize: 9),)))
                 ])
         )
@@ -71,7 +73,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                     crossAxisCount: 7,
                     primary: false,
                     shrinkWrap: true,
-                    children: region,
+                    children: regionsWidget,
                   ),
                 ],
               ),

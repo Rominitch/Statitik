@@ -395,5 +395,41 @@ class Collection
       migration = true;
       printOutput("Migration effectuée !");
   }
+
+  Future<void> convertETCToV3() async
+  {
+    printOutput("Start Migration: ");
+    // Migration boosterDraw
+    await Environment.instance.db.transactionR((connection) async {
+      // Get all data
+      var boosterDraw = await connection.query("SELECT * FROM `TirageBooster`;");
+
+      // Convert
+      List<List<Object?>> data = [];
+      for(var row in boosterDraw) {
+        var drawData = (row[4] as Blob).toBytes().toList();
+
+        // Check version
+        ExtensionDrawCards edc;
+        if(drawData[0] == ExtensionDrawCards.version ) {
+          edc = ExtensionDrawCards.fromByte(drawData);
+        } else
+          edc = ExtensionDrawCards.fromByteV2(drawData);
+
+        List<Object?> obj = [row[0], row[1], row[2], row[3], Int8List.fromList(edc.toBytes())];
+        data.add(obj);
+      }
+
+      // Remove all
+      await connection.query("TRUNCATE TABLE `TirageBooster`;");
+      // Add
+      for(var info in data) {
+        await connection.query("INSERT INTO `TirageBooster` VALUES(?, ?, ?, ?, ?);", info);
+      }
+    });
+
+    migration = true;
+    printOutput("Migration effectuée !");
+  }
  */
 }

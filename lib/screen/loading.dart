@@ -4,11 +4,6 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 class Loading extends StatefulWidget {
-  Loading() : super()
-  {
-    Environment env = Environment.instance;
-  }
-
   @override
   _LoadingState createState() => _LoadingState();
 }
@@ -19,13 +14,15 @@ class _LoadingState extends State<Loading> {
 
   @override
   void initState() {
+    // Connect to end loading
     Environment.instance.onServerError.stream.listen((event) {
       setState(() {
         error = true;
         msgError = event;
       });
     });
-    // Make long operation
+
+    // Initialize engine (async and long operation)
     Environment.instance.initialize();
 
     super.initState();

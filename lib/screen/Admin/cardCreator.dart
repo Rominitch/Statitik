@@ -134,9 +134,10 @@ class _CardCreatorState extends State<CardCreator> {
 }
 
 class PokeCardNaming extends StatefulWidget {
+  final Language              language;
   final PokemonCardExtension  card;
   final int                   idName;
-  const PokeCardNaming(this.card, this.idName);
+  const PokeCardNaming(this.language, this.card, this.idName);
 
   Pokemon nameInfo() {
     return card.data.title[idName];
@@ -161,29 +162,29 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
   @override
   Widget build(BuildContext context) {
     var name = widget.nameInfo();
-    List<Widget> region   = [];
-    List<Widget> special  = [];
-    PokeRegion.values.forEach((element) {
-      region.add(CustomRadio(value: element, controller: regionController,
+    List<Widget> regionsWidget = [];
+    List<Widget> formeWidget   = [];
+    Environment.instance.collection.regions.values.forEach((region) {
+      regionsWidget.add(CustomRadio(value: region, controller: regionController,
           widget: Row(mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Flexible(child: Center(child: Text(
-                  regionName(context, element),
+                  region.name(widget.language),
                   style: TextStyle(fontSize: 9),)))
               ])
       )
       );
     });
 
-    PokeSpecial.values.forEach((element) {
-      special.add(CustomRadio(value: element, controller: specialController,
+    Environment.instance.collection.formes.values.forEach((element) {
+      formeWidget.add(CustomRadio(value: element, controller: specialController,
           widget: Row(mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Flexible(child: Center(child: Text(
-                  specialName(context, element),
-                  style: TextStyle(fontSize: 9),)))
+                  element.applyToPokemonName(widget.language),
+                  style: TextStyle(fontSize: 8),)))
               ])
       )
       );
@@ -242,13 +243,13 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
             crossAxisCount: 7,
             primary: false,
             shrinkWrap: true,
-            children: region,
+            children: regionsWidget,
           ),
           GridView.count(
             crossAxisCount: 6,
             primary: false,
             shrinkWrap: true,
-            children: special,
+            children: formeWidget,
           ),
       ],
     );

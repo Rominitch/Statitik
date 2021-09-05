@@ -13,14 +13,6 @@ import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 import 'package:statitikcard/services/product.dart';
 
-class FullCard {
-  String   name;
-  PokeCard card;
-  String   realName;
-
-  FullCard(this.name, this.card, this.realName);
-}
-
 class UserReport extends StatefulWidget {
   final StatsData data;
 

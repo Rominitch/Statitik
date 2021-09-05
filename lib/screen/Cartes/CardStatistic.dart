@@ -136,7 +136,7 @@ class _CardStatisticPageState extends State<CardStatisticPage> {
                       setState(() {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => CardFilterSelector(_cardResults)),
+                          MaterialPageRoute(builder: (context) => CardFilterSelector(langueController.currentValue, _cardResults)),
                         ).then((value) {
                           setState(() {
                             afterDataFilled();

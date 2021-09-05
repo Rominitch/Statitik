@@ -1,13 +1,17 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 
 class ExtensionDrawCards {
   List<List<CodeDraw>> draw = [];
+
+  static const int version = 3; // Warning: Limited to 256
 
   ExtensionDrawCards();
 
@@ -18,22 +22,51 @@ class ExtensionDrawCards {
     });
   }
 
-  ExtensionDrawCards.fromByte(bytes) {
+  ExtensionDrawCards.fromByte(List<int> zipBytes) {
+    int currentVersion = zipBytes[0];
+    if(currentVersion != version) {
+      throw StatitikException("ExtensionDrawCards need migration !");
+    }
+
+    List<int> bytes = gzip.decode(zipBytes.sublist(1));
+
     int pointer = 0;
     while(pointer < bytes.length) {
       int count = bytes[pointer];
       pointer += 1;
 
       List<CodeDraw> cardCode = [];
-      bytes.sublist(pointer, count).forEach(
+      bytes.sublist(pointer, pointer+count).forEach(
         (code){
           cardCode.add(CodeDraw.fromInt(code));
         }
       );
+      assert(cardCode.isNotEmpty);
+
       draw.add(cardCode);
       pointer += count;
     }
   }
+
+  ExtensionDrawCards.fromByteV2(List<int> bytes) {
+    int pointer = 0;
+    while(pointer < bytes.length) {
+      int count = bytes[pointer];
+      pointer += 1;
+
+      List<CodeDraw> cardCode = [];
+      bytes.sublist(pointer, pointer+count).forEach(
+              (code){
+            cardCode.add(CodeDraw.fromInt(code));
+          }
+      );
+      assert(cardCode.isNotEmpty);
+
+      draw.add(cardCode);
+      pointer += count;
+    }
+  }
+
 
   /// Fill current draw with another (generally full Subextension with saved and truncate data)
   int fillWith(ExtensionDrawCards savedData) {
@@ -87,7 +120,9 @@ class ExtensionDrawCards {
       cards.forEach((code) { bytes.add(code);});
     });
 
-    return bytes;
+    List<int> finalBytes = [version];
+    finalBytes += gzip.encode(bytes);
+    return finalBytes;
   }
 }
 

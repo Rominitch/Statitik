@@ -11,8 +11,6 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
-import 'connection.dart';
-
 const double iconSize = 25.0;
 
 final Color greenValid = Colors.green[500]!;
@@ -400,142 +398,6 @@ Widget getImageType(Type type)
   return cachedImageType[type.index]!;
 }
 
-class PokeCard
-{
-  Type           type;
-  Rarity         rarity;
-  List<CardName> names = [];
-  CardInfo       info = CardInfo();
-  bool           hasAlternative;
-
-  PokeCard({required this.type, required this.rarity, required this.hasAlternative});
-
-  bool isValid() {
-    return type!= Type.Unknown && rarity != Rarity.Unknown;
-  }
-
-  List<Widget> imageRarity() {
-    return getImageRarity(rarity);
-  }
-
-  Widget imageType() {
-    return getImageType(type);
-  }
-
-  bool hasAnotherRendering() {
-    return !isValid() || rarity == Rarity.Commune || rarity == Rarity.PeuCommune || rarity == Rarity.Rare
-        || rarity == Rarity.HoloRare;
-  }
-
-  Mode defaultMode() {
-    return rarity == Rarity.HoloRare ? Mode.Halo : Mode.Normal;
-  }
-
-  int extractNameByte(int id, byteData) {
-    assert(id+1 <= byteData.length);
-    int nbNames = byteData[id];
-    id += 1;
-    for(var i=0; i < nbNames; i+=1) {
-      assert(id+3 <= byteData.length);
-      // Decode
-      int codeName   = byteData[id] << 8 | byteData[id+1];
-      int codeRegion = byteData[id+2];
-      id += 3;
-
-      // Build name
-      CardName cname = CardName.from(codeRegion);
-      if( codeName != 0 ) {
-        if( codeName >= 10000 ) {
-          cname.name = Environment.instance.collection.getNamedID(codeName);
-        } else {
-          cname.name = Environment.instance.collection.getPokemonID(codeName);
-        }
-      }
-      names.add(cname);
-    }
-    return id;
-  }
-
-  List<int> nameByte() {
-    List<int> b = [];
-
-    // Clean invalid name
-    names.removeWhere((element) => element.name==null);
-
-    //2 Bytes
-    b.add(names.length);
-    for(var n in names) {
-      int id=0;
-      if (n.name.isPokemon()) {
-        var rPokemon = Environment.instance.collection.pokemons.map((k, v) =>
-            MapEntry(v, k));
-        id = rPokemon[n.name];
-      } else {
-        var rOther = Environment.instance.collection.otherNames.map((k, v) =>
-            MapEntry(v, k));
-        id = rOther[n.name];
-      }
-
-      //2 Bytes
-      b.add((id & 0xFF00) >> 8);
-      b.add(id & 0xFF);
-      b.add(n.toCode());
-    }
-    return b;
-  }
-
-  int extractInfoByte3(int id, byteData) {
-    assert(id+3 <= byteData.length);
-
-    List<int> fullcode =
-    [
-      0,
-      ((byteData[id] << 8) | byteData[id+1]) << 8 | byteData[id+2]
-    ];
-    info = CardInfo.from(fullcode);
-    return id + 3;
-  }
-
-  int extractInfoByte5(int id, byteData) {
-    assert(id+5 <= byteData.length);
-
-    List<int> fullcode =
-    [
-      byteData[id],
-      ((byteData[id+1] << 8 | byteData[id+2]) << 8 | byteData[id+3]) << 8 | byteData[id+4]
-    ];
-    info = CardInfo.from(fullcode);
-    return id + 5;
-  }
-
-  List<int> infoByte() {
-    List<int> b = [];
-    var i = info.toCode();
-
-    assert(i[0] == 0); // Not reach
-    //5 Bytes
-    b.add(i[0] & 0xFF);
-
-    //4 Bytes
-    b.add((i[1] & 0xFF000000) >> 24);
-    b.add((i[1] & 0xFF0000) >> 16);
-    b.add((i[1] & 0xFF00) >> 8);
-    b.add(i[1] & 0xFF);
-
-    return b;
-  }
-
-  Widget? showImportantMarker(BuildContext context, {double? height}) {
-    var importantMarkers = [CardMarker.Escouade, CardMarker.EX, CardMarker.GX, CardMarker.V, CardMarker.VMAX];
-    for(var m in importantMarkers) {
-      if(info.markers.contains(m)) {
-        return pokeMarker(context, m, height: height);
-      }
-    }
-    return null;
-  }
-}
-
 class NamedInfo
 {
   List<String> _names;
@@ -580,68 +442,6 @@ class PokemonInfo extends NamedInfo
   @override
   bool isPokemon() {
     return true;
-  }
-}
-
-class ListCards
-{
-  List<PokeCard> cards = [];
-  bool validCard = true;
-  bool hasAdditionnalInfo = false;
-
-  void extractCard(String? code)
-  {
-    cards.clear();
-    validCard = true;
-
-    if(code == null || code.isEmpty) {
-      validCard=false;
-      // Build pre-publication: 300 card max
-      for (int i = 0; i < 300; i += 1) {
-        cards.add(PokeCard(type: Type.Unknown, rarity: Rarity.Unknown, hasAlternative: true));
-      }
-    } else {
-      assert(code.length % 2 != 1 || code.contains('*'));
-
-      for (int i = 0; i < code.length; i += 2) {
-        Type t   = Type.Unknown;
-        Rarity r = Rarity.Unknown;
-        if (!convertType.containsKey(code[i])) {
-          if(local)
-            throw Exception('Data card list corruption: $i was found with type ${code[i]}');
-        } else {
-          t = convertType[code[i]];
-        }
-
-        if (!convertRarity.containsKey(code[i+1])) {
-          if (local)
-            throw Exception('Data card list corruption: $i was found with rarity ${code[i + 1]}');
-        } else {
-          r = convertRarity[code[i + 1]];
-        }
-
-        //Special alternative case
-        bool alternative = false;
-        if((i + 2) < code.length && code[i + 2] == '*') {
-          i += 1;
-          alternative = true;
-        }
-        cards.add(PokeCard(type: t, rarity: r, hasAlternative: alternative));
-      }
-    }
-  }
-
-  String getName(Language l, int id) {
-    if(id < cards.length ) {
-      List<String> names = [];
-      cards[id].names.forEach((element) {
-        if(element.name != null) {
-          names.add(element.name.name(l));
-        }
-      });
-      return names.join("&");
-    }
-    return "";
   }
 }
 
@@ -760,8 +560,8 @@ class Stats {
     return false;
   }
 
-  void addBoosterDraw(List<List<int>> draw, List<int> energy , int anomaly) {
-    if( draw.length > subExt.seCards.cards.length)
+  void addBoosterDraw(ExtensionDrawCards edc, List<int> energy , int anomaly) {
+    if( edc.draw.length > subExt.seCards.cards.length)
       throw StatitikException('Corruption des données de tirages');
 
     anomaly += anomaly;
@@ -775,25 +575,28 @@ class Stats {
       assert((c.countHalo + c.countAlternative) == 0);
     }
 
-    for(int cardsId=0; cardsId < draw.length; cardsId +=1) {
-      for(int card=0; card < draw[cardsId].length; card +=1) {
-        CodeDraw c = CodeDraw.fromInt(draw[cardsId][card]);
-        int nbCard = c.count();
+    int cardsId=0;
+    for(List<CodeDraw> cards in edc.draw) {
+      int cardId=0;
+      for(CodeDraw card in cards) {
+        int nbCard = card.count();
         if( nbCard > 0 ) {
           cardByBooster += nbCard;
           if(subExt.seCards.isValid) {
             // Count
-            countByType[subExt.seCards.cards[cardsId][card].data.type.index] += nbCard;
-            countByRarity[subExt.seCards.cards[cardsId][card].rarity.index]  += nbCard;
+            countByType[subExt.seCards.cards[cardsId][cardId].data.type.index] += nbCard;
+            countByRarity[subExt.seCards.cards[cardsId][cardId].rarity.index]  += nbCard;
           }
-          totalCards           += nbCard;
-          count[cardsId][card] += nbCard;
-          countByMode[Mode.Normal.index]      += c.countNormal;
-          countByMode[Mode.Reverse.index]     += c.countReverse;
-          countByMode[Mode.Halo.index]        += c.countHalo;
-          countByMode[Mode.Alternative.index] += c.countAlternative;
+          totalCards             += nbCard;
+          count[cardsId][cardId] += nbCard;
+          countByMode[Mode.Normal.index]      += card.countNormal;
+          countByMode[Mode.Reverse.index]     += card.countReverse;
+          countByMode[Mode.Halo.index]        += card.countHalo;
+          countByMode[Mode.Alternative.index] += card.countAlternative;
         }
+        cardId += 1;
       }
+      cardsId += 1;
     }
   }
 }
@@ -885,42 +688,10 @@ class StatsData {
   }
 }
 
-enum PokeRegion {
-  Nothing,
-  Kanto,
-  Johto,
-  Hoenn,
-  Sinnoh,
-  Unova,
-  Kalos,
-  Alola,
-  Galar,
-  //Limited 16 values (Number 1/2 byte)
-}
-
 const List<Color> regionColors = [
   Colors.white70, Colors.blue, Colors.red, Colors.green, Colors.brown,
   Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal
 ];
-
-String regionName(BuildContext context, PokeRegion id) {
-  return StatitikLocale.of(context).read('REG_${id.index}');
-}
-
-enum PokeSpecial {
-  Nothing,
-  FormeEau,
-  FormeFeu,
-  FormeFroid,
-  FormePsy,
-  Noir,
-  Blanc
-  //Limited 16 values (Number 1/2 byte)
-}
-
-String specialName(BuildContext context, PokeSpecial id) {
-  return StatitikLocale.of(context).read('SPE_${id.index}');
-}
 
 enum CardMarker {
   Nothing,
@@ -1092,57 +863,6 @@ Widget pokeMarker(BuildContext context, CardMarker marker, {double? height=15.0}
     }
   }
   return cachedMarkers[marker.index]!;
-}
-
-class CardName {
-  dynamic     name; // PokemonInfo or NamedInfo
-  PokeRegion  region  = PokeRegion.Nothing;
-  PokeSpecial special = PokeSpecial.Nothing;
-
-  CardName([this.region = PokeRegion.Nothing, this.special = PokeSpecial.Nothing]);
-
-  CardName.from(int code) {
-    region  = PokeRegion.values[code & 0xF];
-    special = PokeSpecial.values[(code>>4 & 0xF)];
-  }
-
-  int toCode() {
-    return region.index + (special.index<<4);
-  }
-}
-
-class CardInfo {
-  List<CardMarker> markers = [];
-
-  CardInfo([markers = const []]) : this.markers = List.from(markers);
-
-  CardInfo.from(List<int> fullcode) {
-    int id = 1;
-    fullcode.reversed.forEach((code) {
-    while(code > 0)
-      {
-        if((code & 0x1) == 0x1) {
-          markers.add(CardMarker.values[id]);
-        }
-        id = id+1;
-        code = code >> 1;
-      }
-    });
-  }
-
-  List<int> toCode() {
-    List<int> codeMarkers = [0, 0];
-    markers.forEach((element) {
-      if(element != CardMarker.Nothing) {
-        if(element.index < 32) {
-          codeMarkers[1] |= (1<<(element.index-1));
-        } else {
-          codeMarkers[0] |= (1<<(element.index-32-1));
-        }
-      }
-    });
-    return codeMarkers;
-  }
 }
 
 class CardStats {

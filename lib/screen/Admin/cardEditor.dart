@@ -29,7 +29,7 @@ class _CardEditorState extends State<CardEditor> {
     List<Widget> namedWidgets = [];
     int id=0;
     widget.card.data.title.forEach((element) {
-      namedWidgets.add(PokeCardNaming(widget.card, id));
+      namedWidgets.add(PokeCardNaming(widget.se.extension.language, widget.card, id));
       id+=1;
     });
     namedWidgets.add(

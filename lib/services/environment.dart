@@ -84,12 +84,11 @@ class Environment
     Future<void> initialize() async
     {
         // General data control
+        assert(Rarity.values.length <= 255);
         assert(Rarity.values.length     == rarityColors.length);
         assert(Type.values.length       == typeColors.length);
         assert(CardMarker.values.length == markerColors.length);
         assert(CardMarker.values.length <= 40);
-        assert(PokeRegion.values.length <= 16);
-        assert(PokeSpecial.values.length <= 16);
 
         if(!isInitialized) {
             // Sync event
@@ -106,7 +105,7 @@ class Environment
                     }
                 }).then( (result) {
                     isDBReady = result;
-                }).whenComplete( () async {
+                }).whenComplete( () {
                     if(!isDBReady) {
                         throw StatitikException('DB_0');
                     }
@@ -115,7 +114,7 @@ class Environment
                     }
                     credential.initialize().
                     whenComplete( () {
-                        readStaticData().whenComplete(() {
+                        readStaticData().whenComplete(() async {
                             if (user != null && user!.admin) {
                                 printOutput("Admin is launched !");
                                 collection.adminReverse();
@@ -297,18 +296,13 @@ class Environment
                 var req = await connection.query(query);
                 for (var row in req) {
                     try {
-                        List<List<int>> cardsDraw = [];
-                        var bytes = (row[0] as Blob).toBytes();
-                        int pointer = 0;
-                        while(pointer < bytes.length) {
-                            int count = bytes[pointer];
-                            pointer += 1;
+                        var bytes = (row[0] as Blob).toBytes().toList();
+                        ExtensionDrawCards edc = ExtensionDrawCards.fromByte(bytes);
 
-                            cardsDraw.add(bytes.sublist(pointer, count));
-                            pointer += count;
-                        }
-                        stats.addBoosterDraw(cardsDraw, (row[1] as Blob).toBytes(), row[2]);
-                    } catch(e) {}
+                        stats.addBoosterDraw(edc, (row[1] as Blob).toBytes(), row[2]);
+                    } catch(e) {
+                        printOutput("Stats extraction failure - SE=${subExt.id} : $e");
+                    }
                 }
             });
         }
