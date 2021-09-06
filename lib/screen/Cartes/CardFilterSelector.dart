@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
-import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
@@ -29,6 +28,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
 
   @override
   void initState() {
+    super.initState();
     CardMarker.values.forEach((element) {
       if (element != CardMarker.Nothing && !longMarker.contains(element))
         widgetMarkers.add(ButtonCheck(widget.result.filter, element));
@@ -38,9 +38,8 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
     });
 
     regionController.currentValue = widget.result.filterRegion;
-
-    super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     if( regionsWidget.isEmpty ) {

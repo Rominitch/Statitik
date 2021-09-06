@@ -111,7 +111,7 @@ class _StatsCardState extends State<StatsCard> {
     });
 
     const List<Color> regionColors = [
-      Colors.white70, Colors.blue, Colors.red, Colors.green, Colors.brown,
+      Colors.blue, Colors.red, Colors.green, Colors.brown,
       Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal
     ];
 

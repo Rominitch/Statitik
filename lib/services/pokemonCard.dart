@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/widgets.dart';
 
 import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/services/environment.dart';
 
 import 'package:statitikcard/services/models.dart';
 
@@ -168,6 +171,8 @@ class PokemonCardData {
     });
     return name.join("&");
   }
+
+  PokemonCardData.empty() : title=[], level=Level.Base, type= Type.Unknown, markers=CardMarkers();
 }
 
 class PokemonCardExtension {
@@ -231,6 +236,10 @@ class PokemonCardExtension {
     }
     return null;
   }
+
+  bool isGoodCard() {
+    return isValid() && goodCard.contains(rarity);
+  }
 }
 
 class SubExtensionCards {
@@ -240,7 +249,14 @@ class SubExtensionCards {
 
   SubExtensionCards(List<List<PokemonCardExtension>> cards, this.codeNaming) : this.cards = cards, this.isValid = cards.length > 0;
 
-  SubExtensionCards.build(ByteParser parser, List<CodeNaming> naming, cardCollection) : this.cards=[], this.isValid = (parser.byteArray.length > 0) {
+  static const int version = 3;
+
+  SubExtensionCards.build(List<int> bytes, List<CodeNaming> naming, cardCollection) : this.cards=[], this.isValid = (bytes.length > 0) {
+    if(bytes[0] != version) {
+      throw StatitikException("Bad SubExtensionCards version : need migration !");
+    }
+    var parser = ByteParser(gzip.decode(bytes.sublist(1)));
+
     // Extract card
     while(parser.pointer < parser.byteArray.length) {
       List<PokemonCardExtension> numberedCard = [];
@@ -250,6 +266,30 @@ class SubExtensionCards {
         numberedCard.add(PokemonCardExtension.fromBytes(parser, cardCollection));
       }
       cards.add(numberedCard);
+    }
+  }
+/*
+  SubExtensionCards.fromV2(List<int> bytes, List<CodeNaming> naming, cardCollection) : this.cards=[], this.isValid = (bytes.length > 0) {
+    var parser = ByteParser(bytes);
+
+    // Extract card
+    while(parser.pointer < parser.byteArray.length) {
+      List<PokemonCardExtension> numberedCard = [];
+      int nbTitle = parser.byteArray[parser.pointer];
+      for( int cardId=0; cardId < nbTitle; cardId +=1) {
+        parser.pointer += 1;
+        numberedCard.add(PokemonCardExtension.fromBytes(parser, cardCollection));
+      }
+      cards.add(numberedCard);
+    }
+  }
+*/
+  SubExtensionCards.emptyDraw(this.codeNaming) : cards = [], isValid=false {
+    // Build pre-publication: 300 card max
+    for (int i = 0; i < 300; i += 1) {
+      cards.add([PokemonCardExtension(
+          PokemonCardData.empty(),
+          Rarity.Unknown)]);
     }
   }
 
@@ -280,6 +320,9 @@ class SubExtensionCards {
         cardBytes += card.toBytes(collectionCards);
       });
     });
-    return cardBytes;
+
+    List<int> finalBytes = [version];
+    finalBytes += gzip.encode(cardBytes);
+    return finalBytes;
   }
 }

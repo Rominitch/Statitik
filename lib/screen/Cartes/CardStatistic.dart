@@ -30,13 +30,14 @@ class _CardStatisticPageState extends State<CardStatisticPage> {
 
   @override
   void initState() {
+    super.initState();
+
+    langueController.currentValue = Environment.instance.collection.languages.values.first;
     Environment.instance.collection.languages.values.forEach((element) {
         _languages.add(CustomRadio(value: element, controller: langueController, widget: element.barIcon()));
     });
 
     afterDataFilled();
-
-    super.initState();
   }
 
   void afterDataFilled() {

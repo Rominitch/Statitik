@@ -4,7 +4,6 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 
@@ -48,7 +47,7 @@ class ExtensionDrawCards {
       pointer += count;
     }
   }
-
+/*
   ExtensionDrawCards.fromByteV2(List<int> bytes) {
     int pointer = 0;
     while(pointer < bytes.length) {
@@ -67,29 +66,28 @@ class ExtensionDrawCards {
       pointer += count;
     }
   }
-
+*/
 
   /// Fill current draw with another (generally full Subextension with saved and truncate data)
   int fillWith(ExtensionDrawCards savedData) {
     int count = 0;
 
-    int idSECards=0;
+    var itCurrent = draw.iterator;
+
     savedData.draw.forEach((saveCards) {
-      int idCard=0;
-      if(idCard < draw[idSECards].length) {
-        saveCards.forEach((card) {
-          if (idCard < draw[idSECards].length) {
-            draw[idSECards][idCard] = card;
-            count += card.count();
-          } else {
-            printOutput("ExtensionDrawCards - Draw Data corruption : more card than expected ${draw[idSECards].length} < ${saveCards.length}!");
-          }
-          idSECards += 1;
-        });
-      } else {
-        printOutput("ExtensionDrawCards - Draw Data corruption : more cards into Expansion than expected ${draw.length} < ${savedData.draw.length}!");
-      }
-      idSECards += 1;
+      if(!itCurrent.moveNext())
+        throw StatitikException("ExtensionDrawCards - Draw Data corruption : more cards into Expansion than expected ${draw.length} < ${savedData.draw.length}!");
+      var itCard = itCurrent.current.iterator;
+      saveCards.forEach((card) {
+        if(!itCard.moveNext())
+          throw StatitikException("ExtensionDrawCards - Draw Data corruption : more card than expected !");
+        // Copy data
+        itCard.current.countNormal  = card.countNormal;
+        itCard.current.countReverse = card.countReverse;
+        itCard.current.countHalo    = card.countHalo;
+
+        count += card.count();
+      });
     });
     return count;
   }
@@ -366,7 +364,7 @@ class BoosterDraw {
           if (subExtension!.seCards.cards.isNotEmpty) {
             count = element.count();
             if (count > 0 &&
-                subExtension!.seCards.cards[id][idLocalCard].rarity.index > Rarity.Rare.index)
+                subExtension!.seCards.cards[id][idLocalCard].isGoodCard())
               goodCard += count;
           }
           reverse += element.countReverse;

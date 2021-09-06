@@ -409,3 +409,48 @@ List<Widget> createRegionsWidget(context, regionController, Language language) {
   return regionsWidget;
 }
 
+class MovingImageWidget extends StatefulWidget {
+  final Widget child;
+
+  const MovingImageWidget(this.child, {Key? key}) : super(key: key);
+
+  @override
+  _MovingImageWidgetState createState() => _MovingImageWidgetState();
+}
+
+class _MovingImageWidgetState extends State<MovingImageWidget> with SingleTickerProviderStateMixin {
+  static const double maxAngle = 0.05;
+
+  late AnimationController animationControler = AnimationController(
+      value: 0,
+      lowerBound: -maxAngle,
+      upperBound: maxAngle,
+      duration: Duration(seconds: 2),
+      reverseDuration: Duration(seconds: 2), vsync: this
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    // Go
+    animationControler.repeat(reverse: true);
+  }
+  @override
+  void dispose() {
+    Environment.instance.onInfoLoading.close();
+    animationControler.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+        animation: animationControler,
+        builder: (context, child) => Transform.rotate(
+          angle: animationControler.value,
+          child: Center(child: widget.child),
+        )
+    );
+  }
+}
+

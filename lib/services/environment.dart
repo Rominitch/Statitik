@@ -20,7 +20,7 @@ class StatitikException implements Exception {
 
 class Database
 {
-    final String version = '2.1';
+    final String version = '2.2';
     final ConnectionSettings settings = createConnection();
 
     Future<bool> transactionR(Function queries) async
@@ -56,8 +56,9 @@ class Environment
     static final Environment instance = Environment._privateConstructor();
 
     // Event
-    final StreamController<bool> onInitialize = StreamController<bool>();
+    final StreamController<bool>   onInitialize  = StreamController<bool>();
     final StreamController<String> onServerError = StreamController<String>();
+    final StreamController<String> onInfoLoading = StreamController<String>();
 
     // Manager
     Credential credential = Credential();
@@ -65,7 +66,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.1.0';
+    final String version = '1.1.1';
 
     // State
     bool isInitialized          = false;
@@ -81,7 +82,7 @@ class Environment
     UserPoke? user;
     SessionDraw? currentDraw;
 
-    Future<void> initialize() async
+    void initialize()
     {
         // General data control
         assert(Rarity.values.length <= 255);
@@ -112,44 +113,15 @@ class Environment
                     if(!isDatabaseMatch) {
                         throw StatitikException('DB_1');
                     }
+                    onInfoLoading.add('LOAD_0');
                     credential.initialize().
-                    whenComplete( () {
+                    whenComplete( () async {
+                        onInfoLoading.add('LOAD_1');
                         readStaticData().whenComplete(() async {
-                            if (user != null && user!.admin) {
+                            if (isLogged() && user!.admin) {
                                 printOutput("Admin is launched !");
                                 collection.adminReverse();
                             }
-/*
-                            if(local) {
-                                collection.adminReverse();
-
-                                collection.readOldDatabaseToConvert()
-                                .whenComplete(() async {
-                                    if( collection.migration ) {
-                                        isInitialized = false;
-                                        onServerError.add("Migration effectuée!");
-                                    } else {
-                                        await collection.convertNewDrawFormat();
-                                        await collection.convertETCToV3();
-
-                                        isInitialized = true;
-                                        onInitialize.add(isInitialized);
-                                    }
-                                }).catchError((error) {
-                                    isInitialized = false;
-                                    onServerError.add(error.msg);
-                                }).onError((error, stackTrace) {
-                                    printOutput(error.toString());
-                                    printOutput(stackTrace.toString());
-                                    isInitialized = false;
-                                    return false;
-                                });
-                            }
-                            else {
-                                isInitialized = true;
-                                onInitialize.add(isInitialized);
-                            }
- */
                             isInitialized = true;
                             onInitialize.add(isInitialized);
                         });
@@ -467,31 +439,13 @@ class Environment
 
     Future<bool> sendCardInfo(SubExtension se) async {
         if( isLogged() && user!.admin) {
-            /*
             try {
                 return await db.transactionR( (connection) async {
-                    var rType   = convertType.map((k, v)   => MapEntry(v, k));
-                    var rRarity = convertRarity.map((k, v) => MapEntry(v, k));
-
-                    List<int> byteInfo  = [];
-                    List<int> byteNames = [];
-                    String code = "";
-                    se.cards!.cards.forEach((PokeCard card) {
-                        code += rType[card.type] + rRarity[card.rarity];
-                        byteNames += card.nameByte();
-                        byteInfo  += card.infoByte();
-                    });
-
-                    var query = 'UPDATE `ListeCartes`, `SousExtension` SET `cartes` = ?, `carteNoms` = ?, `carteInfos` = ?'
-                    ' WHERE `ListeCartes`.`idListeCartes` = `SousExtension`.`idListeCartes`'
-                    ' AND `SousExtension`.`idSousExtension` = ${se.id}';
-
-                    await connection.queryMulti(query, [[code, Int8List.fromList(byteNames), Int8List.fromList(byteInfo)]]);
+                    await collection.saveDatabaseSEC(se.seCards, connection);
                 });
             } catch( e ) {
                 printOutput("Database error $e");
             }
-            */
         }
         return false;
     }

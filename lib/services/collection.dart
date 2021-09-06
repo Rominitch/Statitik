@@ -27,6 +27,7 @@ class Collection
   Map rFormes      = {};
   Map rPokemon     = {};
   Map rOther       = {};
+  Map rCardsExtensions = {};
 
   void clear() {
     languages.clear();
@@ -190,8 +191,8 @@ class Collection
           }
 
           cardsExtensions[row[0]] = (row[1] != null)
-              ? SubExtensionCards.build(ByteParser((row[1] as Blob).toBytes().toList()), codeNaming, pokemonCards)
-              : SubExtensionCards([], codeNaming);
+              ? SubExtensionCards.build((row[1] as Blob).toBytes().toList(), codeNaming, pokemonCards)
+              : SubExtensionCards.emptyDraw(codeNaming);
         } catch(e) {
           printOutput("Bad SubExtensionCards: ${row[0]} $e");
         }
@@ -222,9 +223,10 @@ class Collection
     rFormes       = formes.map((k, v) => MapEntry(v, k));
     rPokemon      = pokemons.map((k, v) => MapEntry(v, k));
     rOther        = otherNames.map((k, v) => MapEntry(v, k));
+    rCardsExtensions = cardsExtensions.map((k, v) => MapEntry(v, k));
   }
 
-  Future<void> saveDatabase(PokemonCardData card, connection) async {
+  Future<bool> saveDatabase(PokemonCardData card, int nextId, connection) async {
     // Search if card Id
     int? idCard = rPokemonCards[card];
 
@@ -244,19 +246,54 @@ class Collection
     List data = [namedData, card.level.index, Int8List.fromList(typesByte), null, Int8List.fromList(card.markers.toBytes()), null, null, null, null, idIllustrator, null];
     var query = "";
     if (idCard == null) {
-      data.insert(0, idCard);
+      data.insert(0, nextId);
       query = 'INSERT INTO `Cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
 
       // Update internal database
-      pokemonCards[idCard] = card;
-      rPokemonCards = pokemonCards.map((k, v) => MapEntry(v, k));
-
+      pokemonCards[nextId] = card;
+      rPokemonCards[card] = nextId;
     } else {
-      query = 'UPDATE `Cartes` SET `nom` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?, `image` = ?'
+      query = 'UPDATE `Cartes` SET `noms` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?, `image` = ?'
           ' WHERE `Cartes`.`idCartes` = $idCard';
     }
 
     await connection.queryMulti(query, [data]);
+    return idCard == null;
+  }
+
+  Future<void> saveDatabaseSEC(SubExtensionCards seCards, connection) async {
+    // Compute next Id of card
+    int nextId = 0;
+    var nextIdReq = await connection.query("SELECT MAX(idCartes) as maxId FROM StatitikPokemonDebug.Cartes;");
+    for(var row in nextIdReq) {
+      nextId = row[0];
+    }
+    nextId += 1;
+    printOutput("Next id of card is $nextId");
+
+    // Update or create all cards
+    printOutput("Start update card data.");
+    int updated = 0;
+    int created = 0;
+    for(var cardLists in seCards.cards) {
+      for(var card in cardLists) {
+        // Save and update + maintain admin DB
+        if( await saveDatabase(card.data, nextId, connection) ) {
+          created += 1;
+          nextId  += 1;
+          printOutput("New card is add. Next id will be $nextId");
+        } else {
+          updated +=1;
+        }
+      }
+    }
+    printOutput("Done update card data: created: $created | updated: $updated.");
+
+    // Just change card info
+    int idSEC = rCardsExtensions[seCards];
+    var query = 'UPDATE `CartesExtension` SET `cartes` = ?'
+        ' WHERE `CartesExtension`.`idCartesExtension` = $idSEC';
+    await connection.queryMulti(query, [[Int8List.fromList(seCards.toBytes(rPokemonCards))]]);
   }
 
   /*
@@ -462,5 +499,38 @@ class Collection
     migration = true;
     printOutput("Migration effectuée !");
   }
-   */
+
+  Future<void> convertCarteExtToV3() async {
+    adminReverse();
+
+    printOutput("Start Migration: ");
+    // Migration boosterDraw
+    await Environment.instance.db.transactionR((connection) async {
+      // Get all data
+      var secReq = await connection.query("SELECT * FROM `CartesExtension`;");
+
+      // Convert
+      List<List<Object?>> data = [];
+      for(var row in secReq) {
+        if(row[1] != null) {
+          var drawData = (row[1] as Blob).toBytes().toList();
+          // Check version
+          SubExtensionCards sec;
+          if (drawData[0] == SubExtensionCards.version) {
+            sec = SubExtensionCards.build(drawData, [], pokemonCards);
+          } else
+            sec = SubExtensionCards.fromV2(drawData, [], pokemonCards);
+
+          List<Object?> obj = [Int8List.fromList(sec.toBytes(rPokemonCards))];
+          var query = 'UPDATE `CartesExtension` SET `cartes` = ?'
+              ' WHERE `CartesExtension`.`idCartesExtension` = ${row[0]}';
+          await connection.query(query, obj);
+        }
+      }
+    });
+
+    migration = true;
+    printOutput("Migration effectuée !");
+  }
+  */
 }

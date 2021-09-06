@@ -146,57 +146,30 @@ const List<Rarity> japanRarity = [Rarity.JC, Rarity.JU, Rarity.JR, Rarity.JRR,
   Rarity.JRRR, Rarity.JSR, Rarity.JHR, Rarity.JUR, Rarity.JA, Rarity.JS, Rarity.JSSR
 ];
 
-const Map convertType =
-{
-  'P': Type.Plante,
-  'R': Type.Feu,
-  'E': Type.Eau,
-  'W': Type.Electrique,
-  'Y': Type.Psy,
-  'C': Type.Combat,
-  'O': Type.Obscurite,
-  'M': Type.Metal,
-  'I': Type.Incolore,
-  'F': Type.Fee,
-  'D': Type.Dragon,
-  'o': Type.Objet,
-  'd': Type.Supporter,
-  's': Type.Stade,
-  'e': Type.Energy,
-};
-
-const Map convertRarity =
-{
-  'c': Rarity.Commune,
-  'p': Rarity.PeuCommune,
-  'r': Rarity.Rare,
-  'H': Rarity.HoloRare,
-  'U': Rarity.UltraRare,
-  'M': Rarity.Magnifique,
-  'P': Rarity.Prism,
-  'q': Rarity.Chromatique,
-  'Q': Rarity.ChromatiqueRare,
-  'T': Rarity.Turbo,
-  'v': Rarity.V, // or GX /Ex
-  'V': Rarity.VMax,
-  'S': Rarity.Secret,
-  'A': Rarity.ArcEnCiel,
-  'G': Rarity.Gold,
-  'B': Rarity.BrillantRare,
-  'h': Rarity.HoloRareSecret,
-  //Japon
-  'C': Rarity.JC,
-  '0': Rarity.JU,
-  '1': Rarity.JR,
-  '2': Rarity.JRR,
-  '3': Rarity.JRRR,
-  '4': Rarity.JSR,
-  '5': Rarity.JHR,
-  '6': Rarity.JUR,
-  '7': Rarity.JA,
-  '8': Rarity.JS,
-  '9': Rarity.JSSR,
-};
+const List<Rarity> goodCard = [
+  Rarity.HoloRare,
+  Rarity.Magnifique,
+  Rarity.JA,
+  Rarity.Prism,
+  Rarity.Chromatique,
+  Rarity.JS,
+  Rarity.Turbo,
+  Rarity.V,
+  Rarity.JRR,
+  Rarity.VMax,
+  Rarity.JRRR,
+  Rarity.BrillantRare,
+  Rarity.UltraRare,
+  Rarity.ChromatiqueRare,
+  Rarity.JSSR,
+  Rarity.Secret,
+  Rarity.JSR,
+  Rarity.ArcEnCiel,
+  Rarity.JHR,
+  Rarity.Gold,
+  Rarity.HoloRareSecret,
+  Rarity.JUR,
+];
 
 enum Mode {
   Normal,
@@ -253,11 +226,6 @@ Widget energyImage(Type type) {
     }
   }
   return cachedEnergies[type.index]!;
-}
-
-String typeToString(Type type) {
-  return convertType.keys.firstWhere(
-          (k) => convertType[k] == type, orElse: () => emptyMode);
 }
 
 List<List<Widget>?> cachedImageRarity = List.filled(Rarity.values.length, null);
@@ -862,8 +830,6 @@ class CodeNaming
 
   CodeNaming([this.idStart=0, this.naming="%d"]);
 }
-
-
 
 class CardStats {
   int count = 0;

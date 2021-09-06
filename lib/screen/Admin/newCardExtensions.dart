@@ -83,7 +83,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                     ]
               ),
               style: TextButton.styleFrom(
-                  backgroundColor: Colors.grey[800],
+                  backgroundColor: Environment.instance.collection.pokemonCards.containsValue(card.data) ? Color(0xFF5D9070) : Colors.grey[800],
                   padding: const EdgeInsets.all(2.0)
               ),
               onLongPress: () {

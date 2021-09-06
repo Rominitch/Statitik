@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -11,9 +12,12 @@ class Loading extends StatefulWidget {
 class _LoadingState extends State<Loading> {
   bool error = false;
   late String msgError;
+  String? loadingInfo;
 
   @override
   void initState() {
+    super.initState();
+
     // Connect to end loading
     Environment.instance.onServerError.stream.listen((event) {
       setState(() {
@@ -22,11 +26,22 @@ class _LoadingState extends State<Loading> {
       });
     });
 
+    // Connect to info loading
+    Environment.instance.onInfoLoading.stream.listen((codeMsg) {
+      setState(() {
+        loadingInfo = codeMsg;
+      });
+    });
+
     // Initialize engine (async and long operation)
     Environment.instance.initialize();
-
-    super.initState();
   }
+  @override
+  void dispose() {
+    Environment.instance.onInfoLoading.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     Environment env = Environment.instance;
@@ -47,7 +62,7 @@ class _LoadingState extends State<Loading> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(child: drawImage(context, "logo.png", 400.0)),
+              MovingImageWidget( drawImage(context, "logo.png", 400.0) ),
               Center(
                 child: Text(
                     env.nameApp,
@@ -82,6 +97,12 @@ class _LoadingState extends State<Loading> {
                             }),
                       ),
                     ],
+                  ),
+                )
+              else if(loadingInfo != null)
+                Center(
+                  child: Text(StatitikLocale.of(context).read(loadingInfo!),
+                        style: Theme.of(context).textTheme.headline5,
                   ),
                 ),
             ],

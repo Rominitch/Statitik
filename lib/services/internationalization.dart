@@ -234,6 +234,8 @@ Images and illustrations used are the property of their respective authors.
       'MARK_17' : '\u56DB',
       'MARK_18' : '\u03B4 Species',
       'MARK_19' : 'Team Rocket',
+      'LOAD_0'  : 'Trainer preparation',
+      'LOAD_1'  : 'Catching Pokémons',
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -464,6 +466,8 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'MARK_17' : '\u56DB',
       'MARK_18' : 'Espèce \u03B4',
       'MARK_19' : 'Team Rocket',
+      'LOAD_0'  : 'Préparation des dresseurs',
+      'LOAD_1'  : 'Capture les Pokémons',
     },
   };
 
