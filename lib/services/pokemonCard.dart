@@ -3,44 +3,42 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 
 import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/environment.dart';
 
 import 'package:statitikcard/services/models.dart';
 
 /// Pokemon region
 class Region {
-  List<String> _fullName;
-  List<String> _applyPokemonName;
+  MultiLanguageString _fullName;
+  MultiLanguageString _applyPokemonName;
 
   Region(this._fullName, this._applyPokemonName);
 
   String name(Language l) {
-    assert(l.id-1 < _fullName.length);
-    return _fullName[l.id-1];
+    return _fullName.name(l);
   }
 
   String applyToPokemonName(Language l) {
-    assert(l.id-1 < _applyPokemonName.length);
-    return _applyPokemonName[l.id-1];
+    return _applyPokemonName.name(l);
   }
 }
 
 /// Special name to give (flying pikachu, ...)
 class Forme
 {
-  List<String> _applyPokemonName;
+  MultiLanguageString _applyPokemonName;
 
   Forme(this._applyPokemonName);
 
   String applyToPokemonName(Language l) {
-    assert(l.id-1 < _applyPokemonName.length);
-    return _applyPokemonName[l.id-1];
+    return _applyPokemonName.name(l);
   }
 }
 
 /// Full pokemon definition
 class Pokemon {
-  NamedInfo   name;
+  CardTitleData   name;
   Region?     region;
   Forme?      forme;
 
@@ -91,10 +89,10 @@ class Pokemon {
   String titleOfCard(Language l) {
     String title = name.name(l);
     if(forme != null) {
-      title = sprintf(forme!._applyPokemonName[l.id-1], [title]);
+      title = sprintf(forme!._applyPokemonName.name(l), [title]);
     }
     if(region != null) {
-      title = sprintf(region!._applyPokemonName[l.id-1], [title]);
+      title = sprintf(region!._applyPokemonName.name(l), [title]);
     }
     return title;
   }
@@ -161,6 +159,7 @@ class PokemonCardData {
   Type?            typeExtended; //Double energy can exists but less than 20 card !
   Illustrator?     illustrator;
   CardMarkers      markers;
+  List<CardEffect> effects = [];
 
   PokemonCardData(this.title, this.level, this.type, this.markers);
 

@@ -365,15 +365,11 @@ Widget getImageType(Type type)
   return cachedImageType[type.index]!;
 }
 
-class NamedInfo
-{
+class MultiLanguageString {
   List<String> _names;
-  NamedInfo(this._names){
-    assert(_names.length == 3);
-  }
 
-  String fullname(Language l) {
-    return name(l);
+  MultiLanguageString(this._names){
+    assert(_names.length == 3);
   }
 
   String defaultName() {
@@ -384,22 +380,38 @@ class NamedInfo
     assert(0 <= l.id-1 && l.id-1 < _names.length);
     return _names[l.id-1];
   }
+}
+
+class CardTitleData
+{
+  MultiLanguageString _names;
+
+  CardTitleData(this._names);
+
+  String fullname(Language l) {
+    return _names.name(l);
+  }
+
+  String defaultName() {
+    return _names.defaultName();
+  }
+
+  String name(Language l) {
+    return _names.name(l);
+  }
 
   bool isPokemon() {
     return false;
   }
 }
 
-class PokemonInfo extends NamedInfo
+class PokemonInfo extends CardTitleData
 {
   int         generation;
   int         idPokedex;
 
-  PokemonInfo(List<String> names, this.generation, this.idPokedex) :
-  super(names)
-  {
-    assert(names.length == 3);
-  }
+  PokemonInfo(MultiLanguageString names, this.generation, this.idPokedex) :
+  super(names);
 
   @override
   String fullname(Language l) {
@@ -870,7 +882,7 @@ class CardStats {
 }
 
 class CardResults {
-  NamedInfo?  specificCard;
+  CardTitleData?  specificCard;
   CardMarkers filter = CardMarkers();
   Region?     filterRegion;
   CardStats?  stats;

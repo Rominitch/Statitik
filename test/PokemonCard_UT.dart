@@ -69,8 +69,8 @@ void main() {
 
   test('PokemonCardExtension', () {
     Map collection = {
-      1: PokemonCardData([Pokemon(PokemonInfo(["Pika", "Pika", "Pika"], 1, 25),)], Level.Base, Type.Eau, CardMarkers()),
-      2: PokemonCardData([Pokemon(PokemonInfo(["Chu", "Chu", "Chu"], 2, 25),)], Level.Level1, Type.Electrique, CardMarkers()),
+      1: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Pika", "Pika", "Pika"]), 1, 25),)], Level.Base, Type.Eau, CardMarkers()),
+      2: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Chu", "Chu", "Chu"]), 2, 25),)],    Level.Level1, Type.Electrique, CardMarkers()),
     };
     Map rCollection = collection.map((k, v) => MapEntry(v, k));
 

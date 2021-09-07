@@ -18,7 +18,9 @@ class Collection
   Map regions = {};
   Map formes  = {};
   Map pokemonCards = {};
-  Map illustrators  = {};
+  Map illustrators = {};
+  Map descriptions = {};
+  Map effects      = {};
 
   // Admin part
   Map rIllustrators = {};
@@ -68,7 +70,7 @@ class Collection
     return pokemons[id];
   }
 
-  NamedInfo getNamedID(int id) {
+  CardTitleData getNamedID(int id) {
     assert(otherNames.isNotEmpty);
     assert(10000 <= id );
     assert((id-10000) < otherNames.length);
@@ -93,7 +95,7 @@ class Collection
       var pokes = await connection.query("SELECT * FROM `Pokemon`");
       for (var row in pokes) {
         try {
-          pokemons[row[0]] = PokemonInfo(row[2].split('|'), row[1], idPoke);
+          pokemons[row[0]] = PokemonInfo(MultiLanguageString(row[2].split('|')), row[1], idPoke);
           idPoke += 1;
         } catch(e) {
           printOutput("Bad pokemon: ${row[0]} $e");
@@ -104,7 +106,7 @@ class Collection
       var objSup = await connection.query("SELECT * FROM `DresseurObjet`");
       for (var row in objSup) {
         try {
-          otherNames[row[0]] = NamedInfo(row[1].split('|'));
+          otherNames[row[0]] = CardTitleData(row[1].split('|'));
         } catch(e) {
           printOutput("Bad Object: ${row[0]} $e");
         }
@@ -114,7 +116,9 @@ class Collection
       var regionRes = await connection.query("SELECT * FROM `Region`");
       for (var row in regionRes) {
         try {
-          regions[row[0]] = Region(row[1].split('|'), row[2].split('|'));
+          regions[row[0]] = Region(
+              MultiLanguageString(row[1].split('|')),
+              MultiLanguageString(row[2].split('|')));
         } catch(e) {
           printOutput("Bad Region: ${row[0]} $e");
         }
@@ -124,7 +128,7 @@ class Collection
       var formeRes = await connection.query("SELECT * FROM `Forme`");
       for (var row in formeRes) {
         try {
-          formes[row[0]] = Forme(row[1].split('|'));
+          formes[row[0]] = Forme(MultiLanguageString(row[1].split('|')));
         } catch(e) {
           printOutput("Bad Forme: ${row[0]} $e");
         }
@@ -140,6 +144,26 @@ class Collection
         }
       }
       assert(illustrators.isNotEmpty);
+
+      var descriptionsRes = await connection.query("SELECT * FROM `Description`");
+      for (var row in descriptionsRes) {
+        try {
+          descriptions[row[0]] = MultiLanguageString(row[1]);
+        } catch(e) {
+          printOutput("Bad Description: ${row[0]} $e");
+        }
+      }
+      assert(descriptions.isNotEmpty);
+
+      var effectRes = await connection.query("SELECT * FROM `EffectCartes`");
+      for (var row in effectRes) {
+        try {
+          effects[row[0]] = MultiLanguageString(row[1]);
+        } catch(e) {
+          printOutput("Bad EffectCartes: ${row[0]} $e");
+        }
+      }
+      assert(effects.isNotEmpty);
 
       // Read cards info
       var cardsReq = await connection.query("SELECT * FROM `Cartes`");
