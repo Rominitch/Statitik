@@ -5,8 +5,9 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 
 class DecryptedString {
-  String  finalString = "";
-  Map<int, dynamic> itemsInside = {};
+  List<String>  finalString = [];
+  List<dynamic> itemsInside = [];
+  //Map<int, dynamic> itemsInside = {};
 }
 
 class CardDescription {
@@ -17,46 +18,54 @@ class CardDescription {
 
   Widget toWidget(Map descriptionCollection, Language l)
   {
-    String current = descriptionCollection[idDescription].name(l);
+    var current = decrypted(descriptionCollection, l);
+    List<InlineSpan> children = [];
 
+    int idParameters = 0;
+    RegExp regExp = RegExp("%[dsf]");
+    var itString = current.finalString.iterator;
+    var itIcon   = current.itemsInside.iterator;
+
+    while(itString.moveNext()) {
+      int nbParameters = regExp.allMatches(itString.current).length;
+
+      children.add(TextSpan(text: sprintf(itString.current, parameters.sublist(idParameters, idParameters+nbParameters))));
+      idParameters += nbParameters;
+      if(itIcon.moveNext()) {
+        children.add(WidgetSpan(child: itIcon.current));
+      }
+    }
     // Create final text
-    return RichText(text:
-      TextSpan(text: sprintf(current, parameters))
-    );
-/*
-    TextSpan(
-      text: "Click ",
-    ),
-    WidgetSpan(
-    child: Icon(Icons.add, size: 14),
-    ),
-*/
+    return RichText(text: TextSpan(children: children) );
   }
 
   DecryptedString decrypted(Map descriptionCollection, Language l) {
     DecryptedString s = DecryptedString();
 
     // Combine and extract info
-    RegExp exp = RegExp(r"(.*)<(.*:.*)>(.*)");
+    RegExp exp = RegExp(r"(.*?)<(.*?:.*?)>(.*)");
 
+    s.finalString.add("");
     int count=0;
     String toAnalyze = descriptionCollection[idDescription].name(l);
     while(toAnalyze.isNotEmpty) {
       var match = exp.firstMatch(toAnalyze);
       if( match != null ) {
-          s.finalString += match.group(1)!;
-
+          toAnalyze = "";
+          s.finalString.last += match.group(1)!;
           var code = match.group(2)!.split(":");
           assert(code.length==2);
-          toAnalyze = "";
           if( code[0] == "D" ) {
             toAnalyze += descriptionCollection[int.parse(code[1])].name(l);
+          } else if( code[0] == "E" ) {
+            s.itemsInside.add(getImageType(Type.values[int.parse(code[1])]));
+            s.finalString.add("");
           } else {
             throw StatitikException("Error of code");
           }
           toAnalyze += match.group(3)!;
       } else {
-        s.finalString += toAnalyze;
+        s.finalString.last += toAnalyze;
         break;
       }
       count += 1;
