@@ -63,5 +63,8 @@ void main() {
     Widget w = d2.toWidget(map, fr);
 
     expect(w.runtimeType, RichText);
+    int count = 0;
+    (w as RichText).text.visitChildren((span) { count += 1; return true; });
+    expect(count, 3);
   });
 }
