@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
+import 'package:statitikcard/screen/Admin/cardEffectPanel.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -23,14 +24,19 @@ class CardCreator extends StatefulWidget {
 }
 
 class _CardCreatorState extends State<CardCreator> {
-  late CustomRadioController typeController    = CustomRadioController(onChange: (value) { onTypeChanged(value); });
-  late CustomRadioController rarityController  = CustomRadioController(onChange: (value) { onRarityChanged(value); });
+  late CustomRadioController typeController       = CustomRadioController(onChange: (value) { onTypeChanged(value); });
+  late CustomRadioController rarityController     = CustomRadioController(onChange: (value) { onRarityChanged(value); });
+  late CustomRadioController resistanceController = CustomRadioController(onChange: (value) { onResistanceChanged(value); });
+  late CustomRadioController weaknessController   = CustomRadioController(onChange: (value) { onWeaknessChanged(value); });
 
   List<Widget> typeCard = [];
   List<Widget> rarity   = [];
   List<Widget> marker   = [];
   List<Widget> longMarkerWidget = [];
   bool         _auto    = false;
+  List<bool>   _isOpen = [];
+  List<Widget> resistanceCard = [];
+  List<Widget> weaknessCard = [];
 
   void onTypeChanged(value) {
     widget.card.data.type = value;
@@ -42,13 +48,41 @@ class _CardCreatorState extends State<CardCreator> {
       widget.onAppendCard!(null);
   }
 
+  void onResistanceChanged(value) {
+    if(widget.card.data.resistance != null) {
+      widget.card.data.resistance = EnergyValue(value, 0);
+    } else {
+      widget.card.data.resistance!.energy = value;
+    }
+  }
+
+  void onWeaknessChanged(value) {
+    if(widget.card.data.weakness != null) {
+      widget.card.data.weakness = EnergyValue(value, 0);
+    } else {
+      widget.card.data.weakness!.energy = value;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
 
+    _isOpen = [false, false, false, false, false];
+
     Type.values.forEach((element) {
       if( element != Type.Unknown)
         typeCard.add(CustomRadio(value: element, controller: typeController, widget: getImageType(element)));
+    });
+
+    resistanceCard.add(CustomRadio(value: Type.Unknown, controller: resistanceController, widget: getImageType(Type.Unknown)));
+    energies.forEach((element) {
+      resistanceCard.add(CustomRadio(value: element, controller: resistanceController, widget: getImageType(element)));
+    });
+
+    weaknessCard.add(CustomRadio(value: Type.Unknown, controller: weaknessController, widget: getImageType(Type.Unknown)));
+    energies.forEach((element) {
+      weaknessCard.add(CustomRadio(value: element, controller: weaknessController, widget: getImageType(element)));
     });
 
     widget.listRarity.forEach((element) {
@@ -78,59 +112,206 @@ class _CardCreatorState extends State<CardCreator> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Column(
-        children: [
-          GridView.count(
-            crossAxisCount: 8,
-            primary: false,
-            shrinkWrap: true,
-            children: typeCard,
-          ),
-          GridView.count(
-            crossAxisCount: 7,
-            primary: false,
-            shrinkWrap: true,
-            children: rarity,
-          ),
+    int id=0;
+    List<Widget> namedWidgets = [];
+    widget.card.data.title.forEach((element) {
+      namedWidgets.add(PokeCardNaming(widget.activeLanguage, widget.card, id));
+      id+=1;
+    });
 
-          if(widget.editor)
-            GridView.count(
-              crossAxisCount: 6,
-              primary: false,
-              shrinkWrap: true,
-              children: marker,
-            ),
-          if(widget.editor)
-            Row(children: longMarkerWidget.sublist(0, 3)),
-          if(widget.editor)
-            Row(children: longMarkerWidget.sublist(3)),
-          if( !widget.editor ) Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
+    List<Widget> others = [];
+    if(widget.editor) {
+      others = <Widget>[
+        ExpansionPanelList(
+          expansionCallback: (i, isOpen) {
+            setState(() {
+              _isOpen[i] = !isOpen;
+            });
+          },
+          //expandedHeaderPadding: EdgeInsets.all(2.0),
+          children: [
+          ExpansionPanel(
+              canTapOnHeader: true,
+              headerBuilder: (context, isOpen) { return ListTile(
+              title: Text(StatitikLocale.of(context).read('CA_B22'), style: TextStyle(fontSize: 12))); },
+              isExpanded: _isOpen[0],
+              backgroundColor: Colors.blueGrey[800],
+              body: Column(
+                children: namedWidgets + [
+                  Card(child: TextButton(
+                  child: Text(StatitikLocale.of(context).read('NCE_B7')),
+                  onPressed: () {
+                    setState(() {
+                      widget.card.data.title.add(Pokemon(Environment.instance.collection.pokemons[1]));
+                    });
+                  },
+                ))
+                ]
+              )),
+          ExpansionPanel(
+            canTapOnHeader: true,
+            headerBuilder: (context, isOpen) { return ListTile(
+                title: Text(StatitikLocale.of(context).read('CA_B15'), style: TextStyle(fontSize: 12))); },
+            isExpanded: _isOpen[1],
+            backgroundColor: Colors.blueGrey[800],
+            body: Column( children: [
+              GridView.count(
+                crossAxisCount: 8,
+                primary: false,
+                shrinkWrap: true,
+                children: typeCard,
+              ),
+              GridView.count(
+                crossAxisCount: 7,
+                primary: false,
+                shrinkWrap: true,
+                children: rarity,
+              ),
+            ])
+          ),
+          ExpansionPanel(
+            canTapOnHeader: true,
+            headerBuilder: (context, isOpen) { return ListTile(
+                title:Text(StatitikLocale.of(context).read('CA_B16'), style: TextStyle(fontSize: 12))); },
+            isExpanded: _isOpen[2],
+            backgroundColor: Colors.blueGrey[800],
+            body: Column( children: [
+              GridView.count(
+                crossAxisCount: 6,
+                primary: false,
+                shrinkWrap: true,
+                children: marker,
+              ),
+              Row(children: longMarkerWidget.sublist(0, 3)),
+              Row(children: longMarkerWidget.sublist(3)),
+            ]),
+          ),
+          ExpansionPanel(
+            canTapOnHeader: true,
+            headerBuilder: (context, isOpen) { return ListTile(
+                title:Text(StatitikLocale.of(context).read('CA_B17'), style: TextStyle(fontSize: 12))); },
+            isExpanded: _isOpen[3],
+            backgroundColor: Colors.blueGrey[800],
+            body: CardEffectsPanel(widget.card, widget.activeLanguage)
+          ),
+          ExpansionPanel(
+            canTapOnHeader: true,
+            headerBuilder: (context, isOpen) { return ListTile(
+                title:Text(StatitikLocale.of(context).read('CA_B18'), style: TextStyle(fontSize: 12))); },
+            isExpanded: _isOpen[4],
+            backgroundColor: Colors.blueGrey[800],
+            body: Column(
+              children: [
+                Row(children: [
+                  Text(StatitikLocale.of(context).read('CA_B25')),
+                  Slider(
+                    value: widget.card.data.life.toDouble(),
+                    min: 0,
+                    max: 400,
+                    divisions: 40,
+                    label: widget.card.data.life.toString(),
+                    onChanged: (double value) {
+                      setState(() {
+                        widget.card.data.life = value.toInt();
+                      });
+                    },
+                  )
+                ]),
+                // Retrait
+                Row(children: [
+                  Text(StatitikLocale.of(context).read('CA_B26')),
+                  Slider(
+                    value: widget.card.data.retreat.toDouble(),
+                    min: 0,
+                    max: 5,
+                    divisions: 5,
+                    label: widget.card.data.retreat.toString(),
+                    onChanged: (double value) {
+                      setState(() {
+                        widget.card.data.retreat = value.toInt();
+                      });
+                    },
+                  )
+                ]),
+                Row(children: [
+                  Text(StatitikLocale.of(context).read('CA_B27')),
+                  Column(
+                    children: [
+                      GridView.count(
+                        crossAxisCount: 8,
+                        primary: false,
+                        shrinkWrap: true,
+                        children: resistanceCard,
+                      ),
+                      Slider(
+                        value: widget.card.data.resistance != null ?
+                          widget.card.data.resistance!.value.toDouble() : 0,
+                        min: 0,
+                        max: 5,
+                        divisions: 5,
+                        label: widget.card.data.resistance != null ?
+                               widget.card.data.resistance!.value.toString() : "Not activated",
+                        onChanged: (double value) {
+                          setState(() {
+                            if(widget.card.data.resistance != null) {
+                              widget.card.data.resistance = EnergyValue(Type.Unknown, 0);
+                            }
+                            widget.card.data.resistance!.value = value.toInt();
+                          });
+                        },
+                      )
+                    ],
+                  ),
+                ])
+              ],
+            )
+          ),
+        ])
+      ];
+    } else {
+      others = [
+        GridView.count(
+          crossAxisCount: 8,
+          primary: false,
+          shrinkWrap: true,
+          children: typeCard,
+        ),
+        GridView.count(
+          crossAxisCount: 7,
+          primary: false,
+          shrinkWrap: true,
+          children: rarity,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
             Card(
-              color: Colors.grey[800],
-              child: TextButton(
-              child: Text(StatitikLocale.of(context).read('NCE_B0')),
-                onPressed: (){
-                  widget.onAppendCard!(null);
-                },
-              )
+                color: Colors.grey[800],
+                child: TextButton(
+                  child: Text(StatitikLocale.of(context).read('NCE_B0')),
+                  onPressed: (){
+                    widget.onAppendCard!(null);
+                  },
+                )
             ),
-            if( !widget.editor ) Card(
-              color: _auto ? Colors.green : Colors.grey[800],
-              child: TextButton(
-                child: Text(StatitikLocale.of(context).read('NCE_B2')),
-                onPressed: () {
-                  setState((){
-                    _auto = !_auto;
-                  });
-                }
-              )
+            Card(
+                color: _auto ? Colors.green : Colors.grey[800],
+                child: TextButton(
+                    child: Text(StatitikLocale.of(context).read('NCE_B2')),
+                    onPressed: () {
+                      setState((){
+                        _auto = !_auto;
+                      });
+                    }
+                )
             ),
-          ])
-      ]),
-    );
+
+
+          ]
+        ),
+      ];
+    }
+    return Card( child: Column(children: others) );
   }
 }
 

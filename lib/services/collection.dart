@@ -87,7 +87,11 @@ class Collection
 
       var exts = await connection.query("SELECT * FROM `Extension` ORDER BY `code` DESC");
       for (var row in exts) {
-        extensions[row[0]] = Extension(row[0], row[2], languages[row[1]]);
+        try {
+          extensions[row[0]] = Extension(row[0], row[2], languages[row[1]]);
+        } catch(e) {
+          printOutput("Bad Extension: ${row[0]} $e");
+        }
       }
       assert(extensions.isNotEmpty);
 
@@ -106,7 +110,7 @@ class Collection
       var objSup = await connection.query("SELECT * FROM `DresseurObjet`");
       for (var row in objSup) {
         try {
-          otherNames[row[0]] = CardTitleData(row[1].split('|'));
+          otherNames[row[0]] = CardTitleData(MultiLanguageString(row[1].split('|')));
         } catch(e) {
           printOutput("Bad Object: ${row[0]} $e");
         }
@@ -148,19 +152,19 @@ class Collection
       var descriptionsRes = await connection.query("SELECT * FROM `Description`");
       for (var row in descriptionsRes) {
         try {
-          descriptions[row[0]] = MultiLanguageString(row[1]);
+          descriptions[row[0]] = MultiLanguageString(row[1].split('|'));
         } catch(e) {
           printOutput("Bad Description: ${row[0]} $e");
         }
       }
       assert(descriptions.isNotEmpty);
 
-      var effectRes = await connection.query("SELECT * FROM `EffectCartes`");
+      var effectRes = await connection.query("SELECT * FROM `EffetsCarte`");
       for (var row in effectRes) {
         try {
-          effects[row[0]] = MultiLanguageString(row[1]);
+          effects[row[0]] = MultiLanguageString(row[1].split('|'));
         } catch(e) {
-          printOutput("Bad EffectCartes: ${row[0]} $e");
+          printOutput("Bad Description: ${row[0]} $e");
         }
       }
       assert(effects.isNotEmpty);
@@ -191,7 +195,7 @@ class Collection
           markers = CardMarkers();
         }
 
-        PokemonCardData p = PokemonCardData(namePokemons, level, type, markers);
+        PokemonCardData p = PokemonCardData(namePokemons, level, type, markers, row[4] ?? 0);
         if(typeBytes.length > 1) {
           p.typeExtended = Type.values[typeBytes[1]];
         }
@@ -241,12 +245,12 @@ class Collection
   }
 
   void adminReverse() {
-    rIllustrators = illustrators.map((k, v) => MapEntry(v, k));
-    rRegions      = regions.map((k, v) => MapEntry(v, k));
-    rPokemonCards = pokemonCards.map((k, v) => MapEntry(v, k));
-    rFormes       = formes.map((k, v) => MapEntry(v, k));
-    rPokemon      = pokemons.map((k, v) => MapEntry(v, k));
-    rOther        = otherNames.map((k, v) => MapEntry(v, k));
+    rIllustrators    = illustrators.map((k, v) => MapEntry(v, k));
+    rRegions         = regions.map((k, v) => MapEntry(v, k));
+    rPokemonCards    = pokemonCards.map((k, v) => MapEntry(v, k));
+    rFormes          = formes.map((k, v) => MapEntry(v, k));
+    rPokemon         = pokemons.map((k, v) => MapEntry(v, k));
+    rOther           = otherNames.map((k, v) => MapEntry(v, k));
     rCardsExtensions = cardsExtensions.map((k, v) => MapEntry(v, k));
   }
 

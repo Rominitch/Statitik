@@ -151,6 +151,13 @@ class CardMarkers {
   }
 }
 
+class EnergyValue {
+  Type energy;
+  int  value;
+
+  EnergyValue(this.energy, this.value);
+}
+
 /// Full card definition except Number/Extension/Rarity
 class PokemonCardData {
   List<Pokemon>    title;
@@ -160,8 +167,12 @@ class PokemonCardData {
   Illustrator?     illustrator;
   CardMarkers      markers;
   List<CardEffect> effects = [];
+  int              life;
+  int              retreat;
+  EnergyValue?     resistance;
+  EnergyValue?     weakness;
 
-  PokemonCardData(this.title, this.level, this.type, this.markers);
+  PokemonCardData(this.title, this.level, this.type, this.markers, [this.life=0, this.retreat=0, this.resistance, this.weakness]);
 
   String titleOfCard(Language l) {
     List<String> name = [];
@@ -171,7 +182,7 @@ class PokemonCardData {
     return name.join("&");
   }
 
-  PokemonCardData.empty() : title=[], level=Level.Base, type= Type.Unknown, markers=CardMarkers();
+  PokemonCardData.empty() : title=[], level=Level.Base, type= Type.Unknown, markers=CardMarkers(), life=0, retreat=0;
 }
 
 class PokemonCardExtension {

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
-import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
@@ -22,28 +21,8 @@ class CardEditor extends StatefulWidget {
 }
 
 class _CardEditorState extends State<CardEditor> {
-  Function(int?) demo = (int? i){};
-
   @override
   Widget build(BuildContext context) {
-    List<Widget> namedWidgets = [];
-    int id=0;
-    widget.card.data.title.forEach((element) {
-      namedWidgets.add(PokeCardNaming(widget.se.extension.language, widget.card, id));
-      id+=1;
-    });
-    namedWidgets.add(
-        Card(child: TextButton(
-          child: Text(StatitikLocale.of(context).read('NCE_B7')),
-            onPressed: () {
-              setState(() {
-                widget.card.data.title.add(Pokemon(Environment.instance.collection.pokemons[1]));
-              });
-            },
-          )
-        )
-    );
-
     return Scaffold(
         appBar: AppBar(
           title: Container(
@@ -77,7 +56,7 @@ class _CardEditorState extends State<CardEditor> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               CardCreator.editor(widget.se.extension.language, widget.card, widget.isWorldCard),
-            ] + namedWidgets
+            ]
           )
         )
     );

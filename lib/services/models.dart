@@ -369,7 +369,7 @@ class MultiLanguageString {
   List<String> _names;
 
   MultiLanguageString(this._names){
-    assert(_names.length == 3);
+    assert(_names.length == 3, "MultiLanguageString Error: $_names");
   }
 
   String defaultName() {
