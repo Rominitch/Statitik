@@ -8,6 +8,8 @@ import 'package:statitikcard/services/environment.dart';
 
 import 'package:statitikcard/services/models.dart';
 
+import 'Tools.dart';
+
 /// Pokemon region
 class Region {
   MultiLanguageString _fullName;
@@ -44,24 +46,20 @@ class Pokemon {
 
   Pokemon(this.name, {this.region, this.forme});
 
-  static const int byteLength = 4;
-
   static Pokemon fromBytes(ByteParser parser, collection) {
-    int idName = parser.byteArray[parser.pointer] << 8 | parser.byteArray[parser.pointer+1];
+    int idName = parser.extractInt16();
     assert(idName != 0);
 
     Pokemon p = Pokemon(idName < 10000
               ? collection.getPokemonID(idName)
               : collection.getNamedID(idName));
-    int idRegion = parser.byteArray[parser.pointer+2];
+    int idRegion = parser.extractInt8();
     if(idRegion > 0)
       p.region = collection.regions[idRegion];
 
-    int idForme  = parser.byteArray[parser.pointer+3];
+    int idForme  = parser.extractInt8();
     if(idForme > 0)
       p.forme = collection.formes[idForme];
-
-    parser.pointer += byteLength;
     return p;
   }
 
@@ -156,6 +154,18 @@ class EnergyValue {
   int  value;
 
   EnergyValue(this.energy, this.value);
+
+  EnergyValue.fromBytes(bytes) :
+    energy = Type.values[bytes[0]],
+    value = (bytes[1] << 8) | bytes[2];
+
+  List<int> toBytes() {
+    return <int>[
+      energy.index,
+      (value & 0xFF00) >> 8,
+      value & 0xFF
+    ];
+  }
 }
 
 /// Full card definition except Number/Extension/Rarity
@@ -166,7 +176,7 @@ class PokemonCardData {
   Type?            typeExtended; //Double energy can exists but less than 20 card !
   Illustrator?     illustrator;
   CardMarkers      markers;
-  List<CardEffect> effects = [];
+  CardEffects      cardEffects = CardEffects();
   int              life;
   int              retreat;
   EnergyValue?     resistance;
@@ -191,13 +201,9 @@ class PokemonCardExtension {
 
   PokemonCardExtension(this.data, this.rarity);
 
-  static const int byteSize = 3;
   PokemonCardExtension.fromBytes(ByteParser parser, Map collection) :
-    data   = collection[parser.byteArray[parser.pointer] << 8 | parser.byteArray[parser.pointer+1]],
-    rarity = Rarity.values[parser.byteArray[parser.pointer+2]]
-  {
-    parser.pointer+=byteSize;
-  }
+    data   = collection[parser.extractInt16()],
+    rarity = Rarity.values[parser.extractInt8()];
 
   List<int> toBytes(Map rCollection) {
     assert(rCollection.isNotEmpty); // Admin condition
@@ -268,11 +274,11 @@ class SubExtensionCards {
     var parser = ByteParser(gzip.decode(bytes.sublist(1)));
 
     // Extract card
-    while(parser.pointer < parser.byteArray.length) {
+    while(parser.canParse) {
       List<PokemonCardExtension> numberedCard = [];
-      int nbTitle = parser.byteArray[parser.pointer];
+      int nbTitle = parser.extractInt8();
       for( int cardId=0; cardId < nbTitle; cardId +=1) {
-        parser.pointer += 1;
+        //parser.pointer += 1;
         numberedCard.add(PokemonCardExtension.fromBytes(parser, cardCollection));
       }
       cards.add(numberedCard);
@@ -333,6 +339,8 @@ class SubExtensionCards {
 
     List<int> finalBytes = [version];
     finalBytes += gzip.encode(cardBytes);
+
+    printOutput("SubExtensionCards: data: ${cardBytes.length+1} compressed: ${finalBytes.length}");
     return finalBytes;
   }
 }

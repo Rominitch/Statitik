@@ -17,10 +17,26 @@ final Color greenValid = Colors.green[500]!;
 
 class ByteParser
 {
-  int       pointer=0;
   List<int> byteArray;
+  Iterator<int>  it;
+  late bool canParse;
 
-  ByteParser(this.byteArray);
+  ByteParser(this.byteArray) : it = byteArray.iterator {
+    canParse = it.moveNext();
+  }
+
+  int extractInt16() {
+    int v = it.current << 8;
+    canParse = it.moveNext();
+    v |= it.current;
+    canParse = it.moveNext();
+    return v;
+  }
+  int extractInt8() {
+    int v = it.current;
+    canParse = it.moveNext();
+    return v;
+  }
 }
 
 class UserPoke {

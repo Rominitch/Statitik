@@ -21,11 +21,15 @@ class StatitikApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // Define the default brightness and colors.
+        colorScheme: ColorScheme.dark(secondary: Colors.orange[300]!),
+        appBarTheme: AppBarTheme(backgroundColor: Colors.grey[900]),
         brightness: Brightness.dark,
         primaryColor: Colors.grey[600],
-        accentColor: Colors.orange[300],
+        //accentColor: Colors.orange[300],
         backgroundColor: Colors.grey[900],
         cardColor: Colors.grey[700],
+        sliderTheme: SliderThemeData(activeTrackColor: Colors.orange[300], inactiveTickMarkColor: Colors.orange[300], thumbColor: Colors.orange[300],
+                                     activeTickMarkColor: Colors.grey[900], inactiveTrackColor: Colors.grey[900]  ),
         //disabledColor: Colors.orange[200],
         textTheme: TextTheme(
           headline1: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 50.0,),

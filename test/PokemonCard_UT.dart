@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 
 import 'package:statitikcard/services/models.dart';
@@ -84,6 +85,48 @@ void main() {
       PokemonCardExtension codeS = PokemonCardExtension.fromBytes(ByteParser(code.toBytes(rCollection)), collection);
       expect(codeS.data,   code.data); // Pointer comparison
       expect(codeS.rarity, code.rarity);
+    }
+  });
+
+  test('CardEffects', () {
+
+    CardEffect effectEmpty          = CardEffect();
+    CardEffect effectName           = CardEffect();
+    effectName.title = 1;
+    effectName.attack = [Type.Electrique, Type.Electrique, Type.Incolore];
+
+    CardEffect effectDescription    = CardEffect();
+    effectDescription.description = CardDescription(2);
+
+    CardEffect effectBoth           = CardEffect();
+    effectName.title = 2;
+    effectName.attack = [Type.Electrique, Type.Electrique, Type.Incolore];
+    effectName.description = CardDescription(3);
+    effectName.description!.parameters.add(5);
+
+    List<CardEffects> c =
+    [
+      CardEffects(),
+      CardEffects.fromEffects([effectEmpty]),
+      CardEffects.fromEffects([effectName, effectDescription, effectBoth]),
+    ];
+
+    for(CardEffects code in c) {
+      CardEffects codeS = CardEffects.fromBytes(code.toBytes());
+      expect(codeS.effects.length, code.effects.length); // Pointer comparison
+
+      var itEffect = code.effects.iterator;
+      codeS.effects.forEach((effect) {
+        itEffect.moveNext();
+        expect(effect.attack,      itEffect.current.attack);
+        expect(effect.title,       itEffect.current.title);
+        if(effect.description != null) {
+          expect(effect.description!.idDescription, itEffect.current.description!.idDescription);
+          expect(effect.description!.parameters.length, itEffect.current.description!.parameters.length);
+        } else {
+          expect(effect.description, itEffect.current.description);
+        }
+      });
     }
   });
 }

@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 
+import 'Tools.dart';
+
 class ExtensionDrawCards {
   List<List<CodeDraw>> draw = [];
 
@@ -121,6 +123,8 @@ class ExtensionDrawCards {
 
     List<int> finalBytes = [version];
     finalBytes += gzip.encode(bytes);
+
+    printOutput("ExtensionDrawCards: data: ${bytes.length+1} compressed: ${finalBytes.length}");
     return finalBytes;
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
 import 'package:statitikcard/screen/Admin/cardEffectPanel.dart';
 import 'package:statitikcard/screen/view.dart';
@@ -49,7 +50,7 @@ class _CardCreatorState extends State<CardCreator> {
   }
 
   void onResistanceChanged(value) {
-    if(widget.card.data.resistance != null) {
+    if(widget.card.data.resistance == null) {
       widget.card.data.resistance = EnergyValue(value, 0);
     } else {
       widget.card.data.resistance!.energy = value;
@@ -57,7 +58,7 @@ class _CardCreatorState extends State<CardCreator> {
   }
 
   void onWeaknessChanged(value) {
-    if(widget.card.data.weakness != null) {
+    if(widget.card.data.weakness == null) {
       widget.card.data.weakness = EnergyValue(value, 0);
     } else {
       widget.card.data.weakness!.energy = value;
@@ -121,14 +122,18 @@ class _CardCreatorState extends State<CardCreator> {
 
     List<Widget> others = [];
     if(widget.editor) {
+      var code = ( Environment.instance.collection.pokemonCards.containsValue(widget.card.data) )
+       ? Environment.instance.collection.rPokemonCards[widget.card.data].toString()
+       : "Not registered";
+
       others = <Widget>[
+        Text("Database info: ${code}", style: Theme.of(context).textTheme.headline5),
         ExpansionPanelList(
           expansionCallback: (i, isOpen) {
             setState(() {
               _isOpen[i] = !isOpen;
             });
           },
-          //expandedHeaderPadding: EdgeInsets.all(2.0),
           children: [
           ExpansionPanel(
               canTapOnHeader: true,
@@ -200,45 +205,53 @@ class _CardCreatorState extends State<CardCreator> {
                 title:Text(StatitikLocale.of(context).read('CA_B18'), style: TextStyle(fontSize: 12))); },
             isExpanded: _isOpen[4],
             backgroundColor: Colors.blueGrey[800],
-            body: Column(
-              children: [
-                Row(children: [
-                  Text(StatitikLocale.of(context).read('CA_B25')),
-                  Slider(
-                    value: widget.card.data.life.toDouble(),
-                    min: 0,
-                    max: 400,
-                    divisions: 40,
-                    label: widget.card.data.life.toString(),
-                    onChanged: (double value) {
-                      setState(() {
-                        widget.card.data.life = value.toInt();
-                      });
-                    },
-                  )
-                ]),
-                // Retrait
-                Row(children: [
-                  Text(StatitikLocale.of(context).read('CA_B26')),
-                  Slider(
-                    value: widget.card.data.retreat.toDouble(),
-                    min: 0,
-                    max: 5,
-                    divisions: 5,
-                    label: widget.card.data.retreat.toString(),
-                    onChanged: (double value) {
-                      setState(() {
-                        widget.card.data.retreat = value.toInt();
-                      });
-                    },
-                  )
-                ]),
-                Row(children: [
-                  Text(StatitikLocale.of(context).read('CA_B27')),
+            body: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Row(children: [
+                    Container(width: 80, child: Text(StatitikLocale.of(context).read('CA_B25'), style: TextStyle(fontSize: 12))),
+                    Container(width: 30, child: Text(widget.card.data.life.toString())),
+                    Expanded(
+                      child: Slider(
+                        value: widget.card.data.life.toDouble(),
+                        min: 0,
+                        max: 400,
+                        divisions: 40,
+                        label: widget.card.data.life.toString(),
+                        onChanged: (double value) {
+                          setState(() {
+                            widget.card.data.life = value.toInt();
+                          });
+                        },
+                      ),
+                    )
+                  ]),
+                  // Retrait
+                  Row(children: [
+                    Container(width: 80, child: Text(StatitikLocale.of(context).read('CA_B26'), style: TextStyle(fontSize: 12))),
+                    Container(width: 30, child: Text(widget.card.data.retreat.toString())),
+                    Expanded(
+                      child: Slider(
+                        value: widget.card.data.retreat.toDouble(),
+                        min: 0,
+                        max: 5,
+                        divisions: 5,
+                        label: widget.card.data.retreat.toString(),
+                        onChanged: (double value) {
+                          setState(() {
+                            widget.card.data.retreat = value.toInt();
+                          });
+                        },
+                      ),
+                    )
+                  ]),
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Text(StatitikLocale.of(context).read('CA_B27'), style: TextStyle(fontSize: 12)),
                       GridView.count(
-                        crossAxisCount: 8,
+                        crossAxisCount: 9,
                         primary: false,
                         shrinkWrap: true,
                         children: resistanceCard,
@@ -253,17 +266,50 @@ class _CardCreatorState extends State<CardCreator> {
                                widget.card.data.resistance!.value.toString() : "Not activated",
                         onChanged: (double value) {
                           setState(() {
-                            if(widget.card.data.resistance != null) {
-                              widget.card.data.resistance = EnergyValue(Type.Unknown, 0);
+                            var v = value.round().toInt();
+                            if(widget.card.data.resistance == null) {
+                              widget.card.data.resistance = EnergyValue(Type.Unknown, v);
+                            } else {
+                              widget.card.data.resistance!.value = v;
                             }
-                            widget.card.data.resistance!.value = value.toInt();
                           });
                         },
                       )
                     ],
                   ),
-                ])
-              ],
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(StatitikLocale.of(context).read('CA_B28'), style: TextStyle(fontSize: 12)),
+                      GridView.count(
+                        crossAxisCount: 9,
+                        primary: false,
+                        shrinkWrap: true,
+                        children: weaknessCard,
+                      ),
+                      Slider(
+                        value: widget.card.data.weakness != null ?
+                        widget.card.data.weakness!.value.toDouble() : 0,
+                        min: 0,
+                        max: 60,
+                        divisions: 60,
+                        label: widget.card.data.weakness != null ?
+                        widget.card.data.weakness!.value.toString() : "Not activated",
+                        onChanged: (double value) {
+                          setState(() {
+                            var v = value.round().toInt();
+                            if(widget.card.data.weakness == null) {
+                              widget.card.data.weakness = EnergyValue(Type.Unknown, v);
+                            } else {
+                              widget.card.data.weakness!.value = v;
+                            }
+                          });
+                        },
+                      )
+                    ],
+                  ),
+                ],
+              ),
             )
           ),
         ])

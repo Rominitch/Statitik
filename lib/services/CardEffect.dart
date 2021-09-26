@@ -1,8 +1,11 @@
-
 import 'package:flutter/material.dart';
+
 import 'package:sprintf/sprintf.dart';
+
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
+
+import 'Tools.dart';
 
 class DecryptedString {
   List<String>  finalString = [];
@@ -15,6 +18,29 @@ class CardDescription {
   List  parameters = []; ///< List of parameter to substitute
 
   CardDescription(this.idDescription);
+
+  CardDescription.fromBytes(ByteParser parser) : idDescription = parser.extractInt16()
+  {
+    if(idDescription > 0) {
+      int nbParams = parser.extractInt8();
+
+      for(int i = 0; i < nbParams; i += 1) {
+        parameters.add( parser.extractInt16() );
+      }
+    }
+  }
+
+  List<int> toBytes() {
+    List<int> bytes = <int>[
+      (idDescription & 0xFF00) >> 8, idDescription & 0xFF,
+      parameters.length
+    ];
+    parameters.forEach((element) {
+      bytes.add((element & 0xFF00) >> 8);
+      bytes.add(element & 0xFF);
+    });
+    return bytes;
+  }
 
   Widget toWidget(Map descriptionCollection, Language l)
   {
@@ -79,17 +105,83 @@ class CardEffect {
   int?              title;       /// Title of capacity if exist.
   CardDescription?  description; /// Description if exists.
 
-  List<Type>  attack = [];  /// Energy to attach for attack.
   int         power  = 0;   /// Zero = no attack.
+  List<Type>  attack = [];  /// Energy to attach for attack.
+
+  CardEffect();
+  CardEffect.fromBytes(ByteParser parser) {
+    int idEffect = parser.extractInt16();
+    if(idEffect != 0)
+        title = idEffect;
+
+    var newDescription = CardDescription.fromBytes(parser);
+    if(newDescription.idDescription > 0)
+      description = newDescription;
+
+    power = parser.extractInt16();
+
+    int nbAttack = parser.extractInt8();
+    for(int i = 0; i < nbAttack; i +=1) {
+      attack.add(Type.values[parser.extractInt8()]);
+    }
+  }
+
+  List<int> toBytes() {
+    int idEffect      = title ?? 0;
+    List<int> att = [attack.length];
+    attack.forEach((element) { att.add(element.index); });
+
+    //int 16 = 65k value
+    return <int>[ (idEffect & 0xFF00) >> 8,(idEffect & 0xFF)] +
+        (description != null ? description!.toBytes() : [0, 0]) +
+      [ (power & 0xFF00) >> 8, (power & 0xFF)] + att;
+  }
+}
+
+class CardEffects {
+  List<CardEffect> effects = [];
 
   static const int version = 1;
 
-  CardEffect();
-  CardEffect.fromByte(this.title, List<int> bytes) {
-    if( bytes[0] != version) {
-      throw StatitikException("Bad CardEffect version");
+  CardEffects();
+
+  CardEffects.fromEffects(this.effects);
+
+  CardEffects.fromBytes(List<int> bytes) {
+    if(bytes[0] != version)
+      throw StatitikException('Bad CardEffects version');
+
+    var parser = ByteParser(bytes.sublist(1));
+    //var parser = ByteParser(gzip.decode(bytes.sublist(1)));
+
+    int nbEffects = parser.extractInt8();
+    for(int i=0; i < nbEffects; i+=1) {
+      effects.add(CardEffect.fromBytes(parser));
     }
+  }
 
+  List<int> toBytes() {
+    List<int> b = [version, effects.length];
+    effects.forEach((element) {
+      b += element.toBytes();
+    });
 
+    printOutput("CardEffects: data: ${b.length}");
+    return b;
+
+    // Don't use compression -> No gain in place
+    /*
+    List<int> b = [effects.length];
+    effects.forEach((element) {
+      b += element.toBytes();
+    });
+
+    List<int> finalBytes = [version];
+    finalBytes += gzip.encode(b);
+
+    printOutput("CardEffects: data: ${b.length+1} compressed: ${finalBytes.length}");
+
+    return finalBytes;
+    */
   }
 }

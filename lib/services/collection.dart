@@ -178,7 +178,7 @@ class Collection
           // Extract name
           ByteParser nameBytes = ByteParser((row[1] as Blob).toBytes().toList());
 
-          while(nameBytes.pointer < nameBytes.byteArray.length) {
+          while(nameBytes.canParse) {
             namePokemons.add(Pokemon.fromBytes(nameBytes, this));
           }
         }
@@ -270,8 +270,20 @@ class Collection
       typesByte.add(card.typeExtended!.index);
     }
     var namedData = nameBytes.isNotEmpty ? Int8List.fromList(nameBytes) : null;
+    var resistance;
+    if( card.resistance != null && card.resistance!.energy != Type.Unknown) {
+      resistance = Int8List.fromList(card.resistance!.toBytes());
+    }
+    var weakness;
+    if( card.weakness != null && card.weakness!.energy != Type.Unknown) {
+      weakness = Int8List.fromList(card.weakness!.toBytes());
+    }
+    var effects;
+    if( card.cardEffects.effects.isNotEmpty ) {
 
-    List data = [namedData, card.level.index, Int8List.fromList(typesByte), null, Int8List.fromList(card.markers.toBytes()), null, null, null, null, idIllustrator, null];
+    }
+
+    List data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life, Int8List.fromList(card.markers.toBytes()), effects, card.retreat, weakness, resistance, idIllustrator, null];
     var query = "";
     if (idCard == null) {
       data.insert(0, nextId);

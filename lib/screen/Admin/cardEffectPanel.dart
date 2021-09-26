@@ -22,7 +22,7 @@ class _CardEffectsPanelState extends State<CardEffectsPanel> {
   @override
   Widget build(BuildContext context) {
     List<Widget> effectsWidget = [];
-    for(var effect in widget.card.data.effects) {
+    for(var effect in widget.card.data.cardEffects.effects) {
       String name= StatitikLocale.of(context).read('CA_B23');
       String description=StatitikLocale.of(context).read('CA_B24');
       double value1 = 0.0;
@@ -139,7 +139,7 @@ class _CardEffectsPanelState extends State<CardEffectsPanel> {
           child: Text( StatitikLocale.of(context).read('CA_B14') ),
           onPressed: (){
             setState(() {
-              widget.card.data.effects.add(new CardEffect());
+              widget.card.data.cardEffects.effects.add(new CardEffect());
             });
           }
         )
