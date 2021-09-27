@@ -29,8 +29,11 @@ class _CardCreatorState extends State<CardCreator> {
   late CustomRadioController rarityController     = CustomRadioController(onChange: (value) { onRarityChanged(value); });
   late CustomRadioController resistanceController = CustomRadioController(onChange: (value) { onResistanceChanged(value); });
   late CustomRadioController weaknessController   = CustomRadioController(onChange: (value) { onWeaknessChanged(value); });
+  late CustomRadioController typeExtController    = CustomRadioController(onChange: (value) { onTypeExtChanged(value); });
+
 
   List<Widget> typeCard = [];
+  List<Widget> typeExtCard = [];
   List<Widget> rarity   = [];
   List<Widget> marker   = [];
   List<Widget> longMarkerWidget = [];
@@ -41,6 +44,12 @@ class _CardCreatorState extends State<CardCreator> {
 
   void onTypeChanged(value) {
     widget.card.data.type = value;
+  }
+  void onTypeExtChanged(value) {
+    if(value == Type.Unknown)
+      widget.card.data.typeExtended = null;
+    else
+      widget.card.data.typeExtended = value;
   }
 
   void onRarityChanged(value) {
@@ -74,6 +83,11 @@ class _CardCreatorState extends State<CardCreator> {
     Type.values.forEach((element) {
       if( element != Type.Unknown)
         typeCard.add(CustomRadio(value: element, controller: typeController, widget: getImageType(element)));
+    });
+
+    typeExtCard.add(CustomRadio(value: Type.Unknown, controller: typeExtController, widget: getImageType(Type.Unknown)));
+    energies.forEach((element) {
+      typeExtCard.add(CustomRadio(value: element, controller: typeExtController, widget: getImageType(element)));
     });
 
     resistanceCard.add(CustomRadio(value: Type.Unknown, controller: resistanceController, widget: getImageType(Type.Unknown)));
@@ -110,6 +124,7 @@ class _CardCreatorState extends State<CardCreator> {
     typeController.afterPress(widget.card.data.type);
     rarityController.afterPress(widget.card.rarity);
 
+    typeExtController.afterPress(widget.card.data.typeExtended != null ? widget.card.data.typeExtended! : Type.Unknown);
     resistanceController.afterPress( widget.card.data.resistance != null ? widget.card.data.resistance!.energy : Type.Unknown );
     weaknessController.afterPress(   widget.card.data.weakness   != null ? widget.card.data.weakness!.energy   : Type.Unknown );
   }
@@ -127,10 +142,16 @@ class _CardCreatorState extends State<CardCreator> {
     if(widget.editor) {
       var code = ( Environment.instance.collection.pokemonCards.containsValue(widget.card.data) )
        ? Environment.instance.collection.rPokemonCards[widget.card.data].toString()
-       : "Not registered";
+       : StatitikLocale.of(context).read('CA_B29');
 
       others = <Widget>[
-        Text("Database info: $code", style: Theme.of(context).textTheme.headline5),
+        GridView.count(
+          crossAxisCount: 7,
+          primary: false,
+          shrinkWrap: true,
+          children: rarity,
+        ),
+        Text(StatitikLocale.of(context).read('CA_B30')+code, style: Theme.of(context).textTheme.headline5),
         ExpansionPanelList(
           expansionCallback: (i, isOpen) {
             setState(() {
@@ -170,10 +191,10 @@ class _CardCreatorState extends State<CardCreator> {
                 children: typeCard,
               ),
               GridView.count(
-                crossAxisCount: 7,
+                crossAxisCount: 8,
                 primary: false,
                 shrinkWrap: true,
-                children: rarity,
+                children: typeExtCard,
               ),
             ])
           ),

@@ -37,8 +37,9 @@ class CustomRadio extends StatefulWidget {
   final Widget widget;
   final dynamic value;
   final StreamController<dynamic> afterChange = StreamController<dynamic>();
+  final double? widthBox;
 
-  CustomRadio({required this.value, required this.controller, required this.widget}) {
+  CustomRadio({required this.value, required this.controller, required this.widget, this.widthBox}) {
     controller.register(this);
   }
 
@@ -85,6 +86,7 @@ class _CustomRadioState extends State<CustomRadio> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: widget.widthBox,
       /*
       constraints: BoxConstraints(
         maxWidth: 55.0,
