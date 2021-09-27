@@ -87,7 +87,7 @@ class _CardCreatorState extends State<CardCreator> {
     });
 
     widget.listRarity.forEach((element) {
-    if( element != Rarity.Unknown)
+    if( element != Rarity.Unknown )
       rarity.add(CustomRadio(value: element, controller: rarityController,
         widget: Row(mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -96,7 +96,7 @@ class _CardCreatorState extends State<CardCreator> {
       );
     });
 
-    if(widget.editor) {
+    if( widget.editor ) {
       CardMarker.values.forEach((element) {
         if (element != CardMarker.Nothing && !longMarker.contains(element))
           marker.add(ButtonCheck(widget.card.data.markers, element));
@@ -109,6 +109,9 @@ class _CardCreatorState extends State<CardCreator> {
     // Set current value
     typeController.afterPress(widget.card.data.type);
     rarityController.afterPress(widget.card.rarity);
+
+    resistanceController.afterPress( widget.card.data.resistance != null ? widget.card.data.resistance!.energy : Type.Unknown );
+    weaknessController.afterPress(   widget.card.data.weakness   != null ? widget.card.data.weakness!.energy   : Type.Unknown );
   }
 
   @override
@@ -127,7 +130,7 @@ class _CardCreatorState extends State<CardCreator> {
        : "Not registered";
 
       others = <Widget>[
-        Text("Database info: ${code}", style: Theme.of(context).textTheme.headline5),
+        Text("Database info: $code", style: Theme.of(context).textTheme.headline5),
         ExpansionPanelList(
           expansionCallback: (i, isOpen) {
             setState(() {
@@ -227,7 +230,7 @@ class _CardCreatorState extends State<CardCreator> {
                       ),
                     )
                   ]),
-                  // Retrait
+                  // Retreat
                   Row(children: [
                     Container(width: 80, child: Text(StatitikLocale.of(context).read('CA_B26'), style: TextStyle(fontSize: 12))),
                     Container(width: 30, child: Text(widget.card.data.retreat.toString())),

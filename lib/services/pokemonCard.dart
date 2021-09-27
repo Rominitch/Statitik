@@ -182,7 +182,10 @@ class PokemonCardData {
   EnergyValue?     resistance;
   EnergyValue?     weakness;
 
-  PokemonCardData(this.title, this.level, this.type, this.markers, [this.life=0, this.retreat=0, this.resistance, this.weakness]);
+  PokemonCardData(this.title, this.level, this.type, this.markers, [this.life=0, this.retreat=0, this.resistance, this.weakness]) {
+    if( this.retreat > 5)
+      this.retreat = 0;
+  }
 
   String titleOfCard(Language l) {
     List<String> name = [];

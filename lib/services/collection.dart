@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:mysql1/mysql1.dart';
+import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
@@ -172,6 +173,18 @@ class Collection
       // Read cards info
       var cardsReq = await connection.query("SELECT * FROM `Cartes`");
       for (var row in cardsReq) {
+        // 0 = id
+        // 1 = nom
+        // 2 = niveau
+        // 3 = type
+        // 4 = vie
+        // 5 = marqueur
+        // 6 = effets
+        // 7 = retraite
+        // 8 = faiblesse
+        // 9 = resistance
+        // 10 = illustrateur
+        // 11 = image
         List<Pokemon> namePokemons = [];
         if(row[1] != null)
         {
@@ -183,10 +196,10 @@ class Collection
           }
         }
 
-        var level     = Level.values[row[2]];
-        var typeBytes = (row[3] as Blob).toBytes().toList();
-        var type      = Type.values[typeBytes[0]];
-
+        var level      = Level.values[row[2]];
+        var typeBytes  = (row[3] as Blob).toBytes().toList();
+        var type       = Type.values[typeBytes[0]];
+        var life       = row[4] ?? 0;
         // Extract markers
         CardMarkers markers;
         if( row[5] != null) {
@@ -194,10 +207,25 @@ class Collection
         } else {
           markers = CardMarkers();
         }
+        var effects      = row[6] != null ? CardEffects.fromBytes((row[6] as Blob).toBytes().toList()) : null;
+        var retreat      = row[7] != null ? (row[7] as Blob).toBytes().toList()[0] : 0;
+        var weakness     = row[8] != null ? EnergyValue.fromBytes((row[8] as Blob).toBytes().toList()) : null;
+        var resistance   = row[9] != null ? EnergyValue.fromBytes((row[9] as Blob).toBytes().toList()) : null;
+        var illustrator = row[10] != null ? illustrators[row[10]]: null;
 
-        PokemonCardData p = PokemonCardData(namePokemons, level, type, markers, row[4] ?? 0);
+        //Build card
+        PokemonCardData p = PokemonCardData(namePokemons, level, type, markers, life, retreat, resistance, weakness);
+        //Extract typeExtended (for double energy card)
         if(typeBytes.length > 1) {
           p.typeExtended = Type.values[typeBytes[1]];
+        }
+        //Extract effects
+        if( effects != null ) {
+          p.cardEffects = effects;
+        }
+        //Extract illustrator
+        if( illustrator != null ) {
+          p.illustrator = illustrator;
         }
         pokemonCards[row[0]] = p;
       }
@@ -274,16 +302,18 @@ class Collection
     if( card.resistance != null && card.resistance!.energy != Type.Unknown) {
       resistance = Int8List.fromList(card.resistance!.toBytes());
     }
+    var retreat = Int8List.fromList([card.retreat]);
+
     var weakness;
     if( card.weakness != null && card.weakness!.energy != Type.Unknown) {
       weakness = Int8List.fromList(card.weakness!.toBytes());
     }
     var effects;
     if( card.cardEffects.effects.isNotEmpty ) {
-
+      effects = Int8List.fromList(card.cardEffects.toBytes());
     }
 
-    List data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life, Int8List.fromList(card.markers.toBytes()), effects, card.retreat, weakness, resistance, idIllustrator, null];
+    List data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life, Int8List.fromList(card.markers.toBytes()), effects, retreat, weakness, resistance, idIllustrator, null];
     var query = "";
     if (idCard == null) {
       data.insert(0, nextId);
@@ -304,7 +334,7 @@ class Collection
   Future<void> saveDatabaseSEC(SubExtensionCards seCards, connection) async {
     // Compute next Id of card
     int nextId = 0;
-    var nextIdReq = await connection.query("SELECT MAX(idCartes) as maxId FROM StatitikPokemonDebug.Cartes;");
+    var nextIdReq = await connection.query("SELECT MAX(`idCartes`) as maxId FROM `Cartes`;");
     for(var row in nextIdReq) {
       nextId = row[0];
     }
