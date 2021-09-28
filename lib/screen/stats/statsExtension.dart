@@ -57,16 +57,16 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
         String realCardName = widget.stats.subExt.seCards.titleOfCard(
             widget.data.language!, id);
         final cardName = widget.stats.subExt.seCards.numberOfCard(id);
-        cards.add(TextButton(
-          onPressed: (){
-            // TODO add selector
-            var card = cardByPosition[0];
-            Navigator.push(context,
-              MaterialPageRoute(builder: (context) => CardViewer(widget.stats.subExt, idCard, card)),
-            );
-          },
-          child: Card(
-            color: Colors.grey[800],
+        cards.add( Card(
+          color: Colors.grey[800],
+          child: TextButton(
+            onPressed: (){
+              // TODO add selector
+              var card = cardByPosition[0];
+              Navigator.push(context,
+                MaterialPageRoute(builder: (context) => CardViewer(widget.stats.subExt, idCard, card)),
+              );
+            },
             child: isCard ? Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [

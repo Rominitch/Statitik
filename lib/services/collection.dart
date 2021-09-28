@@ -6,6 +6,13 @@ import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
+class CardIntoSubExtensions {
+  SubExtension se;
+  int          position;
+
+  CardIntoSubExtensions(this.se, this.position);
+}
+
 class Collection
 {
   bool migration = false;
@@ -364,6 +371,23 @@ class Collection
     var query = 'UPDATE `CartesExtension` SET `cartes` = ?'
         ' WHERE `CartesExtension`.`idCartesExtension` = $idSEC';
     await connection.queryMulti(query, [[Int8List.fromList(seCards.toBytes(rPokemonCards))]]);
+  }
+
+  List<CardIntoSubExtensions> searchCardIntoSubExtension(PokemonCardData searchCard) {
+    List<CardIntoSubExtensions> result = [];
+
+    subExtensions.values.forEach((subExtension) {
+      int id=0;
+      subExtension.seCards.cards.forEach((cards) {
+        cards.forEach((card) {
+          if(card.data == searchCard) {
+            result.add(CardIntoSubExtensions(subExtension, id));
+          }
+        });
+        id += 1;
+      });
+    });
+    return result;
   }
 
   /*
