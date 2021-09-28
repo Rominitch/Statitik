@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:statitikcard/screen/Cartes/CardViewer.dart';
 import 'package:statitikcard/screen/Cartes/statsCard.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
 import 'package:statitikcard/screen/widgets/screenPrint.dart';
@@ -56,54 +57,63 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
         String realCardName = widget.stats.subExt.seCards.titleOfCard(
             widget.data.language!, id);
         final cardName = widget.stats.subExt.seCards.numberOfCard(id);
-        cards.add(Card(
-          color: Colors.grey[800],
-          child: isCard ? Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(cardName, style: cardName.length > 4
-                          ? TextStyle(fontSize: 10.0)
-                          : TextStyle(fontSize: 12.0)),
-                      SizedBox(width: 5.0),
-                      pc.imageType(),
-                      SizedBox(width: 5.0)]
-                        + pc.imageRarity()
-                ),
-                Center(
-                    child: Text(realCardName, maxLines: 3,
-                        softWrap: true,
-                        style: TextStyle(fontSize: 9.0))
-                ),
-                Center(child: Text(label,
-                    style: TextStyle(color: col, fontWeight: FontWeight.bold))),
-              ]) : Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(
+        cards.add(TextButton(
+          onPressed: (){
+            // TODO add selector
+            var card = cardByPosition[0];
+            Navigator.push(context,
+              MaterialPageRoute(builder: (context) => CardViewer(widget.stats.subExt, idCard, card)),
+            );
+          },
+          child: Card(
+            color: Colors.grey[800],
+            child: isCard ? Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Container(width: 25,
-                      child: Text(cardName, style: cardName.length > 4
-                          ? TextStyle(fontSize: 10.0)
-                          : TextStyle(fontSize: 12.0))),
-                  SizedBox(width: 5.0),
-                  Container(width: 70,
-                      child: Row(
-                          children: [
-                            pc.imageType(),
-                            SizedBox(width: 5.0)
-                          ] + pc.imageRarity()
-                      )
+                  Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(cardName, style: cardName.length > 4
+                            ? TextStyle(fontSize: 10.0)
+                            : TextStyle(fontSize: 12.0)),
+                        SizedBox(width: 5.0),
+                        pc.imageType(),
+                        SizedBox(width: 5.0)]
+                          + pc.imageRarity()
                   ),
-                  Expanded(child: Text(realCardName, maxLines: 3,
-                      softWrap: true,
-                      style: TextStyle(fontSize: 9.0))),
-                  Container(width: 55,
-                      child: Text(label, style: TextStyle(fontSize: 11.0,
-                          color: col,
-                          fontWeight: FontWeight.bold)))
-                ]
+                  Center(
+                      child: Text(realCardName, maxLines: 3,
+                          softWrap: true,
+                          style: TextStyle(fontSize: 9.0))
+                  ),
+                  Center(child: Text(label,
+                      style: TextStyle(color: col, fontWeight: FontWeight.bold))),
+                ]) : Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Row(
+                  children: [
+                    Container(width: 25,
+                        child: Text(cardName, style: cardName.length > 4
+                            ? TextStyle(fontSize: 10.0)
+                            : TextStyle(fontSize: 12.0))),
+                    SizedBox(width: 5.0),
+                    Container(width: 70,
+                        child: Row(
+                            children: [
+                              pc.imageType(),
+                              SizedBox(width: 5.0)
+                            ] + pc.imageRarity()
+                        )
+                    ),
+                    Expanded(child: Text(realCardName, maxLines: 3,
+                        softWrap: true,
+                        style: TextStyle(fontSize: 9.0))),
+                    Container(width: 55,
+                        child: Text(label, style: TextStyle(fontSize: 11.0,
+                            color: col,
+                            fontWeight: FontWeight.bold)))
+                  ]
+              ),
             ),
           ),
         ));
