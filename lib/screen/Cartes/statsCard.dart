@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/screen/Cartes/CardViewer.dart';
 
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -53,18 +54,47 @@ class _StatsCardState extends State<StatsCard> {
     if(widget.stats.isSpecific() || widget.stats.isFiltered()) {
       s.countSubExtension.entries.forEach( (item)
       {
+        List<Widget> cardWidgets = [];
+        item.value.forEach((idCard) {
+          var name = item.key.seCards.numberOfCard(idCard);
+          cardWidgets.add(
+            Card(color: Colors.grey[800],
+                margin: EdgeInsets.zero,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                child: TextButton(child: Text(name, style: TextStyle(fontSize: name.length > 2 ? (name.length > 3 ? 9 : 12) : 14)),
+                  onPressed: (){
+                    var card = item.key.seCards.cards[idCard][0];
+                    Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => CardViewer(item.key, idCard, card)),
+                    );
+                  },
+                )
+            )
+          );
+        });
+
         subEx.add( Row(
             children: [Container(child: item.key.image(hSize: 30.0), alignment: Alignment.centerLeft, width: _spaceBefore),
-              Expanded(
-                child: Card(color: Colors.grey,
-                  child:Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(item.value.map((i) => i.toString()).join(", "), maxLines: 5, softWrap: true),
-                  ),
-                ),
-              ),
+              Expanded( child:
+                  Card(
+                    color: Colors.grey,
+                    child: GridView.builder(
+                      padding: EdgeInsets.all(2),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 7, crossAxisSpacing: 2, mainAxisSpacing: 2),
+                      shrinkWrap: true,
+                      primary: false,
+                      itemCount: cardWidgets.length,
+                      itemBuilder: (context, index){
+                        return cardWidgets[index];
+                      }
+                      ),
+                  )
+              )
             ]
-        )
+          )
         );
       });
     }

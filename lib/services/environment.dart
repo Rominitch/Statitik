@@ -74,6 +74,7 @@ class Environment
     bool showExtensionName      = false;
     bool showPressImages        = false;
     bool showPressProductImages = false;
+    bool showTCGImages          = false;
 
     // Cached data
     Collection collection = Collection();
@@ -102,7 +103,8 @@ class Environment
                     for (var row in info) {
                         isDatabaseMatch = (row[0] == db.version);
                         showPressImages        = (row[2] == 1);
-                        showPressProductImages = showPressImages;
+                        showPressProductImages = (row[3] == 1);
+                        showTCGImages          = (row[4] == 1);
                     }
                 }).then( (result) {
                     isDBReady = result;

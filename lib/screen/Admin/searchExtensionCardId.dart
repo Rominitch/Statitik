@@ -1,50 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 class SearchExtensionsCardId extends StatelessWidget {
-  const SearchExtensionsCardId(Type type, {Key? key}) : super(key: key);
+  final Type type;
+  const SearchExtensionsCardId(this.type, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> cards = [];
+    // Refresh admin info
+    Environment.instance.collection.adminReverse();
+
+    List<Widget> expansionWidget = [];
     Environment.instance.collection.subExtensions.values.forEach((subExtension) {
       // Keep Japanese only
-      if(subExtension.extension.language.id == 2 ) {
-        List<Widget> cards = [];
+      if(subExtension.extension.language.id == 3 ) {
+        List<Widget> cardsWidgets = [];
         int id=0;
-        subExtension.seCards.cards.forEach((List<PokemonCardExtension> card) {
-          int localId = Environment.instance.collection.rPokemonCards[card[0].data];
-          cards.add(
-           Card(
-             child: TextButton(
-               child: Text(subExtension.seCards.numberOfCard(id)),
-               onPressed: () {
-                 Navigator.pop(context, localId);
-               },
-             ),
-           )
-          );
+        subExtension.seCards.cards.forEach((List<PokemonCardExtension> allCards) {
+          var cardData = allCards[0].data;
+          if(type == cardData.type) {
+            int? localId = Environment.instance.collection.rPokemonCards[cardData];
+            if(localId == null) {
+              printOutput("SearchExtensionsCardId: Impossible to find card: $id into ${subExtension.name}");
+            } else {
+              cardsWidgets.add(
+               Card(
+                 color: Colors.grey[500],
+                 child: TextButton(
+                   child: Text(subExtension.seCards.numberOfCard(id)),
+                   onPressed: () {
+                     Navigator.pop(context, localId);
+                   },
+                 ),
+               )
+              );
+            }
+          }
           id += 1;
         });
-        cards.add(Card(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                subExtension.image(wSize: 50.0),
-                GridView.count(crossAxisCount: 6,
-                  shrinkWrap: true,
-                  scrollDirection: Axis.vertical,
-                  primary: false,
-                  children: cards
-                )
-              ]
+        // Add card about expansion
+        if(cardsWidgets.isNotEmpty) {
+          expansionWidget.add(Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  subExtension.image(wSize: 50.0),
+                  Expanded(
+                    child: GridView.count(crossAxisCount: 6,
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      primary: false,
+                      children: cardsWidgets
+                    ),
+                  )
+                ]
+              ),
             ),
-          ),
-        ));
+          ));
+        }
       }
     });
 
@@ -55,7 +73,7 @@ class SearchExtensionsCardId extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
-            children: cards,
+            children: expansionWidget,
           )
         )
       )

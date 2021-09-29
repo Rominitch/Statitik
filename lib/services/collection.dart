@@ -218,10 +218,11 @@ class Collection
         var retreat      = row[7] != null ? (row[7] as Blob).toBytes().toList()[0] : 0;
         var weakness     = row[8] != null ? EnergyValue.fromBytes((row[8] as Blob).toBytes().toList()) : null;
         var resistance   = row[9] != null ? EnergyValue.fromBytes((row[9] as Blob).toBytes().toList()) : null;
-        var illustrator = row[10] != null ? illustrators[row[10]]: null;
+        var illustrator  = row[10] != null ? illustrators[row[10]]: null;
+        var jpImage      = row[11] ?? "";
 
         //Build card
-        PokemonCardData p = PokemonCardData(namePokemons, level, type, markers, life, retreat, resistance, weakness);
+        PokemonCardData p = PokemonCardData(namePokemons, level, type, markers, life, retreat, resistance, weakness, jpImage);
         //Extract typeExtended (for double energy card)
         if(typeBytes.length > 1) {
           p.typeExtended = Type.values[typeBytes[1]];
@@ -320,7 +321,7 @@ class Collection
       effects = Int8List.fromList(card.cardEffects.toBytes());
     }
 
-    List data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life, Int8List.fromList(card.markers.toBytes()), effects, retreat, weakness, resistance, idIllustrator, null];
+    List data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life, Int8List.fromList(card.markers.toBytes()), effects, retreat, weakness, resistance, idIllustrator, card.jpImage];
     var query = "";
     if (idCard == null) {
       data.insert(0, nextId);
@@ -375,17 +376,21 @@ class Collection
 
   List<CardIntoSubExtensions> searchCardIntoSubExtension(PokemonCardData searchCard) {
     List<CardIntoSubExtensions> result = [];
+    var alreadyFind = Set();
 
     subExtensions.values.forEach((subExtension) {
-      int id=0;
-      subExtension.seCards.cards.forEach((cards) {
-        cards.forEach((card) {
-          if(card.data == searchCard) {
-            result.add(CardIntoSubExtensions(subExtension, id));
-          }
+      if( !alreadyFind.contains(subExtension.seCards) ) {
+        int id=0;
+        subExtension.seCards.cards.forEach((cards) {
+          cards.forEach((card) {
+            if(card.data == searchCard) {
+              alreadyFind.add(subExtension.seCards);
+              result.add(CardIntoSubExtensions(subExtension, id));
+            }
+          });
+          id += 1;
         });
-        id += 1;
-      });
+      }
     });
     return result;
   }

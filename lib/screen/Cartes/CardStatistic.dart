@@ -57,7 +57,7 @@ class _CardStatisticPageState extends State<CardStatisticPage> {
     Environment.instance.collection.getExtensions(langueController.currentValue).forEach((ext) {
       Environment.instance.collection.getSubExtensions(ext).forEach((SubExtension subExt) {
         if( subExt.seCards.isValid ) {
-          int id=1;
+          int id=0;
           subExt.seCards.cards.forEach((List<PokemonCardExtension> cards) {
             cards.forEach((singleCard) {
               if( _cardResults.isSelected(singleCard) ) {
@@ -114,7 +114,6 @@ class _CardStatisticPageState extends State<CardStatisticPage> {
                       onPressed: () {
                         _cardResults.specificCard = null;
                         _cardResults.stats        = null;
-
                         setState(() {
                           Navigator.push(
                             context,

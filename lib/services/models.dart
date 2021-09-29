@@ -856,7 +856,7 @@ class CodeNaming
   int    idStart = 0;
   String naming = "%d";
 
-  CodeNaming([this.idStart=0, this.naming="%d"]);
+  CodeNaming([this.idStart=0, this.naming="%s"]);
 }
 
 class CardStats {

@@ -181,8 +181,9 @@ class PokemonCardData {
   int              retreat;
   EnergyValue?     resistance;
   EnergyValue?     weakness;
+  String           jpImage="";
 
-  PokemonCardData(this.title, this.level, this.type, this.markers, [this.life=0, this.retreat=0, this.resistance, this.weakness]) {
+  PokemonCardData(this.title, this.level, this.type, this.markers, [this.life=0, this.retreat=0, this.resistance, this.weakness, this.jpImage=""]) {
     if( this.retreat > 5)
       this.retreat = 0;
   }
@@ -270,7 +271,22 @@ class SubExtensionCards {
 
   static const int version = 3;
 
-  SubExtensionCards.build(List<int> bytes, List<CodeNaming> naming, cardCollection) : this.cards=[], this.isValid = (bytes.length > 0) {
+  String tcgImage(idCard) {
+    CodeNaming cn = CodeNaming();
+    if(codeNaming.isNotEmpty) {
+      for(var element in codeNaming) {
+        if( idCard >= element.idStart) {
+          if(element.naming.startsWith("SV")) {
+            String val = (idCard-element.idStart+1).toString().padLeft(3, '0');
+            return sprintf(element.naming, [val]);
+          }
+        }
+      }
+    }
+    return (idCard+1).toString();
+  }
+
+  SubExtensionCards.build(List<int> bytes, this.codeNaming, cardCollection) : this.cards=[], this.isValid = (bytes.length > 0) {
     if(bytes[0] != version) {
       throw StatitikException("Bad SubExtensionCards version : need migration !");
     }
@@ -320,7 +336,7 @@ class SubExtensionCards {
           cn = element;
       });
     }
-    return sprintf(cn.naming, [(id-cn.idStart + 1)]);// .toString();
+    return sprintf(cn.naming, [(id-cn.idStart + 1).toString()]);
   }
 
   String titleOfCard(Language l, int idCard, [int idAlternative=0]) {

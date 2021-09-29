@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
 import 'package:statitikcard/screen/Admin/cardEffectPanel.dart';
+import 'package:statitikcard/screen/Admin/searchExtensionCardId.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -110,6 +111,13 @@ class _CardCreatorState extends State<CardCreator> {
       );
     });
 
+    selectCard();
+  }
+
+  void selectCard() {
+    marker = [];
+    longMarkerWidget = [];
+
     if( widget.editor ) {
       CardMarker.values.forEach((element) {
         if (element != CardMarker.Nothing && !longMarker.contains(element))
@@ -151,7 +159,32 @@ class _CardCreatorState extends State<CardCreator> {
           shrinkWrap: true,
           children: rarity,
         ),
-        Text(StatitikLocale.of(context).read('CA_B30')+code, style: Theme.of(context).textTheme.headline5),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+            Expanded(child: Text(StatitikLocale.of(context).read('CA_B30')+code, style: Theme.of(context).textTheme.headline5)),
+            Card (
+              color: Colors.grey[500],
+              child: TextButton(
+                child: Text(StatitikLocale.of(context).read('CA_B32')),
+                onPressed: () {
+                  Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SearchExtensionsCardId(widget.card.data.type)),
+                  ).then((idCard) {
+                    setState(() {
+                      // Change object
+                      widget.card.data = Environment.instance.collection.pokemonCards[idCard];
+                      // Recompute default value
+                      selectCard();
+                    });
+                  });
+                }
+              )
+            )
+          ]),
+        ),
         ExpansionPanelList(
           expansionCallback: (i, isOpen) {
             setState(() {

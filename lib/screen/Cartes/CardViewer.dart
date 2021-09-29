@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:statitikcard/services/CardEffect.dart';
@@ -22,6 +23,18 @@ class CardViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/SWSH45/SWSH45_FR_SV003.png
+    String cardImage = "";
+    if(Environment.instance.showTCGImages){
+      if( se.extension.language.id == 1 )
+        cardImage = "https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/${se.icon}/${se.icon}_FR_${se.seCards.tcgImage(id)}.png";
+      else if( se.extension.language.id == 2 )
+        cardImage = "https://assets.pokemon.com/assets/cms2/img/cards/web/${se.icon}/${se.icon}_EN_${se.seCards.tcgImage(id)}.png";
+      else if( card.data.jpImage.isNotEmpty )
+        cardImage = "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${card.data.jpImage}.jpg";
+    }
+
+
     List<Widget> markers = [];
 
     List<Widget> effectsWidgets = [];
@@ -37,13 +50,7 @@ class CardViewer extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                result.se.extension.language.barIcon(),
-                result.se.image(hSize: 35.0),
-              ]
-            ),
+            result.se.image(wSize: 30.0, hSize: 30.0),
             Text(result.se.seCards.numberOfCard(result.position), textAlign: TextAlign.center)
           ]
         )
@@ -66,6 +73,15 @@ class CardViewer extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if(cardImage.isNotEmpty)
+                CachedNetworkImage(
+                  imageUrl: cardImage,
+                  errorWidget: (context, url, error) {
+                      return Icon(Icons.help_outline);
+                  },
+                  placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
+                  height: 400,
+                ),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -132,7 +148,7 @@ class CardViewer extends StatelessWidget {
                     children: <Widget>[
                       Text(StatitikLocale.of(context).read('CAVIEW_B6'), style: Theme.of(context).textTheme.headline5),
                       GridView.count(
-                        crossAxisCount: 4,
+                        crossAxisCount: 5,
                         shrinkWrap: true,
                         scrollDirection: Axis.vertical,
                         primary: false,
