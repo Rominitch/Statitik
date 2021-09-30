@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:statitikcard/screen/Admin/cardEditor.dart';
 import 'package:statitikcard/screen/Admin/cardEffectPanel.dart';
 import 'package:statitikcard/screen/Admin/searchExtensionCardId.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
+import 'package:statitikcard/screen/widgets/ListSelector.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -31,12 +31,14 @@ class _CardCreatorState extends State<CardCreator> {
   late CustomRadioController resistanceController = CustomRadioController(onChange: (value) { onResistanceChanged(value); });
   late CustomRadioController weaknessController   = CustomRadioController(onChange: (value) { onWeaknessChanged(value); });
   late CustomRadioController typeExtController    = CustomRadioController(onChange: (value) { onTypeExtChanged(value); });
+  late CustomRadioController levelController      = CustomRadioController(onChange: (value) { onLevel(value); });
 
 
   List<Widget> typeCard = [];
   List<Widget> typeExtCard = [];
   List<Widget> rarity   = [];
   List<Widget> marker   = [];
+  List<Widget> level   = [];
   List<Widget> longMarkerWidget = [];
   bool         _auto    = false;
   List<bool>   _isOpen = [];
@@ -45,6 +47,9 @@ class _CardCreatorState extends State<CardCreator> {
 
   void onTypeChanged(value) {
     widget.card.data.type = value;
+  }
+  void onLevel(value) {
+    widget.card.data.level = value;
   }
   void onTypeExtChanged(value) {
     if(value == Type.Unknown)
@@ -61,18 +66,28 @@ class _CardCreatorState extends State<CardCreator> {
 
   void onResistanceChanged(value) {
     if(widget.card.data.resistance == null) {
-      widget.card.data.resistance = EnergyValue(value, 0);
+      widget.card.data.resistance = EnergyValue(value, value == Type.Unknown ? 0 : 30);
     } else {
       widget.card.data.resistance!.energy = value;
+      if(value == Type.Unknown)
+        widget.card.data.resistance!.value = 0;
+      else if(widget.card.data.resistance!.value == 0)
+        widget.card.data.resistance!.value = 30;
     }
+    setState(() {});
   }
 
   void onWeaknessChanged(value) {
     if(widget.card.data.weakness == null) {
-      widget.card.data.weakness = EnergyValue(value, 0);
+      widget.card.data.weakness = EnergyValue(value, value == Type.Unknown ? 0 : 2);
     } else {
       widget.card.data.weakness!.energy = value;
+      if(value == Type.Unknown)
+        widget.card.data.weakness!.value = 0;
+      else if(widget.card.data.weakness!.value == 0)
+        widget.card.data.weakness!.value = 2;
     }
+    setState(() {});
   }
 
   @override
@@ -86,30 +101,32 @@ class _CardCreatorState extends State<CardCreator> {
         typeCard.add(CustomRadio(value: element, controller: typeController, widget: getImageType(element)));
     });
 
-    typeExtCard.add(CustomRadio(value: Type.Unknown, controller: typeExtController, widget: getImageType(Type.Unknown)));
-    energies.forEach((element) {
-      typeExtCard.add(CustomRadio(value: element, controller: typeExtController, widget: getImageType(element)));
-    });
-
-    resistanceCard.add(CustomRadio(value: Type.Unknown, controller: resistanceController, widget: getImageType(Type.Unknown)));
-    energies.forEach((element) {
-      resistanceCard.add(CustomRadio(value: element, controller: resistanceController, widget: getImageType(element)));
-    });
-
-    weaknessCard.add(CustomRadio(value: Type.Unknown, controller: weaknessController, widget: getImageType(Type.Unknown)));
-    energies.forEach((element) {
-      weaknessCard.add(CustomRadio(value: element, controller: weaknessController, widget: getImageType(element)));
-    });
-
     widget.listRarity.forEach((element) {
-    if( element != Rarity.Unknown )
-      rarity.add(CustomRadio(value: element, controller: rarityController,
-        widget: Row(mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: getImageRarity(element, fontSize: 8.0, generate: true))
+      if( element != Rarity.Unknown )
+        rarity.add(CustomRadio(value: element, controller: rarityController,
+            widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: getImageRarity(element, fontSize: 8.0, generate: true))
         )
-      );
+        );
     });
+
+    if( widget.editor ) {
+      typeExtCard.add(CustomRadio(value: Type.Unknown, controller: typeExtController, widget: getImageType(Type.Unknown)));
+      energies.forEach((element) {
+        typeExtCard.add(CustomRadio(value: element, controller: typeExtController, widget: getImageType(element)));
+      });
+
+      resistanceCard.add(CustomRadio(value: Type.Unknown, controller: resistanceController, widget: getImageType(Type.Unknown)));
+      energies.forEach((element) {
+        resistanceCard.add(CustomRadio(value: element, controller: resistanceController, widget: getImageType(element)));
+      });
+
+      weaknessCard.add(CustomRadio(value: Type.Unknown, controller: weaknessController, widget: getImageType(Type.Unknown)));
+      energies.forEach((element) {
+        weaknessCard.add(CustomRadio(value: element, controller: weaknessController, widget: getImageType(element)));
+      });
+    }
 
     selectCard();
   }
@@ -126,28 +143,33 @@ class _CardCreatorState extends State<CardCreator> {
       longMarker.forEach((element) {
         longMarkerWidget.add(Expanded(child: ButtonCheck(widget.card.data.markers, element)));
       });
+
+      typeExtController.afterPress(widget.card.data.typeExtended != null ? widget.card.data.typeExtended! : Type.Unknown);
+      resistanceController.afterPress( widget.card.data.resistance != null ? widget.card.data.resistance!.energy : Type.Unknown );
+      weaknessController.afterPress(   widget.card.data.weakness   != null ? widget.card.data.weakness!.energy   : Type.Unknown );
     }
 
     // Set current value
     typeController.afterPress(widget.card.data.type);
     rarityController.afterPress(widget.card.rarity);
-
-    typeExtController.afterPress(widget.card.data.typeExtended != null ? widget.card.data.typeExtended! : Type.Unknown);
-    resistanceController.afterPress( widget.card.data.resistance != null ? widget.card.data.resistance!.energy : Type.Unknown );
-    weaknessController.afterPress(   widget.card.data.weakness   != null ? widget.card.data.weakness!.energy   : Type.Unknown );
   }
 
   @override
   Widget build(BuildContext context) {
-    int id=0;
-    List<Widget> namedWidgets = [];
-    widget.card.data.title.forEach((element) {
-      namedWidgets.add(PokeCardNaming(widget.activeLanguage, widget.card, id));
-      id+=1;
-    });
-
     List<Widget> others = [];
     if(widget.editor) {
+      int id=0;
+      List<Widget> namedWidgets = [];
+      widget.card.data.title.forEach((element) {
+        namedWidgets.add(PokeCardNaming(widget.activeLanguage, widget.card, id));
+        id+=1;
+      });
+
+      level = [];
+      Level.values.forEach((element) {
+        level.add(Expanded(child: CustomRadio(value: element, controller: levelController, widget: Text( getLevelText(context, element) ))));
+      });
+      levelController.afterPress(widget.card.data.level);
       var code = ( Environment.instance.collection.pokemonCards.containsValue(widget.card.data) )
        ? Environment.instance.collection.rPokemonCards[widget.card.data].toString()
        : StatitikLocale.of(context).read('CA_B29');
@@ -266,6 +288,7 @@ class _CardCreatorState extends State<CardCreator> {
               padding: const EdgeInsets.all(8.0),
               child: Column(
                 children: [
+                  Row( children: level),
                   Row(children: [
                     Container(width: 80, child: Text(StatitikLocale.of(context).read('CA_B25'), style: TextStyle(fontSize: 12))),
                     Container(width: 30, child: Text(widget.card.data.life.toString())),
@@ -306,37 +329,6 @@ class _CardCreatorState extends State<CardCreator> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(StatitikLocale.of(context).read('CA_B27'), style: TextStyle(fontSize: 12)),
-                      GridView.count(
-                        crossAxisCount: 9,
-                        primary: false,
-                        shrinkWrap: true,
-                        children: resistanceCard,
-                      ),
-                      Slider(
-                        value: widget.card.data.resistance != null ?
-                          widget.card.data.resistance!.value.toDouble() : 0,
-                        min: 0,
-                        max: 5,
-                        divisions: 5,
-                        label: widget.card.data.resistance != null ?
-                               widget.card.data.resistance!.value.toString() : "Not activated",
-                        onChanged: (double value) {
-                          setState(() {
-                            var v = value.round().toInt();
-                            if(widget.card.data.resistance == null) {
-                              widget.card.data.resistance = EnergyValue(Type.Unknown, v);
-                            } else {
-                              widget.card.data.resistance!.value = v;
-                            }
-                          });
-                        },
-                      )
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
                       Text(StatitikLocale.of(context).read('CA_B28'), style: TextStyle(fontSize: 12)),
                       GridView.count(
                         crossAxisCount: 9,
@@ -348,8 +340,8 @@ class _CardCreatorState extends State<CardCreator> {
                         value: widget.card.data.weakness != null ?
                         widget.card.data.weakness!.value.toDouble() : 0,
                         min: 0,
-                        max: 60,
-                        divisions: 60,
+                        max: 5,
+                        divisions: 5,
                         label: widget.card.data.weakness != null ?
                         widget.card.data.weakness!.value.toString() : "Not activated",
                         onChanged: (double value) {
@@ -359,6 +351,37 @@ class _CardCreatorState extends State<CardCreator> {
                               widget.card.data.weakness = EnergyValue(Type.Unknown, v);
                             } else {
                               widget.card.data.weakness!.value = v;
+                            }
+                          });
+                        },
+                      )
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(StatitikLocale.of(context).read('CA_B27'), style: TextStyle(fontSize: 12)),
+                      GridView.count(
+                        crossAxisCount: 9,
+                        primary: false,
+                        shrinkWrap: true,
+                        children: resistanceCard,
+                      ),
+                      Slider(
+                        value: widget.card.data.resistance != null ?
+                          widget.card.data.resistance!.value.toDouble() : 0,
+                        min: 0,
+                        max: 60,
+                        divisions: 6,
+                        label: widget.card.data.resistance != null ?
+                               widget.card.data.resistance!.value.toString() : "Not activated",
+                        onChanged: (double value) {
+                          setState(() {
+                            var v = value.round().toInt();
+                            if(widget.card.data.resistance == null) {
+                              widget.card.data.resistance = EnergyValue(Type.Unknown, v);
+                            } else {
+                              widget.card.data.resistance!.value = v;
                             }
                           });
                         },
@@ -474,15 +497,15 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
                 child: Card(
                     color: Colors.grey[700],
                     child: TextButton(
-                      child: Text((name.name.isPokemon()) ? name.name.defaultName() : ""),
+                      child: Text((name.name.isPokemon()) ? name.name.defaultName() : "", style: TextStyle(fontSize: 9.0)),
                       onPressed: (){
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => ChooserCardName(Environment.instance.collection.pokemons.values.toList(), name)),
-                        ).then((value) {
-                          if(value != null) {
+                          MaterialPageRoute(builder: (context) => ListSelector('CE_T0', widget.language, Environment.instance.collection.pokemons, true)),
+                        ).then((idDB) {
+                          if(idDB != null) {
                             setState(() {
-                              name.name = value;
+                              name.name = Environment.instance.collection.pokemons[idDB];
                             });
                           }
                         });
@@ -494,15 +517,15 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
                 child: Card(
                     color: Colors.grey[700],
                     child: TextButton(
-                      child: Text((!name.name.isPokemon()) ? name.name.defaultName() : ""),
+                      child: Text((!name.name.isPokemon()) ? name.name.defaultName() : "", style: TextStyle(fontSize: 9.0)),
                       onPressed: (){
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => ChooserCardName(Environment.instance.collection.otherNames.values.toList(), name)),
-                        ).then((value) {
-                          if(value != null) {
+                          MaterialPageRoute(builder: (context) => ListSelector('CE_T0', widget.language, Environment.instance.collection.otherNames, true)),
+                        ).then((idDB) {
+                          if(idDB != null) {
                             setState(() {
-                              name.name = value;
+                              name.name = Environment.instance.collection.otherNames[idDB];
                             });
                           }
                         });
@@ -528,7 +551,6 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
     );
   }
 }
-
 
 class ButtonCheck extends StatefulWidget {
   final CardMarker  mark;

@@ -93,6 +93,11 @@ enum Level {
   Level2,
 }
 
+const List<String> levelString = ['LEVEL_0', 'LEVEL_1', 'LEVEL_2'];
+String getLevelText(context, Level element) {
+  return StatitikLocale.of(context).read(levelString[element.index]);
+}
+
 // Fr type / rarity
 enum Type {
   Plante,
@@ -388,13 +393,25 @@ class MultiLanguageString {
     assert(_names.length == 3, "MultiLanguageString Error: $_names");
   }
 
-  String defaultName() {
-    return _names[0];
+  String defaultName([separator='\n']) {
+    return _names.join(separator);
   }
 
   String name(Language l) {
     assert(0 <= l.id-1 && l.id-1 < _names.length);
     return _names[l.id-1];
+  }
+
+  bool search(Language? l, String searchPart) {
+    if(l != null) {
+      return name(l).toLowerCase().contains(searchPart.toLowerCase());
+    } else {
+      for( var name in _names) {
+        if( name.toLowerCase().contains(searchPart.toLowerCase()))
+          return true;
+      }
+      return false;
+    }
   }
 }
 
@@ -408,8 +425,8 @@ class CardTitleData
     return _names.name(l);
   }
 
-  String defaultName() {
-    return _names.defaultName();
+  String defaultName([separator='\n']) {
+    return _names.defaultName(separator);
   }
 
   String name(Language l) {
@@ -418,6 +435,10 @@ class CardTitleData
 
   bool isPokemon() {
     return false;
+  }
+
+  bool search(Language? l, String searchPart) {
+    return _names.search(l, searchPart);
   }
 }
 

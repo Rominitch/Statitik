@@ -88,7 +88,16 @@ class CardViewer extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(StatitikLocale.of(context).read('CAVIEW_B4'), style: Theme.of(context).textTheme.headline5),
+                      Row(children: [
+                        Expanded(child: Text(StatitikLocale.of(context).read('CAVIEW_B4'), style: Theme.of(context).textTheme.headline5)),
+                        Card(
+                          color: Colors.grey[800],
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(getLevelText(context, card.data.level)),
+                          ),
+                        )
+                      ]),
                       Row(children: [
                         Container(width: labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B0'))),
                         Container(width: valueSpace, child: Text(card.data.life.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),

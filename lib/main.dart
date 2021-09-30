@@ -23,6 +23,11 @@ class StatitikApp extends StatelessWidget {
         // Define the default brightness and colors.
         colorScheme: ColorScheme.dark(secondary: Colors.orange[300]!),
         appBarTheme: AppBarTheme(backgroundColor: Colors.grey[900]),
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: Colors.white,
+          selectionColor: Colors.orange[300],
+          selectionHandleColor: Colors.orange[300],
+        ),
         brightness: Brightness.dark,
         primaryColor: Colors.grey[600],
         //accentColor: Colors.orange[300],
@@ -55,6 +60,15 @@ class StatitikApp extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(primary: Colors.orange[500]!)
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          labelStyle: TextStyle(color: Colors.orange[300]),
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
+          border: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.orange[300]!),
+          ),
         ),
       ),
       title: 'StatitikCard',

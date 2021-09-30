@@ -265,6 +265,9 @@ Images and illustrations used are the property of their respective authors.
       'CAVIEW_B4': 'Generality',
       'CAVIEW_B5': 'Power',
       'CAVIEW_B6': 'Inside TCG',
+      'LEVEL_0':   'Base',
+      'LEVEL_1':   'Level 1',
+      'LEVEL_2':   'Level 2',
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -525,6 +528,9 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'CAVIEW_B4': 'Généralité',
       'CAVIEW_B5': 'Pouvoir',
       'CAVIEW_B6': 'Dans le JCC',
+      'LEVEL_0':   'Base',
+      'LEVEL_1':   'Niveau 1',
+      'LEVEL_2':   'Niveau 2',
     },
   };
 

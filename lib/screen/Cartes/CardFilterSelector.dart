@@ -21,7 +21,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
 
   List<Widget> widgetMarkers    = [];
   List<Widget> longMarkerWidget = [];
-  List<Widget> regionsWidget           = [];
+  List<Widget> regionsWidget    = [];
   void onRegionChanged(Region? value) {
     widget.result.filterRegion = value;
   }
@@ -29,6 +29,8 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
   @override
   void initState() {
     super.initState();
+
+    // Build static card marker
     CardMarker.values.forEach((element) {
       if (element != CardMarker.Nothing && !longMarker.contains(element))
         widgetMarkers.add(ButtonCheck(widget.result.filter, element));
@@ -37,6 +39,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
       longMarkerWidget.add(Expanded(child: ButtonCheck(widget.result.filter, element)));
     });
 
+    // Set default value
     regionController.currentValue = widget.result.filterRegion;
   }
 

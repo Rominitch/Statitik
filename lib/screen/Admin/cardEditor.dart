@@ -62,36 +62,3 @@ class _CardEditorState extends State<CardEditor> {
     );
   }
 }
-
-class ChooserCardName extends StatelessWidget {
-  final List    names;
-  final dynamic selected;
-  ChooserCardName(this.names, this.selected);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Container(
-            child: Text(StatitikLocale.of(context).read('CE_T0')),
-          ),
-        ),
-        body: ListView.builder(
-
-          itemBuilder: (context, id){
-            var info = names[id];
-            return Card(
-                color: info == selected ? Colors.green : Colors.grey[700],
-                child: TextButton(
-                  onPressed: (){
-                    Navigator.pop(context, info);
-                  },
-                  child: Text(info.defaultName())
-                )
-            );
-          },
-          itemCount: names.length,
-        )
-    );
-  }
-}
