@@ -66,8 +66,10 @@ class Pokemon {
   List<int> toBytes(collection) {
     int id=0;
     if (name.isPokemon()) {
+      assert(collection.rPokemon.containsKey(name), name.defaultName());
       id = collection.rPokemon[name];
     } else {
+      assert(collection.rOther.containsKey(name), name.defaultName());
       id = collection.rOther[name];
     }
     assert(id != 0);

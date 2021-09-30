@@ -281,12 +281,13 @@ class Collection
   }
 
   void adminReverse() {
-    rIllustrators    = illustrators.map((k, v) => MapEntry(v, k));
-    rRegions         = regions.map((k, v) => MapEntry(v, k));
-    rPokemonCards    = pokemonCards.map((k, v) => MapEntry(v, k));
-    rFormes          = formes.map((k, v) => MapEntry(v, k));
-    rPokemon         = pokemons.map((k, v) => MapEntry(v, k));
-    rOther           = otherNames.map((k, v) => MapEntry(v, k));
+    printOutput("Compute Admin reverse database");
+    rIllustrators    = illustrators.map((k, v)    => MapEntry(v, k));
+    rRegions         = regions.map((k, v)         => MapEntry(v, k));
+    rPokemonCards    = pokemonCards.map((k, v)    => MapEntry(v, k));
+    rFormes          = formes.map((k, v)          => MapEntry(v, k));
+    rPokemon         = pokemons.map((k, v)        => MapEntry(v, k));
+    rOther           = otherNames.map((k, v)      => MapEntry(v, k));
     rCardsExtensions = cardsExtensions.map((k, v) => MapEntry(v, k));
   }
 

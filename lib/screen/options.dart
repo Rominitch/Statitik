@@ -53,7 +53,9 @@ class _OptionsPageState extends State<OptionsPage> {
           TextButton(
               onPressed: () {
                 Environment.instance.startDB=false;
-                Environment.instance.readStaticData();
+                Environment.instance.readStaticData().then((value) {
+                  Environment.instance.collection.adminReverse();
+                });
               },
               child: Text(StatitikLocale.of(context).read('O_B1'))
           ),
@@ -66,8 +68,9 @@ class _OptionsPageState extends State<OptionsPage> {
                 });
                 Environment.instance.startDB=false;
                 Environment.instance.db = Database();
-                Environment.instance.readStaticData();
-
+                Environment.instance.readStaticData().then((value) {
+                  Environment.instance.collection.adminReverse();
+                });
           }),
           SizedBox(height: 10),
         ];
