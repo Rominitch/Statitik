@@ -7,6 +7,7 @@ import 'package:statitikcard/screen/widgets/screenPrint.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 
 class StatsExtensionsPage extends StatefulWidget {
   final Stats stats;
@@ -39,7 +40,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
     widget.stats.count.forEach((countByCard) {
       int idCard=0;
       var cardByPosition = widget.stats.subExt.seCards.cards[id];
-      cardByPosition.forEach((pc) {
+      cardByPosition.forEach((PokemonCardExtension pc) {
         int count = countByCard[idCard];
         double percent = widget.stats.totalCards > 0 ? count * ratio : 0;
         Color col = percent == 0.0
@@ -57,62 +58,58 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
         String realCardName = widget.stats.subExt.seCards.titleOfCard(
             widget.data.language!, id);
         final cardName = widget.stats.subExt.seCards.numberOfCard(id);
+        int localId=id;
         cards.add( Card(
+          // TODO add selector
           color: Colors.grey[800],
           child: TextButton(
             onPressed: (){
-              // TODO add selector
-              var card = cardByPosition[0];
               Navigator.push(context,
-                MaterialPageRoute(builder: (context) => CardViewer(widget.stats.subExt, idCard, card)),
+                MaterialPageRoute(builder: (context) => CardViewer(widget.stats.subExt, localId, pc)),
               );
             },
             child: isCard ? Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(cardName, style: cardName.length > 4
-                            ? TextStyle(fontSize: 10.0)
-                            : TextStyle(fontSize: 12.0)),
-                        SizedBox(width: 5.0),
-                        pc.imageType(),
-                        SizedBox(width: 5.0)]
-                          + pc.imageRarity()
-                  ),
-                  Center(
-                      child: Text(realCardName, maxLines: 3,
-                          softWrap: true,
-                          style: TextStyle(fontSize: 9.0))
-                  ),
-                  Center(child: Text(label,
-                      style: TextStyle(color: col, fontWeight: FontWeight.bold))),
-                ]) : Padding(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(cardName, style: TextStyle(fontSize: cardName.length > 3 ? 9.0: 12.0)),
+                    SizedBox(width: 5.0),
+                    pc.imageType(),
+                    SizedBox(width: 5.0)]
+                      + pc.imageRarity()
+                ),
+                Center(child: Text(realCardName, maxLines: 3,
+                    softWrap: true,
+                    style: TextStyle(fontSize: 9.0))
+                ),
+                Center(child: Text(label,
+                    style: TextStyle(color: col, fontWeight: FontWeight.bold))),
+              ]) : Padding(
               padding: const EdgeInsets.all(5.0),
               child: Row(
-                  children: [
-                    Container(width: 25,
-                        child: Text(cardName, style: cardName.length > 4
-                            ? TextStyle(fontSize: 10.0)
-                            : TextStyle(fontSize: 12.0))),
-                    SizedBox(width: 5.0),
-                    Container(width: 70,
-                        child: Row(
-                            children: [
-                              pc.imageType(),
-                              SizedBox(width: 5.0)
-                            ] + pc.imageRarity()
-                        )
-                    ),
-                    Expanded(child: Text(realCardName, maxLines: 3,
-                        softWrap: true,
-                        style: TextStyle(fontSize: 9.0))),
-                    Container(width: 55,
-                        child: Text(label, style: TextStyle(fontSize: 11.0,
-                            color: col,
-                            fontWeight: FontWeight.bold)))
-                  ]
+                children: [
+                  Container(width: 25,
+                    child: Text(cardName, style: TextStyle(fontSize: cardName.length > 3 ? 9.0: 12.0)),
+                  ),
+                  SizedBox(width: 5.0),
+                  Container(width: 70,
+                    child: Row(
+                      children: [
+                        pc.imageType(),
+                        SizedBox(width: 5.0)
+                      ] + pc.imageRarity()
+                    )
+                  ),
+                  Expanded(child: Text(realCardName, maxLines: 3,
+                    softWrap: true,
+                    style: TextStyle(fontSize: 9.0))),
+                  Container(width: 55,
+                    child: Text(label, style: TextStyle(fontSize: 11.0,
+                      color: col,
+                      fontWeight: FontWeight.bold)))
+                ]
               ),
             ),
           ),
@@ -129,10 +126,10 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
           ),
           actions: [
             if(Environment.instance.user != null && Environment.instance.user!.admin) IconButton(
-                icon: Icon(Icons.share_outlined),
-                onPressed: () {
-                  print.shareReport(context, widget.stats.subExt.icon);
-                }
+              icon: Icon(Icons.share_outlined),
+              onPressed: () {
+                print.shareReport(context, widget.stats.subExt.icon);
+              }
             ),
           ],
         ),
@@ -160,45 +157,44 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
                       )
                     ),
                     Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text(StatitikLocale.of(context).read('SE_B0'), style: Theme.of(context).textTheme.headline5),
-                                Text(StatitikLocale.of(context).read('SE_B2')+' '+widget.stats.count.length.toString(), style: Theme.of(context).textTheme.bodyText2),
-                                PieExtension(stats: statsExtension, visu: Visualize.Type),
-                                SizedBox(height: 10.0,),
-                                PieExtension(stats: statsExtension, visu: Visualize.Rarity),
-                                if (widget.data.cardStats.hasStats() && widget.data.cardStats.stats!.hasData()) StatsCard(widget.data.language!, widget.data.cardStats, showByRarity: false, showBySubEx: false, showTitle: false, showByType: false),
-                              ]
-                          ),
-                        )
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(StatitikLocale.of(context).read('SE_B0'), style: Theme.of(context).textTheme.headline5),
+                              Text(StatitikLocale.of(context).read('SE_B2')+' '+widget.stats.count.length.toString(), style: Theme.of(context).textTheme.bodyText2),
+                              PieExtension(stats: statsExtension, visu: Visualize.Type),
+                              SizedBox(height: 10.0,),
+                              PieExtension(stats: statsExtension, visu: Visualize.Rarity),
+                              if (widget.data.cardStats.hasStats() && widget.data.cardStats.stats!.hasData()) StatsCard(widget.data.language!, widget.data.cardStats, showByRarity: false, showBySubEx: false, showTitle: false, showByType: false),
+                            ]
+                        ),
+                      )
                     ),
-
                     SizedBox(height: 10.0,),
                     Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text(StatitikLocale.of(context).read('SE_B1'), style: Theme.of(context).textTheme.headline5),
-                                isCard ? GridView.count(
-                                  crossAxisCount: 3,
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.vertical,
-                                  primary: false,
-                                  children: cards,
-                                ) : ListView(
-                                  shrinkWrap: true,
-                                  scrollDirection: Axis.vertical,
-                                  primary: false,
-                                  children: cards
-                                ),
-                              ]
-                          ),
-                        )
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(StatitikLocale.of(context).read('SE_B1'), style: Theme.of(context).textTheme.headline5),
+                              isCard ? GridView.count(
+                                crossAxisCount: 3,
+                                shrinkWrap: true,
+                                scrollDirection: Axis.vertical,
+                                primary: false,
+                                children: cards,
+                              ) : ListView(
+                                shrinkWrap: true,
+                                scrollDirection: Axis.vertical,
+                                primary: false,
+                                children: cards
+                              ),
+                            ]
+                        ),
+                      )
                     ),
                   ]
                 ),

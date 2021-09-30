@@ -6,6 +6,7 @@ import 'package:statitikcard/screen/options.dart';
 import 'package:statitikcard/screen/tirage/draw_connexion.dart';
 import 'package:statitikcard/screen/widgets/NewsDialog.dart';
 import 'package:statitikcard/services/News.dart';
+import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/statitikFontReader.dart';
 
@@ -77,7 +78,7 @@ class _HomeState extends State<Home> {
           ),
           child:*/ BottomNavigationBar(
           //backgroundColor: Colors.transparent,
-          backgroundColor: Colors.grey[900],
+          backgroundColor: useDebug ? Color.fromARGB(255,50, 0, 0) : Colors.grey[900],
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.add_chart),

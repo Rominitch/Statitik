@@ -109,7 +109,7 @@ class CardViewer extends StatelessWidget {
                           progressColor: Colors.white,
                         )),
                       ]),
-                      if( card.data.resistance != null )
+                      if( card.data.resistance != null && card.data.resistance!.energy != Type.Unknown )
                         Row(children: [
                           Container(width: labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B2'))),
                           Container(width: valueSpace, child: Text(card.data.resistance!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
@@ -117,7 +117,7 @@ class CardViewer extends StatelessWidget {
                           energyImage(card.data.resistance!.energy),
                           Expanded(child: SizedBox()),
                         ]),
-                      if( card.data.weakness != null )
+                      if( card.data.weakness != null && card.data.weakness!.energy != Type.Unknown )
                         Row(children: [
                           Container(width: labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B3'))),
                           Container(width: valueSpace, child: Text(card.data.weakness!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
@@ -179,13 +179,19 @@ class EffectViewer extends StatelessWidget {
     Widget? descriptionPanel;
     if(effect.title != null) {
       List<Widget> attackType = [];
-      effect.attack.forEach((type) { attackType.add(energyImage(type)); });
+      effect.attack.forEach((type) {
+        if(type != Type.Unknown) {
+          attackType.add(energyImage(type));
+        }
+      });
 
       attackPanel = Row(
         children: <Widget>[
           Text(Environment.instance.collection.effects[effect.title!].name(l), style: Theme.of(context).textTheme.headline5,),
-          Expanded(child: Row( children: attackType)),
-          Container(width: valueSpace, child: Text(effect.power.toString())),
+          if(attackType.isNotEmpty)
+            Expanded(child: Row( children: attackType)),
+          if(attackType.isNotEmpty)
+            Container(width: valueSpace, child: Text(effect.power.toString())),
         ],
       );
     }

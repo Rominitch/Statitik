@@ -160,9 +160,16 @@ class CardEffects {
     }
   }
 
+  void removeUseless() {
+    effects.removeWhere((element) {
+      return element.title == null && element.description == null;
+    });
+  }
+
   List<int> toBytes() {
     List<int> b = [version, effects.length];
     effects.forEach((element) {
+      assert(element.title != null || element.description != null);
       b += element.toBytes();
     });
 

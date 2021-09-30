@@ -317,6 +317,7 @@ class Collection
       weakness = Int8List.fromList(card.weakness!.toBytes());
     }
     var effects;
+    card.cardEffects.removeUseless();
     if( card.cardEffects.effects.isNotEmpty ) {
       effects = Int8List.fromList(card.cardEffects.toBytes());
     }
