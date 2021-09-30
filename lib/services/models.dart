@@ -149,6 +149,13 @@ enum Rarity {
   Unknown,
 }
 
+bool isPokemonType(type) {
+  return type != Type.Energy
+      && type != Type.Objet
+      && type != Type.Supporter
+      && type != Type.Stade;
+}
+
 const List<Color> rarityColors =
 [
   Colors.green, Colors.green, Color(0xFF43A047), Color(0xFF43A047), Color(0xFF388E3C), Color(0xFF388E3C),  // C JC P JU R JR

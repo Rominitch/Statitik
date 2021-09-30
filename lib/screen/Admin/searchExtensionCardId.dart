@@ -7,7 +7,9 @@ import 'package:statitikcard/services/pokemonCard.dart';
 
 class SearchExtensionsCardId extends StatelessWidget {
   final Type type;
-  const SearchExtensionsCardId(this.type, {Key? key}) : super(key: key);
+  final CardTitleData? name;
+
+  const SearchExtensionsCardId(this.type, this.name, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +24,10 @@ class SearchExtensionsCardId extends StatelessWidget {
         int id=0;
         subExtension.seCards.cards.forEach((List<PokemonCardExtension> allCards) {
           var cardData = allCards[0].data;
-          if(type == cardData.type) {
+
+          if(type == cardData.type // Keep only same type
+            && (this.name == null || cardData.title.isEmpty || this.name == cardData.title[0].name) // If name, search similar
+            ) {
             int? localId = Environment.instance.collection.rPokemonCards[cardData];
             if(localId == null) {
               printOutput("SearchExtensionsCardId: Impossible to find card: $id into ${subExtension.name}");

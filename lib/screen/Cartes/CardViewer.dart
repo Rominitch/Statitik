@@ -98,6 +98,7 @@ class CardViewer extends StatelessWidget {
                           ),
                         )
                       ]),
+                      if( isPokemonType(card.data.type) )
                       Row(children: [
                         Container(width: labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B0'))),
                         Container(width: valueSpace, child: Text(card.data.life.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
@@ -108,6 +109,7 @@ class CardViewer extends StatelessWidget {
                           progressColor: Colors.red,
                         )),
                       ]),
+                      if( isPokemonType(card.data.type) )
                       Row(children: [
                         Container(width: labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B1'))),
                         Container(width: valueSpace, child: Text(card.data.retreat.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),

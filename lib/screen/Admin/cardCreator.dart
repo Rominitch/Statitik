@@ -193,14 +193,17 @@ class _CardCreatorState extends State<CardCreator> {
                 onPressed: () {
                   Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SearchExtensionsCardId(widget.card.data.type)),
+                  MaterialPageRoute(builder: (context) => SearchExtensionsCardId(widget.card.data.type,
+                      widget.card.data.title.isNotEmpty ? widget.card.data.title[0].name : null)),
                   ).then((idCard) {
-                    setState(() {
-                      // Change object
-                      widget.card.data = Environment.instance.collection.pokemonCards[idCard];
-                      // Recompute default value
-                      selectCard();
-                    });
+                    if(idCard != null) {
+                      setState(() {
+                        // Change object
+                        widget.card.data = Environment.instance.collection.pokemonCards[idCard];
+                        // Recompute default value
+                        selectCard();
+                      });
+                    }
                   });
                 }
               )
@@ -278,6 +281,7 @@ class _CardCreatorState extends State<CardCreator> {
             backgroundColor: Colors.blueGrey[800],
             body: CardEffectsPanel(widget.card, widget.activeLanguage)
           ),
+          if( isPokemonType(widget.card.data.type) )
           ExpansionPanel(
             canTapOnHeader: true,
             headerBuilder: (context, isOpen) { return ListTile(
@@ -535,18 +539,20 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
               ),
             ],
           ),
-          GridView.count(
-            crossAxisCount: 7,
-            primary: false,
-            shrinkWrap: true,
-            children: regionsWidget,
-          ),
-          GridView.count(
-            crossAxisCount: 6,
-            primary: false,
-            shrinkWrap: true,
-            children: formeWidget,
-          ),
+          if( isPokemonType(widget.card.data.type) )
+            GridView.count(
+              crossAxisCount: 7,
+              primary: false,
+              shrinkWrap: true,
+              children: regionsWidget,
+            ),
+          if( isPokemonType(widget.card.data.type) )
+            GridView.count(
+              crossAxisCount: 6,
+              primary: false,
+              shrinkWrap: true,
+              children: formeWidget,
+            ),
       ],
     );
   }
