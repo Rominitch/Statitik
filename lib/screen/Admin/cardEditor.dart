@@ -23,12 +23,15 @@ class CardEditor extends StatefulWidget {
 class _CardEditorState extends State<CardEditor> {
   @override
   Widget build(BuildContext context) {
+    String title = sprintf("%s %s",
+        [ widget.se.seCards.numberOfCard(widget.id),
+          widget.se.seCards.titleOfCard(Language(id: 1, image: ""), widget.id, widget.idAlternative)
+        ]);
+
     return Scaffold(
         appBar: AppBar(
           title: Container(
-            child: Text(sprintf("%s: %s %s",
-                [StatitikLocale.of(context).read('CE_T0'), widget.se.seCards.numberOfCard(widget.id), widget.se.seCards.titleOfCard(Language(id: 1, image: ""), widget.id, widget.idAlternative)]
-              ),
+            child: Text(sprintf("%s: %s", [ StatitikLocale.of(context).read('CE_T0'), title]),
               style: Theme.of(context).textTheme.headline6,
               softWrap: true,
               maxLines: 2,
@@ -55,7 +58,7 @@ class _CardEditorState extends State<CardEditor> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              CardCreator.editor(widget.se.extension.language, widget.card, widget.isWorldCard),
+              CardCreator.editor(widget.se.extension.language, widget.card, title, widget.isWorldCard),
             ]
           )
         )

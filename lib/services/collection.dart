@@ -397,6 +397,46 @@ class Collection
     return result;
   }
 
+  List<List<int>> searchOrphanCard() {
+    List<List<int>> toRemove = [];
+    for( var cardID in pokemonCards.keys ) {
+      bool find = false;
+      var cardInfo = pokemonCards[cardID];
+      // Parse all subExtension
+      for(SubExtension se in subExtensions.values) {
+        // for each card
+        for(var seCard in se.seCards.cards) {
+          // and possible alternative
+          for(var seCardSub in seCard) {
+            // search object
+            if(seCardSub.data == cardInfo) {
+              find = true;
+              break;
+            }
+          }
+          // Quit quickly
+          if(find) {
+            break;
+          }
+        }
+        // Quit quickly
+        if(find) {
+          break;
+        }
+      }
+      // Orphan ?
+      if(!find) {
+        toRemove.add([cardID]);
+      }
+    }
+    return toRemove;
+  }
+
+  Future<void> removeListCards(List<List<int>> cardId, connection) async {
+    var query = 'DELETE FROM `StatitikPokemonDebug`.`Cartes` WHERE (`idCartes` = ?)';
+    await connection.queryMulti(query, cardId);
+  }
+
   /*
   Future<void> readOldDatabaseToConvert() async {
     migration = false;

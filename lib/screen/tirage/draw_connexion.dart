@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/Admin/newCardExtensions.dart';
 import 'package:statitikcard/screen/Admin/newProduct.dart';
 
@@ -153,10 +154,42 @@ class _DrawHomePageState extends State<DrawHomePage> {
                               radius: 20,
                               child: IconButton(
                                 padding: EdgeInsets.zero,
-                                icon: Icon(Icons.refresh),
+                                icon: Icon(Icons.delete_forever),
                                 color: Colors.white,
                                 onPressed: () {
-                                  if(imageCache!=null) imageCache!.clear();
+                                  var orphans = Environment.instance.collection.searchOrphanCard();
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => new AlertDialog(
+                                      title: new Text(StatitikLocale.of(context).read('warning')),
+                                      content: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                                        children: [
+                                          Text( sprintf(StatitikLocale.of(context).read('CA_B33'), [orphans.length]),
+                                              textAlign: TextAlign.justify),
+                                          if(orphans.isNotEmpty) Card(
+                                            color: Colors.red,
+                                            child: TextButton(
+                                              child: Text(StatitikLocale.of(context).read('yes')),
+                                              onPressed: () {
+                                                // Remove card
+                                                Environment.instance.removeOrphans(orphans).then((value) {
+                                                  if(value) {
+                                                    // Reload full database to have all real data
+                                                    Environment.instance.startDB=false;
+                                                    Environment.instance.readStaticData().then((value) {
+                                                      Environment.instance.collection.adminReverse();
+                                                      Navigator.pop(context);
+                                                    });
+                                                  }
+                                                });
+                                              }
+                                            )
+                                          )
+                                        ]
+                                      )
+                                    )
+                                  );
                                 },
                               )),
                         ]),

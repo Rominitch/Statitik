@@ -17,9 +17,10 @@ class CardCreator extends StatefulWidget {
   final PokemonCardExtension  card;
   final Function(int?)?       onAppendCard;
   final List                  listRarity;
+  final String                title;
 
-  CardCreator.editor(this.activeLanguage, this.card, bool isWorldCard): editor=true, onAppendCard=null, listRarity = (isWorldCard ? worldRarity : japanRarity);
-  CardCreator.quick(this.activeLanguage,  this.card,  this.onAppendCard, bool isWorldCard): editor=false, listRarity = (isWorldCard ? worldRarity : japanRarity);
+  CardCreator.editor(this.activeLanguage, this.card, this.title, bool isWorldCard): editor=true, onAppendCard=null, listRarity = (isWorldCard ? worldRarity : japanRarity);
+  CardCreator.quick(this.activeLanguage,  this.card,  this.onAppendCard, bool isWorldCard): editor=false, listRarity = (isWorldCard ? worldRarity : japanRarity), title="";
 
   @override
   _CardCreatorState createState() => _CardCreatorState();
@@ -97,7 +98,6 @@ class _CardCreatorState extends State<CardCreator> {
     _isOpen = [false, false, false, false, false];
 
     Type.values.forEach((element) {
-      if( element != Type.Unknown)
         typeCard.add(CustomRadio(value: element, controller: typeController, widget: getImageType(element)));
     });
 
@@ -170,9 +170,14 @@ class _CardCreatorState extends State<CardCreator> {
         level.add(Expanded(child: CustomRadio(value: element, controller: levelController, widget: Text( getLevelText(context, element) ))));
       });
       levelController.afterPress(widget.card.data.level);
-      var code = ( Environment.instance.collection.pokemonCards.containsValue(widget.card.data) )
-       ? Environment.instance.collection.rPokemonCards[widget.card.data].toString()
-       : StatitikLocale.of(context).read('CA_B29');
+
+      int? databaseCardId = Environment.instance.collection.pokemonCards.containsValue(widget.card.data)
+                          ? Environment.instance.collection.rPokemonCards[widget.card.data]
+                          : null;
+
+      var codeDB = databaseCardId != null
+                 ? databaseCardId.toString()
+                 : StatitikLocale.of(context).read('CA_B29');
 
       others = <Widget>[
         GridView.count(
@@ -185,7 +190,7 @@ class _CardCreatorState extends State<CardCreator> {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-            Expanded(child: Text(StatitikLocale.of(context).read('CA_B30')+code, style: Theme.of(context).textTheme.headline5)),
+            Expanded(child: Text(StatitikLocale.of(context).read('CA_B30')+ " " + codeDB, style: Theme.of(context).textTheme.headline5)),
             Card (
               color: Colors.grey[500],
               child: TextButton(
@@ -194,7 +199,7 @@ class _CardCreatorState extends State<CardCreator> {
                   Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => SearchExtensionsCardId(widget.card.data.type,
-                      widget.card.data.title.isNotEmpty ? widget.card.data.title[0].name : null)),
+                      widget.card.data.title.isNotEmpty ? widget.card.data.title[0].name : null, widget.title, databaseCardId ?? 0)),
                   ).then((idCard) {
                     if(idCard != null) {
                       setState(() {

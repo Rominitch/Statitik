@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -8,8 +9,10 @@ import 'package:statitikcard/services/pokemonCard.dart';
 class SearchExtensionsCardId extends StatelessWidget {
   final Type type;
   final CardTitleData? name;
+  final String title;
+  final int currentId;
 
-  const SearchExtensionsCardId(this.type, this.name, {Key? key}) : super(key: key);
+  const SearchExtensionsCardId(this.type, this.name, this.title, this.currentId, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +37,14 @@ class SearchExtensionsCardId extends StatelessWidget {
             } else {
               cardsWidgets.add(
                Card(
-                 color: Colors.grey[500],
+                 color: (localId == currentId) ? Colors.red[500] : Colors.grey[500],
                  child: TextButton(
-                   child: Text(subExtension.seCards.numberOfCard(id)),
+                   child: Column(
+                     children: [
+                       Text(subExtension.seCards.numberOfCard(id)),
+                       Text(localId.toString(), style: TextStyle(fontSize: 8)),
+                     ],
+                   ),
                    onPressed: () {
                      Navigator.pop(context, localId);
                    },
@@ -73,7 +81,7 @@ class SearchExtensionsCardId extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(StatitikLocale.of(context).read('CA_B31')),
+        title: Text(sprintf("%s %s - %d", [StatitikLocale.of(context).read('CA_B31'), this.title, currentId])),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

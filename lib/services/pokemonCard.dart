@@ -274,7 +274,6 @@ class SubExtensionCards {
   static const int version = 3;
 
   String tcgImage(idCard) {
-    CodeNaming cn = CodeNaming();
     if(codeNaming.isNotEmpty) {
       for(var element in codeNaming) {
         if( idCard >= element.idStart) {

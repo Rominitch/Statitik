@@ -23,7 +23,6 @@ class CardViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/SWSH45/SWSH45_FR_SV003.png
     String cardImage = "";
     if(Environment.instance.showTCGImages){
       if( se.extension.language.id == 1 )
@@ -33,9 +32,6 @@ class CardViewer extends StatelessWidget {
       else if( card.data.jpImage.isNotEmpty )
         cardImage = "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${card.data.jpImage}.jpg";
     }
-
-
-    List<Widget> markers = [];
 
     List<Widget> effectsWidgets = [];
     card.data.cardEffects.effects.forEach((effect) {

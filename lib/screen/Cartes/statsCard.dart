@@ -48,7 +48,7 @@ class _StatsCardState extends State<StatsCard> {
     );
   }
 
-  void updateContent(subEx, rarity, type, markers, regions) {
+  void updateContent(subEx, rarityWidget, typeWidget, markers, regions) {
     var s = widget.stats.stats!;
 
     if(widget.stats.isSpecific() || widget.stats.isFiltered()) {
@@ -100,31 +100,37 @@ class _StatsCardState extends State<StatsCard> {
     }
 
     double count = s.nbCards().toDouble();
-    s.countRarity.entries.forEach((item) {
-      var r = item.value.toDouble();
-      rarity.add( Row(
+    orderedRarity.forEach((rarity) {
+      var value = s.countRarity[rarity];
+      if(value != null) {
+        var r = value.toDouble();
+        rarityWidget.add( Row(
           children: [ Container(
-            child: Row( children: getImageRarity(item.key)), alignment: Alignment.centerLeft, width: _spaceBefore,),
+            child: Row( children: getImageRarity(rarity)), alignment: Alignment.centerLeft, width: _spaceBefore,),
             Expanded(child: LinearPercentIndicator(
               lineHeight: 8.0,
               percent: ( r / count).clamp(0.0, 1.0),
-              progressColor: rarityColors[item.key.index],
+              progressColor: rarityColors[rarity.index],
             )),
-            createCountWidget(item.value)
+            createCountWidget(value)
           ]));
+      }
     });
 
-    s.countType.entries.forEach((item) {
-      var r = item.value.toDouble();
-      type.add( Row(
-          children: [ Container(child: getImageType(item.key), alignment: Alignment.centerLeft, width: _spaceBefore, height: 25.0,),
+    orderedType.forEach((type) {
+      var value = s.countType[type];
+      if(value != null) {
+        var r = value.toDouble();
+        typeWidget.add( Row(
+          children: [ Container(child: getImageType(type), alignment: Alignment.centerLeft, width: _spaceBefore, height: 25.0,),
             Expanded(child: LinearPercentIndicator(
               lineHeight: 8.0,
               percent: ( r / count).clamp(0.0, 1.0),
-              progressColor: typeColors[item.key.index],
+              progressColor: typeColors[type.index],
             )),
-            createCountWidget(item.value)
+            createCountWidget(value)
           ]));
+      }
     });
 
     s.countMarker.entries.forEach((item) {

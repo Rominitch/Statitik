@@ -66,7 +66,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.1.4';
+    final String version = '1.1.5';
 
     // State
     bool isInitialized          = false;
@@ -88,6 +88,9 @@ class Environment
         // General data control
         assert(Rarity.values.length <= 255);
         assert(Rarity.values.length     == rarityColors.length);
+        assert(Rarity.values.length     == orderedRarity.length);
+        assert(Type.values.length <= 255);
+        assert(Type.values.length       == orderedType.length);
         assert(Type.values.length       == typeColors.length);
         assert(CardMarker.values.length == markerColors.length);
         assert(CardMarker.values.length <= 40);
@@ -451,4 +454,19 @@ class Environment
         }
         return false;
     }
+
+    Future<bool> removeOrphans(cardId) async {
+        if( isLogged() && user!.admin) {
+            try {
+                return await db.transactionR( (connection) async {
+                    await collection.removeListCards(cardId, connection);
+                });
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
+        }
+        return false;
+    }
+
+
 }

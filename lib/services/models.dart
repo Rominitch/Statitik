@@ -98,7 +98,7 @@ String getLevelText(context, Level element) {
   return StatitikLocale.of(context).read(levelString[element.index]);
 }
 
-// Fr type / rarity
+// Fr type / rarity -> NEVER CHANGED ORDER
 enum Type {
   Plante,
   Feu,
@@ -117,6 +117,12 @@ enum Type {
   Energy,
   Unknown,
 }
+const List<Type> orderedType = const[
+  Type.Unknown, Type.Plante, Type.Feu, Type.Eau, Type.Electrique, Type.Psy, Type.Combat, Type.Obscurite, Type.Metal, Type.Fee,
+  Type.Dragon, Type.Incolore, Type.Objet, Type.Supporter, Type.Stade, Type.Energy,
+];
+
+// NEVER CHANGED ORDER
 enum Rarity {
   Commune,
   JC,
@@ -147,7 +153,18 @@ enum Rarity {
   HoloRareSecret,
   JUR,
   Unknown,
+  Empty,
 }
+
+const List<Rarity> orderedRarity = const[
+  Rarity.Empty, Rarity.Unknown,
+  Rarity.Commune, Rarity.JC, Rarity.PeuCommune, Rarity.JU, Rarity.Rare, Rarity.JR,
+  Rarity.HoloRare, Rarity.Magnifique, Rarity.JA, Rarity.Prism,
+  Rarity.Chromatique,  Rarity.JS,  Rarity.Turbo,  Rarity.V, // or GX /Ex
+  Rarity.JRR,  Rarity.VMax,  Rarity.JRRR,  Rarity.BrillantRare, //PB
+  Rarity.UltraRare,  Rarity.ChromatiqueRare,  Rarity.JSSR,  Rarity.Secret,
+  Rarity.JSR,  Rarity.ArcEnCiel,  Rarity.JHR,  Rarity.Gold,  Rarity.HoloRareSecret,  Rarity.JUR,
+];
 
 bool isPokemonType(type) {
   return type != Type.Energy
@@ -162,15 +179,15 @@ const List<Color> rarityColors =
   Colors.blue, Color(0xFF1E88E5), Color(0xFF1E88E5), Color(0xFF1976D2), Color(0xFF1565C0),                  // H M JA P C
   Colors.purple, Colors.purple, Colors.purple, Color(0xFF8E24AA), Color(0xFF8E24AA), Color(0xFF7B1FA2), Color(0xFF6A1B9A), Color(0xFF6A1B9A),         // Ch JS T V JRR Vm JRRR PB
   Colors.yellow, Colors.yellow, Color(0xFFFDD835), Color(0xFFFDD835), Color(0xFFFBC02D), Color(0xFFFBC02D), Color(0xFFF9A825), Color(0xFFF9A825), Color(0xFFF9A825),           // ChR JSSR S JSR A JHR G HS JUR
-  Colors.black // unknown
+  Colors.black, Colors.green, // unknown, Empty
 ];
 
-const List<Rarity> worldRarity = [Rarity.Commune, Rarity.PeuCommune, Rarity.Rare,
+const List<Rarity> worldRarity = [Rarity.Empty, Rarity.Commune, Rarity.PeuCommune, Rarity.Rare,
   Rarity.HoloRare, Rarity.Magnifique, Rarity.Prism, Rarity.Chromatique, Rarity.Turbo,
   Rarity.V, Rarity.VMax, Rarity.BrillantRare, Rarity.UltraRare,
-  Rarity.ChromatiqueRare, Rarity.Secret, Rarity.ArcEnCiel, Rarity.Gold, Rarity.HoloRareSecret,
+  Rarity.ChromatiqueRare, Rarity.Secret, Rarity.ArcEnCiel, Rarity.Gold, Rarity.HoloRareSecret
 ];
-const List<Rarity> japanRarity = [Rarity.JC, Rarity.JU, Rarity.JR, Rarity.JRR,
+const List<Rarity> japanRarity = [Rarity.Empty, Rarity.JC, Rarity.JU, Rarity.JR, Rarity.JRR,
   Rarity.JRRR, Rarity.JSR, Rarity.JHR, Rarity.JUR, Rarity.JA, Rarity.JS, Rarity.JSSR
 ];
 
@@ -353,7 +370,9 @@ List<Widget> getImageRarity(Rarity rarity, {fontSize=12.0, generate=false}) {
       case Rarity.JSSR:
         rendering = [Text('SSR', style: TextStyle(fontSize: fontSize))];
         break;
-
+      case Rarity.Empty:
+        rendering = [Text('')];
+      break;
       default:
         throw Exception("Unknown rarity: $rarity");
     }
