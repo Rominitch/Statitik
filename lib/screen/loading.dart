@@ -82,8 +82,14 @@ class _LoadingState extends State<Loading> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       SizedBox(height: 80.0),
-                      Text(StatitikLocale.of(context).read(msgError),
-                        style: TextStyle(color: Colors.red)
+                      Card(
+                        color: Colors.red[700],
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(StatitikLocale.of(context).read(msgError),
+                            style: TextStyle(color: Colors.white)
+                          ),
+                        ),
                       ),
                       SizedBox(height: 10.0),
                       Card(

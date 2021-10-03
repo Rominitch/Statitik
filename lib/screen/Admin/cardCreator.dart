@@ -33,7 +33,7 @@ class _CardCreatorState extends State<CardCreator> {
   late CustomRadioController weaknessController   = CustomRadioController(onChange: (value) { onWeaknessChanged(value); });
   late CustomRadioController typeExtController    = CustomRadioController(onChange: (value) { onTypeExtChanged(value); });
   late CustomRadioController levelController      = CustomRadioController(onChange: (value) { onLevel(value); });
-
+  final imageController = TextEditingController();
 
   List<Widget> typeCard = [];
   List<Widget> typeExtCard = [];
@@ -152,6 +152,7 @@ class _CardCreatorState extends State<CardCreator> {
     // Set current value
     typeController.afterPress(widget.card.data.type);
     rarityController.afterPress(widget.card.rarity);
+    imageController.text = widget.card.image;
   }
 
   @override
@@ -397,6 +398,18 @@ class _CardCreatorState extends State<CardCreator> {
                       )
                     ],
                   ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(StatitikLocale.of(context).read('CA_B34'), style: TextStyle(fontSize: 12)),
+                      TextField(
+                        controller: imageController,
+                        onChanged: (data) {
+                          widget.card.image = data;
+                        }
+                      ),
+                    ]
+                  )
                 ],
               ),
             )

@@ -191,7 +191,7 @@ class Collection
         // 8 = faiblesse
         // 9 = resistance
         // 10 = illustrateur
-        // 11 = image
+
         List<Pokemon> namePokemons = [];
         if(row[1] != null)
         {
@@ -219,10 +219,9 @@ class Collection
         var weakness     = row[8] != null ? EnergyValue.fromBytes((row[8] as Blob).toBytes().toList()) : null;
         var resistance   = row[9] != null ? EnergyValue.fromBytes((row[9] as Blob).toBytes().toList()) : null;
         var illustrator  = row[10] != null ? illustrators[row[10]]: null;
-        var jpImage      = row[11] ?? "";
 
         //Build card
-        PokemonCardData p = PokemonCardData(namePokemons, level, type, markers, life, retreat, resistance, weakness, jpImage);
+        PokemonCardData p = PokemonCardData(namePokemons, level, type, markers, life, retreat, resistance, weakness);
         //Extract typeExtended (for double energy card)
         if(typeBytes.length > 1) {
           p.typeExtended = Type.values[typeBytes[1]];
@@ -323,17 +322,17 @@ class Collection
       effects = Int8List.fromList(card.cardEffects.toBytes());
     }
 
-    List data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life, Int8List.fromList(card.markers.toBytes()), effects, retreat, weakness, resistance, idIllustrator, card.jpImage];
+    List data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life, Int8List.fromList(card.markers.toBytes()), effects, retreat, weakness, resistance, idIllustrator];
     var query = "";
     if (idCard == null) {
       data.insert(0, nextId);
-      query = 'INSERT INTO `Cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
+      query = 'INSERT INTO `Cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
 
       // Update internal database
       pokemonCards[nextId] = card;
       rPokemonCards[card] = nextId;
     } else {
-      query = 'UPDATE `Cartes` SET `noms` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?, `image` = ?'
+      query = 'UPDATE `Cartes` SET `noms` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?'
           ' WHERE `Cartes`.`idCartes` = $idCard';
     }
 

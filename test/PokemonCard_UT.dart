@@ -72,19 +72,22 @@ void main() {
     Map collection = {
       1: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Pika", "Pika", "Pika"]), 1, 25),)], Level.Base, Type.Eau, CardMarkers()),
       2: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Chu", "Chu", "Chu"]), 2, 25),)],    Level.Level1, Type.Electrique, CardMarkers()),
+      3: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Jp", "Jp", "Jp"]), 2, 25),)],    Level.Level2, Type.Electrique, CardMarkers()),
     };
     Map rCollection = collection.map((k, v) => MapEntry(v, k));
 
     List<PokemonCardExtension> c =
     [
       PokemonCardExtension(collection[1], Rarity.Chromatique),
-      PokemonCardExtension(collection[2], Rarity.ArcEnCiel)
+      PokemonCardExtension(collection[2], Rarity.ArcEnCiel),
+      PokemonCardExtension(collection[3], Rarity.Empty, "Image.png"),
     ];
 
     for(PokemonCardExtension code in c) {
       PokemonCardExtension codeS = PokemonCardExtension.fromBytes(ByteParser(code.toBytes(rCollection)), collection);
       expect(codeS.data,   code.data); // Pointer comparison
       expect(codeS.rarity, code.rarity);
+      expect(codeS.image, code.image);
     }
   });
 

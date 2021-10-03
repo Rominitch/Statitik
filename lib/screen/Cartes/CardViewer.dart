@@ -29,8 +29,8 @@ class CardViewer extends StatelessWidget {
         cardImage = "https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/${se.icon}/${se.icon}_FR_${se.seCards.tcgImage(id)}.png";
       else if( se.extension.language.id == 2 )
         cardImage = "https://assets.pokemon.com/assets/cms2/img/cards/web/${se.icon}/${se.icon}_EN_${se.seCards.tcgImage(id)}.png";
-      else if( card.data.jpImage.isNotEmpty )
-        cardImage = "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${card.data.jpImage}.jpg";
+      else if( card.image.isNotEmpty )
+        cardImage = "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${card.image}.jpg";
     }
 
     List<Widget> effectsWidgets = [];

@@ -169,11 +169,11 @@ class CardEffects {
   List<int> toBytes() {
     List<int> b = [version, effects.length];
     effects.forEach((element) {
-      assert(element.title != null || element.description != null);
+      //assert(element.title != null || element.description != null);
       b += element.toBytes();
     });
 
-    printOutput("CardEffects: data: ${b.length}");
+    //printOutput("CardEffects: data: ${b.length}");
     return b;
 
     // Don't use compression -> No gain in place

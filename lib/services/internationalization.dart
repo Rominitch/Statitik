@@ -114,7 +114,7 @@ class StatitikLocale {
 Images and illustrations used are the property of their respective authors.
 © 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon and Pokémon character names are trademarks of Nintendo.''',
       'DB_0': 'Impossible to connect.',
-      'DB_1': 'Software is too old. Please update.',
+      'DB_1': 'Software is too old.\nPlease go to GooglePlay for update (can take time to detect).\nSorry for inconvenience.',
       'RE_B0': 'Best cards',
       'RE_B1': 'Shared',
       'RE_B2': 'Report is saved into Pictures.',
@@ -237,6 +237,7 @@ Images and illustrations used are the property of their respective authors.
       'CA_B31':   'Replace:',
       'CA_B32':   'Change',
       'CA_B33':   'Remove orphan: %d',
+      'CA_B34':   'Image',
       'MARK_0': 'Legende',
       'MARK_1': 'Restaure',
       'MARK_2': 'Mega',
@@ -376,7 +377,7 @@ Les personnages, le thème "Pokémon ®" et ses marques dérivées sont proprié
 Les images et illustrations utilisées sont la propriété de leurs auteurs respectifs.
 © 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.''',
       'DB_0': 'Impossible de se connecter à la base de données.',
-      'DB_1': 'Le programme est trop vieux. Installez les mises à jour.',
+      'DB_1': 'Le programme est trop vieux.\nInstallez les mises à jour sous GooglePlay (peut mettre du temps à être détecté).\n\nDésolé pour la gêne occasionnée.',
       'NP_T0': 'Nouveau produit',
       'RE_B0': 'Meilleures cartes',
       'RE_B1': 'Partage',
@@ -501,6 +502,7 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'CA_B31':   'Remplacer:',
       'CA_B32':   'Change',
       'CA_B33':   'Supprimer les cartes seules: %d',
+      'CA_B34':   'Image',
       'MARK_0': 'Legende',
       'MARK_1': 'Restaure',
       'MARK_2': 'Mega',
