@@ -5,7 +5,13 @@ import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 
-import 'Tools.dart';
+class DescriptionData {
+  MultiLanguageString name;
+  List<DescriptionEffect> markers = [];
+
+  DescriptionData.fromDb(this.name, int marks) {
+  }
+}
 
 class DecryptedString {
   List<String>  finalString = [];
@@ -16,6 +22,7 @@ class DecryptedString {
 class CardDescription {
   int   idDescription;
   List  parameters = []; ///< List of parameter to substitute
+  List<DescriptionEffect> effects = [];
 
   CardDescription(this.idDescription);
 

@@ -160,7 +160,7 @@ class Collection
       var descriptionsRes = await connection.query("SELECT * FROM `Description`");
       for (var row in descriptionsRes) {
         try {
-          descriptions[row[0]] = MultiLanguageString(row[1].split('|'));
+          descriptions[row[0]] = DescriptionData.fromDb(MultiLanguageString(row[1].split('|')), row[2] ?? 0);
         } catch(e) {
           printOutput("Bad Description: ${row[0]} $e");
         }

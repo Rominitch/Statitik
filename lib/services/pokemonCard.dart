@@ -149,6 +149,18 @@ class CardMarkers {
       codeMarkers[1] & 0xFF,
     ];
   }
+
+  void add(value) {
+    markers.add(value);
+  }
+
+  void remove(value) {
+    markers.remove(value);
+  }
+
+  bool contains(value) {
+    return markers.contains(value);
+  }
 }
 
 class EnergyValue {

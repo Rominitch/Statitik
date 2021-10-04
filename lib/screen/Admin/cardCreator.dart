@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Admin/cardEffectPanel.dart';
 import 'package:statitikcard/screen/Admin/searchExtensionCardId.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/ListSelector.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -138,10 +139,10 @@ class _CardCreatorState extends State<CardCreator> {
     if( widget.editor ) {
       CardMarker.values.forEach((element) {
         if (element != CardMarker.Nothing && !longMarker.contains(element))
-          marker.add(ButtonCheck(widget.card.data.markers, element));
+          marker.add(MarkerButtonCheck(widget.card.data.markers, element));
       });
       longMarker.forEach((element) {
-        longMarkerWidget.add(Expanded(child: ButtonCheck(widget.card.data.markers, element)));
+        longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.card.data.markers, element)));
       });
 
       typeExtController.afterPress(widget.card.data.typeExtended != null ? widget.card.data.typeExtended! : Type.Unknown);
@@ -305,13 +306,13 @@ class _CardCreatorState extends State<CardCreator> {
                     Expanded(
                       child: Slider(
                         value: widget.card.data.life.toDouble(),
-                        min: 0,
-                        max: 400,
+                        min: minLife.toDouble(),
+                        max: maxLife.toDouble(),
                         divisions: 40,
                         label: widget.card.data.life.toString(),
                         onChanged: (double value) {
                           setState(() {
-                            widget.card.data.life = value.toInt();
+                            widget.card.data.life = value.round().toInt();
                           });
                         },
                       ),
@@ -324,13 +325,13 @@ class _CardCreatorState extends State<CardCreator> {
                     Expanded(
                       child: Slider(
                         value: widget.card.data.retreat.toDouble(),
-                        min: 0,
-                        max: 5,
+                        min: minRetreat.toDouble(),
+                        max: maxRetreat.toDouble(),
                         divisions: 5,
                         label: widget.card.data.retreat.toString(),
                         onChanged: (double value) {
                           setState(() {
-                            widget.card.data.retreat = value.toInt();
+                            widget.card.data.retreat = value.round().toInt();
                           });
                         },
                       ),
@@ -349,8 +350,8 @@ class _CardCreatorState extends State<CardCreator> {
                       Slider(
                         value: widget.card.data.weakness != null ?
                         widget.card.data.weakness!.value.toDouble() : 0,
-                        min: 0,
-                        max: 5,
+                        min: minWeakness.toDouble(),
+                        max: maxWeakness.toDouble(),
                         divisions: 5,
                         label: widget.card.data.weakness != null ?
                         widget.card.data.weakness!.value.toString() : "Not activated",
@@ -380,8 +381,8 @@ class _CardCreatorState extends State<CardCreator> {
                       Slider(
                         value: widget.card.data.resistance != null ?
                           widget.card.data.resistance!.value.toDouble() : 0,
-                        min: 0,
-                        max: 60,
+                        min: minResistance.toDouble(),
+                        max: maxResistance.toDouble(),
                         divisions: 6,
                         label: widget.card.data.resistance != null ?
                                widget.card.data.resistance!.value.toString() : "Not activated",
@@ -572,38 +573,6 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
               children: formeWidget,
             ),
       ],
-    );
-  }
-}
-
-class ButtonCheck extends StatefulWidget {
-  final CardMarker  mark;
-  final CardMarkers cardMarkers;
-
-  const ButtonCheck(this.cardMarkers, this.mark);
-
-  @override
-  _ButtonCheckState createState() => _ButtonCheckState();
-}
-
-class _ButtonCheckState extends State<ButtonCheck> {
-  @override
-  Widget build(BuildContext context) {
-    var cm = widget.cardMarkers.markers;
-    return Card(
-      color: cm.contains(widget.mark) ? Colors.green : Colors.grey[800],
-      child: TextButton(
-        child: pokeMarker(context, widget.mark, height: 15),
-        onPressed: (){
-          setState(() {
-            if( cm.contains(widget.mark) ) {
-              cm.remove(widget.mark);
-            } else {
-              cm.add(widget.mark);
-            }
-          });
-        },
-      ),
     );
   }
 }

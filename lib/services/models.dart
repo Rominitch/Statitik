@@ -15,6 +15,21 @@ const double iconSize = 25.0;
 
 final Color greenValid = Colors.green[500]!;
 
+const int minLife = 0;
+const int maxLife = 400;
+
+const int minPower = 0;
+const int maxPower = 5;
+
+const int minRetreat = 0;
+const int maxRetreat = 5;
+
+const int minResistance = 0;
+const int maxResistance = 60;
+
+const int minWeakness = 0;
+const int maxWeakness = 5;
+
 class ByteParser
 {
   List<int> byteArray;
@@ -382,6 +397,27 @@ List<Widget> getImageRarity(Rarity rarity, {fontSize=12.0, generate=false}) {
       cachedImageRarity[rarity.index] = rendering;
   }
   return cachedImageRarity[rarity.index]!;
+}
+
+enum DescriptionEffect {
+  Attack,
+  Draw,
+  FlipCoin,
+  Poison,
+  Burn,
+  Sleep,
+  Paralyzed,
+  Search
+}
+Widget getDescriptionEffectWidget(DescriptionEffect de) {
+  switch(de) {
+    case DescriptionEffect.Attack:
+      //return Icon(Icons.);
+    case DescriptionEffect.Draw:
+      //return Icon(Icons.dice);
+    default:
+      return Icon(Icons.help_outline);
+  }
 }
 
 List<Widget?> cachedImageType = List.filled(Type.values.length, null);
@@ -946,9 +982,24 @@ class CardStats {
 
 class CardResults {
   CardTitleData?  specificCard;
-  CardMarkers filter = CardMarkers();
-  Region?     filterRegion;
-  CardStats?  stats;
+  CardMarkers     filter = CardMarkers();
+  Region?         filterRegion;
+  CardStats?      stats;
+  List<Type>      types    = [];
+  List<Rarity>    rarities = [];
+
+  MultiLanguageString? effectName;
+
+  Type?           attackType   = Type.Unknown;
+  RangeValues     attackCount  = const RangeValues(0, 5);
+  RangeValues     attackPower  = const RangeValues(0, 400);
+
+  // Pokémon card
+  RangeValues     life           = RangeValues(minLife.toDouble(), maxLife.toDouble());
+  Type?           weaknessType   = Type.Unknown;
+  RangeValues     weakness       = RangeValues(minWeakness.toDouble(), maxWeakness.toDouble());
+  Type?           resistanceType = Type.Unknown;
+  RangeValues     resistance     = RangeValues(minResistance.toDouble(), maxResistance.toDouble());
 
   bool isSelected(PokemonCardExtension card){
     bool select = true;

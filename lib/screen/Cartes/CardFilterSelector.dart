@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -22,6 +22,9 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
   List<Widget> widgetMarkers    = [];
   List<Widget> longMarkerWidget = [];
   List<Widget> regionsWidget    = [];
+  List<Widget> typesWidget      = [];
+  List<Widget> raritiesWidget   = [];
+
   void onRegionChanged(Region? value) {
     widget.result.filterRegion = value;
   }
@@ -33,10 +36,19 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
     // Build static card marker
     CardMarker.values.forEach((element) {
       if (element != CardMarker.Nothing && !longMarker.contains(element))
-        widgetMarkers.add(ButtonCheck(widget.result.filter, element));
+        widgetMarkers.add(MarkerButtonCheck(widget.result.filter, element));
     });
     longMarker.forEach((element) {
-      longMarkerWidget.add(Expanded(child: ButtonCheck(widget.result.filter, element)));
+      longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.result.filter, element)));
+    });
+
+    orderedType.forEach((type) {
+      typesWidget.add(TypeButtonCheck(widget.result.types, type));
+    });
+
+    var rarities = widget.language.isWorld() ? worldRarity : japanRarity;
+    rarities.forEach((rarity) {
+      raritiesWidget.add(RarityButtonCheck(widget.result.rarities, rarity));
     });
 
     // Set default value
@@ -84,6 +96,36 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                   Row(children: longMarkerWidget.sublist(3)),
                 ],
               ),
+            ),
+            Card(
+              child: Column(
+                children: [
+                  GridView.count(
+                    crossAxisCount: 6,
+                    primary: false,
+                    shrinkWrap: true,
+                    children: typesWidget,
+                  ),
+                  GridView.count(
+                    crossAxisCount: 6,
+                    primary: false,
+                    shrinkWrap: true,
+                    children: raritiesWidget,
+                  ),
+                ],
+              ),
+            ),
+            Card(
+              child: Column(
+                children: [
+                  RangeSlider(
+                    values: widget.result.life,
+                    onChanged: (life){ widget.result.life = life;},
+                    min: minLife.toDouble(),
+                    max: maxLife.toDouble(),
+                  )
+                ]
+              )
             ),
           ],
         )
