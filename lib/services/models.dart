@@ -169,6 +169,7 @@ enum Rarity {
   JUR,
   Unknown,
   Empty,
+  JCHR,
 }
 
 const List<Rarity> orderedRarity = const[
@@ -177,7 +178,7 @@ const List<Rarity> orderedRarity = const[
   Rarity.HoloRare, Rarity.Magnifique, Rarity.JA, Rarity.Prism,
   Rarity.Chromatique,  Rarity.JS,  Rarity.Turbo,  Rarity.V, // or GX /Ex
   Rarity.JRR,  Rarity.VMax,  Rarity.JRRR,  Rarity.BrillantRare, //PB
-  Rarity.UltraRare,  Rarity.ChromatiqueRare,  Rarity.JSSR,  Rarity.Secret,
+  Rarity.UltraRare,  Rarity.ChromatiqueRare,  Rarity.JSSR,  Rarity.Secret, Rarity.JCHR,
   Rarity.JSR,  Rarity.ArcEnCiel,  Rarity.JHR,  Rarity.Gold,  Rarity.HoloRareSecret,  Rarity.JUR,
 ];
 
@@ -195,6 +196,7 @@ const List<Color> rarityColors =
   Colors.purple, Colors.purple, Colors.purple, Color(0xFF8E24AA), Color(0xFF8E24AA), Color(0xFF7B1FA2), Color(0xFF6A1B9A), Color(0xFF6A1B9A),         // Ch JS T V JRR Vm JRRR PB
   Colors.yellow, Colors.yellow, Color(0xFFFDD835), Color(0xFFFDD835), Color(0xFFFBC02D), Color(0xFFFBC02D), Color(0xFFF9A825), Color(0xFFF9A825), Color(0xFFF9A825),           // ChR JSSR S JSR A JHR G HS JUR
   Colors.black, Colors.green, // unknown, Empty
+  Color(0xFFFDD835),
 ];
 
 const List<Rarity> worldRarity = [Rarity.Empty, Rarity.Commune, Rarity.PeuCommune, Rarity.Rare,
@@ -203,7 +205,7 @@ const List<Rarity> worldRarity = [Rarity.Empty, Rarity.Commune, Rarity.PeuCommun
   Rarity.ChromatiqueRare, Rarity.Secret, Rarity.ArcEnCiel, Rarity.Gold, Rarity.HoloRareSecret
 ];
 const List<Rarity> japanRarity = [Rarity.Empty, Rarity.JC, Rarity.JU, Rarity.JR, Rarity.JRR,
-  Rarity.JRRR, Rarity.JSR, Rarity.JHR, Rarity.JUR, Rarity.JA, Rarity.JS, Rarity.JSSR
+  Rarity.JRRR, Rarity.JSR, Rarity.JHR, Rarity.JUR, Rarity.JCHR, Rarity.JA, Rarity.JS, Rarity.JSSR
 ];
 
 const List<Rarity> goodCard = [
@@ -229,6 +231,7 @@ const List<Rarity> goodCard = [
   Rarity.Gold,
   Rarity.HoloRareSecret,
   Rarity.JUR,
+  Rarity.JCHR,
 ];
 
 enum Mode {
@@ -385,6 +388,9 @@ List<Widget> getImageRarity(Rarity rarity, {fontSize=12.0, generate=false}) {
       case Rarity.JSSR:
         rendering = [Text('SSR', style: TextStyle(fontSize: fontSize))];
         break;
+      case Rarity.JCHR:
+        rendering = [Text('CHR', style: TextStyle(fontSize: fontSize))];
+        break;
       case Rarity.Empty:
         rendering = [Text('')];
       break;
@@ -400,6 +406,7 @@ List<Widget> getImageRarity(Rarity rarity, {fontSize=12.0, generate=false}) {
 }
 
 enum DescriptionEffect {
+  Unknown,
   Attack,
   Draw,
   FlipCoin,
@@ -994,12 +1001,16 @@ class CardResults {
   RangeValues     attackCount  = const RangeValues(0, 5);
   RangeValues     attackPower  = const RangeValues(0, 400);
 
+  static RangeValues defaultLife       = RangeValues(minLife.toDouble(), maxLife.toDouble());
+  static RangeValues defaultWeakness   = RangeValues(minWeakness.toDouble(), maxWeakness.toDouble());
+  static RangeValues defaultResistance = RangeValues(minResistance.toDouble(), maxResistance.toDouble());
+
   // Pokémon card
-  RangeValues     life           = RangeValues(minLife.toDouble(), maxLife.toDouble());
-  Type?           weaknessType   = Type.Unknown;
-  RangeValues     weakness       = RangeValues(minWeakness.toDouble(), maxWeakness.toDouble());
-  Type?           resistanceType = Type.Unknown;
-  RangeValues     resistance     = RangeValues(minResistance.toDouble(), maxResistance.toDouble());
+  RangeValues     life           = defaultLife;
+  Type            weaknessType   = Type.Unknown;
+  RangeValues     weakness       = defaultWeakness;
+  Type            resistanceType = Type.Unknown;
+  RangeValues     resistance     = defaultResistance;
 
   bool isSelected(PokemonCardExtension card){
     bool select = true;
@@ -1021,6 +1032,36 @@ class CardResults {
         select |= card.data.markers.markers.contains(marker);
       });
     }
+    if(select && types.isNotEmpty) {
+      select = types.contains(card.data.type);
+    }
+    if(select && rarities.isNotEmpty) {
+      select = rarities.contains(card.rarity);
+    }
+    if(select && life != defaultLife) {
+      select = life.start <= card.data.life.toDouble() && card.data.life.toDouble() <= life.end;
+    }
+    if(select && (resistance != defaultResistance || resistanceType != Type.Unknown)) {
+      select = card.data.resistance != null;
+      if(select) {
+        var res = card.data.resistance!;
+        if(resistanceType != Type.Unknown)
+          select = res.energy == resistanceType;
+        if(select && resistance != defaultResistance)
+          select = resistance.start <= res.value.toDouble() && res.value.toDouble() <= resistance.end;
+      }
+    }
+    if(select && (weakness != defaultWeakness || weaknessType != Type.Unknown)) {
+      select = card.data.weakness != null;
+      if(select) {
+        var weak = card.data.weakness!;
+        if(weaknessType != Type.Unknown)
+          select = weak.energy == weaknessType;
+        if(select && weakness != defaultWeakness)
+          select = weakness.start <= weak.value.toDouble() && weak.value.toDouble() <= weakness.end;
+      }
+    }
+
     return select;
   }
 
@@ -1029,7 +1070,10 @@ class CardResults {
   }
 
   bool isFiltered() {
-    return filter.markers.isNotEmpty || filterRegion != null;
+    return filter.markers.isNotEmpty || filterRegion != null
+    || types.isNotEmpty || rarities.isNotEmpty || life != defaultLife
+    || weaknessType != Type.Unknown || weakness != defaultWeakness
+    || resistanceType != Type.Unknown || resistance != defaultResistance;
   }
 
   bool hasStats() {

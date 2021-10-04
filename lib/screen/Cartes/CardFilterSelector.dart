@@ -43,7 +43,8 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
     });
 
     orderedType.forEach((type) {
-      typesWidget.add(TypeButtonCheck(widget.result.types, type));
+      if( type != Type.Unknown )
+        typesWidget.add(TypeButtonCheck(widget.result.types, type));
     });
 
     var rarities = widget.language.isWorld() ? worldRarity : japanRarity;
@@ -101,13 +102,13 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
               child: Column(
                 children: [
                   GridView.count(
-                    crossAxisCount: 6,
+                    crossAxisCount: 9,
                     primary: false,
                     shrinkWrap: true,
                     children: typesWidget,
                   ),
                   GridView.count(
-                    crossAxisCount: 6,
+                    crossAxisCount: 9,
                     primary: false,
                     shrinkWrap: true,
                     children: raritiesWidget,
@@ -120,9 +121,16 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                 children: [
                   RangeSlider(
                     values: widget.result.life,
-                    onChanged: (life){ widget.result.life = life;},
+                    onChanged: (life){ setState(() {
+                      widget.result.life = life;
+                    });},
                     min: minLife.toDouble(),
                     max: maxLife.toDouble(),
+                    divisions: (maxLife.toDouble()/10).round(),
+                    labels: RangeLabels(
+                      widget.result.life.start.round().toString(),
+                      widget.result.life.end.round().toString(),
+                    ),
                   )
                 ]
               )

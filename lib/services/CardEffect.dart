@@ -10,6 +10,15 @@ class DescriptionData {
   List<DescriptionEffect> markers = [];
 
   DescriptionData.fromDb(this.name, int marks) {
+    int id = 1;
+    while(marks > 0)
+    {
+      if((marks & 0x1) == 0x1) {
+        markers.add(DescriptionEffect.values[id]);
+      }
+      id = id+1;
+      marks = marks >> 1;
+    }
   }
 }
 

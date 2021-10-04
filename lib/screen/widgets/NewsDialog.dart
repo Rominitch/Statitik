@@ -80,7 +80,6 @@ class _CarouselNewsState extends State<CarouselNews> {
                 }
             ),
             items:   newsWidget
-
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,

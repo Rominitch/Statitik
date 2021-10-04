@@ -63,8 +63,8 @@ class _CardStatisticPageState extends State<CardStatisticPage> {
               if( _cardResults.isSelected(singleCard) ) {
                 stats.add(subExt, singleCard, id);
               }
-              id += 1;
             });
+            id += 1;
           });
         }
        });
