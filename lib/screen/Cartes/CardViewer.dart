@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:kana_kit/kana_kit.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -21,6 +22,36 @@ class CardViewer extends StatelessWidget {
   static const double valueSpace = 70;
   static const double lineHeight = 10.0;
 
+  String convertRomaji(String name) {
+    /*
+    var conversion = const {
+      "ア": "A", "イ": "I", "ウ": "U", "エ": "E", "オ": "O",
+      "カ": "KA", "キ": "KI", "ク": "KU", "ケ": "KE", "コ": "KO",
+      "ガ": "GA", "ギ": "GI", "グ": "GU", "ゲ": "GE", "ゴ": "GO",
+      "サ": "SA", "シ":"SHI","ス":"SU" ,"セ": "SE", "ソ": "SO",
+      "ザ": "ZA", "ジ":"JI", "ズ":"ZU", "ゼ": "ZE", "ゾ": "ZO",
+      "タ": "TA", "チ":"CHI","ツ":"TSU","テ": "TE", "ト": "TO",
+      "ダ": "DA", "ヂ": "JI","ヅ": "ZU","デ": "ZE", "ド": "ZO",
+      "ナ": "NA", "ニ": "NI","ヌ": "NU","ネ": "NE", "ノ": "NO",
+      "ハ": "HA", "ヒ": "HI","フ": "FU","ヘ": "HE", "ホ": "HO",
+      "バ": "BA", "ビ": "BI","ブ": "BU","ベ": "BE", "ボ": "BO",
+      "パ": "PA", "ピ": "PI","プ": "PU","ペ": "PE", "ポ": "PO",
+      "マ": "MA", "ミ": "MI","ム": "MU","メ": "ME", "モ": "MO",
+      "ラ": "RA", "リ": "RI","ル": "RU","レ": "RE", "ロ": "RO",
+      "ヤ": "YA", "ユ": "YU","ヨ": "YO",
+      "ワ": "WA", "ヰ": "WU","ヲ": "WO",
+      "ン": "N"
+    };
+    String finalString = "";
+    name.characters.forEach((element) {
+      finalString += conversion[element] ?? "";
+    });
+    return finalString;
+*/
+    const kanaKit = KanaKit();
+    return kanaKit.copyWithConfig(upcaseKatakana: true).toRomaji(name);
+  }
+
   @override
   Widget build(BuildContext context) {
     String cardImage = "";
@@ -29,8 +60,15 @@ class CardViewer extends StatelessWidget {
         cardImage = "https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/${se.icon}/${se.icon}_FR_${se.seCards.tcgImage(id)}.png";
       else if( se.extension.language.id == 2 )
         cardImage = "https://assets.pokemon.com/assets/cms2/img/cards/web/${se.icon}/${se.icon}_EN_${se.seCards.tcgImage(id)}.png";
-      else if( card.image.isNotEmpty )
-        cardImage = "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${card.image}.jpg";
+      else if( se.extension.language.id == 3 ) {
+        if( card.image.isEmpty) {
+          String codeImage = (int.parse(se.seCards.cards[0][0].image.split("_")[0]) + id).toString();
+          String romajiName = convertRomaji(card.data.titleOfCard(se.extension.language));
+          cardImage = "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${codeImage}_P_$romajiName.jpg";
+        } else {
+          cardImage = "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${card.image}.jpg";
+        }
+      }
     }
 
     List<Widget> effectsWidgets = [];
