@@ -6,7 +6,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 
 import 'package:statitikcard/services/News.dart';
 import 'package:statitikcard/services/Tools.dart';
-import 'package:statitikcard/services/internationalization.dart';
 
 SimpleDialog createNewDialog(BuildContext context, List<News> news)
 {

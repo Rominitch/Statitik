@@ -17,7 +17,13 @@ class CardFilterSelector extends StatefulWidget {
 }
 
 class _CardFilterSelectorState extends State<CardFilterSelector> {
-  late CustomRadioController regionController  = CustomRadioController(onChange: (Region? value) { onRegionChanged(value); });
+  static const double typeSize = 40.0;
+  static const double labelWidth = 100.0;
+
+  late CustomButtonCheckController refreshController = CustomButtonCheckController(refresh);
+  late CustomRadioController regionController = CustomRadioController(onChange: (Region? value) { onRegionChanged(value); });
+  late CustomRadioController weaknessController   = CustomRadioController(onChange: (value) { onWeaknessChanged(value); });
+  late CustomRadioController resistanceController = CustomRadioController(onChange: (value) { onResistanceChanged(value); });
 
   List<Widget> widgetMarkers    = [];
   List<Widget> longMarkerWidget = [];
@@ -25,8 +31,31 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
   List<Widget> typesWidget      = [];
   List<Widget> raritiesWidget   = [];
 
+  List<Widget> weaknessTypeWidget   = [];
+  List<Widget> resistanceTypeWidget = [];
+
   void onRegionChanged(Region? value) {
-    widget.result.filterRegion = value;
+    setState(() {
+      widget.result.filterRegion = value;
+    });
+  }
+
+  void onWeaknessChanged(value) {
+    setState(() {
+      widget.result.weaknessType = value;
+    });
+  }
+
+  void onResistanceChanged(value) {
+    setState(() {
+      widget.result.resistanceType = value;
+    });
+  }
+
+  void refresh() {
+    setState(() {
+
+    });
   }
 
   @override
@@ -36,104 +65,193 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
     // Build static card marker
     CardMarker.values.forEach((element) {
       if (element != CardMarker.Nothing && !longMarker.contains(element))
-        widgetMarkers.add(MarkerButtonCheck(widget.result.filter, element));
+        widgetMarkers.add(MarkerButtonCheck(widget.result.filter, element, controller: refreshController,));
     });
     longMarker.forEach((element) {
-      longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.result.filter, element)));
+      longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.result.filter, element, controller: refreshController)));
     });
 
     orderedType.forEach((type) {
       if( type != Type.Unknown )
-        typesWidget.add(TypeButtonCheck(widget.result.types, type));
+        typesWidget.add(TypeButtonCheck(widget.result.types, type, controller: refreshController));
     });
 
     var rarities = widget.language.isWorld() ? worldRarity : japanRarity;
     rarities.forEach((rarity) {
-      raritiesWidget.add(RarityButtonCheck(widget.result.rarities, rarity));
+      raritiesWidget.add(RarityButtonCheck(widget.result.rarities, rarity, controller: refreshController));
+    });
+
+    energies.forEach((element) {
+      weaknessTypeWidget.add(CustomRadio(value: element, controller: weaknessController, widget: getImageType(element), widthBox: typeSize,));
+      resistanceTypeWidget.add(CustomRadio(value: element, controller: resistanceController, widget: getImageType(element), widthBox: typeSize));
     });
 
     // Set default value
     regionController.currentValue = widget.result.filterRegion;
+    weaknessController.currentValue   = widget.result.weaknessType;
+    resistanceController.currentValue = widget.result.resistanceType;
+  }
+
+  Widget createHeader(BuildContext context, String title, clearMethod) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
+      child: Row(
+        children: [
+          Expanded(child: Text( StatitikLocale.of(context).read(title), style: Theme.of(context).textTheme.headline5)),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            color: Colors.white,
+            onPressed: () {
+              setState(() { clearMethod(); });
+            },
+          )
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    Color selectFilter = Colors.green[900]!;
+    Color normalFilter = Colors.grey[700]!;
+
     if( regionsWidget.isEmpty ) {
       regionsWidget = createRegionsWidget(context, regionController, widget.language);
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text( StatitikLocale.of(context).read('CA_T2'), style: Theme.of(context).textTheme.headline3, ),
+        title: Text( StatitikLocale.of(context).read('CA_T2'), style: Theme.of(context).textTheme.headline3 ),
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Card(
-              child: Column(
-                children: [
-                  Text( StatitikLocale.of(context).read('CA_B13'), style: Theme.of(context).textTheme.headline5),
-                  GridView.count(
+            ExpansionPanelList.radio(
+              expandedHeaderPadding: EdgeInsets.zero,
+              children: [
+                // Panel Region
+                ExpansionPanelRadio(
+                  backgroundColor: widget.result.hasRegionFilter() ? selectFilter : normalFilter,
+                  value: 0,
+                  canTapOnHeader: true,
+                  headerBuilder: (context, isExpanded) {
+                    return createHeader(context, 'CA_B13', () {
+                      widget.result.clearRegionFilter();
+                      regionController.afterPress(widget.result.filterRegion);
+                     });
+                  },
+                  body: GridView.count(
                     crossAxisCount: 7,
                     primary: false,
                     shrinkWrap: true,
                     children: regionsWidget,
                   ),
-                ],
-              ),
-            ),
-            Card(
-              child: Column(
-                children: [
-                  Text( StatitikLocale.of(context).read('CA_B12'), style: Theme.of(context).textTheme.headline5),
-                  GridView.count(
-                    crossAxisCount: 6,
-                    primary: false,
-                    shrinkWrap: true,
-                    children: widgetMarkers,
+                ),
+                // Panel Marker
+                ExpansionPanelRadio(
+                  backgroundColor: widget.result.hasMarkersFilter() ? selectFilter : normalFilter,
+                  value: 1,
+                  canTapOnHeader: true,
+                  headerBuilder: (context, isExpanded) {
+                    return createHeader(context, 'CA_B16', () {
+                      widget.result.clearMarkersFilter();
+                      refreshController.refresh();
+                    });
+                  },
+                  body: Column(
+                    children: [
+                      GridView.count(
+                        crossAxisCount: 6,
+                        primary: false,
+                        shrinkWrap: true,
+                        children: widgetMarkers,
+                      ),
+                      Row(children: longMarkerWidget.sublist(0,3)),
+                      Row(children: longMarkerWidget.sublist(3)),
+                    ],
                   ),
-                  Row(children: longMarkerWidget.sublist(0,3)),
-                  Row(children: longMarkerWidget.sublist(3)),
-                ],
-              ),
-            ),
-            Card(
-              child: Column(
-                children: [
-                  GridView.count(
-                    crossAxisCount: 9,
-                    primary: false,
-                    shrinkWrap: true,
-                    children: typesWidget,
+                ),
+                ExpansionPanelRadio(
+                  backgroundColor: widget.result.hasTypeRarityFilter() ? selectFilter : normalFilter,
+                  value: 2,
+                  canTapOnHeader: true,
+                  headerBuilder: (BuildContext context, bool isExpanded) {
+                    return createHeader(context, 'CA_B15', widget.result.clearTypeRarityFilter);
+                  },
+                  body: Column(
+                    children: [
+                      GridView.count(
+                        crossAxisCount: 9,
+                        primary: false,
+                        shrinkWrap: true,
+                        children: typesWidget,
+                      ),
+                      GridView.count(
+                        crossAxisCount: 9,
+                        primary: false,
+                        shrinkWrap: true,
+                        children: raritiesWidget,
+                      ),
+                    ],
                   ),
-                  GridView.count(
-                    crossAxisCount: 9,
-                    primary: false,
-                    shrinkWrap: true,
-                    children: raritiesWidget,
-                  ),
-                ],
-              ),
-            ),
-            Card(
-              child: Column(
-                children: [
-                  RangeSlider(
-                    values: widget.result.life,
-                    onChanged: (life){ setState(() {
-                      widget.result.life = life;
-                    });},
-                    min: minLife.toDouble(),
-                    max: maxLife.toDouble(),
-                    divisions: (maxLife.toDouble()/10).round(),
-                    labels: RangeLabels(
-                      widget.result.life.start.round().toString(),
-                      widget.result.life.end.round().toString(),
+                ),
+                ExpansionPanelRadio(
+                  backgroundColor: widget.result.hasGeneralityFilter() ? selectFilter : normalFilter,
+                  value: 3,
+                  canTapOnHeader: true,
+                  headerBuilder: (BuildContext context, bool isExpanded) {
+                    return createHeader(context, 'CA_B35', () {
+                      widget.result.clearGeneralityFilter();
+                      resistanceController.afterPress(widget.result.resistanceType);
+                      weaknessController.afterPress(widget.result.weaknessType);
+                    });
+                  },
+                  body: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          children: [
+                            Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B0'), style: Theme.of(context).textTheme.headline6)),
+                            Expanded(
+                              child: RangeSlider(
+                                values: widget.result.life,
+                                onChanged: (life) {
+                                  setState(() {
+                                    widget.result.life = life;
+                                  });
+                                },
+                                min: minLife.toDouble(),
+                                max: maxLife.toDouble(),
+                                divisions: (maxLife.toDouble()/10).round(),
+                                labels: RangeLabels(
+                                  widget.result.life.start.round().toString(),
+                                  widget.result.life.end.round().toString(),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B3'), style: Theme.of(context).textTheme.headline6)),
+                            Expanded(child: Container(height: typeSize, child: ListView(children: weaknessTypeWidget, scrollDirection: Axis.horizontal, primary: false)))
+                          ],
+                        ),
+
+                        Row(
+                          children: [
+                            Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B2'), style: Theme.of(context).textTheme.headline6)),
+                            Expanded(child: Container(height: typeSize, child: ListView(children: resistanceTypeWidget, scrollDirection: Axis.horizontal, primary: false)))
+                          ],
+                        )
+                      ]
                     ),
                   )
-                ]
-              )
+                ),
+              ]
             ),
           ],
         )

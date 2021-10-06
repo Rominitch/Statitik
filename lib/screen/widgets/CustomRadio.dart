@@ -23,12 +23,16 @@ class CustomRadioController {
   void afterPress(value) {
     currentValue = value;
     // Refresh all radio
-    _radios.forEach((element) {
-      element.activate(value);
-    });
+    refresh();
 
     // Call custom action
     onChange(value);
+  }
+
+  void refresh() {
+    _radios.forEach((element) {
+      element.activate(currentValue);
+    });
   }
 }
 
@@ -45,10 +49,6 @@ class CustomRadio extends StatefulWidget {
 
   void activate(cmpValue) {
     afterChange.add(cmpValue);
-  }
-
-  void _closeEvent() {
-    afterChange.close();
   }
 
   @override
@@ -73,7 +73,7 @@ class _CustomRadioState extends State<CustomRadio> {
   @override
   void dispose() {
     widget.controller.unregister(widget);
-    widget._closeEvent();
+    widget.afterChange.close();
     super.dispose();
   }
 

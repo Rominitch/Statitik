@@ -1020,13 +1020,13 @@ class CardResults {
         select |= (n.name == specificCard);
       }
     }
-    if(select && filterRegion != null) {
+    if(select && hasRegionFilter()) {
       select = false;
       for(var n in card.data.title) {
         select |= (n.region == filterRegion);
       }
     }
-    if(select && filter.markers.isNotEmpty) {
+    if(select && hasMarkersFilter()) {
       select = false;
       filter.markers.forEach((marker) {
         select |= card.data.markers.markers.contains(marker);
@@ -1070,13 +1070,55 @@ class CardResults {
   }
 
   bool isFiltered() {
-    return filter.markers.isNotEmpty || filterRegion != null
-    || types.isNotEmpty || rarities.isNotEmpty || life != defaultLife
-    || weaknessType != Type.Unknown || weakness != defaultWeakness
-    || resistanceType != Type.Unknown || resistance != defaultResistance;
+    return hasMarkersFilter() || hasRegionFilter()
+    || hasTypeRarityFilter() || hasGeneralityFilter();
   }
 
   bool hasStats() {
     return stats != null;
+  }
+
+  bool hasRegionFilter() {
+    return filterRegion != null;
+  }
+  void clearRegionFilter() {
+    filterRegion = null;
+  }
+  bool hasTypeRarityFilter() {
+    return types.isNotEmpty || rarities.isNotEmpty;
+  }
+  void clearTypeRarityFilter() {
+    types.clear();
+    rarities.clear();
+  }
+  bool hasMarkersFilter() {
+    return filter.markers.isNotEmpty;
+  }
+  void clearMarkersFilter() {
+    filter.markers.clear();
+  }
+
+  bool hasWeaknessFilter() {
+    return weaknessType != Type.Unknown
+        || weakness != defaultWeakness;
+  }
+
+  bool hasResistanceFilter() {
+    return resistanceType != Type.Unknown
+        || resistance != defaultResistance;
+  }
+
+  bool hasGeneralityFilter() {
+    return hasWeaknessFilter()
+    || hasResistanceFilter()
+    || life != defaultLife;
+  }
+
+  void clearGeneralityFilter() {
+    life           = defaultLife;
+    weaknessType   = Type.Unknown;
+    weakness       = defaultWeakness;
+    resistanceType = Type.Unknown;
+    resistance     = defaultResistance;
   }
 }
