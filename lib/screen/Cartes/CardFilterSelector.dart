@@ -177,7 +177,12 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                   value: 2,
                   canTapOnHeader: true,
                   headerBuilder: (BuildContext context, bool isExpanded) {
-                    return createHeader(context, 'CA_B15', widget.result.clearTypeRarityFilter);
+                    return createHeader(context, 'CA_B15', () {
+                      setState(() {
+                        widget.result.clearTypeRarityFilter();
+                        refreshController.refresh();
+                      });
+                    });
                   },
                   body: Column(
                     children: [

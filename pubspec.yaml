@@ -38,7 +38,7 @@ dependencies:
   url_launcher: ^6.0.8
   sprintf: ^6.0.0
   flutter_spinbox: ^0.6.0
-  permission_handler: ^8.1.2
+  permission_handler: ^8.2.2
   path_provider: ^2.0.2
   photo_manager: ^1.2.8
   screenshot: ^1.2.3
