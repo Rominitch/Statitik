@@ -258,6 +258,7 @@ class Collection
               : SubExtensionCards.emptyDraw(codeNaming);
         } catch(e) {
           printOutput("Bad SubExtensionCards: ${row[0]} $e");
+          cardsExtensions[row[0]] = SubExtensionCards.emptyDraw([]);
         }
       }
       assert(cardsExtensions.isNotEmpty);
@@ -336,7 +337,12 @@ class Collection
           ' WHERE `Cartes`.`idCartes` = $idCard';
     }
 
-    await connection.queryMulti(query, [data]);
+    try {
+      await connection.queryMulti(query, [data]);
+    } catch(e) {
+      printOutput("Request error");
+      throw e;
+    }
     return idCard == null;
   }
 

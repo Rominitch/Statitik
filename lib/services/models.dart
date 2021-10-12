@@ -10,6 +10,7 @@ import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/statitik_font_icons.dart';
 
 const double iconSize = 25.0;
 
@@ -409,22 +410,44 @@ List<Widget> getImageRarity(Rarity rarity, {fontSize=12.0, generate=false}) {
 }
 
 enum DescriptionEffect {
-  Unknown,
-  Attack,
-  Draw,
-  FlipCoin,
-  Poison,
-  Burn,
-  Sleep,
-  Paralyzed,
-  Search
+  Unknown,          // 0
+  Attack,           // 1
+  Draw,             // 2
+  FlipCoin,         // 4
+  Poison,           // 8
+  Burn,             // 16
+  Sleep,            // 32
+  Paralyzed,        // 64
+  Search,           // 128
+  Heal,             // 256
+  Mix,              // 512
+  Confusion,        // 1024
 }
+
 Widget getDescriptionEffectWidget(DescriptionEffect de) {
   switch(de) {
     case DescriptionEffect.Attack:
-      //return Icon(Icons.);
+      return Icon(StatitikFont.font_09_attack);
     case DescriptionEffect.Draw:
-      //return Icon(Icons.dice);
+      return Icon(StatitikFont.font_02_pioche);
+    case DescriptionEffect.FlipCoin:
+      return Icon(StatitikFont.font_03_coin);
+    case DescriptionEffect.Poison:
+      return Icon(StatitikFont.font_05_poison);
+    case DescriptionEffect.Burn:
+      return Icon(StatitikFont.font_04_burn);
+    case DescriptionEffect.Sleep:
+      return Icon(StatitikFont.font_07_sleep);
+    case DescriptionEffect.Paralyzed:
+      return Icon(StatitikFont.font_06_paralized);
+    case DescriptionEffect.Search:
+      return Icon(StatitikFont.font_08_search);
+    case DescriptionEffect.Heal:
+      return Icon(StatitikFont.font_12_heal);
+    case DescriptionEffect.Mix:
+      return Icon(StatitikFont.font_10_mix);
+    case DescriptionEffect.Confusion:
+      return Icon(StatitikFont.font_11_confusion);
     default:
       return Icon(Icons.help_outline);
   }
@@ -1188,6 +1211,6 @@ class CardResults {
     attackType   = Type.Unknown;
     attackEnergy  = defaultEnergyAttack;
     attackPower  = defaultAttack;
-    effects = [];
+    effects.clear();
   }
 }

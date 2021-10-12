@@ -21,6 +21,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
   static const double labelWidth = 100.0;
 
   late CustomButtonCheckController refreshController = CustomButtonCheckController(refresh);
+  late CustomButtonCheckController descriptionController = CustomButtonCheckController(refresh);
   late CustomRadioController regionController        = CustomRadioController(onChange: (Region? value) { onRegionChanged(value); });
   late CustomRadioController weaknessController      = CustomRadioController(onChange: (value) { onWeaknessChanged(value); });
   late CustomRadioController resistanceController    = CustomRadioController(onChange: (value) { onResistanceChanged(value); });
@@ -33,10 +34,10 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
   List<Widget> typesWidget      = [];
   List<Widget> raritiesWidget   = [];
 
-  List<Widget> weaknessTypeWidget   = [];
-  List<Widget> resistanceTypeWidget = [];
-  List<Widget> attackTypeEnergyWidget   = [];
-  List<Widget> effectsAttackWidget  = [];
+  List<Widget> weaknessTypeWidget     = [];
+  List<Widget> resistanceTypeWidget   = [];
+  List<Widget> attackTypeEnergyWidget = [];
+  List<Widget> effectsAttackWidget    = [];
 
   void onRegionChanged(Region? value) {
     setState(() {
@@ -98,7 +99,8 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
     });
 
     DescriptionEffect.values.forEach((effect) {
-      effectsAttackWidget.add(DescriptionEffectButtonCheck(widget.result.effects, effect, controller: refreshController));
+      if( effect != DescriptionEffect.Unknown)
+        effectsAttackWidget.add(DescriptionEffectButtonCheck(widget.result.effects, effect, controller: descriptionController));
     });
 
     // Set default value
@@ -272,13 +274,17 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                     ),
                   )
                 ),
-                ExpansionPanelRadio(
+                 ExpansionPanelRadio(
                     backgroundColor: widget.result.hasAttackFilter() ? selectFilter : normalFilter,
-                    value: 3,
+                    value: 4,
                     canTapOnHeader: true,
                     headerBuilder: (BuildContext context, bool isExpanded) {
                       return createHeader(context, 'CA_B36', () {
-                        widget.result.clearAttackFilter();
+                        setState(() {
+                          widget.result.clearAttackFilter();
+                          energyAttackController.afterPress(widget.result.attackType);
+                          descriptionController.refresh();
+                        });
                       });
                     },
                     body: Padding(
@@ -330,19 +336,10 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                                 ),
                               ],
                             ),
-                            Row(
-                              children: [
-                                Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B9'), style: Theme.of(context).textTheme.headline6)),
-                                Expanded(child: Container(height: typeSize, child: ListView(children: effectsAttackWidget, scrollDirection: Axis.horizontal, primary: false)))
-                              ],
-                            ),
-
-                            Row(
-                              children: [
-                                Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B10'), style: Theme.of(context).textTheme.headline6)),
-                                Expanded(child: Container(height: typeSize, child: ListView(children: attackTypeEnergyWidget, scrollDirection: Axis.horizontal, primary: false)))
-                              ],
-                            )
+                            Text(StatitikLocale.of(context).read('CAVIEW_B9'), style: Theme.of(context).textTheme.headline6),
+                            Container(height: typeSize, child: ListView(children: effectsAttackWidget, scrollDirection: Axis.horizontal, primary: false)),
+                            Text(StatitikLocale.of(context).read('CAVIEW_B10'), style: Theme.of(context).textTheme.headline6),
+                            Container(height: typeSize, child: ListView(children: attackTypeEnergyWidget, scrollDirection: Axis.horizontal, primary: false)),
                           ]
                       ),
                     )

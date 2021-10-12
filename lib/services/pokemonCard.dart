@@ -137,7 +137,8 @@ class CardMarkers {
         if(element.index < 32) {
           codeMarkers[1] |= (1<<(element.index-1));
         } else {
-          codeMarkers[0] |= (1<<(element.index-32-1));
+          var multiple = element.index-31;
+          codeMarkers[0] |= (1<<(multiple));
         }
       }
     });

@@ -151,7 +151,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
                             SizedBox(width: 8.0),
                             widget.data.subExt!.image(hSize: 30),
                             SizedBox(width: 8.0),
-                            Text(widget.data.subExt!.name, style: Theme.of(context).textTheme.headline6),
+                            Flexible(child: Text(widget.data.subExt!.name, style: Theme.of(context).textTheme.headline6, softWrap: true, maxLines: 3)),
                           ]
                         )
                       )

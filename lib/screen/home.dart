@@ -8,7 +8,7 @@ import 'package:statitikcard/screen/widgets/NewsDialog.dart';
 import 'package:statitikcard/services/News.dart';
 import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/statitikFontReader.dart';
+import 'package:statitikcard/services/statitik_font_icons.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -89,7 +89,7 @@ class _HomeState extends State<Home> {
               label: StatitikLocale.of(context).read('H_T1'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(StatitikFont.pokecard),
+              icon: Icon(StatitikFont.font_01_pokecard),
               label: StatitikLocale.of(context).read('H_T3'),
             ),
             BottomNavigationBarItem(
