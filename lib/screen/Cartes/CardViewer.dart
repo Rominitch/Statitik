@@ -49,7 +49,13 @@ class CardViewer extends StatelessWidget {
     return finalString;
 */
     const kanaKit = KanaKit();
-    return kanaKit.copyWithConfig(upcaseKatakana: true).toRomaji(name);
+    var val = "";
+    try {
+      val = kanaKit.copyWithConfig(upcaseKatakana: true).toRomaji(name);
+    } catch(e) {
+
+    }
+    return val;
   }
 
   @override
@@ -62,7 +68,7 @@ class CardViewer extends StatelessWidget {
         cardImage = "https://assets.pokemon.com/assets/cms2/img/cards/web/${se.icon}/${se.icon}_EN_${se.seCards.tcgImage(id)}.png";
       else if( se.extension.language.id == 3 ) {
         if( card.image.isEmpty) {
-          String codeImage = (int.parse(se.seCards.cards[0][0].image.split("_")[0]) + id).toString();
+          String codeImage = (int.parse(se.seCards.cards[0][0].image.split("_")[0]) + id).toString().padLeft(6, '0');
           String romajiName = convertRomaji(card.data.titleOfCard(se.extension.language));
           cardImage = "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${codeImage}_P_$romajiName.jpg";
         } else {
