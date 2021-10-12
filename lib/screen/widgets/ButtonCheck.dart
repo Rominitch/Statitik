@@ -118,3 +118,12 @@ class RarityButtonCheck extends ButtonCheck<Rarity> {
         children: getImageRarity(value, fontSize: 8.0, generate: true));
   }
 }
+
+class DescriptionEffectButtonCheck extends ButtonCheck<DescriptionEffect> {
+  DescriptionEffectButtonCheck(effectList, value, {controller}) : super(effectList, value, controller);
+
+  @override
+  Widget makeWidget(BuildContext context) {
+    return getDescriptionEffectWidget(value);
+  }
+}

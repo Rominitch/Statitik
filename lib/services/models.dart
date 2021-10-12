@@ -18,8 +18,11 @@ final Color greenValid = Colors.green[500]!;
 const int minLife = 0;
 const int maxLife = 400;
 
-const int minPower = 0;
-const int maxPower = 5;
+const int minAttackPower = 0;
+const int maxAttackPower = 400;
+
+const int minAttackEnergy = 0;
+const int maxAttackEnergy = 5;
 
 const int minRetreat = 0;
 const int maxRetreat = 5;
@@ -987,7 +990,29 @@ class CardStats {
   }
 }
 
+class TriState {
+  bool? value;
+
+  void set(bool v) {
+    if(value==null)
+      value = v;
+    else
+      value = value! | v;
+  }
+  bool isCheck() {
+    if( value == null)
+      return true;
+    return value!;
+  }
+}
+
 class CardResults {
+  static RangeValues defaultLife       = RangeValues(minLife.toDouble(), maxLife.toDouble());
+  static RangeValues defaultWeakness   = RangeValues(minWeakness.toDouble(), maxWeakness.toDouble());
+  static RangeValues defaultResistance = RangeValues(minResistance.toDouble(), maxResistance.toDouble());
+  static RangeValues defaultAttack     = RangeValues(minAttackPower.toDouble(), maxAttackPower.toDouble());
+  static RangeValues defaultEnergyAttack = RangeValues(minAttackEnergy.toDouble(), maxAttackEnergy.toDouble());
+
   CardTitleData?  specificCard;
   CardMarkers     filter = CardMarkers();
   Region?         filterRegion;
@@ -997,13 +1022,11 @@ class CardResults {
 
   MultiLanguageString? effectName;
 
+  // Attack
   Type?           attackType   = Type.Unknown;
-  RangeValues     attackCount  = const RangeValues(0, 5);
-  RangeValues     attackPower  = const RangeValues(0, 400);
-
-  static RangeValues defaultLife       = RangeValues(minLife.toDouble(), maxLife.toDouble());
-  static RangeValues defaultWeakness   = RangeValues(minWeakness.toDouble(), maxWeakness.toDouble());
-  static RangeValues defaultResistance = RangeValues(minResistance.toDouble(), maxResistance.toDouble());
+  RangeValues     attackEnergy = defaultEnergyAttack;
+  RangeValues     attackPower  = defaultAttack;
+  List<DescriptionEffect> effects = [];
 
   // Pokémon card
   RangeValues     life           = defaultLife;
@@ -1062,6 +1085,38 @@ class CardResults {
       }
     }
 
+    if(select && hasAttackFilter()) {
+      List<TriState> count = List.filled(4, TriState());
+      List<bool> checkDescriptions = List.filled(effects.length, false);
+
+      // Parse each effect to find filter item at least one time.
+      card.data.cardEffects.effects.forEach((effect) {
+        if(attackType != Type.Unknown)
+          count[0].set(effect.attack.contains(attackType));
+        if(select && attackEnergy != defaultEnergyAttack)
+          count[1].set(attackEnergy.start <= effect.power.toDouble() && effect.power.toDouble() <= attackEnergy.end);
+        if(select && attackPower != defaultAttack)
+          count[2].set(attackPower.start <= effect.power.toDouble() && effect.power.toDouble() <= attackPower.end);
+        if(select && effects.isNotEmpty) {
+          // Check we find at least each effect demanded (on the card).
+          int idDes = 0;
+          for(var e in effects) {
+            checkDescriptions[idDes] |= effect.description!.effects.contains(e);
+            idDes += 1;
+          }
+          // Compile all result
+          bool allCheck = true;
+          checkDescriptions.forEach((element) { allCheck &= element; });
+          count[3].set(allCheck);
+        }
+      });
+
+      // Compile final result
+      select = true;
+      for(var value in count) {
+        select &= value.isCheck();
+      }
+    }
     return select;
   }
 
@@ -1120,5 +1175,19 @@ class CardResults {
     weakness       = defaultWeakness;
     resistanceType = Type.Unknown;
     resistance     = defaultResistance;
+  }
+
+  bool hasAttackFilter() {
+    return attackType != Type.Unknown
+        || attackEnergy != defaultEnergyAttack
+        || attackPower != defaultAttack
+        || effects.isNotEmpty;
+  }
+
+  void clearAttackFilter() {
+    attackType   = Type.Unknown;
+    attackEnergy  = defaultEnergyAttack;
+    attackPower  = defaultAttack;
+    effects = [];
   }
 }
