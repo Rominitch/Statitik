@@ -118,7 +118,7 @@ class Collection
       var objSup = await connection.query("SELECT * FROM `DresseurObjet`");
       for (var row in objSup) {
         try {
-          otherNames[row[0]] = CardTitleData(MultiLanguageString(row[1].split('|')));
+          otherNames[row[0]] = CardTitleData(MultiLanguageString([row[1], row[2], row[3]]));
         } catch(e) {
           printOutput("Bad Object: ${row[0]} $e");
         }
@@ -161,7 +161,7 @@ class Collection
       for (var row in descriptionsRes) {
         try {
           int? mark = row[2];
-          descriptions[row[0]] = DescriptionData.fromDb(MultiLanguageString(row[1].split('|')), mark ?? 0);
+          descriptions[row[0]] = DescriptionData.fromDb(MultiLanguageString([row[1], row[3], row[4]]), mark ?? 0);
         } catch(e) {
           printOutput("Bad Description: ${row[0]} $e");
         }
