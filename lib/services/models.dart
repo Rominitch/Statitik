@@ -424,32 +424,32 @@ enum DescriptionEffect {
   Confusion,        // 1024
 }
 
-Widget getDescriptionEffectWidget(DescriptionEffect de) {
+Widget getDescriptionEffectWidget(DescriptionEffect de, {size}) {
   switch(de) {
     case DescriptionEffect.Attack:
-      return Icon(StatitikFont.font_09_attack);
+      return Icon(StatitikFont.font_09_attack, size: size);
     case DescriptionEffect.Draw:
-      return Icon(StatitikFont.font_02_pioche);
+      return Icon(StatitikFont.font_02_pioche, size: size);
     case DescriptionEffect.FlipCoin:
-      return Icon(StatitikFont.font_03_coin);
+      return Icon(StatitikFont.font_03_coin, size: size);
     case DescriptionEffect.Poison:
-      return Icon(StatitikFont.font_05_poison);
+      return Icon(StatitikFont.font_05_poison, size: size);
     case DescriptionEffect.Burn:
-      return Icon(StatitikFont.font_04_burn);
+      return Icon(StatitikFont.font_04_burn, size: size);
     case DescriptionEffect.Sleep:
-      return Icon(StatitikFont.font_07_sleep);
+      return Icon(StatitikFont.font_07_sleep, size: size);
     case DescriptionEffect.Paralyzed:
-      return Icon(StatitikFont.font_06_paralized);
+      return Icon(StatitikFont.font_06_paralized, size: size);
     case DescriptionEffect.Search:
-      return Icon(StatitikFont.font_08_search);
+      return Icon(StatitikFont.font_08_search, size: size);
     case DescriptionEffect.Heal:
-      return Icon(StatitikFont.font_12_heal);
+      return Icon(StatitikFont.font_12_heal, size: size);
     case DescriptionEffect.Mix:
-      return Icon(StatitikFont.font_10_mix);
+      return Icon(StatitikFont.font_10_mix, size: size);
     case DescriptionEffect.Confusion:
-      return Icon(StatitikFont.font_11_confusion);
+      return Icon(StatitikFont.font_11_confusion, size: size);
     default:
-      return Icon(Icons.help_outline);
+      return Icon(Icons.help_outline, size: size);
   }
 }
 

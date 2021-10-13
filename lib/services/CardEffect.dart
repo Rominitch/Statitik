@@ -46,6 +46,41 @@ class CardDescription {
     }
   }
 
+  void computeDescriptionEffects(Map descriptionCollection, Language l) {
+    // Combine and extract info
+    RegExp exp = RegExp(r"(.*?)<(.*?:.*?)>(.*)");
+    int count=0;
+
+    effects.clear();
+
+    DescriptionData data = descriptionCollection[idDescription];
+    data.markers.forEach((element) { if(!effects.contains(element)) effects.add(element); });
+
+    String toAnalyze = data.name.name(l);
+    while(toAnalyze.isNotEmpty) {
+      var match = exp.firstMatch(toAnalyze);
+      if( match != null ) {
+        toAnalyze = "";
+        var code = match.group(2)!.split(":");
+        assert(code.length==2);
+        if( code[0] == "D" ) {
+          DescriptionData data = descriptionCollection[int.parse(code[1])];
+          data.markers.forEach((element) { if(!effects.contains(element)) effects.add(element); });
+
+          toAnalyze += data.name.name(l);
+        } else if( code[0] == "E" ) {
+        } else {
+          throw StatitikException("Error of code");
+        }
+        toAnalyze += match.group(3)!;
+      } else {
+        break;
+      }
+      count += 1;
+      if(count > 30) throw StatitikException("Loop detector");
+    }
+  }
+
   List<int> toBytes() {
     List<int> bytes = <int>[
       (idDescription & 0xFF00) >> 8, idDescription & 0xFF,
@@ -89,7 +124,9 @@ class CardDescription {
 
     s.finalString.add("");
     int count=0;
-    String toAnalyze = descriptionCollection[idDescription].name(l);
+
+    DescriptionData data = descriptionCollection[idDescription];
+    String toAnalyze = data.name.name(l);
     while(toAnalyze.isNotEmpty) {
       var match = exp.firstMatch(toAnalyze);
       if( match != null ) {
@@ -98,7 +135,8 @@ class CardDescription {
           var code = match.group(2)!.split(":");
           assert(code.length==2);
           if( code[0] == "D" ) {
-            toAnalyze += descriptionCollection[int.parse(code[1])].name(l);
+            DescriptionData data = descriptionCollection[int.parse(code[1])];
+            toAnalyze += data.name.name(l);
           } else if( code[0] == "E" ) {
             s.itemsInside.add(getImageType(Type.values[int.parse(code[1])]));
             s.finalString.add("");

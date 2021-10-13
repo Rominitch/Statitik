@@ -160,7 +160,8 @@ class Collection
       var descriptionsRes = await connection.query("SELECT * FROM `Description`");
       for (var row in descriptionsRes) {
         try {
-          descriptions[row[0]] = DescriptionData.fromDb(MultiLanguageString(row[1].split('|')), row[2] ?? 0);
+          int? mark = row[2];
+          descriptions[row[0]] = DescriptionData.fromDb(MultiLanguageString(row[1].split('|')), mark ?? 0);
         } catch(e) {
           printOutput("Bad Description: ${row[0]} $e");
         }
@@ -228,6 +229,11 @@ class Collection
         }
         //Extract effects
         if( effects != null ) {
+          effects.effects.forEach((element) {
+            if( element.description != null ) {
+              element.description!.computeDescriptionEffects(descriptions, languages[1]);
+            }
+          });
           p.cardEffects = effects;
         }
         //Extract illustrator

@@ -23,31 +23,6 @@ class CardViewer extends StatelessWidget {
   static const double lineHeight = 10.0;
 
   String convertRomaji(String name) {
-    /*
-    var conversion = const {
-      "ア": "A", "イ": "I", "ウ": "U", "エ": "E", "オ": "O",
-      "カ": "KA", "キ": "KI", "ク": "KU", "ケ": "KE", "コ": "KO",
-      "ガ": "GA", "ギ": "GI", "グ": "GU", "ゲ": "GE", "ゴ": "GO",
-      "サ": "SA", "シ":"SHI","ス":"SU" ,"セ": "SE", "ソ": "SO",
-      "ザ": "ZA", "ジ":"JI", "ズ":"ZU", "ゼ": "ZE", "ゾ": "ZO",
-      "タ": "TA", "チ":"CHI","ツ":"TSU","テ": "TE", "ト": "TO",
-      "ダ": "DA", "ヂ": "JI","ヅ": "ZU","デ": "ZE", "ド": "ZO",
-      "ナ": "NA", "ニ": "NI","ヌ": "NU","ネ": "NE", "ノ": "NO",
-      "ハ": "HA", "ヒ": "HI","フ": "FU","ヘ": "HE", "ホ": "HO",
-      "バ": "BA", "ビ": "BI","ブ": "BU","ベ": "BE", "ボ": "BO",
-      "パ": "PA", "ピ": "PI","プ": "PU","ペ": "PE", "ポ": "PO",
-      "マ": "MA", "ミ": "MI","ム": "MU","メ": "ME", "モ": "MO",
-      "ラ": "RA", "リ": "RI","ル": "RU","レ": "RE", "ロ": "RO",
-      "ヤ": "YA", "ユ": "YU","ヨ": "YO",
-      "ワ": "WA", "ヰ": "WU","ヲ": "WO",
-      "ン": "N"
-    };
-    String finalString = "";
-    name.characters.forEach((element) {
-      finalString += conversion[element] ?? "";
-    });
-    return finalString;
-*/
     const kanaKit = KanaKit();
     var val = "";
     try {
@@ -239,6 +214,7 @@ class EffectViewer extends StatelessWidget {
       attackPanel = Row(
         children: <Widget>[
           Text(Environment.instance.collection.effects[effect.title!].name(l), style: Theme.of(context).textTheme.headline5,),
+          SizedBox(width: 5),
           if(attackType.isNotEmpty)
             Expanded(child: Row( children: attackType)),
           if(attackType.isNotEmpty)
@@ -246,8 +222,12 @@ class EffectViewer extends StatelessWidget {
         ],
       );
     }
+    List<Widget> descriptionMarkerWidgets = [];
     if(effect.description != null) {
       descriptionPanel = effect.description!.toWidget(Environment.instance.collection.descriptions, l);
+      effect.description!.effects.forEach((element) {
+        descriptionMarkerWidgets.add(getDescriptionEffectWidget(element));
+      });
     }
 
     return Card(
@@ -258,7 +238,14 @@ class EffectViewer extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if(attackPanel != null) attackPanel,
-            if(descriptionPanel != null) descriptionPanel,
+            if(descriptionPanel != null)
+              Row(
+                children: [
+                  Column(children: descriptionMarkerWidgets),
+                  SizedBox(width: 5),
+                  Expanded(child: descriptionPanel),
+                ],
+              ),
           ],
         ),
       )
