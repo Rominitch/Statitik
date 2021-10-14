@@ -6,10 +6,10 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 
 class DescriptionData {
-  MultiLanguageString name;
+  MultiLanguageString     multiName;
   List<DescriptionEffect> markers = [];
 
-  DescriptionData.fromDb(this.name, int marks) {
+  DescriptionData.fromDb(this.multiName, int marks) {
     int id = 1;
     while(marks > 0)
     {
@@ -19,6 +19,14 @@ class DescriptionData {
       id = id+1;
       marks = marks >> 1;
     }
+  }
+
+  String name(Language l) {
+    return multiName.name(l);
+  }
+
+  bool search(Language? l, String searchPart) {
+    return multiName.search(l, searchPart);
   }
 }
 
@@ -56,7 +64,7 @@ class CardDescription {
     DescriptionData data = descriptionCollection[idDescription];
     data.markers.forEach((element) { if(!effects.contains(element)) effects.add(element); });
 
-    String toAnalyze = data.name.name(l);
+    String toAnalyze = data.name(l);
     while(toAnalyze.isNotEmpty) {
       var match = exp.firstMatch(toAnalyze);
       if( match != null ) {
@@ -67,7 +75,7 @@ class CardDescription {
           DescriptionData data = descriptionCollection[int.parse(code[1])];
           data.markers.forEach((element) { if(!effects.contains(element)) effects.add(element); });
 
-          toAnalyze += data.name.name(l);
+          toAnalyze += data.name(l);
         } else if( code[0] == "E" ) {
         } else {
           throw StatitikException("Error of code");
@@ -126,7 +134,7 @@ class CardDescription {
     int count=0;
 
     DescriptionData data = descriptionCollection[idDescription];
-    String toAnalyze = data.name.name(l);
+    String toAnalyze = data.name(l);
     while(toAnalyze.isNotEmpty) {
       var match = exp.firstMatch(toAnalyze);
       if( match != null ) {
@@ -136,7 +144,7 @@ class CardDescription {
           assert(code.length==2);
           if( code[0] == "D" ) {
             DescriptionData data = descriptionCollection[int.parse(code[1])];
-            toAnalyze += data.name.name(l);
+            toAnalyze += data.name(l);
           } else if( code[0] == "E" ) {
             s.itemsInside.add(getImageType(Type.values[int.parse(code[1])]));
             s.finalString.add("");

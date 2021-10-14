@@ -5,6 +5,7 @@ import 'package:statitikcard/screen/Admin/cardEffectPanel.dart';
 import 'package:statitikcard/screen/Admin/searchExtensionCardId.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
+import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/ListSelector.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -15,13 +16,15 @@ import 'package:statitikcard/services/pokemonCard.dart';
 class CardCreator extends StatefulWidget {
   final Language              activeLanguage;
   final bool                  editor;
+  final SubExtension          se;
   final PokemonCardExtension  card;
+  final int                   idCard;
   final Function(int?)?       onAppendCard;
   final List                  listRarity;
   final String                title;
 
-  CardCreator.editor(this.activeLanguage, this.card, this.title, bool isWorldCard): editor=true, onAppendCard=null, listRarity = (isWorldCard ? worldRarity : japanRarity);
-  CardCreator.quick(this.activeLanguage,  this.card,  this.onAppendCard, bool isWorldCard): editor=false, listRarity = (isWorldCard ? worldRarity : japanRarity), title="";
+  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, bool isWorldCard): editor=true, onAppendCard=null, listRarity = (isWorldCard ? worldRarity : japanRarity);
+  CardCreator.quick(this.activeLanguage,  this.se, this.card, this.idCard, this.onAppendCard, bool isWorldCard): editor=false, listRarity = (isWorldCard ? worldRarity : japanRarity), title="";
 
   @override
   _CardCreatorState createState() => _CardCreatorState();
@@ -43,7 +46,6 @@ class _CardCreatorState extends State<CardCreator> {
   List<Widget> level   = [];
   List<Widget> longMarkerWidget = [];
   bool         _auto    = false;
-  List<bool>   _isOpen = [];
   List<Widget> resistanceCard = [];
   List<Widget> weaknessCard = [];
 
@@ -95,8 +97,6 @@ class _CardCreatorState extends State<CardCreator> {
   @override
   void initState() {
     super.initState();
-
-    _isOpen = [false, false, false, false, false];
 
     Type.values.forEach((element) {
         typeCard.add(CustomRadio(value: element, controller: typeController, widget: getImageType(element)));
@@ -182,16 +182,12 @@ class _CardCreatorState extends State<CardCreator> {
                  : StatitikLocale.of(context).read('CA_B29');
 
       others = <Widget>[
-        GridView.count(
-          crossAxisCount: 7,
-          primary: false,
-          shrinkWrap: true,
-          children: rarity,
-        ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
+            CardImage(widget.se, widget.card, widget.idCard, height: 100),
+            SizedBox(width:8),
             Expanded(child: Text(StatitikLocale.of(context).read('CA_B30')+ " " + codeDB, style: Theme.of(context).textTheme.headline5)),
             Card (
               color: Colors.grey[500],
@@ -217,38 +213,193 @@ class _CardCreatorState extends State<CardCreator> {
             )
           ]),
         ),
-        ExpansionPanelList(
-          expansionCallback: (i, isOpen) {
-            setState(() {
-              _isOpen[i] = !isOpen;
-            });
-          },
+        ExpansionPanelList.radio(
+          expandedHeaderPadding: EdgeInsets.zero,
           children: [
-          ExpansionPanel(
-              canTapOnHeader: true,
-              headerBuilder: (context, isOpen) { return ListTile(
-              title: Text(StatitikLocale.of(context).read('CA_B22'), style: TextStyle(fontSize: 12))); },
-              isExpanded: _isOpen[0],
-              backgroundColor: Colors.blueGrey[800],
-              body: Column(
-                children: namedWidgets + [
-                  Card(child: TextButton(
-                  child: Text(StatitikLocale.of(context).read('NCE_B7')),
-                  onPressed: () {
-                    setState(() {
-                      widget.card.data.title.add(Pokemon(Environment.instance.collection.pokemons[1]));
-                    });
-                  },
-                ))
-                ]
-              )),
-          ExpansionPanel(
+            ExpansionPanelRadio(
+                canTapOnHeader: true,
+                headerBuilder: (context, isOpen) { return ListTile(
+                title: Text(StatitikLocale.of(context).read('CA_B22'), style: TextStyle(fontSize: 12))); },
+                backgroundColor: Colors.blueGrey[800],
+                value: 0,
+                body: Column(
+                  children: namedWidgets + [
+                    Card(child: TextButton(
+                    child: Text(StatitikLocale.of(context).read('NCE_B7')),
+                    onPressed: () {
+                      setState(() {
+                        widget.card.data.title.add(Pokemon(Environment.instance.collection.pokemons[1]));
+                      });
+                    },
+                  ))
+                  ]
+                )
+            ),
+            if( isPokemonType(widget.card.data.type) )
+              ExpansionPanelRadio(
+                canTapOnHeader: true,
+                headerBuilder: (context, isOpen) { return ListTile(
+                    title:Text(StatitikLocale.of(context).read('CA_B18'), style: TextStyle(fontSize: 12))); },
+                value: 1,
+                backgroundColor: Colors.blueGrey[800],
+                body: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Row( children: level),
+                      Row(children: [
+                        Container(width: 80, child: Text(StatitikLocale.of(context).read('CA_B25'), style: TextStyle(fontSize: 12))),
+                        Container(width: 30, child: Text(widget.card.data.life.toString())),
+                        Expanded(
+                          child: Slider(
+                            value: widget.card.data.life.toDouble(),
+                            min: minLife.toDouble(),
+                            max: maxLife.toDouble(),
+                            divisions: 40,
+                            label: widget.card.data.life.toString(),
+                            onChanged: (double value) {
+                              setState(() {
+                                widget.card.data.life = value.round().toInt();
+                              });
+                            },
+                          ),
+                        )
+                      ]),
+                      // Retreat
+                      Row(children: [
+                        Container(width: 80, child: Text(StatitikLocale.of(context).read('CA_B26'), style: TextStyle(fontSize: 12))),
+                        Container(width: 30, child: Text(widget.card.data.retreat.toString())),
+                        Expanded(
+                          child: Slider(
+                            value: widget.card.data.retreat.toDouble(),
+                            min: minRetreat.toDouble(),
+                            max: maxRetreat.toDouble(),
+                            divisions: 5,
+                            label: widget.card.data.retreat.toString(),
+                            onChanged: (double value) {
+                              setState(() {
+                                widget.card.data.retreat = value.round().toInt();
+                              });
+                            },
+                          ),
+                        )
+                      ]),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(StatitikLocale.of(context).read('CA_B28'), style: TextStyle(fontSize: 12)),
+                          GridView.count(
+                            crossAxisCount: 9,
+                            primary: false,
+                            shrinkWrap: true,
+                            children: weaknessCard,
+                          ),
+                          Slider(
+                            value: widget.card.data.weakness != null ?
+                            widget.card.data.weakness!.value.toDouble() : 0,
+                            min: minWeakness.toDouble(),
+                            max: maxWeakness.toDouble(),
+                            divisions: 5,
+                            label: widget.card.data.weakness != null ?
+                            widget.card.data.weakness!.value.toString() : "Not activated",
+                            onChanged: (double value) {
+                              setState(() {
+                                var v = value.round().toInt();
+                                if(widget.card.data.weakness == null) {
+                                  widget.card.data.weakness = EnergyValue(Type.Unknown, v);
+                                } else {
+                                  widget.card.data.weakness!.value = v;
+                                }
+                              });
+                            },
+                          )
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(StatitikLocale.of(context).read('CA_B27'), style: TextStyle(fontSize: 12)),
+                          GridView.count(
+                            crossAxisCount: 9,
+                            primary: false,
+                            shrinkWrap: true,
+                            children: resistanceCard,
+                          ),
+                          Slider(
+                            value: widget.card.data.resistance != null ?
+                            widget.card.data.resistance!.value.toDouble() : 0,
+                            min: minResistance.toDouble(),
+                            max: maxResistance.toDouble(),
+                            divisions: 6,
+                            label: widget.card.data.resistance != null ?
+                            widget.card.data.resistance!.value.toString() : "Not activated",
+                            onChanged: (double value) {
+                              setState(() {
+                                var v = value.round().toInt();
+                                if(widget.card.data.resistance == null) {
+                                  widget.card.data.resistance = EnergyValue(Type.Unknown, v);
+                                } else {
+                                  widget.card.data.resistance!.value = v;
+                                }
+                              });
+                            },
+                          )
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(StatitikLocale.of(context).read('CA_B34'), style: TextStyle(fontSize: 12)),
+                          TextField(
+                            controller: imageController,
+                            onChanged: (data) {
+                              widget.card.image = data;
+                            }
+                          ),
+                        ]
+                      )
+                    ],
+                  ),
+                )
+            ),
+          ExpansionPanelRadio(
+            value: 2,
+            canTapOnHeader: true,
+            headerBuilder: (context, isOpen) { return ListTile(
+                title:Text(StatitikLocale.of(context).read('CA_B16'), style: TextStyle(fontSize: 12))); },
+            backgroundColor: Colors.blueGrey[800],
+            body: Column( children: [
+              GridView.count(
+                crossAxisCount: 6,
+                primary: false,
+                shrinkWrap: true,
+                children: marker,
+              ),
+              Row(children: longMarkerWidget.sublist(0, 3)),
+              Row(children: longMarkerWidget.sublist(3)),
+            ]),
+          ),
+          ExpansionPanelRadio(
+            value: 3,
+            canTapOnHeader: true,
+            headerBuilder: (context, isOpen) { return ListTile(
+                title:Text(StatitikLocale.of(context).read('CA_B17'), style: TextStyle(fontSize: 12))); },
+            backgroundColor: Colors.blueGrey[800],
+            body: CardEffectsPanel(widget.card, widget.activeLanguage)
+          ),
+          ExpansionPanelRadio(
+            value: 4,
             canTapOnHeader: true,
             headerBuilder: (context, isOpen) { return ListTile(
                 title: Text(StatitikLocale.of(context).read('CA_B15'), style: TextStyle(fontSize: 12))); },
-            isExpanded: _isOpen[1],
             backgroundColor: Colors.blueGrey[800],
             body: Column( children: [
+              GridView.count(
+                crossAxisCount: 7,
+                primary: false,
+                shrinkWrap: true,
+                children: rarity,
+              ),
               GridView.count(
                 crossAxisCount: 8,
                 primary: false,
@@ -262,158 +413,6 @@ class _CardCreatorState extends State<CardCreator> {
                 children: typeExtCard,
               ),
             ])
-          ),
-          ExpansionPanel(
-            canTapOnHeader: true,
-            headerBuilder: (context, isOpen) { return ListTile(
-                title:Text(StatitikLocale.of(context).read('CA_B16'), style: TextStyle(fontSize: 12))); },
-            isExpanded: _isOpen[2],
-            backgroundColor: Colors.blueGrey[800],
-            body: Column( children: [
-              GridView.count(
-                crossAxisCount: 6,
-                primary: false,
-                shrinkWrap: true,
-                children: marker,
-              ),
-              Row(children: longMarkerWidget.sublist(0, 3)),
-              Row(children: longMarkerWidget.sublist(3)),
-            ]),
-          ),
-          ExpansionPanel(
-            canTapOnHeader: true,
-            headerBuilder: (context, isOpen) { return ListTile(
-                title:Text(StatitikLocale.of(context).read('CA_B17'), style: TextStyle(fontSize: 12))); },
-            isExpanded: _isOpen[3],
-            backgroundColor: Colors.blueGrey[800],
-            body: CardEffectsPanel(widget.card, widget.activeLanguage)
-          ),
-          if( isPokemonType(widget.card.data.type) )
-          ExpansionPanel(
-            canTapOnHeader: true,
-            headerBuilder: (context, isOpen) { return ListTile(
-                title:Text(StatitikLocale.of(context).read('CA_B18'), style: TextStyle(fontSize: 12))); },
-            isExpanded: _isOpen[4],
-            backgroundColor: Colors.blueGrey[800],
-            body: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                children: [
-                  Row( children: level),
-                  Row(children: [
-                    Container(width: 80, child: Text(StatitikLocale.of(context).read('CA_B25'), style: TextStyle(fontSize: 12))),
-                    Container(width: 30, child: Text(widget.card.data.life.toString())),
-                    Expanded(
-                      child: Slider(
-                        value: widget.card.data.life.toDouble(),
-                        min: minLife.toDouble(),
-                        max: maxLife.toDouble(),
-                        divisions: 40,
-                        label: widget.card.data.life.toString(),
-                        onChanged: (double value) {
-                          setState(() {
-                            widget.card.data.life = value.round().toInt();
-                          });
-                        },
-                      ),
-                    )
-                  ]),
-                  // Retreat
-                  Row(children: [
-                    Container(width: 80, child: Text(StatitikLocale.of(context).read('CA_B26'), style: TextStyle(fontSize: 12))),
-                    Container(width: 30, child: Text(widget.card.data.retreat.toString())),
-                    Expanded(
-                      child: Slider(
-                        value: widget.card.data.retreat.toDouble(),
-                        min: minRetreat.toDouble(),
-                        max: maxRetreat.toDouble(),
-                        divisions: 5,
-                        label: widget.card.data.retreat.toString(),
-                        onChanged: (double value) {
-                          setState(() {
-                            widget.card.data.retreat = value.round().toInt();
-                          });
-                        },
-                      ),
-                    )
-                  ]),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(StatitikLocale.of(context).read('CA_B28'), style: TextStyle(fontSize: 12)),
-                      GridView.count(
-                        crossAxisCount: 9,
-                        primary: false,
-                        shrinkWrap: true,
-                        children: weaknessCard,
-                      ),
-                      Slider(
-                        value: widget.card.data.weakness != null ?
-                        widget.card.data.weakness!.value.toDouble() : 0,
-                        min: minWeakness.toDouble(),
-                        max: maxWeakness.toDouble(),
-                        divisions: 5,
-                        label: widget.card.data.weakness != null ?
-                        widget.card.data.weakness!.value.toString() : "Not activated",
-                        onChanged: (double value) {
-                          setState(() {
-                            var v = value.round().toInt();
-                            if(widget.card.data.weakness == null) {
-                              widget.card.data.weakness = EnergyValue(Type.Unknown, v);
-                            } else {
-                              widget.card.data.weakness!.value = v;
-                            }
-                          });
-                        },
-                      )
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(StatitikLocale.of(context).read('CA_B27'), style: TextStyle(fontSize: 12)),
-                      GridView.count(
-                        crossAxisCount: 9,
-                        primary: false,
-                        shrinkWrap: true,
-                        children: resistanceCard,
-                      ),
-                      Slider(
-                        value: widget.card.data.resistance != null ?
-                          widget.card.data.resistance!.value.toDouble() : 0,
-                        min: minResistance.toDouble(),
-                        max: maxResistance.toDouble(),
-                        divisions: 6,
-                        label: widget.card.data.resistance != null ?
-                               widget.card.data.resistance!.value.toString() : "Not activated",
-                        onChanged: (double value) {
-                          setState(() {
-                            var v = value.round().toInt();
-                            if(widget.card.data.resistance == null) {
-                              widget.card.data.resistance = EnergyValue(Type.Unknown, v);
-                            } else {
-                              widget.card.data.resistance!.value = v;
-                            }
-                          });
-                        },
-                      )
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(StatitikLocale.of(context).read('CA_B34'), style: TextStyle(fontSize: 12)),
-                      TextField(
-                        controller: imageController,
-                        onChanged: (data) {
-                          widget.card.image = data;
-                        }
-                      ),
-                    ]
-                  )
-                ],
-              ),
-            )
           ),
         ])
       ];
@@ -454,8 +453,6 @@ class _CardCreatorState extends State<CardCreator> {
                     }
                 )
             ),
-
-
           ]
         ),
       ];

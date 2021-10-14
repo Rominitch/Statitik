@@ -58,7 +58,7 @@ class _CardEditorState extends State<CardEditor> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              CardCreator.editor(widget.se.extension.language, widget.card, title, widget.isWorldCard),
+              CardCreator.editor(widget.se.extension.language, widget.se, widget.card, widget.id, title, widget.isWorldCard),
             ]
           )
         )

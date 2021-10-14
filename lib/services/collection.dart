@@ -160,8 +160,7 @@ class Collection
       var descriptionsRes = await connection.query("SELECT * FROM `Description`");
       for (var row in descriptionsRes) {
         try {
-          int? mark = row[2];
-          descriptions[row[0]] = DescriptionData.fromDb(MultiLanguageString([row[1], row[3], row[4]]), mark ?? 0);
+          descriptions[row[0]] = DescriptionData.fromDb(MultiLanguageString([row[2], row[3], row[4]]), row[1] ?? 0);
         } catch(e) {
           printOutput("Bad Description: ${row[0]} $e");
         }
@@ -171,7 +170,7 @@ class Collection
       var effectRes = await connection.query("SELECT * FROM `EffetsCarte`");
       for (var row in effectRes) {
         try {
-          effects[row[0]] = MultiLanguageString(row[1].split('|'));
+          effects[row[0]] = MultiLanguageString([row[1], row[2], row[3]]);
         } catch(e) {
           printOutput("Bad Description: ${row[0]} $e");
         }

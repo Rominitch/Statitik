@@ -26,6 +26,23 @@ class Database
     Future<bool> transactionR(Function queries) async
     {
         bool valid=false;
+/*
+        MySqlConnection.connect(settings).then((connection) {
+            connection.transaction(queries)
+                .then((value) {
+                    connection.close();
+                    valid = true;
+                })
+                .onError((error, stackTrace) {
+                    connection.close();
+
+                    printOutput(error.toString());
+                    printOutput(stackTrace.toString());
+            });
+        }).onError((error, stackTrace) {
+            throw StatitikException('DB_0');
+        });
+ */
         MySqlConnection connection;
         try
         {
@@ -66,7 +83,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.2.0';
+    final String version = '1.2.2';
 
     // State
     bool isInitialized          = false;
@@ -445,7 +462,7 @@ class Environment
     Future<bool> sendCardInfo(SubExtension se) async {
         if( isLogged() && user!.admin) {
             try {
-                return await db.transactionR( (connection) async {
+                return db.transactionR( (connection) async {
                     await collection.saveDatabaseSEC(se.seCards, connection);
                 });
             } catch( e ) {

@@ -1,7 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:kana_kit/kana_kit.dart';
+
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/environment.dart';
 
@@ -22,36 +22,8 @@ class CardViewer extends StatelessWidget {
   static const double valueSpace = 70;
   static const double lineHeight = 10.0;
 
-  String convertRomaji(String name) {
-    const kanaKit = KanaKit();
-    var val = "";
-    try {
-      val = kanaKit.copyWithConfig(upcaseKatakana: true).toRomaji(name);
-    } catch(e) {
-
-    }
-    return val;
-  }
-
   @override
   Widget build(BuildContext context) {
-    String cardImage = "";
-    if(Environment.instance.showTCGImages){
-      if( se.extension.language.id == 1 )
-        cardImage = "https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/${se.icon}/${se.icon}_FR_${se.seCards.tcgImage(id)}.png";
-      else if( se.extension.language.id == 2 )
-        cardImage = "https://assets.pokemon.com/assets/cms2/img/cards/web/${se.icon}/${se.icon}_EN_${se.seCards.tcgImage(id)}.png";
-      else if( se.extension.language.id == 3 ) {
-        if( card.image.isEmpty) {
-          String codeImage = (int.parse(se.seCards.cards[0][0].image.split("_")[0]) + id).toString().padLeft(6, '0');
-          String romajiName = convertRomaji(card.data.titleOfCard(se.extension.language));
-          cardImage = "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${codeImage}_P_$romajiName.jpg";
-        } else {
-          cardImage = "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${card.image}.jpg";
-        }
-      }
-    }
-
     List<Widget> effectsWidgets = [];
     card.data.cardEffects.effects.forEach((effect) {
       effectsWidgets.add(EffectViewer(effect, se.extension.language));
@@ -88,15 +60,7 @@ class CardViewer extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if(cardImage.isNotEmpty)
-                CachedNetworkImage(
-                  imageUrl: cardImage,
-                  errorWidget: (context, url, error) {
-                      return Icon(Icons.help_outline);
-                  },
-                  placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
-                  height: 400,
-                ),
+              CardImage(se, card, id),
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),

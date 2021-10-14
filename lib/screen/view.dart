@@ -453,4 +453,3 @@ class _MovingImageWidgetState extends State<MovingImageWidget> with SingleTicker
     );
   }
 }
-

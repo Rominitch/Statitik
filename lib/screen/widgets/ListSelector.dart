@@ -14,7 +14,13 @@ class ListSelector extends StatefulWidget {
 
   ListSelector(this.titleCode, this.language, nonOrderedDataMap, [this.multiLangue = false]) :
     dataMap = SplayTreeMap.from(nonOrderedDataMap,
-            (key1, key2) => nonOrderedDataMap[key1].name(language).compareTo(nonOrderedDataMap[key2].name(language)));
+            (key1, key2) {
+              assert(nonOrderedDataMap[key1] != null, "Impossible to find: $key1");
+              assert(nonOrderedDataMap[key2] != null, "Impossible to find: $key2");
+              final String s1 = nonOrderedDataMap[key1].name(language);
+              final String s2 = nonOrderedDataMap[key2].name(language);
+              return s1.compareTo(s2);
+            });
 
   @override
   _ListSelectorState createState() => _ListSelectorState();
