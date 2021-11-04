@@ -424,6 +424,10 @@ enum DescriptionEffect {
   Confusion,        // 1024
 }
 
+String labelDescriptionEffect(BuildContext context, DescriptionEffect de) {
+  return StatitikLocale.of(context).read("STATE_${de.index}");
+}
+
 Widget getDescriptionEffectWidget(DescriptionEffect de, {size}) {
   switch(de) {
     case DescriptionEffect.Attack:
@@ -832,6 +836,7 @@ enum CardMarker {
   Yon,
   EspeceDelta,
   TeamRocket,
+  VSTAR,
   //First Limited 24 values (Bit 3 bytes)
   //Limited 40 values (Bit 5 bytes)
 }
@@ -845,7 +850,7 @@ const List<Color> markerColors = [
   Color(0xFF558B2F),Color(0xFF558B2F), Color(0xFFB71C1C), Color(0xFFB71C1C),
   Color(0xFF0D47A1), Color(0xFF0D47A1), Colors.redAccent, Color(0xFFB71C1C),
   Color(0xFF558B2F), Colors.amber, Colors.brown, Colors.deepPurpleAccent,
-  Colors.teal, Colors.lightGreen, Colors.deepPurpleAccent,
+  Colors.teal, Colors.lightGreen, Colors.deepPurpleAccent, Color(0xFFFFF9C4),
 ];
 
 const List longMarker = [CardMarker.Escouade, CardMarker.UltraChimere, CardMarker.Talent, CardMarker.MillePoint, CardMarker.PointFinal, CardMarker.Fusion];
@@ -959,6 +964,9 @@ Widget pokeMarker(BuildContext context, CardMarker marker, {double? height=15.0}
         break;
       case CardMarker.TeamRocket:
         cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_19'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.VSTAR:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'VSTAR', height: height);
         break;
       default:
         cachedMarkers[marker.index] = Icon(Icons.help_outline);
@@ -1085,7 +1093,7 @@ class CardResults {
       select = rarities.contains(card.rarity);
     }
     if(select && life != defaultLife) {
-      select = life.start <= card.data.life.toDouble() && card.data.life.toDouble() <= life.end;
+      select = life.start.round() <= card.data.life && card.data.life <= life.end.round();
     }
     if(select && (resistance != defaultResistance || resistanceType != Type.Unknown)) {
       select = card.data.resistance != null;
@@ -1094,7 +1102,7 @@ class CardResults {
         if(resistanceType != Type.Unknown)
           select = res.energy == resistanceType;
         if(select && resistance != defaultResistance)
-          select = resistance.start <= res.value.toDouble() && res.value.toDouble() <= resistance.end;
+          select = resistance.start.round() <= res.value && res.value <= resistance.end.round();
       }
     }
     if(select && (weakness != defaultWeakness || weaknessType != Type.Unknown)) {
@@ -1104,7 +1112,7 @@ class CardResults {
         if(weaknessType != Type.Unknown)
           select = weak.energy == weaknessType;
         if(select && weakness != defaultWeakness)
-          select = weakness.start <= weak.value.toDouble() && weak.value.toDouble() <= weakness.end;
+          select = weakness.start.round() <= weak.value && weak.value <= weakness.end.round();
       }
     }
 
@@ -1113,17 +1121,18 @@ class CardResults {
       List<bool> checkDescriptions = List.filled(effects.length, false);
 
       if(card.data.cardEffects.effects.isNotEmpty) {
-
-
         // Parse each effect to find filter item at least one time.
-        card.data.cardEffects.effects.forEach((effect) {
+        //card.data.cardEffects.effects.forEach((effect) {
+        for(var effect in card.data.cardEffects.effects) {
           if(attackType != Type.Unknown)
             count[0].set(effect.attack.contains(attackType));
-          if(select && attackEnergy != defaultEnergyAttack)
-            count[1].set(attackEnergy.start <= effect.power.toDouble() && effect.power.toDouble() <= attackEnergy.end);
-          if(select && attackPower != defaultAttack)
-            count[2].set(attackPower.start <= effect.power.toDouble() && effect.power.toDouble() <= attackPower.end);
-          if(select && effects.isNotEmpty) {
+          if(attackEnergy != defaultEnergyAttack) {
+            var attackCount = effect.attack.length;
+            count[1].set(attackEnergy.start.round() <= attackCount && attackCount <= attackEnergy.end.round());
+          }
+          if(attackPower != defaultAttack)
+            count[2].set(attackPower.start.round() <= effect.power && effect.power <= attackPower.end.round());
+          if(effects.isNotEmpty) {
             if(effect.description != null) {
               // Check we find at least each effect demanded (on the card).
               int idDes = 0;
@@ -1142,7 +1151,8 @@ class CardResults {
               count[3].set(false);
             }
           }
-        });
+        }
+        //});
 
         // Compile final result
         select = true;

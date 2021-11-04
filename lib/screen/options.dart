@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/screen/widgets/NewsDialog.dart';
+import 'package:statitikcard/services/News.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/credential.dart';
@@ -51,6 +53,9 @@ class _OptionsPageState extends State<OptionsPage> {
       if(Environment.instance.user!.admin) {
         buttons += [
           TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.grey, // background
+              ),
               onPressed: () {
                 Environment.instance.startDB=false;
                 Environment.instance.readStaticData().then((value) {
@@ -95,6 +100,30 @@ class _OptionsPageState extends State<OptionsPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: buttons + <Widget>[
           Expanded(child: Center(child: drawImagePress(context, "PikaOption", 200.0))),
+          Row(
+            children: [
+              Expanded(child: Card(
+                child: TextButton(
+                    onPressed: () {
+                      var latestId = 0;
+                      News.readFromDB(StatitikLocale
+                          .of(context)
+                          .locale, latestId).then((news) {
+                        if (news.isNotEmpty) {
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return createNewDialog(context, news);
+                              }
+                          );
+                        }
+                      });
+                    },
+                    child: Text(StatitikLocale.of(context).read('NE_T0'))
+                ),
+              )),
+            ]
+          ),
           Row(
             children: [
               Expanded(child: Card(

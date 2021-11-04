@@ -20,29 +20,13 @@ class StatitikException implements Exception {
 
 class Database
 {
-    final String version = '2.4';
+    final String version = '2.5';
     final ConnectionSettings settings = createConnection();
 
     Future<bool> transactionR(Function queries) async
     {
         bool valid=false;
-/*
-        MySqlConnection.connect(settings).then((connection) {
-            connection.transaction(queries)
-                .then((value) {
-                    connection.close();
-                    valid = true;
-                })
-                .onError((error, stackTrace) {
-                    connection.close();
 
-                    printOutput(error.toString());
-                    printOutput(stackTrace.toString());
-            });
-        }).onError((error, stackTrace) {
-            throw StatitikException('DB_0');
-        });
- */
         MySqlConnection connection;
         try
         {
@@ -83,7 +67,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.2.2';
+    final String version = '1.2.5';
 
     // State
     bool isInitialized          = false;

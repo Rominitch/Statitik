@@ -33,9 +33,9 @@ class _CardEffectsPanelState extends State<CardEffectsPanel> {
   @override
   Widget build(BuildContext context) {
 
-    return Column(children: <Widget>[
+    return Column(children: effectsWidget + <Widget>[
       Card(
-        color: Colors.grey[600],
+        color: Colors.greenAccent,
         child: TextButton(
           child: Text( StatitikLocale.of(context).read('CA_B14') ),
           onPressed: (){
@@ -47,7 +47,7 @@ class _CardEffectsPanelState extends State<CardEffectsPanel> {
           }
         )
       ),
-    ] + effectsWidget,
+    ],
     crossAxisAlignment: CrossAxisAlignment.stretch);
   }
 }
@@ -67,6 +67,7 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
   List<List<Widget>> powersWidgets = [];
   double typeSize = 40.0;
 
+  static const double maxParam = 1000.0;
 
   void onTypeChanged(id, effect, value) {
     effect.attack[id] = value;
@@ -104,6 +105,7 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
     String description=StatitikLocale.of(context).read('CA_B24');
     double value1 = 0.0;
     double value2 = 0.0;
+    double value3 = 0.0;
     if(widget.effect.title != null) {
       name = Environment.instance.collection.effects[widget.effect.title!].name(widget.parent.l);
     }
@@ -111,6 +113,7 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
       description = widget.effect.description!.decrypted(Environment.instance.collection.descriptions, widget.parent.l).finalString.join();
       value1 = widget.effect.description!.parameters.isNotEmpty ? widget.effect.description!.parameters[0].toDouble() : 0.0;
       value2 = widget.effect.description!.parameters.length > 1 ? widget.effect.description!.parameters[1].toDouble() : 0.0;
+      value3 = widget.effect.description!.parameters.length > 2 ? widget.effect.description!.parameters[1].toDouble() : 0.0;
     }
 
     return Card(
@@ -186,7 +189,7 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
                   children: [
                     Text(StatitikLocale.of(context).read('CA_B19')),
                     Expanded(
-                      child: SpinBox(value: value1, max: 300,
+                      child: SpinBox(value: value1, max: maxParam,
                           onChanged: (value){
                             setState(() {
                               if (widget.effect.description!.parameters.isEmpty)
@@ -204,13 +207,30 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
                   children: [
                     Text(StatitikLocale.of(context).read('CA_B20')),
                     Expanded(
-                      child:SpinBox(value: value2, max: 300,
+                      child:SpinBox(value: value2, max: maxParam,
                           onChanged: (value){
                             setState(() {
                               if(widget.effect.description!.parameters.length == 1)
                                 widget.effect.description!.parameters.add(value.toInt());
                               else
                                 widget.effect.description!.parameters[1] = value.toInt();
+                            });
+                          }),
+                    )
+                  ]
+              ),
+            if(widget.effect.description != null && widget.effect.description!.parameters.length > 1)
+              Row(
+                  children: [
+                    Text(StatitikLocale.of(context).read('CA_B20')),
+                    Expanded(
+                      child:SpinBox(value: value3, max: maxParam,
+                          onChanged: (value){
+                            setState(() {
+                              if(widget.effect.description!.parameters.length == 2)
+                                widget.effect.description!.parameters.add(value.toInt());
+                              else
+                                widget.effect.description!.parameters[2] = value.toInt();
                             });
                           }),
                     )

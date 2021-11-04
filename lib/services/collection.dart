@@ -107,7 +107,7 @@ class Collection
       var pokes = await connection.query("SELECT * FROM `Pokemon`");
       for (var row in pokes) {
         try {
-          pokemons[row[0]] = PokemonInfo(MultiLanguageString(row[2].split('|')), row[1], idPoke);
+          pokemons[row[0]] = PokemonInfo(MultiLanguageString([row[2], row[3], row[4]]), row[1], idPoke);
           idPoke += 1;
         } catch(e) {
           printOutput("Bad pokemon: ${row[0]} $e");
@@ -140,7 +140,7 @@ class Collection
       var formeRes = await connection.query("SELECT * FROM `Forme`");
       for (var row in formeRes) {
         try {
-          formes[row[0]] = Forme(MultiLanguageString(row[1].split('|')));
+          formes[row[0]] = Forme(MultiLanguageString([row[1], row[2], row[3]]));
         } catch(e) {
           printOutput("Bad Forme: ${row[0]} $e");
         }

@@ -56,6 +56,7 @@ class _CarouselNewsState extends State<CarouselNews> {
           child: Column(
                 children: [
                   Center( child: Text(newsItem.title, style: Theme.of(context).textTheme.headline5)),
+                  SizedBox(height: 20),
                   SingleChildScrollView(child: Text(newsItem.body, textAlign: TextAlign.justify, softWrap: true, maxLines: 20, style: TextStyle(fontSize: 12))),
                   if(newsItem.images != null) Flexible(child: drawImagePress(context, newsItem.images!, 300)),
                 ]

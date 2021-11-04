@@ -188,9 +188,13 @@ class EffectViewer extends StatelessWidget {
     }
     List<Widget> descriptionMarkerWidgets = [];
     if(effect.description != null) {
-      descriptionPanel = effect.description!.toWidget(Environment.instance.collection.descriptions, l);
+      descriptionPanel = effect.description!.toWidget(Environment.instance.collection.descriptions, Environment.instance.collection.pokemons, l);
       effect.description!.effects.forEach((element) {
-        descriptionMarkerWidgets.add(getDescriptionEffectWidget(element));
+        descriptionMarkerWidgets.add(
+            Tooltip(message: labelDescriptionEffect(context, element),
+                    child: getDescriptionEffectWidget(element)
+            )
+        );
       });
     }
 

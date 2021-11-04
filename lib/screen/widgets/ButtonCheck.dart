@@ -124,6 +124,8 @@ class DescriptionEffectButtonCheck extends ButtonCheck<DescriptionEffect> {
 
   @override
   Widget makeWidget(BuildContext context) {
-    return getDescriptionEffectWidget(value);
+    return Tooltip(message: labelDescriptionEffect(context, value),
+        child: getDescriptionEffectWidget(value)
+    );
   }
 }

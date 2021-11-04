@@ -32,7 +32,7 @@ class DescriptionData {
 
 class DecryptedString {
   List<String>  finalString = [];
-  List<dynamic> itemsInside = [];
+  //List<dynamic> itemsInside = [];
   //Map<int, dynamic> itemsInside = {};
 }
 
@@ -101,23 +101,34 @@ class CardDescription {
     return bytes;
   }
 
-  Widget toWidget(Map descriptionCollection, Language l)
+  String interpolate(String string, List params) {
+    String result = string;
+    for (int i = 1; i < params.length + 1; i++) {
+      result = result.replaceAll('{$i}', params[i-1].toString());
+    }
+    return result;
+  }
+
+  Widget toWidget(Map descriptionCollection, Map pokemonCollection, Language l)
   {
     var current = decrypted(descriptionCollection, l);
-    List<InlineSpan> children = [];
 
-    int idParameters = 0;
-    RegExp regExp = RegExp("%[dsf]");
+    List<InlineSpan> children = [];
     var itString = current.finalString.iterator;
-    var itIcon   = current.itemsInside.iterator;
 
     while(itString.moveNext()) {
-      int nbParameters = regExp.allMatches(itString.current).length;
-
-      children.add(TextSpan(text: sprintf(itString.current, parameters.sublist(idParameters, idParameters+nbParameters))));
-      idParameters += nbParameters;
-      if(itIcon.moveNext()) {
-        children.add(WidgetSpan(child: itIcon.current));
+      var finalText = interpolate(itString.current, parameters);
+      if(finalText.isNotEmpty) {
+        if(itString.current.startsWith("E:")) {
+          String energyCode = finalText.substring(2);
+          children.add(WidgetSpan(child: getImageType(Type.values[int.parse(energyCode)])));
+        } else if(itString.current.startsWith("P:")) {
+          String pokeCode = finalText.substring(2);
+          PokemonInfo poke = pokemonCollection[int.parse(pokeCode)];
+          children.add(TextSpan(text: poke.name(l)));
+        } else {
+          children.add(TextSpan(text: finalText));
+        }
       }
     }
     // Create final text
@@ -146,8 +157,12 @@ class CardDescription {
             DescriptionData data = descriptionCollection[int.parse(code[1])];
             toAnalyze += data.name(l);
           } else if( code[0] == "E" ) {
-            s.itemsInside.add(getImageType(Type.values[int.parse(code[1])]));
-            s.finalString.add("");
+            //s.itemsInside.add(getImageType(Type.values[int.parse(code[1])]));
+            s.finalString.add("E:${code[1]}");
+            s.finalString.add(""); // New string to cumulate
+          } else if( code[0] == "P" ) {
+            s.finalString.add("P:${code[1]}");
+            s.finalString.add(""); // New string to cumulate
           } else {
             throw StatitikException("Error of code");
           }
@@ -184,7 +199,9 @@ class CardEffect {
 
     int nbAttack = parser.extractInt8();
     for(int i = 0; i < nbAttack; i +=1) {
-      attack.add(Type.values[parser.extractInt8()]);
+      var t = Type.values[parser.extractInt8()];
+      if(t != Type.Unknown)
+        attack.add(t);
     }
   }
 
