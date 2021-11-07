@@ -76,7 +76,7 @@ class CardDescription {
           data.markers.forEach((element) { if(!effects.contains(element)) effects.add(element); });
 
           toAnalyze += data.name(l);
-        } else if( code[0] == "E" ) {
+        } else if( code[0] == "E" || code[0] == "P") {
         } else {
           throw StatitikException("Error of code");
         }
