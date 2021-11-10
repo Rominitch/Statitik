@@ -103,17 +103,46 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
   Widget build(BuildContext context) {
     String name= StatitikLocale.of(context).read('CA_B23');
     String description=StatitikLocale.of(context).read('CA_B24');
-    double value1 = 0.0;
-    double value2 = 0.0;
-    double value3 = 0.0;
+    int nbParameters = 0;
     if(widget.effect.title != null) {
       name = Environment.instance.collection.effects[widget.effect.title!].name(widget.parent.l);
     }
+
+    List<Widget> parameterWidgets = [];
     if(widget.effect.description != null) {
       description = widget.effect.description!.decrypted(Environment.instance.collection.descriptions, widget.parent.l).finalString.join();
-      value1 = widget.effect.description!.parameters.isNotEmpty ? widget.effect.description!.parameters[0].toDouble() : 0.0;
-      value2 = widget.effect.description!.parameters.length > 1 ? widget.effect.description!.parameters[1].toDouble() : 0.0;
-      value3 = widget.effect.description!.parameters.length > 2 ? widget.effect.description!.parameters[1].toDouble() : 0.0;
+      RegExp re = RegExp(r"{.*}");
+      nbParameters = re.allMatches(description).length;
+      //value1 = widget.effect.description!.parameters.isNotEmpty ? widget.effect.description!.parameters[0].toDouble() : 0.0;
+      //value2 = widget.effect.description!.parameters.length > 1 ? widget.effect.description!.parameters[1].toDouble() : 0.0;
+      //value3 = widget.effect.description!.parameters.length > 2 ? widget.effect.description!.parameters[1].toDouble() : 0.0;
+      int id = 0;
+      while( id < nbParameters) {
+        // Create parameter if needed
+        if( id >= widget.effect.description!.parameters.length)
+          widget.effect.description!.parameters.add(0);
+
+        int localId = id;
+        parameterWidgets.add(
+          Row(
+            children: [
+              Text(StatitikLocale.of(context).read('CA_B19')),
+              Expanded(
+                child: SpinBox(value: widget.effect.description!.parameters[localId].toDouble(), max: maxParam,
+                    onChanged: (value){
+                      setState(() {
+                        if (widget.effect.description!.parameters.isEmpty)
+                          widget.effect.description!.parameters.add(value.toInt());
+                        else
+                          widget.effect.description!.parameters[localId] = value.toInt();
+                      });
+                    }),
+              )
+            ]
+          )
+        );
+        id += 1;
+      }
     }
 
     return Card(
@@ -167,9 +196,21 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
               color: Colors.grey[600],
               child: TextButton(onPressed: (){
                 setState(() {
+                  Map finalEffectList = {};
+                  for(var effect in Environment.instance.collection.descriptions.entries) {
+
+                    var d = CardDescription(effect.key);
+                    finalEffectList[effect.key] = MultiLanguageString(
+                        [
+                          d.decrypted(Environment.instance.collection.descriptions, Environment.instance.collection.languages[1]).finalString.join(),
+                          d.decrypted(Environment.instance.collection.descriptions, Environment.instance.collection.languages[2]).finalString.join(),
+                          d.decrypted(Environment.instance.collection.descriptions, Environment.instance.collection.languages[3]).finalString.join(),
+                        ]);
+                  }
+
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ListSelector('CA_T4', widget.parent.l, Environment.instance.collection.descriptions)),
+                    MaterialPageRoute(builder: (context) => ListSelector('CA_T4', widget.parent.l, finalEffectList)),
                   ).then((value) {
                     setState(() {
                       if(value != null) {
@@ -183,60 +224,7 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
                 });
               }, child: Text(description, softWrap: true)),
             ),
-            // Value 1 int
-            if(widget.effect.description != null)
-              Row(
-                  children: [
-                    Text(StatitikLocale.of(context).read('CA_B19')),
-                    Expanded(
-                      child: SpinBox(value: value1, max: maxParam,
-                          onChanged: (value){
-                            setState(() {
-                              if (widget.effect.description!.parameters.isEmpty)
-                                widget.effect.description!.parameters.add(value.toInt());
-                              else
-                                widget.effect.description!.parameters[0] = value.toInt();
-                            });
-                          }),
-                    )
-                  ]
-              ),
-            // Value 2 int
-            if(widget.effect.description != null && widget.effect.description!.parameters.length > 0)
-              Row(
-                  children: [
-                    Text(StatitikLocale.of(context).read('CA_B20')),
-                    Expanded(
-                      child:SpinBox(value: value2, max: maxParam,
-                          onChanged: (value){
-                            setState(() {
-                              if(widget.effect.description!.parameters.length == 1)
-                                widget.effect.description!.parameters.add(value.toInt());
-                              else
-                                widget.effect.description!.parameters[1] = value.toInt();
-                            });
-                          }),
-                    )
-                  ]
-              ),
-            if(widget.effect.description != null && widget.effect.description!.parameters.length > 1)
-              Row(
-                  children: [
-                    Text(StatitikLocale.of(context).read('CA_B20')),
-                    Expanded(
-                      child:SpinBox(value: value3, max: maxParam,
-                          onChanged: (value){
-                            setState(() {
-                              if(widget.effect.description!.parameters.length == 2)
-                                widget.effect.description!.parameters.add(value.toInt());
-                              else
-                                widget.effect.description!.parameters[2] = value.toInt();
-                            });
-                          }),
-                    )
-                  ]
-              ),
-          ]
+          ] + parameterWidgets
       )
     );
   }

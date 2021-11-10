@@ -10,7 +10,6 @@ class ListSelector extends StatefulWidget {
   final Language language;
   final SplayTreeMap dataMap;
   final bool multiLangue;
-  //late String Function (dynamic) printValue;
 
   ListSelector(this.titleCode, this.language, nonOrderedDataMap, [this.multiLangue = false]) :
     dataMap = SplayTreeMap.from(nonOrderedDataMap,
