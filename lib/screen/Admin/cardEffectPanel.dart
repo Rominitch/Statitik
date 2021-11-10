@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/material.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
@@ -111,11 +113,12 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
     List<Widget> parameterWidgets = [];
     if(widget.effect.description != null) {
       description = widget.effect.description!.decrypted(Environment.instance.collection.descriptions, widget.parent.l).finalString.join();
-      RegExp re = RegExp(r"{.*}");
-      nbParameters = re.allMatches(description).length;
-      //value1 = widget.effect.description!.parameters.isNotEmpty ? widget.effect.description!.parameters[0].toDouble() : 0.0;
-      //value2 = widget.effect.description!.parameters.length > 1 ? widget.effect.description!.parameters[1].toDouble() : 0.0;
-      //value3 = widget.effect.description!.parameters.length > 2 ? widget.effect.description!.parameters[1].toDouble() : 0.0;
+      RegExp re = RegExp(r"{(\d*)}");
+      re.allMatches(description).forEach((element) {
+        nbParameters = max(nbParameters, int.parse(element.group(1)!));
+      });
+      //nbParameters = re.allMatches(description).length;
+
       int id = 0;
       while( id < nbParameters) {
         // Create parameter if needed
