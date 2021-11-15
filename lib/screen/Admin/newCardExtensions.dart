@@ -70,6 +70,21 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
       _se!.seCards.cards.forEach((cardList) {
         // Select only first
         var card = cardList[0];
+
+        // Search if Jap Card link exist
+        var colorCard = Color(0xFF5D9070);
+        if( Environment.instance.collection.pokemonCards.containsValue(card.data) ) {
+          var subEx = Environment.instance.collection.searchCardIntoSubExtension(card.data);
+          for(var element in subEx) {
+            if (element.se.extension.language.id == 3) {
+              colorCard = Colors.cyan;
+              break;
+            }
+          }
+        } else  {
+          colorCard = Colors.grey[800]!;
+        }
+
         int localId = id;
         myCards.add( Padding(
           padding: const EdgeInsets.all(2.0),
@@ -84,7 +99,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                     ]
               ),
               style: TextButton.styleFrom(
-                  backgroundColor: Environment.instance.collection.pokemonCards.containsValue(card.data) ? Color(0xFF5D9070) : Colors.grey[800],
+                  backgroundColor: colorCard,
                   padding: const EdgeInsets.all(2.0)
               ),
               onLongPress: () {

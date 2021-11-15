@@ -42,7 +42,7 @@ android {
     defaultConfig {
         applicationId "fr.mouca.statitikcard"
         minSdkVersion 26
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
 
