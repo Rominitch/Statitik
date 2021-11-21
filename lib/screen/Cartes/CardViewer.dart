@@ -29,17 +29,42 @@ class CardViewer extends StatelessWidget {
       effectsWidgets.add(EffectViewer(effect, se.extension.language));
     });
 
+    List<Widget> languageCards = [];
+    Environment.instance.collection.subExtensions.forEach((key, parseSe) {
+      if(se.seCards == parseSe.seCards) {
+        languageCards.add(Card(
+          color: Colors.grey[800],
+          child: se == parseSe ? parseSe.extension.language.barIcon()
+            : TextButton(
+            onPressed: (){
+              Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => CardViewer(parseSe, id, parseSe.seCards.cards[id][0])),
+              );
+            },
+            child: parseSe.extension.language.barIcon()
+          )
+        ));
+      }
+    });
+
     List<Widget> findCard = [];
     Environment.instance.collection.searchCardIntoSubExtension(card.data).forEach((result) {
       findCard.add(Card(
         color: Colors.grey[800],
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            result.se.image(wSize: 30.0, hSize: 30.0),
-            Text(result.se.seCards.numberOfCard(result.position), textAlign: TextAlign.center)
-          ]
+        child: TextButton(
+          onPressed: (){
+            Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) => CardViewer(result.se, result.position, result.se.seCards.cards[result.position][0])),
+            );
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              result.se.image(wSize: 30.0, hSize: 30.0),
+              Text(result.se.seCards.numberOfCard(result.position), textAlign: TextAlign.center)
+            ]
+          )
         )
       ));
     });
@@ -60,6 +85,15 @@ class CardViewer extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Container(
+                height: 50,
+                child: ListView(
+                  children: languageCards,
+                  primary: false,
+                  shrinkWrap: false,
+                  scrollDirection: Axis.horizontal,
+                ),
+              ),
               CardImage(se, card, id),
               Card(
                 child: Padding(

@@ -18,7 +18,9 @@ class CardImage extends StatelessWidget {
     const kanaKit = KanaKit();
     var val = "";
     try {
+      name = name.replaceAll("ー", "");
       val = kanaKit.copyWithConfig(upcaseKatakana: true).toRomaji(name);
+      val = val.replaceAll("FYI", "FI");
     } catch(e) {
 
     }
@@ -33,9 +35,20 @@ class CardImage extends StatelessWidget {
         return "https://assets.pokemon.com/assets/cms2/img/cards/web/${se.icon}/${se.icon}_EN_${se.seCards.tcgImage(id)}.png";
       else if( se.extension.language.id == 3 ) {
         if( card.image.isEmpty) {
-          String codeImage = (int.parse(se.seCards.cards[0][0].image.split("_")[0]) + id).toString().padLeft(6, '0');
-          String romajiName = convertRomaji(card.data.titleOfCard(se.extension.language));
-          return "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${codeImage}_P_$romajiName.jpg";
+          if(se.seCards.cards[0][0].image.isNotEmpty) {
+            String codeImage  = "";
+            String romajiName = "";
+            try {
+              codeImage = (int.parse(se.seCards.cards[0][0].image.split("_")[0]) + id).toString().padLeft(6, '0');
+              romajiName = convertRomaji(card.data.titleOfCard(se.extension.language));
+            } catch(e, s) {
+
+            }
+            var specialCode = "";
+            if( card.data.markers.markers.contains(CardMarker.V) )         { specialCode = "V"; }
+            else if( card.data.markers.markers.contains(CardMarker.VMAX) ) { specialCode = "VMAX"; }
+            return "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${codeImage}_P_$romajiName$specialCode.jpg";
+          }
         } else {
           return "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${card.image}.jpg";
         }
