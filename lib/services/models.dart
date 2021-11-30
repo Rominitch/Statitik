@@ -736,6 +736,7 @@ class StatsExtension {
 
 class SessionDraw
 {
+  int idProduit=-1;
   Language language;
   Product product;
   bool productAnomaly=false;

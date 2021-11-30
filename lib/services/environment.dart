@@ -67,7 +67,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.3.1';
+    final String version = '1.3.2';
 
     // State
     bool isInitialized          = false;
@@ -415,6 +415,7 @@ class Environment
                         var p = Product(idDB: row[2], name: row[4], imageURL: row[5], count: 1, boosters: boosters, color: Colors.grey[600]!);
                         var l = collection.languages[row[3]];
                         var session = SessionDraw(product: p, language: l);
+                        session.idProduit = row[0];
 
                         // Read user data
                         var reqUserBoosters = await connection.query("SELECT `idSousExtension`, `anomalie`, `cartesBin`, `energieBin` "
@@ -469,5 +470,16 @@ class Environment
         return false;
     }
 
-
+    Future<bool> removeUserProduct(draw) async {
+        if( isLogged() && user!.admin) {
+            try {
+                return await db.transactionR( (connection) async {
+                    await collection.removeUserProduct(draw, connection);
+                });
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
+        }
+        return false;
+    }
 }

@@ -459,8 +459,17 @@ class Collection
   }
 
   Future<void> removeListCards(List<List<int>> cardId, connection) async {
-    var query = 'DELETE FROM `StatitikPokemonDebug`.`Cartes` WHERE (`idCartes` = ?)';
+    var query = 'DELETE FROM `Cartes` WHERE (`idCartes` = ?)';
     await connection.queryMulti(query, cardId);
+  }
+
+  Future<void> removeUserProduct(SessionDraw session, connection) async {
+    if(session.idProduit != -1) {
+      var query = 'DELETE FROM `TirageBooster` WHERE (`idAchat` = ?)';
+      await connection.queryMulti(query, [[session.idProduit]]);
+      query = 'DELETE FROM `UtilisateurProduit` WHERE (`idAchat` = ?)';
+      await connection.queryMulti(query, [[session.idProduit]]);
+    }
   }
 
   /*

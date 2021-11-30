@@ -77,6 +77,6 @@ class CardImage extends StatelessWidget {
         height: height,
       );
     else
-      return Container();
+      return Container(height: height);
   }
 }
