@@ -235,7 +235,7 @@ class _CardCreatorState extends State<CardCreator> {
                   ]
                 )
             ),
-            if( isPokemonType(widget.card.data.type) )
+            isPokemonType(widget.card.data.type) ?
               ExpansionPanelRadio(
                 canTapOnHeader: true,
                 headerBuilder: (context, isOpen) { return ListTile(
@@ -361,6 +361,24 @@ class _CardCreatorState extends State<CardCreator> {
                     ],
                   ),
                 )
+            ) : ExpansionPanelRadio(
+              canTapOnHeader: true,
+              headerBuilder: (context, isOpen) { return ListTile(
+              title:Text(StatitikLocale.of(context).read('CA_B18'), style: TextStyle(fontSize: 12))); },
+              value: 1,
+              backgroundColor: Colors.blueGrey[800],
+              body: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(StatitikLocale.of(context).read('CA_B34'), style: TextStyle(fontSize: 12)),
+                  TextField(
+                    controller: imageController,
+                    onChanged: (data) {
+                      widget.card.image = data;
+                    }
+                  ),
+                ]
+              )
             ),
           ExpansionPanelRadio(
             value: 2,

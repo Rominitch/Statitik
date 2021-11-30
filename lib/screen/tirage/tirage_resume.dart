@@ -66,7 +66,7 @@ class _ResumePageState extends State<ResumePage> {
         if(!boosterDraw.hasSubExtension()) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ExtensionPage(language: widget._activeSession.language, afterSelected: afterSelectExtension)),
+            MaterialPageRoute(builder: (context) => ExtensionPage(language: widget._activeSession.language, afterSelected: afterSelectExtension, addMode: true)),
           );
         }
         else {

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/internationalization.dart';
 
 import 'package:statitikcard/services/models.dart';
 
@@ -127,5 +128,14 @@ class DescriptionEffectButtonCheck extends ButtonCheck<DescriptionEffect> {
     return Tooltip(message: labelDescriptionEffect(context, value),
         child: getDescriptionEffectWidget(value)
     );
+  }
+}
+
+class SerieTypeButtonCheck extends ButtonCheck<SerieType> {
+  SerieTypeButtonCheck(seList, value, {controller}) : super(seList, value, controller);
+
+  @override
+  Widget makeWidget(BuildContext context) {
+    return Text(StatitikLocale.of(context).read(seTypeString[value.index]));
   }
 }

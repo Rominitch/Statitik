@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -7,14 +8,29 @@ import 'package:statitikcard/services/environment.dart';
 class ExtensionPage extends StatefulWidget {
   final Language language;
   final Function afterSelected;
+  final bool     addMode;
 
-  ExtensionPage({ required this.language, required this.afterSelected });
+  ExtensionPage({ required this.language, required this.afterSelected, required this.addMode });
 
   @override
   _ExtensionPageState createState() => _ExtensionPageState();
 }
 
 class _ExtensionPageState extends State<ExtensionPage> {
+  late List<SerieType> serieFilters;
+  late CustomButtonCheckController refreshController = CustomButtonCheckController(refresh);
+
+  @override
+  void initState() {
+    serieFilters = widget.addMode ? [SerieType.Normal] : [SerieType.Normal, SerieType.Promo, SerieType.Deck];
+  }
+
+  void refresh() {
+    setState(() {
+
+    });
+  }
+
   List<Widget> buildExts() {
     List<Widget> ext = [];
     for( Extension e in Environment.instance.collection.getExtensions(widget.language))
@@ -22,10 +38,12 @@ class _ExtensionPageState extends State<ExtensionPage> {
       List<Widget> subExtensions = [];
       for( SubExtension se in Environment.instance.collection.getSubExtensions(e))
       {
-        void Function() press = () {
-          widget.afterSelected(context, widget.language, se);
-        };
-        subExtensions.add(ExtensionButton(subExtension: se, press: press));
+        if( serieFilters.contains(se.type) ) {
+          void Function() press = () {
+            widget.afterSelected(context, widget.language, se);
+          };
+          subExtensions.add(ExtensionButton(subExtension: se, press: press));
+        }
       }
       if(subExtensions.isNotEmpty)
       ext.add(Container(
@@ -60,6 +78,14 @@ class _ExtensionPageState extends State<ExtensionPage> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> filters = [];
+    if(!widget.addMode) {
+      SerieType.values.forEach((element) {
+        filters.add(
+          Expanded(child: SerieTypeButtonCheck(serieFilters, element, controller: refreshController))
+        );
+      });
+    }
     List<Widget> ext = buildExts();
 
     return Container(
@@ -80,7 +106,9 @@ class _ExtensionPageState extends State<ExtensionPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(StatitikLocale.of(context).read('EP_B0')),
+                  widget.addMode ? Text(StatitikLocale.of(context).read('EP_B0'))
+                  : Row( children: filters,
+                  ),
                   CheckboxListTile(
                     title: Text(StatitikLocale.of(context).read('EP_B1')),
                     value: Environment.instance.showExtensionName,

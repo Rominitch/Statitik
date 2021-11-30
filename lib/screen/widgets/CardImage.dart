@@ -21,6 +21,8 @@ class CardImage extends StatelessWidget {
       name = name.replaceAll("ー", "");
       val = kanaKit.copyWithConfig(upcaseKatakana: true).toRomaji(name);
       val = val.replaceAll("FYI", "FI");
+      val = val.replaceAll("'", "");
+      val = val.toUpperCase();
     } catch(e) {
 
     }
@@ -38,6 +40,7 @@ class CardImage extends StatelessWidget {
           if(se.seCards.cards[0][0].image.isNotEmpty) {
             String codeImage  = "";
             String romajiName = "";
+            String codeType = "P";
             try {
               codeImage = (int.parse(se.seCards.cards[0][0].image.split("_")[0]) + id).toString().padLeft(6, '0');
               romajiName = convertRomaji(card.data.titleOfCard(se.extension.language));
@@ -47,7 +50,12 @@ class CardImage extends StatelessWidget {
             var specialCode = "";
             if( card.data.markers.markers.contains(CardMarker.V) )         { specialCode = "V"; }
             else if( card.data.markers.markers.contains(CardMarker.VMAX) ) { specialCode = "VMAX"; }
-            return "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${codeImage}_P_$romajiName$specialCode.jpg";
+            else if( card.data.markers.markers.contains(CardMarker.VUNION) ) { specialCode = "VUNION"; }
+            if(card.data.type == Type.Supporter || card.data.type == Type.Stade || card.data.type == Type.Objet)
+              codeType = "T";
+            else if(card.data.type == Type.Energy)
+              codeType = "E";
+            return "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${codeImage}_${codeType}_$romajiName$specialCode.jpg";
           }
         } else {
           return "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${card.image}.jpg";

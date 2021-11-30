@@ -287,6 +287,9 @@ Images and illustrations used are the property of their respective authors.
       'STATE_9':   'Heal',
       'STATE_10':  'Shuffle',
       'STATE_11':  'Confusion',
+      'SE_TYPE_0': 'Normal',
+      'SE_TYPE_1': 'Promo',
+      'SE_TYPE_2': 'Deck',
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -569,6 +572,9 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'STATE_9':   'Soin',
       'STATE_10':  'Mélanger les cartes',
       'STATE_11':  'Confusion',
+      'SE_TYPE_0': 'Normal',
+      'SE_TYPE_1': 'Promo',
+      'SE_TYPE_2': 'Deck',
     },
   };
 

@@ -66,7 +66,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                               ],
                             ),
                             onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage)));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage, addMode: true)));
                             }
                           )
                         ),

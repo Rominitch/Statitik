@@ -266,7 +266,7 @@ class _BoostersInfoState extends State<BoostersInfo> {
               child: (widget.newProd!.ext != null) ? widget.newProd!.ext!.image(hSize: iconSize) : Icon(Icons.add_to_photos),
               onPressed: (){
                 setState(() {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: widget.l!, afterSelected: afterSelected)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: widget.l!, afterSelected: afterSelected, addMode: false)));
                 });
               },
             ),

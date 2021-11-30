@@ -99,6 +99,13 @@ class Extension
   Extension(this.id, this.name, this.language);
 }
 
+enum SerieType {
+  Normal,
+  Promo,
+  Deck,
+}
+const List<String> seTypeString = ['SE_TYPE_0', 'SE_TYPE_1', 'SE_TYPE_2'];
+
 enum Validator {
   Valid,
   ErrorReverse,
@@ -568,8 +575,9 @@ class SubExtension
   DateTime          out;
   SubExtensionCards seCards;
   Extension         extension;
+  SerieType         type;
 
-  SubExtension(this.id, this.name, this.icon, this.extension, this.out, this.seCards);
+  SubExtension(this.id, this.name, this.icon, this.extension, this.out, this.seCards, this.type);
 
   /// Show Extension image
   Widget image({double? wSize, double? hSize}) {
@@ -837,6 +845,7 @@ enum CardMarker {
   EspeceDelta,
   TeamRocket,
   VSTAR,
+  VUNION,
   //First Limited 24 values (Bit 3 bytes)
   //Limited 40 values (Bit 5 bytes)
 }
@@ -851,6 +860,7 @@ const List<Color> markerColors = [
   Color(0xFF0D47A1), Color(0xFF0D47A1), Colors.redAccent, Color(0xFFB71C1C),
   Color(0xFF558B2F), Colors.amber, Colors.brown, Colors.deepPurpleAccent,
   Colors.teal, Colors.lightGreen, Colors.deepPurpleAccent, Color(0xFFFFF9C4),
+  Colors.blueGrey
 ];
 
 const List longMarker = [CardMarker.Escouade, CardMarker.UltraChimere, CardMarker.Talent, CardMarker.MillePoint, CardMarker.PointFinal, CardMarker.Fusion];
@@ -968,6 +978,10 @@ Widget pokeMarker(BuildContext context, CardMarker marker, {double? height=15.0}
       case CardMarker.VSTAR:
         cachedMarkers[marker.index] = drawCachedImage('logo', 'VSTAR', height: height);
         break;
+      case CardMarker.VUNION:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'VUNION', height: height);
+        break;
+
       default:
         cachedMarkers[marker.index] = Icon(Icons.help_outline);
     }

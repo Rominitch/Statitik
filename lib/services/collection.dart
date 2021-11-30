@@ -272,7 +272,7 @@ class Collection
       for (var row in subExts) {
         try {
           SubExtensionCards seCards = cardsExtensions[row[4]];
-          subExtensions[row[0]] = SubExtension(row[0], row[2], row[3], extensions[row[1]], row[6], seCards);
+          subExtensions[row[0]] = SubExtension(row[0], row[2], row[3], extensions[row[1]], row[6], seCards, SerieType.values[row[7]]);
         } catch(e) {
           printOutput("Bad SubExtension: ${row[0]} $e");
         }
@@ -384,6 +384,22 @@ class Collection
     var query = 'UPDATE `CartesExtension` SET `cartes` = ?'
         ' WHERE `CartesExtension`.`idCartesExtension` = $idSEC';
     await connection.queryMulti(query, [[Int8List.fromList(seCards.toBytes(rPokemonCards))]]);
+  }
+
+  List<CardIntoSubExtensions> searchCardIntoAllSubExtension(PokemonCardData searchCard) {
+    List<CardIntoSubExtensions> result = [];
+    subExtensions.values.forEach((subExtension) {
+      int id=0;
+      subExtension.seCards.cards.forEach((cards) {
+        cards.forEach((card) {
+          if(card.data == searchCard) {
+            result.add(CardIntoSubExtensions(subExtension, id));
+          }
+        });
+        id += 1;
+      });
+    });
+    return result;
   }
 
   List<CardIntoSubExtensions> searchCardIntoSubExtension(PokemonCardData searchCard) {

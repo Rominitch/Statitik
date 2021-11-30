@@ -223,7 +223,7 @@ class _StatsPageState extends State<StatsPage> {
                                     child:widget.d.subExt!.image(hSize: 30)),
                         ]) : Text(StatitikLocale.of(context).read('S_B0')),
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension)));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension, addMode: false)));
                         },
                       )
                     ),

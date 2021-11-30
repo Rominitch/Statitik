@@ -74,13 +74,14 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         // Search if Jap Card link exist
         var colorCard = Color(0xFF5D9070);
         if( Environment.instance.collection.pokemonCards.containsValue(card.data) ) {
-          var subEx = Environment.instance.collection.searchCardIntoSubExtension(card.data);
+          var subEx = Environment.instance.collection.searchCardIntoAllSubExtension(card.data);
+          int count = 0;
           for(var element in subEx) {
             if (element.se.extension.language.id == 3) {
-              colorCard = Colors.cyan;
-              break;
+              count += 1;
             }
           }
+          colorCard = count > 1 ? Colors.cyan : Colors.green[900]!;
         } else  {
           colorCard = Colors.grey[800]!;
         }
@@ -219,7 +220,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                           child:_se!.image(hSize: 30)),
                     ]) : Text(StatitikLocale.of(context).read('S_B0')),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension, addMode: false)));
                 },
               )
             ),
