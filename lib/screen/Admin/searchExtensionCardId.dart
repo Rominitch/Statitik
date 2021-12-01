@@ -20,7 +20,7 @@ class SearchExtensionsCardId extends StatelessWidget {
     // Refresh admin info
     Environment.instance.collection.adminReverse();
 
-    Set<PokemonCardExtension> cards = {};
+    Set<PokemonCardData> cards = {};
     List<Widget> cardImageWidget = [];
 
     List<Widget> expansionWidget = [];
@@ -40,16 +40,17 @@ class SearchExtensionsCardId extends StatelessWidget {
               printOutput("SearchExtensionsCardId: Impossible to find card: $id into ${subExtension.name}");
             } else {
               // Show card when name filter is enabled (otherwise too many card to show)
-              if(!cards.contains(allCards[0]) && cardData.title.isNotEmpty && this.name == cardData.title[0].name) {
-                cards.add(allCards[0]);
+              if(!cards.contains(cardData) && cardData.title.isNotEmpty && this.name == cardData.title[0].name) {
+                cards.add(cardData);
                 cardImageWidget.add(
                     Card(
                       color: Colors.grey[500],
                       child: TextButton(
-                        child: Column(
+                        style: TextButton.styleFrom(padding: EdgeInsets.all(2), alignment: Alignment.center),
+                        child: Row(
                           children: [
-                            CardImage(subExtension, allCards[0], id, height: 40),
-                            Text(localId.toString(), style: TextStyle(fontSize: 8)),
+                            RotatedBox(quarterTurns:3, child: Text(localId.toString(), style: TextStyle(fontSize: 10))),
+                            Expanded(child: CardImage(subExtension, allCards[0], id, height: 100)),
                           ],
                         ),
                         onPressed: () {
@@ -65,7 +66,7 @@ class SearchExtensionsCardId extends StatelessWidget {
                  child: TextButton(
                    child: Column(
                      children: [
-                       Text(subExtension.seCards.numberOfCard(id)),
+                       Expanded(child: Text(subExtension.seCards.numberOfCard(id))),
                        Text(localId.toString(), style: TextStyle(fontSize: 8)),
                      ],
                    ),
@@ -83,7 +84,7 @@ class SearchExtensionsCardId extends StatelessWidget {
         if(cardsWidgets.isNotEmpty) {
           expansionWidget.add(Card(
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
               child: Row(
                 children: [
                   subExtension.image(wSize: 50.0),
@@ -106,7 +107,7 @@ class SearchExtensionsCardId extends StatelessWidget {
     List<Widget> cardImages = cardImageWidget.isNotEmpty ?
     [
       GridView.count(
-        crossAxisCount: 5,
+        crossAxisCount: 4,
         children: cardImageWidget,
         shrinkWrap: true,
         primary: false,

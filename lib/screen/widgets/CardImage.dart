@@ -68,14 +68,28 @@ class CardImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if(cardImage.isNotEmpty)
-      return CachedNetworkImage(
-        imageUrl: cardImage,
-        errorWidget: (context, url, error) {
-          return Icon(Icons.help_outline);
-        },
-        placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
-        height: height,
-      );
+      if(Environment.instance.user != null && Environment.instance.user!.admin)
+        return Tooltip(
+          message: cardImage,
+          child: CachedNetworkImage(
+            imageUrl: cardImage,
+            errorWidget: (context, url, error) {
+              return Icon(Icons.help_outline);
+            },
+            filterQuality: height > 300 ? FilterQuality.low : FilterQuality.medium,
+            placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
+            height: height,
+          ),
+        );
+      else
+        return CachedNetworkImage(
+          imageUrl: cardImage,
+          errorWidget: (context, url, error) {
+            return Icon(Icons.help_outline);
+          },
+          placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
+          height: height,
+        );
     else
       return Container(height: height);
   }
