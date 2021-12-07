@@ -20,7 +20,7 @@ class StatitikException implements Exception {
 
 class Database
 {
-    final String version = '2.5';
+    final String version = '2.6';
     final ConnectionSettings settings = createConnection();
 
     Future<bool> transactionR(Function queries) async
@@ -67,7 +67,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.3.2';
+    final String version = '1.3.3';
 
     // State
     bool isInitialized          = false;

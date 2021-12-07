@@ -21,7 +21,9 @@ class CardImage extends StatelessWidget {
       name = name.replaceAll("ー", "");
       val = kanaKit.copyWithConfig(upcaseKatakana: true).toRomaji(name);
       val = val.replaceAll("FYI", "FI");
+      val = val.replaceAll("RY", "RI");
       val = val.replaceAll("'", "");
+      val = val.replaceAll(".", "");
       val = val.toUpperCase();
     } catch(e) {
 

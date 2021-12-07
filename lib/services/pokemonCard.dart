@@ -222,12 +222,26 @@ class PokemonCardExtension {
 
   PokemonCardExtension.fromBytesV3(ByteParser parser, Map collection) :
     data   = collection[parser.extractInt16()],
-    rarity = Rarity.values[parser.extractInt8()];
+    rarity = Rarity.Unknown
+  {
+    try {
+      rarity = Rarity.values[parser.extractInt8()];
+    }
+    catch(e){
+
+    }
+  }
 
   PokemonCardExtension.fromBytes(ByteParser parser, Map collection) :
     data   = collection[parser.extractInt16()],
-    rarity = Rarity.values[parser.extractInt8()]
+    rarity = Rarity.Unknown
   {
+    try {
+      rarity = Rarity.values[parser.extractInt8()];
+    }
+    catch(e){
+
+    }
     List<int> charCodes = [];
     int length = parser.extractInt8();
     assert(length % 2 == 0);

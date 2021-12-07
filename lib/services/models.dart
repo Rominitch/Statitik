@@ -181,6 +181,7 @@ enum Rarity {
   Unknown,
   Empty,
   JCHR,
+  JCSR,
 }
 
 const List<Rarity> orderedRarity = const[
@@ -190,7 +191,7 @@ const List<Rarity> orderedRarity = const[
   Rarity.Chromatique,  Rarity.JS,  Rarity.Turbo,  Rarity.V, // or GX /Ex
   Rarity.JRR,  Rarity.VMax,  Rarity.JRRR,  Rarity.BrillantRare, //PB
   Rarity.UltraRare,  Rarity.ChromatiqueRare,  Rarity.JSSR,  Rarity.Secret, Rarity.JCHR,
-  Rarity.JSR,  Rarity.ArcEnCiel,  Rarity.JHR,  Rarity.Gold,  Rarity.HoloRareSecret,  Rarity.JUR,
+  Rarity.JSR,  Rarity.ArcEnCiel,  Rarity.JHR, Rarity.JCSR, Rarity.Gold,  Rarity.HoloRareSecret,  Rarity.JUR,
 ];
 
 bool isPokemonType(type) {
@@ -207,7 +208,7 @@ const List<Color> rarityColors =
   Colors.purple, Colors.purple, Colors.purple, Color(0xFF8E24AA), Color(0xFF8E24AA), Color(0xFF7B1FA2), Color(0xFF6A1B9A), Color(0xFF6A1B9A),         // Ch JS T V JRR Vm JRRR PB
   Colors.yellow, Colors.yellow, Color(0xFFFDD835), Color(0xFFFDD835), Color(0xFFFBC02D), Color(0xFFFBC02D), Color(0xFFF9A825), Color(0xFFF9A825), Color(0xFFF9A825),           // ChR JSSR S JSR A JHR G HS JUR
   Colors.black, Colors.green, // unknown, Empty
-  Color(0xFFFDD835),
+  Color(0xFFFDD835), Color(0xFFD8C835),
 ];
 
 const List<Rarity> worldRarity = [Rarity.Empty, Rarity.Commune, Rarity.PeuCommune, Rarity.Rare,
@@ -216,7 +217,7 @@ const List<Rarity> worldRarity = [Rarity.Empty, Rarity.Commune, Rarity.PeuCommun
   Rarity.ChromatiqueRare, Rarity.Secret, Rarity.ArcEnCiel, Rarity.Gold, Rarity.HoloRareSecret
 ];
 const List<Rarity> japanRarity = [Rarity.Empty, Rarity.JC, Rarity.JU, Rarity.JR, Rarity.JRR,
-  Rarity.JRRR, Rarity.JSR, Rarity.JHR, Rarity.JUR, Rarity.JCHR, Rarity.JA, Rarity.JS, Rarity.JSSR
+  Rarity.JRRR, Rarity.JSR, Rarity.JHR, Rarity.JUR, Rarity.JCHR, Rarity.JCSR, Rarity.JA, Rarity.JS, Rarity.JSSR
 ];
 
 const List<Rarity> goodCard = [
@@ -243,6 +244,7 @@ const List<Rarity> goodCard = [
   Rarity.HoloRareSecret,
   Rarity.JUR,
   Rarity.JCHR,
+  //Rarity.JCSR,
 ];
 
 enum Mode {
@@ -402,11 +404,16 @@ List<Widget> getImageRarity(Rarity rarity, {fontSize=12.0, generate=false}) {
       case Rarity.JCHR:
         rendering = [Text('CHR', style: TextStyle(fontSize: fontSize))];
         break;
+      case Rarity.JCSR:
+        rendering = [Text('CSR', style: TextStyle(fontSize: fontSize))];
+        break;
       case Rarity.Empty:
         rendering = [Text('')];
       break;
       default:
-        throw Exception("Unknown rarity: $rarity");
+        rendering = [Icon(Icons.help_outline)];
+        assert(false);
+        //throw Exception("Unknown rarity: $rarity");
     }
     if(generate)
       return rendering;

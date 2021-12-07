@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
+import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';

@@ -397,7 +397,7 @@ Les personnages, le thème "Pokémon ®" et ses marques dérivées sont proprié
 Les images et illustrations utilisées sont la propriété de leurs auteurs respectifs.
 © 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.''',
       'DB_0': 'Impossible de se connecter à la base de données.',
-      'DB_1': 'Le programme est trop vieux.\nInstallez les mises à jour sous GooglePlay (peut mettre du temps à être détecté).\n\nDésolé pour la gêne occasionnée.',
+      'DB_1': 'Le programme est trop vieux.\nInstallez les mises à jour sous GooglePlay (peut mettre du temps a être détecté).\n\nDésolé pour la gêne occasionnée.',
       'NP_T0': 'Nouveau produit',
       'RE_B0': 'Meilleures cartes',
       'RE_B1': 'Partage',
