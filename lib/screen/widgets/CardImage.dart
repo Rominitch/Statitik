@@ -18,12 +18,13 @@ class CardImage extends StatelessWidget {
     const kanaKit = KanaKit();
     var val = "";
     try {
-      name = name.replaceAll("ー", "");
+      name = name.replaceAll("ー", ""); // ー is not translated
       val = kanaKit.copyWithConfig(upcaseKatakana: true).toRomaji(name);
       val = val.replaceAll("FYI", "FI");
       val = val.replaceAll("RY", "RI");
       val = val.replaceAll("'", "");
       val = val.replaceAll(".", "");
+      val = val.replaceAll(" ", ""); // Remove space
       val = val.toUpperCase();
     } catch(e) {
 
@@ -39,12 +40,15 @@ class CardImage extends StatelessWidget {
         return "https://assets.pokemon.com/assets/cms2/img/cards/web/${se.icon}/${se.icon}_EN_${se.seCards.tcgImage(id)}.png";
       else if( se.extension.language.id == 3 ) {
         if( card.image.isEmpty) {
-          if(se.seCards.cards[0][0].image.isNotEmpty) {
+          // Search jp ID card (by default start from first card)
+          var ancestorCard = se.seCards.cards.reversed.firstWhere((element) => element[0].image.isNotEmpty);
+
+          if(ancestorCard[0].image.isNotEmpty) {
             String codeImage  = "";
             String romajiName = "";
             String codeType = "P";
             try {
-              codeImage = (int.parse(se.seCards.cards[0][0].image.split("_")[0]) + id).toString().padLeft(6, '0');
+              codeImage = (int.parse(ancestorCard[0].image.split("_")[0]) + id).toString().padLeft(6, '0');
               romajiName = convertRomaji(card.data.titleOfCard(se.extension.language));
             } catch(e, s) {
 

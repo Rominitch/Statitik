@@ -44,7 +44,7 @@ class SearchExtensionsCardId extends StatelessWidget {
                 cards.add(cardData);
                 cardImageWidget.add(
                     Card(
-                      color: Colors.grey[500],
+                      color: (localId == currentId) ? Colors.red[500] : Colors.grey[500],
                       child: TextButton(
                         style: TextButton.styleFrom(padding: EdgeInsets.all(2), alignment: Alignment.center),
                         child: Row(
