@@ -65,7 +65,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
           child: TextButton(
             onPressed: (){
               Navigator.push(context,
-                MaterialPageRoute(builder: (context) => CardViewer(widget.stats.subExt, localId, pc)),
+                MaterialPageRoute(builder: (context) => CardSEViewer(widget.stats.subExt, localId)),
               );
             },
             child: isCard ? Column(

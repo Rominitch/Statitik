@@ -34,6 +34,25 @@ const int maxResistance = 60;
 const int minWeakness = 0;
 const int maxWeakness = 5;
 
+class ByteEncoder
+{
+  static List<int> encodeInt32(int value) {
+    return <int>[
+      (value & 0xFF000000) >> 24,
+      (value & 0xFF0000) >> 16,
+      (value & 0xFF00) >> 8,
+      (value & 0xFF)
+    ];
+  }
+
+  static List<int> encodeInt16(int value) {
+    return <int>[
+      (value & 0xFF00) >> 8,
+      (value & 0xFF)
+    ];
+  }
+}
+
 class ByteParser
 {
   List<int> byteArray;
@@ -44,6 +63,17 @@ class ByteParser
     canParse = it.moveNext();
   }
 
+  int extractInt32() {
+    int v = it.current << 24;
+    canParse = it.moveNext();
+    v |= it.current << 16;
+    canParse = it.moveNext();
+    v |= it.current << 8;
+    canParse = it.moveNext();
+    v |= it.current;
+    canParse = it.moveNext();
+    return v;
+  }
   int extractInt16() {
     int v = it.current << 8;
     canParse = it.moveNext();

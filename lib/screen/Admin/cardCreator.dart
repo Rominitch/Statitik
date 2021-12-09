@@ -37,7 +37,8 @@ class _CardCreatorState extends State<CardCreator> {
   late CustomRadioController weaknessController   = CustomRadioController(onChange: (value) { onWeaknessChanged(value); });
   late CustomRadioController typeExtController    = CustomRadioController(onChange: (value) { onTypeExtChanged(value); });
   late CustomRadioController levelController      = CustomRadioController(onChange: (value) { onLevel(value); });
-  final imageController = TextEditingController();
+  final imageController  = TextEditingController();
+  final jpCodeController = TextEditingController();
 
   List<Widget> typeCard = [];
   List<Widget> typeExtCard = [];
@@ -94,9 +95,27 @@ class _CardCreatorState extends State<CardCreator> {
     setState(() {});
   }
 
+  void computeJPCardID() {
+    try {
+      int idFind = 0;
+      var ancestorCard = widget.se.seCards.cards.sublist(0, widget.idCard).reversed.firstWhere((element) {
+        idFind+=1;
+        return (element[0].jpDBId != 0);
+      });
+      widget.card.jpDBId = ancestorCard[0].jpDBId + idFind;
+    } catch(e) {
+      // Nothing found !
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+
+    // Auto fill
+    if(widget.card.jpDBId == 0) {
+      computeJPCardID();
+    }
 
     Type.values.forEach((element) {
         typeCard.add(CustomRadio(value: element, controller: typeController, widget: getImageType(element)));
@@ -130,6 +149,8 @@ class _CardCreatorState extends State<CardCreator> {
     }
 
     selectCard();
+
+
   }
 
   void selectCard() {
@@ -153,7 +174,47 @@ class _CardCreatorState extends State<CardCreator> {
     // Set current value
     typeController.afterPress(widget.card.data.type);
     rarityController.afterPress(widget.card.rarity);
-    imageController.text = widget.card.image;
+    imageController.text  = widget.card.image;
+    jpCodeController.text = widget.card.jpDBId.toString();
+  }
+
+  Widget createImageFieldWidget() {
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(StatitikLocale.of(context).read('CA_B34'), style: TextStyle(fontSize: 12)),
+          TextField(
+              controller: imageController,
+              decoration: InputDecoration(
+                  hintText: CardImage.computeJPPokemonName(widget.se, widget.card)
+              ),
+              onChanged: (data) {
+                setState(() {
+                  widget.card.image = data;
+                });
+              }
+          ),
+          if(widget.activeLanguage.id == 3) TextField(
+              keyboardType: TextInputType.number,
+              controller: jpCodeController,
+              decoration: InputDecoration(
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.upgrade),
+                    onPressed: () {
+                      setState(() {
+                        computeJPCardID();
+                      });
+                    },
+                  )
+              ),
+              onChanged: (data) {
+                if(data.isNotEmpty)
+                  setState(() {
+                    widget.card.jpDBId = int.parse(data);
+                  });
+              }),
+        ]
+    );
   }
 
   @override
@@ -180,6 +241,8 @@ class _CardCreatorState extends State<CardCreator> {
       var codeDB = databaseCardId != null
                  ? databaseCardId.toString()
                  : StatitikLocale.of(context).read('CA_B29');
+
+
 
       others = <Widget>[
         Padding(
@@ -235,7 +298,7 @@ class _CardCreatorState extends State<CardCreator> {
                   ]
                 )
             ),
-            isPokemonType(widget.card.data.type) ?
+            if(isPokemonType(widget.card.data.type))
               ExpansionPanelRadio(
                 canTapOnHeader: true,
                 headerBuilder: (context, isOpen) { return ListTile(
@@ -345,43 +408,21 @@ class _CardCreatorState extends State<CardCreator> {
                             },
                           )
                         ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(StatitikLocale.of(context).read('CA_B34'), style: TextStyle(fontSize: 12)),
-                          TextField(
-                            controller: imageController,
-                            onChanged: (data) {
-                              widget.card.image = data;
-                            }
-                          ),
-                        ]
                       )
                     ],
                   ),
                 )
-            ) : ExpansionPanelRadio(
-              canTapOnHeader: true,
-              headerBuilder: (context, isOpen) { return ListTile(
-              title:Text(StatitikLocale.of(context).read('CA_B18'), style: TextStyle(fontSize: 12))); },
-              value: 1,
-              backgroundColor: Colors.blueGrey[800],
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(StatitikLocale.of(context).read('CA_B34'), style: TextStyle(fontSize: 12)),
-                  TextField(
-                    controller: imageController,
-                    onChanged: (data) {
-                      widget.card.image = data;
-                    }
-                  ),
-                ]
-              )
             ),
           ExpansionPanelRadio(
+            canTapOnHeader: true,
+            headerBuilder: (context, isOpen) { return ListTile(
+            title:Text(StatitikLocale.of(context).read('CA_B37'), style: TextStyle(fontSize: 12))); },
             value: 2,
+            backgroundColor: Colors.blueGrey[800],
+            body: createImageFieldWidget()
+            ),
+          ExpansionPanelRadio(
+            value: 3,
             canTapOnHeader: true,
             headerBuilder: (context, isOpen) { return ListTile(
                 title:Text(StatitikLocale.of(context).read('CA_B16'), style: TextStyle(fontSize: 12))); },
@@ -398,7 +439,7 @@ class _CardCreatorState extends State<CardCreator> {
             ]),
           ),
           ExpansionPanelRadio(
-            value: 3,
+            value: 4,
             canTapOnHeader: true,
             headerBuilder: (context, isOpen) { return ListTile(
                 title:Text(StatitikLocale.of(context).read('CA_B17'), style: TextStyle(fontSize: 12))); },
@@ -406,7 +447,7 @@ class _CardCreatorState extends State<CardCreator> {
             body: CardEffectsPanel(widget.card, widget.activeLanguage)
           ),
           ExpansionPanelRadio(
-            value: 4,
+            value: 5,
             canTapOnHeader: true,
             headerBuilder: (context, isOpen) { return ListTile(
                 title: Text(StatitikLocale.of(context).read('CA_B15'), style: TextStyle(fontSize: 12))); },
@@ -570,6 +611,13 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
                       },
                     )
                 ),
+              ),
+              IconButton(onPressed: (){
+                  setState(() {
+                    widget.card.data.title.remove(widget.nameInfo());
+                  });
+                },
+                icon: Icon(Icons.delete)
               ),
             ],
           ),

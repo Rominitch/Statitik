@@ -10,26 +10,95 @@ import 'package:statitikcard/services/pokemonCard.dart';
 class CardImage extends StatelessWidget {
   final String cardImage;
   final double height;
+  final PokemonCardExtension card;
 
   CardImage(SubExtension se, PokemonCardExtension card, int id, {this.height=400}) :
-    cardImage = computeImageLabel(se, card, id);
+    cardImage = computeImageLabel(se, card, id), this.card = card;
 
   static String convertRomaji(String name) {
+    const Map<String, String> convertions = {
+      "FYI":  "FI",
+      "RY":   "RI",
+      "TCH":  "CCH",
+      "&":    "TO",
+      "CHE":  "CHIE",
+      "BYI":  "BII",
+      //"JI":   "DI",
+      "'":    "",
+      ".":    "",
+      " ":    "", // Remove space
+      // Kanji Convertion
+      "溶接工": "YOUSETSUKOU",
+      "基本": "KIHON",
+      "回収":   "KAISHUU",
+      "博士":   "HAKASE",
+      "研究":   "KENKYUU",
+      "通信":   "TSUUSHIN",
+      "探索":   "TANSAKU",
+      "加速":   "KASOKU",
+      "転送":   "TENSOU",
+      "指令":   "SHIREI",
+      "無色":   "MUSHOKU",
+      "姉":     "NEE",
+      "水":    "MIZU",
+      "団":    "DAN",
+      "雷":    "KAMINARI",
+      "超":    "CHOU",
+      "草":    "KUSA",
+      "悪":    "AKU",
+      "闘":    "TOU",
+      "炎":    "HONOO",
+      "鋼":    "KOU",
+    };
     const kanaKit = KanaKit();
     var val = "";
     try {
+      // Remove no translate symbol
       name = name.replaceAll("ー", ""); // ー is not translated
+
+      // Convert kana
       val = kanaKit.copyWithConfig(upcaseKatakana: true).toRomaji(name);
-      val = val.replaceAll("FYI", "FI");
-      val = val.replaceAll("RY", "RI");
-      val = val.replaceAll("'", "");
-      val = val.replaceAll(".", "");
-      val = val.replaceAll(" ", ""); // Remove space
       val = val.toUpperCase();
+
+      // Finish by clean converter
+      convertions.forEach((key, value) {
+        val = val.replaceAll(key, value);
+      });
     } catch(e) {
 
     }
     return val;
+  }
+
+  static String computeJPPokemonName(SubExtension se, PokemonCardExtension card) {
+    String romajiName = "";
+    try {
+      romajiName = convertRomaji(card.data.titleOfCard(se.extension.language));
+
+      if( card.data.markers.markers.contains(CardMarker.V) )           { romajiName += "V"; }
+      else if( card.data.markers.markers.contains(CardMarker.VMAX) )   { romajiName += "VMAX"; }
+      else if( card.data.markers.markers.contains(CardMarker.VUNION) ) { romajiName += "VUNION"; }
+      else if( card.data.markers.markers.contains(CardMarker.VSTAR)  ) { romajiName += "VSTAR"; }
+
+    } catch(e, s) {
+
+    }
+    return romajiName;
+  }
+
+  static String computeExtension(SubExtension se) {
+    const List<String> removeColor = [
+      "Blue",
+      "Green",
+      "Yellow",
+      "Red",
+      "Brown",
+    ];
+    String ext = se.icon;
+    removeColor.forEach((value) {
+      ext = ext.replaceAll(value, "");
+    });
+    return ext;
   }
 
   static String computeImageLabel(SubExtension se, PokemonCardExtension card, int id) {
@@ -39,32 +108,19 @@ class CardImage extends StatelessWidget {
       else if( se.extension.language.id == 2 )
         return "https://assets.pokemon.com/assets/cms2/img/cards/web/${se.icon}/${se.icon}_EN_${se.seCards.tcgImage(id)}.png";
       else if( se.extension.language.id == 3 ) {
-        if( card.image.isEmpty) {
-          // Search jp ID card (by default start from first card)
-          var ancestorCard = se.seCards.cards.reversed.firstWhere((element) => element[0].image.isNotEmpty);
+        if(card.image.startsWith("https://"))
+          return card.image;
+        else {
+          String ext = computeExtension(se);
+          String romajiName = card.image.isEmpty ? computeJPPokemonName(se, card) : card.image;
+          String codeType = "P";
+          if(card.data.type == Type.Supporter || card.data.type == Type.Stade || card.data.type == Type.Objet)
+            codeType = "T";
+          else if(card.data.type == Type.Energy)
+            codeType = "E";
+          String codeImage = card.jpDBId.toString().padLeft(6, '0');
 
-          if(ancestorCard[0].image.isNotEmpty) {
-            String codeImage  = "";
-            String romajiName = "";
-            String codeType = "P";
-            try {
-              codeImage = (int.parse(ancestorCard[0].image.split("_")[0]) + id).toString().padLeft(6, '0');
-              romajiName = convertRomaji(card.data.titleOfCard(se.extension.language));
-            } catch(e, s) {
-
-            }
-            var specialCode = "";
-            if( card.data.markers.markers.contains(CardMarker.V) )         { specialCode = "V"; }
-            else if( card.data.markers.markers.contains(CardMarker.VMAX) ) { specialCode = "VMAX"; }
-            else if( card.data.markers.markers.contains(CardMarker.VUNION) ) { specialCode = "VUNION"; }
-            if(card.data.type == Type.Supporter || card.data.type == Type.Stade || card.data.type == Type.Objet)
-              codeType = "T";
-            else if(card.data.type == Type.Energy)
-              codeType = "E";
-            return "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${codeImage}_${codeType}_$romajiName$specialCode.jpg";
-          }
-        } else {
-          return "https://www.pokemon-card.com/assets/images/card_images/large/${se.icon}/${card.image}.jpg";
+          return "https://www.pokemon-card.com/assets/images/card_images/large/$ext/${codeImage}_${codeType}_$romajiName.jpg";
         }
       }
     }
@@ -80,6 +136,7 @@ class CardImage extends StatelessWidget {
           child: CachedNetworkImage(
             imageUrl: cardImage,
             errorWidget: (context, url, error) {
+              card.jpDBId = 0;
               return Icon(Icons.help_outline);
             },
             filterQuality: height > 300 ? FilterQuality.low : FilterQuality.medium,

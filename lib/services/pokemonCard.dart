@@ -217,8 +217,9 @@ class PokemonCardExtension {
   PokemonCardData  data;
   Rarity           rarity;
   String           image = "";
+  int              jpDBId = 0;
 
-  PokemonCardExtension(this.data, this.rarity, [this.image=""]);
+  PokemonCardExtension(this.data, this.rarity, [this.image="", this.jpDBId=0]);
 
   PokemonCardExtension.fromBytesV3(ByteParser parser, Map collection) :
     data   = collection[parser.extractInt16()],
@@ -232,7 +233,7 @@ class PokemonCardExtension {
     }
   }
 
-  PokemonCardExtension.fromBytes(ByteParser parser, Map collection) :
+  PokemonCardExtension.fromBytesV4(ByteParser parser, Map collection) :
     data   = collection[parser.extractInt16()],
     rarity = Rarity.Unknown
   {
@@ -254,6 +255,26 @@ class PokemonCardExtension {
     assert(otherData == 0); //Not used
   }
 
+  PokemonCardExtension.fromBytes(ByteParser parser, Map collection) :
+        data   = collection[parser.extractInt16()],
+        rarity = Rarity.Unknown
+  {
+    try {
+      rarity = Rarity.values[parser.extractInt8()];
+    }
+    catch(e){
+
+    }
+    List<int> charCodes = [];
+    int length = parser.extractInt8();
+    assert(length % 2 == 0);
+    for(int i = 0; i < length/2; i +=1) {
+      charCodes.add(parser.extractInt16());
+    }
+    image  = String.fromCharCodes(charCodes);
+    jpDBId = parser.extractInt32();
+  }
+
   List<int> toBytes(Map rCollection) {
     assert(rCollection.isNotEmpty); // Admin condition
 
@@ -263,19 +284,14 @@ class PokemonCardExtension {
     var imageCode = <int>[];
     image.codeUnits.forEach((element) {
       assert(element < 65536);
-      imageCode.add((element & 0xFF00) >> 8);
-      imageCode.add(element & 0xFF);
+      imageCode += ByteEncoder.encodeInt16(element);
     });
     assert(imageCode.length <= 255);
 
-    return <int>[
-      (idCard & 0xFF00) >> 8,
-      idCard & 0xFF,
-      rarity.index,
-      imageCode.length, // Not more than 256
-    ] + imageCode + [
-      0, // Reserve for future: Number of other data
-    ];
+    return ByteEncoder.encodeInt16(idCard) +
+        <int>[rarity.index,
+              imageCode.length, // Not more than 256
+    ] + imageCode + ByteEncoder.encodeInt32(jpDBId);
   }
 
   bool isValid() {
@@ -325,7 +341,7 @@ class SubExtensionCards {
 
   SubExtensionCards(List<List<PokemonCardExtension>> cards, this.codeNaming) : this.cards = cards, this.isValid = cards.length > 0;
 
-  static const int version = 4;
+  static const int version = 5;
 
   String tcgImage(idCard) {
     if(codeNaming.isNotEmpty) {
@@ -342,35 +358,25 @@ class SubExtensionCards {
   }
 
   SubExtensionCards.build(List<int> bytes, this.codeNaming, cardCollection) : this.cards=[], this.isValid = (bytes.length > 0) {
-    if(bytes[0] == 3) {
+    final currentVersion = bytes[0];
+    if(3 <= currentVersion && currentVersion <= 5) {
       var parser = ByteParser(gzip.decode(bytes.sublist(1)));
       // Extract card
       while(parser.canParse) {
         List<PokemonCardExtension> numberedCard = [];
         int nbTitle = parser.extractInt8();
         for( int cardId=0; cardId < nbTitle; cardId +=1) {
-          //parser.pointer += 1;
-          numberedCard.add(PokemonCardExtension.fromBytesV3(parser, cardCollection));
+          if(currentVersion == 5)
+            numberedCard.add(PokemonCardExtension.fromBytes(parser, cardCollection));
+          else if(currentVersion == 4)
+            numberedCard.add(PokemonCardExtension.fromBytesV4(parser, cardCollection));
+          else if (currentVersion == 3)
+            numberedCard.add(PokemonCardExtension.fromBytesV3(parser, cardCollection));
         }
         cards.add(numberedCard);
       }
-    } else if(bytes[0] != version) {
+    } else
       throw StatitikException("Bad SubExtensionCards version : need migration !");
-    } else {
-      // Current version
-      var parser = ByteParser(gzip.decode(bytes.sublist(1)));
-
-      // Extract card
-      while(parser.canParse) {
-        List<PokemonCardExtension> numberedCard = [];
-        int nbTitle = parser.extractInt8();
-        for( int cardId=0; cardId < nbTitle; cardId +=1) {
-          //parser.pointer += 1;
-          numberedCard.add(PokemonCardExtension.fromBytes(parser, cardCollection));
-        }
-        cards.add(numberedCard);
-      }
-    }
   }
 
   SubExtensionCards.emptyDraw(this.codeNaming) : cards = [], isValid=false {
