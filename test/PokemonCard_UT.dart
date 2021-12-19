@@ -15,17 +15,22 @@ void main() {
       CardMarkers.from([CardMarker.VMAX]),
       CardMarkers.from([CardMarker.Escouade, CardMarker.Restaure]),
       CardMarkers.from([CardMarker.Restaure, CardMarker.RegenerationAlpha]),
+      CardMarkers.from([CardMarker.SP, CardMarker.Yon]), // Limit new int32
+      CardMarkers.from([CardMarker.VSTAR, CardMarker.VUNION]),
     ];
-    for(CardMarkers code in c) {
-      CardMarkers codeS = CardMarkers.fromBytes(code.toBytes());
-      expect(codeS.markers, code.markers);
-    }
 
     expect([0, 0, 0 ,0 ,20], c[0].toBytes());
     expect([0, 0, 0 ,0, 0],  c[1].toBytes());
     expect([0, 0, 0 ,0, 4],  c[2].toBytes());
     expect([0, 0, 0 ,4, 1],  c[3].toBytes());
     expect([0, 2, 0 ,4, 0],  c[4].toBytes());
+    expect([1, 128, 0 ,0, 0],c[5].toBytes());
+    expect([24, 0, 0 ,0, 0], c[6].toBytes());
+
+    for(CardMarkers code in c) {
+      CardMarkers codeS = CardMarkers.fromBytes(code.toBytes());
+      expect(codeS.markers, code.markers);
+    }
   });
 
   test('ExtensionDrawCards', () {

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
-import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -75,14 +74,22 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         // Search if Jap Card link exist
         var colorCard = Color(0xFF5D9070);
         if( Environment.instance.collection.pokemonCards.containsValue(card.data) ) {
-          var subEx = Environment.instance.collection.searchCardIntoAllSubExtension(card.data);
+          var subEx = Environment.instance.collection
+              .searchCardIntoAllSubExtension(card.data);
           int count = 0;
-          for(var element in subEx) {
-            if (element.se.extension.language.id == 3) {
+          for (var element in subEx) {
+            if (element.se.extension.language.isJapanese()) {
               count += 1;
             }
           }
-          colorCard = count > 1 ? Colors.cyan : Colors.green[900]!;
+
+          if(_language!.isJapanese()) {
+            // Show multi link
+            colorCard = count > 1 ? Colors.cyan : Colors.green[900]!;
+          } else {
+            // Show link with japan
+            colorCard = count > 0 ? Colors.green[800]! : Colors.grey[900]!;
+          }
         } else  {
           colorCard = Colors.grey[800]!;
         }
@@ -98,6 +105,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                     Row( mainAxisAlignment: MainAxisAlignment.center,
                          children: [card.imageType()]+card.imageRarity()),
                     Text(_se!.seCards.numberOfCard(localId)),
+                    if(_language!.isJapanese() && card.jpDBId == 0) Icon(Icons.broken_image),
                     ]
               ),
               style: TextButton.styleFrom(

@@ -102,7 +102,9 @@ class _CardCreatorState extends State<CardCreator> {
         idFind+=1;
         return (element[0].jpDBId != 0);
       });
-      widget.card.jpDBId = ancestorCard[0].jpDBId + idFind;
+      // Zero propagation or next number
+      if(ancestorCard[0].jpDBId != 0)
+        widget.card.jpDBId = ancestorCard[0].jpDBId + idFind;
     } catch(e) {
       // Nothing found !
     }
@@ -112,8 +114,8 @@ class _CardCreatorState extends State<CardCreator> {
   void initState() {
     super.initState();
 
-    // Auto fill
-    if(widget.card.jpDBId == 0) {
+    // Auto fill (only for japanese card)
+    if(widget.activeLanguage.isJapanese() && widget.card.jpDBId == 0) {
       computeJPCardID();
     }
 
@@ -189,12 +191,10 @@ class _CardCreatorState extends State<CardCreator> {
                   hintText: CardImage.computeJPPokemonName(widget.se, widget.card)
               ),
               onChanged: (data) {
-                setState(() {
                   widget.card.image = data;
-                });
               }
           ),
-          if(widget.activeLanguage.id == 3) TextField(
+          if(widget.activeLanguage.isJapanese()) TextField(
               keyboardType: TextInputType.number,
               controller: jpCodeController,
               decoration: InputDecoration(
@@ -208,10 +208,12 @@ class _CardCreatorState extends State<CardCreator> {
                   )
               ),
               onChanged: (data) {
-                if(data.isNotEmpty)
-                  setState(() {
+                setState(() {
+                  if(data.isNotEmpty)
                     widget.card.jpDBId = int.parse(data);
-                  });
+                  else
+                    widget.card.jpDBId = 0;
+                });
               }),
         ]
     );

@@ -117,16 +117,23 @@ class CardMarkers {
       bytes[0],
       ((bytes[1] << 8 | bytes[2]) << 8 | bytes[3]) << 8 | bytes[4]
     ];
+    int nextId = 33;
     int id = 1;
     fullcode.reversed.forEach((code) {
       while(code > 0)
       {
         if((code & 0x1) == 0x1) {
-          markers.add(CardMarker.values[id]);
+          try {
+            markers.add(CardMarker.values[id]);
+          } catch(e) {
+            printOutput("Error Marker: $id");
+          }
         }
         id = id+1;
         code = code >> 1;
       }
+      id = nextId;
+      nextId += 32;
     });
   }
 
@@ -134,21 +141,17 @@ class CardMarkers {
     List<int> codeMarkers = [0, 0];
     markers.forEach((element) {
       if(element != CardMarker.Nothing) {
-        if(element.index < 32) {
+        if(element.index < 33) {
           codeMarkers[1] |= (1<<(element.index-1));
         } else {
-          var multiple = element.index-31;
+          var multiple = element.index-33;
           codeMarkers[0] |= (1<<(multiple));
         }
       }
     });
     return <int>[
       codeMarkers[0] & 0xFF,
-      (codeMarkers[1] & 0xFF000000) >> 24,
-      (codeMarkers[1] & 0xFF0000) >> 16,
-      (codeMarkers[1] & 0xFF00) >> 8,
-      codeMarkers[1] & 0xFF,
-    ];
+    ]+ByteEncoder.encodeInt32(codeMarkers[1]);
   }
 
   void add(value) {
@@ -347,9 +350,13 @@ class SubExtensionCards {
     if(codeNaming.isNotEmpty) {
       for(var element in codeNaming) {
         if( idCard >= element.idStart) {
-          if(element.naming.startsWith("SV")) {
-            String val = (idCard-element.idStart+1).toString().padLeft(3, '0');
-            return sprintf(element.naming, [val]);
+          if(element.naming.contains("%s")) {
+            if (element.naming.startsWith("SV")) {
+              String val = (idCard - element.idStart + 1).toString().padLeft(3, '0');
+              return sprintf(element.naming, [val]);
+            }
+          } else {
+            return sprintf(element.naming, [(idCard - element.idStart + 1)]);
           }
         }
       }
@@ -396,7 +403,10 @@ class SubExtensionCards {
           cn = element;
       });
     }
-    return sprintf(cn.naming, [(id-cn.idStart + 1).toString()]);
+    if(cn.naming.contains("%s"))
+      return sprintf(cn.naming, [(id-cn.idStart + 1).toString()]);
+    else
+      return sprintf(cn.naming, [(id-cn.idStart + 1)]);
   }
 
   String titleOfCard(Language l, int idCard, [int idAlternative=0]) {

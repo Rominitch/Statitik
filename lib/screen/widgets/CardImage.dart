@@ -1,4 +1,7 @@
 
+import 'dart:async';
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:kana_kit/kana_kit.dart';
@@ -7,13 +10,14 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
-class CardImage extends StatelessWidget {
-  final String cardImage;
+class CardImage extends StatefulWidget {
+  final List<String> cardImage;
   final double height;
+  final SubExtension se;
   final PokemonCardExtension card;
 
   CardImage(SubExtension se, PokemonCardExtension card, int id, {this.height=400}) :
-    cardImage = computeImageLabel(se, card, id), this.card = card;
+    cardImage = computeImageLabel(se, card, id), this.card = card, this.se = se;
 
   static String convertRomaji(String name) {
     const Map<String, String> convertions = {
@@ -80,7 +84,7 @@ class CardImage extends StatelessWidget {
       else if( card.data.markers.markers.contains(CardMarker.VUNION) ) { romajiName += "VUNION"; }
       else if( card.data.markers.markers.contains(CardMarker.VSTAR)  ) { romajiName += "VSTAR"; }
 
-    } catch(e, s) {
+    } catch(e) {
 
     }
     return romajiName;
@@ -101,15 +105,21 @@ class CardImage extends StatelessWidget {
     return ext;
   }
 
-  static String computeImageLabel(SubExtension se, PokemonCardExtension card, int id) {
+  static List<String> computeImageLabel(SubExtension se, PokemonCardExtension card, int id) {
     if(Environment.instance.showTCGImages){
       if( se.extension.language.id == 1 )
-        return "https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/${se.icon}/${se.icon}_FR_${se.seCards.tcgImage(id)}.png";
+        return [
+           // Official image source
+           "https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/${se.icon}/${se.icon}_FR_${se.seCards.tcgImage(id)}.png",
+           // Fiable alternative source
+           "https://www.pokecardex.com/assets/images/sets_fr/${(se.icon).toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"
+        ];
       else if( se.extension.language.id == 2 )
-        return "https://assets.pokemon.com/assets/cms2/img/cards/web/${se.icon}/${se.icon}_EN_${se.seCards.tcgImage(id)}.png";
+        // Official image source
+        return ["https://assets.pokemon.com/assets/cms2/img/cards/web/${se.icon}/${se.icon}_EN_${se.seCards.tcgImage(id)}.png"];
       else if( se.extension.language.id == 3 ) {
         if(card.image.startsWith("https://"))
-          return card.image;
+          return [card.image];
         else {
           String ext = computeExtension(se);
           String romajiName = card.image.isEmpty ? computeJPPokemonName(se, card) : card.image;
@@ -120,40 +130,68 @@ class CardImage extends StatelessWidget {
             codeType = "E";
           String codeImage = card.jpDBId.toString().padLeft(6, '0');
 
-          return "https://www.pokemon-card.com/assets/images/card_images/large/$ext/${codeImage}_${codeType}_$romajiName.jpg";
+          return [
+            // Official image source
+            "https://www.pokemon-card.com/assets/images/card_images/large/$ext/${codeImage}_${codeType}_$romajiName.jpg",
+            // Fiable alternative source
+            "https://www.pokecardex.com/assets/images/sets_jp/${(se.icon).toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"
+          ];
         }
       }
     }
-    return "";
+    return [""];
   }
 
   @override
+  State<CardImage> createState() => _CardImageState();
+}
+
+class _CardImageState extends State<CardImage> {
+  StreamController<int> onURLError = StreamController<int>();
+
+  @override
+  void initState() {
+    onURLError.stream.listen((event) {
+      setState(() {
+        widget.cardImage.removeAt(0);
+      });
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    onURLError.close();
+    super.dispose();
+  }
+
+  Widget buildCachedImage([bool admin=false]) {
+    if(widget.cardImage.isNotEmpty) {
+      return CachedNetworkImage(
+        imageUrl: widget.cardImage.first,
+        errorWidget: (context, url, error) {
+          if(admin && widget.se.extension.language.id == 3) {
+            widget.card.jpDBId = 0;
+          }
+          onURLError.add(0);
+          return Icon(Icons.help_outline);
+        },
+        filterQuality: widget.height > 300 ? FilterQuality.low : FilterQuality.medium,
+        placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
+        height: widget.height,
+      );
+    } else {
+      return Icon(Icons.help_outline);
+    }
+  }
+  @override
   Widget build(BuildContext context) {
-    if(cardImage.isNotEmpty)
-      if(Environment.instance.user != null && Environment.instance.user!.admin)
-        return Tooltip(
-          message: cardImage,
-          child: CachedNetworkImage(
-            imageUrl: cardImage,
-            errorWidget: (context, url, error) {
-              card.jpDBId = 0;
-              return Icon(Icons.help_outline);
-            },
-            filterQuality: height > 300 ? FilterQuality.low : FilterQuality.medium,
-            placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
-            height: height,
-          ),
-        );
-      else
-        return CachedNetworkImage(
-          imageUrl: cardImage,
-          errorWidget: (context, url, error) {
-            return Icon(Icons.help_outline);
-          },
-          placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
-          height: height,
-        );
+    if(Environment.instance.user != null && Environment.instance.user!.admin)
+      return Tooltip(
+        message: widget.cardImage.isNotEmpty ? widget.cardImage.first : "",
+        child: buildCachedImage(true)
+      );
     else
-      return Container(height: height);
+      return buildCachedImage();
   }
 }

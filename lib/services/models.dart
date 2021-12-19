@@ -118,6 +118,10 @@ class Language
   bool isWorld() {
     return id != 3;
   }
+
+  bool isJapanese() {
+    return id == 3;
+  }
 }
 
 class Extension
@@ -878,12 +882,12 @@ enum CardMarker {
   PokeBody,
   TeamGalaxy,
   PokemonChampion,
-  SP,
-  Yon,
+  SP, //32
+  Yon, //33
   EspeceDelta,
   TeamRocket,
   VSTAR,
-  VUNION,
+  VUNION, //37
   //First Limited 24 values (Bit 3 bytes)
   //Limited 40 values (Bit 5 bytes)
 }
