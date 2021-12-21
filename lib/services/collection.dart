@@ -272,7 +272,7 @@ class Collection
       for (var row in subExts) {
         try {
           SubExtensionCards seCards = cardsExtensions[row[4]];
-          subExtensions[row[0]] = SubExtension(row[0], row[2], row[3], extensions[row[1]], row[6], seCards, SerieType.values[row[7]]);
+          subExtensions[row[0]] = SubExtension(row[0], row[2], row[3], extensions[row[1]], row[6], seCards, SerieType.values[row[7]], row[8]);
         } catch(e) {
           printOutput("Bad SubExtension: ${row[0]} $e");
         }

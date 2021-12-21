@@ -128,7 +128,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
             if(Environment.instance.user != null && Environment.instance.user!.admin) IconButton(
               icon: Icon(Icons.share_outlined),
               onPressed: () {
-                print.shareReport(context, widget.stats.subExt.icon);
+                print.shareReport(context, widget.stats.subExt.seCode);
               }
             ),
           ],

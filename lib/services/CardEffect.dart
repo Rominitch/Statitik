@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:sprintf/sprintf.dart';
-
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 

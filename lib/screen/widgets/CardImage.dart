@@ -1,6 +1,4 @@
-
 import 'dart:async';
-import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -28,9 +26,10 @@ class CardImage extends StatefulWidget {
       "CHE":  "CHIE",
       "BYI":  "BII",
       //"JI":   "DI",
-      "'":    "",
-      ".":    "",
+      "'":    "", // Remove '
+      ".":    "", // Remove .
       " ":    "", // Remove space
+      "/":    "", // Remove /
       // Kanji Convertion
       "溶接工": "YOUSETSUKOU",
       "基本": "KIHON",
@@ -83,6 +82,8 @@ class CardImage extends StatefulWidget {
       else if( card.data.markers.markers.contains(CardMarker.VMAX) )   { romajiName += "VMAX"; }
       else if( card.data.markers.markers.contains(CardMarker.VUNION) ) { romajiName += "VUNION"; }
       else if( card.data.markers.markers.contains(CardMarker.VSTAR)  ) { romajiName += "VSTAR"; }
+      else if( card.data.markers.markers.contains(CardMarker.GX)  )    { romajiName += "GX"; }
+      else if( card.data.markers.markers.contains(CardMarker.EX)  )    { romajiName += "EX"; }
 
     } catch(e) {
 
@@ -90,38 +91,22 @@ class CardImage extends StatefulWidget {
     return romajiName;
   }
 
-  static String computeExtension(SubExtension se) {
-    const List<String> removeColor = [
-      "Blue",
-      "Green",
-      "Yellow",
-      "Red",
-      "Brown",
-    ];
-    String ext = se.icon;
-    removeColor.forEach((value) {
-      ext = ext.replaceAll(value, "");
-    });
-    return ext;
-  }
-
   static List<String> computeImageLabel(SubExtension se, PokemonCardExtension card, int id) {
     if(Environment.instance.showTCGImages){
       if( se.extension.language.id == 1 )
         return [
            // Official image source
-           "https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/${se.icon}/${se.icon}_FR_${se.seCards.tcgImage(id)}.png",
+           "https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/${se.seCode}/${se.seCode}_FR_${se.seCards.tcgImage(id)}.png",
            // Fiable alternative source
-           "https://www.pokecardex.com/assets/images/sets_fr/${(se.icon).toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"
+           "https://www.pokecardex.com/assets/images/sets_fr/${(se.seCode).toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"
         ];
       else if( se.extension.language.id == 2 )
         // Official image source
-        return ["https://assets.pokemon.com/assets/cms2/img/cards/web/${se.icon}/${se.icon}_EN_${se.seCards.tcgImage(id)}.png"];
+        return ["https://assets.pokemon.com/assets/cms2/img/cards/web/${se.seCode}/${se.seCode}_EN_${se.seCards.tcgImage(id)}.png"];
       else if( se.extension.language.id == 3 ) {
         if(card.image.startsWith("https://"))
           return [card.image];
         else {
-          String ext = computeExtension(se);
           String romajiName = card.image.isEmpty ? computeJPPokemonName(se, card) : card.image;
           String codeType = "P";
           if(card.data.type == Type.Supporter || card.data.type == Type.Stade || card.data.type == Type.Objet)
@@ -132,9 +117,9 @@ class CardImage extends StatefulWidget {
 
           return [
             // Official image source
-            "https://www.pokemon-card.com/assets/images/card_images/large/$ext/${codeImage}_${codeType}_$romajiName.jpg",
+            "https://www.pokemon-card.com/assets/images/card_images/large/${se.seCode}/${codeImage}_${codeType}_$romajiName.jpg",
             // Fiable alternative source
-            "https://www.pokecardex.com/assets/images/sets_jp/${(se.icon).toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"
+            "https://www.pokecardex.com/assets/images/sets_jp/${se.seCode.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"
           ];
         }
       }

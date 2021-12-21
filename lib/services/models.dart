@@ -216,12 +216,13 @@ enum Rarity {
   Empty,
   JCHR,
   JCSR,
+  JPR,
 }
 
 const List<Rarity> orderedRarity = const[
   Rarity.Empty, Rarity.Unknown,
   Rarity.Commune, Rarity.JC, Rarity.PeuCommune, Rarity.JU, Rarity.Rare, Rarity.JR,
-  Rarity.HoloRare, Rarity.Magnifique, Rarity.JA, Rarity.Prism,
+  Rarity.HoloRare, Rarity.Magnifique, Rarity.JA, Rarity.Prism, Rarity.JPR,
   Rarity.Chromatique,  Rarity.JS,  Rarity.Turbo,  Rarity.V, // or GX /Ex
   Rarity.JRR,  Rarity.VMax,  Rarity.JRRR,  Rarity.BrillantRare, //PB
   Rarity.UltraRare,  Rarity.ChromatiqueRare,  Rarity.JSSR,  Rarity.Secret, Rarity.JCHR,
@@ -238,11 +239,11 @@ bool isPokemonType(type) {
 const List<Color> rarityColors =
 [
   Colors.green, Colors.green, Color(0xFF43A047), Color(0xFF43A047), Color(0xFF388E3C), Color(0xFF388E3C),  // C JC P JU R JR
-  Colors.blue, Color(0xFF1E88E5), Color(0xFF1E88E5), Color(0xFF1976D2), Color(0xFF1565C0),                  // H M JA P C
+  Colors.blue, Color(0xFF1E88E5), Color(0xFF1E88E5), Color(0xFF1976D2), Color(0xFF1565C0),                 // H M JA P C
   Colors.purple, Colors.purple, Colors.purple, Color(0xFF8E24AA), Color(0xFF8E24AA), Color(0xFF7B1FA2), Color(0xFF6A1B9A), Color(0xFF6A1B9A),         // Ch JS T V JRR Vm JRRR PB
   Colors.yellow, Colors.yellow, Color(0xFFFDD835), Color(0xFFFDD835), Color(0xFFFBC02D), Color(0xFFFBC02D), Color(0xFFF9A825), Color(0xFFF9A825), Color(0xFFF9A825),           // ChR JSSR S JSR A JHR G HS JUR
   Colors.black, Colors.green, // unknown, Empty
-  Color(0xFFFDD835), Color(0xFFD8C835),
+  Color(0xFFFDD835), Color(0xFFD8C835), Color(0xFF185192) // CHR CSR Pr
 ];
 
 const List<Rarity> worldRarity = [Rarity.Empty, Rarity.Commune, Rarity.PeuCommune, Rarity.Rare,
@@ -250,7 +251,7 @@ const List<Rarity> worldRarity = [Rarity.Empty, Rarity.Commune, Rarity.PeuCommun
   Rarity.V, Rarity.VMax, Rarity.BrillantRare, Rarity.UltraRare,
   Rarity.ChromatiqueRare, Rarity.Secret, Rarity.ArcEnCiel, Rarity.Gold, Rarity.HoloRareSecret
 ];
-const List<Rarity> japanRarity = [Rarity.Empty, Rarity.JC, Rarity.JU, Rarity.JR, Rarity.JRR,
+const List<Rarity> japanRarity = [Rarity.Empty, Rarity.JC, Rarity.JU, Rarity.JR, Rarity.JPR, Rarity.JRR,
   Rarity.JRRR, Rarity.JSR, Rarity.JHR, Rarity.JUR, Rarity.JCHR, Rarity.JCSR, Rarity.JA, Rarity.JS, Rarity.JSSR
 ];
 
@@ -259,6 +260,7 @@ const List<Rarity> goodCard = [
   Rarity.Magnifique,
   Rarity.JA,
   Rarity.Prism,
+  Rarity.JPR,
   Rarity.Chromatique,
   Rarity.JS,
   Rarity.Turbo,
@@ -441,6 +443,9 @@ List<Widget> getImageRarity(Rarity rarity, {fontSize=12.0, generate=false}) {
       case Rarity.JCSR:
         rendering = [Text('CSR', style: TextStyle(fontSize: fontSize))];
         break;
+      case Rarity.JPR:
+        rendering = [Text('PR', style: TextStyle(fontSize: fontSize))];
+        break;
       case Rarity.Empty:
         rendering = [Text('')];
       break;
@@ -612,13 +617,14 @@ class SubExtension
 {
   int               id;           ///< ID into database
   String            name;         ///< Name of extension (translate)
-  String            icon;         ///< Path to extension's icon
+  String            icon;         ///< Path to extension's icon (on Statitik card folder)
+  String            seCode;       ///< Official Se code (use into web folder and other stuff)
   DateTime          out;
   SubExtensionCards seCards;
   Extension         extension;
   SerieType         type;
 
-  SubExtension(this.id, this.name, this.icon, this.extension, this.out, this.seCards, this.type);
+  SubExtension(this.id, this.name, this.icon, this.extension, this.out, this.seCards, this.type, this.seCode);
 
   /// Show Extension image
   Widget image({double? wSize, double? hSize}) {

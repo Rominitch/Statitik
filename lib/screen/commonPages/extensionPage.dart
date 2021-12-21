@@ -22,6 +22,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
 
   @override
   void initState() {
+    super.initState();
     serieFilters = widget.addMode ? [SerieType.Normal] : [SerieType.Normal, SerieType.Promo, SerieType.Deck];
   }
 

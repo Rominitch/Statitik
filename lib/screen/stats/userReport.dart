@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import 'package:screenshot/screenshot.dart';
@@ -161,7 +159,7 @@ class _UserReportState extends State<UserReport> {
             if(!compute) IconButton(
                 icon: Icon(Icons.share_outlined),
                 onPressed: () {
-                  print.shareReport(context, finalData.subExt!.icon);
+                  print.shareReport(context, finalData.subExt!.seCode);
                 }
             ),
           ],
