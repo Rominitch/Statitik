@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/material.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
+import 'package:statitikcard/screen/widgets/EnergyButton.dart';
 import 'package:statitikcard/screen/widgets/ListSelector.dart';
 import 'package:statitikcard/services/CardEffect.dart';
 
@@ -65,8 +66,6 @@ class CardEffectPanel extends StatefulWidget {
 }
 
 class _CardEffectPanelState extends State<CardEffectPanel> {
-  List<CustomRadioController> powerControllers = [];
-  List<List<Widget>> powersWidgets = [];
   double typeSize = 40.0;
 
   static const double maxParam = 1000.0;
@@ -80,22 +79,6 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
     // Fill with 5 elements
     while(widget.effect.attack.length < 5) {
       widget.effect.attack.add(Type.Unknown);
-    }
-
-    int id=0;
-    for(var element in widget.effect.attack) {
-      var newList = <Widget>[];
-      int localI = id;
-      var typeController = CustomRadioController(onChange: (value) {  onTypeChanged(localI, widget.effect, value); });
-      powerControllers.add( typeController );
-
-      newList.add(CustomRadio(value: Type.Unknown, controller: typeController, widget: getImageType(Type.Unknown), widthBox: typeSize));
-      energies.forEach((element) {
-        newList.add(CustomRadio(value: element, controller: typeController, widget: getImageType(element), widthBox: typeSize));
-      });
-      typeController.afterPress(element);
-      powersWidgets.add(newList);
-      id += 1;
     }
 
     super.initState();
@@ -185,15 +168,13 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
                   ]
               ),
             if(widget.effect.title != null)
-            Container(height: typeSize, child: ListView(children: powersWidgets[0], scrollDirection: Axis.horizontal, primary: false)),
-            if(widget.effect.title != null)
-            Container(height: typeSize, child: ListView(children: powersWidgets[1], scrollDirection: Axis.horizontal, primary: false)),
-            if(widget.effect.title != null)
-            Container(height: typeSize, child: ListView(children: powersWidgets[2], scrollDirection: Axis.horizontal, primary: false)),
-            if(widget.effect.title != null)
-            Container(height: typeSize, child: ListView(children: powersWidgets[3], scrollDirection: Axis.horizontal, primary: false)),
-            if(widget.effect.title != null)
-            Container(height: typeSize, child: ListView(children: powersWidgets[4], scrollDirection: Axis.horizontal, primary: false)),
+              Row( children: [
+                EnergyButton(EnergyButtonController(widget.effect, 0)),
+                EnergyButton(EnergyButtonController(widget.effect, 1)),
+                EnergyButton(EnergyButtonController(widget.effect, 2)),
+                EnergyButton(EnergyButtonController(widget.effect, 3)),
+                EnergyButton(EnergyButtonController(widget.effect, 4)),
+              ]),
             //Description
             Card(
               color: Colors.grey[600],
