@@ -34,7 +34,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     compileSdkVersion 32
-    ndkVersion "22.1.7171670"
+    ndkVersion "23.0.7599858"
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -45,7 +45,9 @@ android {
         targetSdkVersion 32
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-
+        ndk {
+            debugSymbolLevel 'SYMBOL_TABLE'
+        }
     }
 
     signingConfigs {
