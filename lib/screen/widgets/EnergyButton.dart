@@ -1,19 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 
-class EnergyButtonController {
+abstract class EnergyButtonController {
+  void setValue(Type type);
+
+  Type value();
+}
+
+class EBEffectController extends EnergyButtonController {
   CardEffect effect;
   int id;
 
-  EnergyButtonController(this.effect, this.id);
+  EBEffectController(this.effect, this.id);
 
+  @override
   void setValue(Type type) {
     effect.attack[id] = type;
   }
 
+  @override
   Type value() {
     return effect.attack[id];
+  }
+}
+
+class EBEnergyValueController extends EnergyButtonController {
+  EnergyValue energyValue;
+  int         autoValue;
+  dynamic     afterEdit;
+
+  EBEnergyValueController(this.energyValue, this.autoValue, this.afterEdit);
+
+  @override
+  void setValue(Type type) {
+    if(energyValue.energy == Type.Unknown && energyValue.value == 0)
+      energyValue.value = autoValue;
+    energyValue.energy = type;
+    afterEdit();
+  }
+
+  @override
+  Type value() {
+    return energyValue.energy;
   }
 }
 

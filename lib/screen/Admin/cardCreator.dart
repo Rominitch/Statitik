@@ -6,6 +6,7 @@ import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
+import 'package:statitikcard/screen/widgets/EnergySlider.dart';
 import 'package:statitikcard/screen/widgets/ListSelector.dart';
 import 'package:statitikcard/screen/widgets/SliderWithText.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -33,8 +34,6 @@ class CardCreator extends StatefulWidget {
 class _CardCreatorState extends State<CardCreator> {
   late CustomRadioController typeController       = CustomRadioController(onChange: (value) { onTypeChanged(value); });
   late CustomRadioController rarityController     = CustomRadioController(onChange: (value) { onRarityChanged(value); });
-  late CustomRadioController resistanceController = CustomRadioController(onChange: (value) { onResistanceChanged(value); });
-  late CustomRadioController weaknessController   = CustomRadioController(onChange: (value) { onWeaknessChanged(value); });
   late CustomRadioController typeExtController    = CustomRadioController(onChange: (value) { onTypeExtChanged(value); });
   late CustomRadioController levelController      = CustomRadioController(onChange: (value) { onLevel(value); });
   final imageController  = TextEditingController();
@@ -47,8 +46,6 @@ class _CardCreatorState extends State<CardCreator> {
   List<Widget> level   = [];
   List<Widget> longMarkerWidget = [];
   bool         _auto    = false;
-  List<Widget> resistanceCard = [];
-  List<Widget> weaknessCard = [];
 
   void onTypeChanged(value) {
     widget.card.data.type = value;
@@ -67,32 +64,6 @@ class _CardCreatorState extends State<CardCreator> {
     widget.card.rarity = value;
     if(_auto)
       widget.onAppendCard!(null);
-  }
-
-  void onResistanceChanged(value) {
-    if(widget.card.data.resistance == null) {
-      widget.card.data.resistance = EnergyValue(value, value == Type.Unknown ? 0 : 30);
-    } else {
-      widget.card.data.resistance!.energy = value;
-      if(value == Type.Unknown)
-        widget.card.data.resistance!.value = 0;
-      else if(widget.card.data.resistance!.value == 0)
-        widget.card.data.resistance!.value = 30;
-    }
-    setState(() {});
-  }
-
-  void onWeaknessChanged(value) {
-    if(widget.card.data.weakness == null) {
-      widget.card.data.weakness = EnergyValue(value, value == Type.Unknown ? 0 : 2);
-    } else {
-      widget.card.data.weakness!.energy = value;
-      if(value == Type.Unknown)
-        widget.card.data.weakness!.value = 0;
-      else if(widget.card.data.weakness!.value == 0)
-        widget.card.data.weakness!.value = 2;
-    }
-    setState(() {});
   }
 
   void computeJPCardID() {
@@ -138,21 +109,16 @@ class _CardCreatorState extends State<CardCreator> {
       energies.forEach((element) {
         typeExtCard.add(CustomRadio(value: element, controller: typeExtController, widget: getImageType(element)));
       });
+    }
 
-      resistanceCard.add(CustomRadio(value: Type.Unknown, controller: resistanceController, widget: getImageType(Type.Unknown)));
-      energies.forEach((element) {
-        resistanceCard.add(CustomRadio(value: element, controller: resistanceController, widget: getImageType(element)));
-      });
-
-      weaknessCard.add(CustomRadio(value: Type.Unknown, controller: weaknessController, widget: getImageType(Type.Unknown)));
-      energies.forEach((element) {
-        weaknessCard.add(CustomRadio(value: element, controller: weaknessController, widget: getImageType(element)));
-      });
+    if( widget.card.data.weakness == null ) {
+      widget.card.data.weakness = EnergyValue(Type.Unknown, 0);
+    }
+    if( widget.card.data.resistance == null ) {
+      widget.card.data.resistance = EnergyValue(Type.Unknown, 0);
     }
 
     selectCard();
-
-
   }
 
   void selectCard() {
@@ -169,8 +135,6 @@ class _CardCreatorState extends State<CardCreator> {
       });
 
       typeExtController.afterPress(widget.card.data.typeExtended != null ? widget.card.data.typeExtended! : Type.Unknown);
-      resistanceController.afterPress( widget.card.data.resistance != null ? widget.card.data.resistance!.energy : Type.Unknown );
-      weaknessController.afterPress(   widget.card.data.weakness   != null ? widget.card.data.weakness!.energy   : Type.Unknown );
     }
 
     // Set current value
@@ -338,70 +302,19 @@ class _CardCreatorState extends State<CardCreator> {
                             minRetreat, maxRetreat,
                             division: 5),
                         ),
-                        /*
-                        Container(width: 30, child: Text(widget.card.data.retreat.toString())),
-                        Expanded(
-                          child: Slider(
-                            value: widget.card.data.retreat.toDouble(),
-                            min: minRetreat.toDouble(),
-                            max: maxRetreat.toDouble(),
-                            divisions: 5,
-                            label: widget.card.data.retreat.toString(),
-                            onChanged: (double value) {
-                              setState(() {
-                                widget.card.data.retreat = value.round().toInt();
-                              });
-                            },
-                          ),
-                        )*/
                       ]),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(StatitikLocale.of(context).read('CA_B28'), style: TextStyle(fontSize: 12)),
-                          GridView.count(
-                            crossAxisCount: 9,
-                            primary: false,
-                            shrinkWrap: true,
-                            children: weaknessCard,
-                          ),
-                          SliderInfo( SliderInfoController(() {
-                              return widget.card.data.weakness != null ? widget.card.data.weakness!.value.toDouble() : 0;
-                            },
-                            (double value){
-                              var v = value.round().toInt();
-                              if(widget.card.data.weakness == null) {
-                                widget.card.data.weakness = EnergyValue(Type.Unknown, v);
-                              } else {
-                                widget.card.data.weakness!.value = v;
-                              }
-                          }),
-                          minWeakness, maxWeakness,
-                          division: 5),
+                          EnergySlider(widget.card.data.weakness!, 2, minWeakness, maxWeakness, division: 5)
                         ],
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(StatitikLocale.of(context).read('CA_B27'), style: TextStyle(fontSize: 12)),
-                          GridView.count(
-                            crossAxisCount: 9,
-                            primary: false,
-                            shrinkWrap: true,
-                            children: resistanceCard,
-                          ),
-                          SliderInfo( SliderInfoController(() {
-                              return widget.card.data.resistance != null ? widget.card.data.resistance!.value.toDouble() : 0;
-                            },
-                            (double value){
-                              var v = value.round().toInt();
-                              if(widget.card.data.resistance == null) {
-                                widget.card.data.resistance = EnergyValue(Type.Unknown, v);
-                              } else {
-                                widget.card.data.resistance!.value = v;
-                              }
-                            }), minResistance, maxResistance,
-                            division: 6),
+                          EnergySlider(widget.card.data.resistance!, 30, minResistance, maxResistance, division: 6)
                         ],
                       )
                     ],

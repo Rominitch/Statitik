@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/material.dart';
-import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/EnergyButton.dart';
 import 'package:statitikcard/screen/widgets/ListSelector.dart';
 import 'package:statitikcard/services/CardEffect.dart';
@@ -169,11 +168,11 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
               ),
             if(widget.effect.title != null)
               Row( children: [
-                EnergyButton(EnergyButtonController(widget.effect, 0)),
-                EnergyButton(EnergyButtonController(widget.effect, 1)),
-                EnergyButton(EnergyButtonController(widget.effect, 2)),
-                EnergyButton(EnergyButtonController(widget.effect, 3)),
-                EnergyButton(EnergyButtonController(widget.effect, 4)),
+                EnergyButton(EBEffectController(widget.effect, 0)),
+                EnergyButton(EBEffectController(widget.effect, 1)),
+                EnergyButton(EBEffectController(widget.effect, 2)),
+                EnergyButton(EBEffectController(widget.effect, 3)),
+                EnergyButton(EBEffectController(widget.effect, 4)),
               ]),
             //Description
             Card(

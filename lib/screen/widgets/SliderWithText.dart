@@ -1,6 +1,123 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
+class RangeSliderWithTextThumb extends RangeSliderThumbShape {
+  final double thumbRadius;
+  final dynamic sliderMinValue;
+  final dynamic sliderMaxValue;
+
+  const RangeSliderWithTextThumb({
+    required this.thumbRadius,
+    required this.sliderMinValue,
+    required this.sliderMaxValue,
+  });
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) {
+    return Size.fromRadius(thumbRadius);
+  }
+
+  @override
+  void paint(
+      PaintingContext context,
+      Offset center, {
+        required Animation<double> activationAnimation,
+        required Animation<double> enableAnimation,
+        bool isDiscrete=false,
+        bool isEnabled=false,
+        bool isOnTop=false,
+        TextDirection textDirection=TextDirection.ltr,
+        required SliderThemeData sliderTheme,
+        Thumb thumb=Thumb.start,
+        bool isPressed=false,
+      }) {
+
+    final Canvas canvas = context.canvas;
+
+    int sides = 4;
+    double innerPolygonRadius = thumbRadius * 1.2;
+    double outerPolygonRadius = thumbRadius * 1.4;
+    double angle = (pi * 2) / sides;
+
+    // Paint out
+    final outerPathColor = Paint()
+      ..color = Colors.grey.shade800
+      ..style = PaintingStyle.fill;
+
+    var outerPath = Path();
+
+    Offset startPoint2 = Offset(
+      outerPolygonRadius * cos(0.0),
+      outerPolygonRadius * sin(0.0),
+    );
+
+    outerPath.moveTo(
+      startPoint2.dx + center.dx,
+      startPoint2.dy + center.dy,
+    );
+
+    for (int i = 1; i <= sides; i++) {
+      double x = outerPolygonRadius * cos(angle * i) + center.dx;
+      double y = outerPolygonRadius * sin(angle * i) + center.dy;
+      outerPath.lineTo(x, y);
+    }
+
+    outerPath.close();
+    canvas.drawPath(outerPath, outerPathColor);
+
+    // Paint in
+    final innerPathColor = Paint()
+      ..color = sliderTheme.thumbColor ?? Colors.black
+      ..style = PaintingStyle.fill;
+
+    var innerPath = Path();
+
+    Offset startPoint = Offset(
+      innerPolygonRadius * cos(0.0),
+      innerPolygonRadius * sin(0.0),
+    );
+
+    innerPath.moveTo(
+      startPoint.dx + center.dx,
+      startPoint.dy + center.dy,
+    );
+
+    for (int i = 1; i <= sides; i++) {
+      double x = innerPolygonRadius * cos(angle * i) + center.dx;
+      double y = innerPolygonRadius * sin(angle * i) + center.dy;
+      innerPath.lineTo(x, y);
+    }
+
+    innerPath.close();
+    canvas.drawPath(innerPath, innerPathColor);
+
+    // Paint text
+    TextSpan span = new TextSpan(
+      style: new TextStyle(
+        fontSize: thumbRadius,
+        fontWeight: FontWeight.w700,
+        color: Colors.white,
+      ),
+      text: thumb == Thumb.start ? sliderMinValue.round().toString() : sliderMaxValue.round().toString(),
+    );
+
+    TextPainter tp = new TextPainter(
+      text: span,
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+    );
+
+    tp.layout();
+
+    Offset textCenter = Offset(
+      center.dx - (tp.width / 2),
+      center.dy - (tp.height / 2),
+    );
+
+    tp.paint(canvas, textCenter);
+  }
+}
+
 class SliderWithTextThumb extends SliderComponentShape {
   final double thumbRadius;
   final dynamic sliderValue;

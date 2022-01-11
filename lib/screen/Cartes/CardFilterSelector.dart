@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
+import 'package:statitikcard/screen/widgets/SliderWithText.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
@@ -296,19 +297,24 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                               children: [
                                 Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B7'), style: Theme.of(context).textTheme.headline6)),
                                 Expanded(
-                                  child: RangeSlider(
-                                    values: widget.result.attackEnergy,
-                                    onChanged: (power) {
-                                      setState(() {
-                                        widget.result.attackEnergy = power;
-                                      });
-                                    },
-                                    min: minAttackEnergy.toDouble(),
-                                    max: maxAttackEnergy.toDouble(),
-                                    divisions: (maxAttackEnergy.toDouble()).round(),
-                                    labels: RangeLabels(
-                                      widget.result.attackEnergy.start.round().toString(),
-                                      widget.result.attackEnergy.end.round().toString(),
+                                  child: SliderTheme(
+                                    data: SliderTheme.of(context).copyWith(
+                                      rangeThumbShape: RangeSliderWithTextThumb(
+                                        thumbRadius: 15.0,
+                                        sliderMinValue: widget.result.attackEnergy.start,
+                                        sliderMaxValue: widget.result.attackEnergy.end,
+                                      ),
+                                    ),
+                                    child: RangeSlider(
+                                      values: widget.result.attackEnergy,
+                                      onChanged: (power) {
+                                        setState(() {
+                                          widget.result.attackEnergy = power;
+                                        });
+                                      },
+                                      min: minAttackEnergy.toDouble(),
+                                      max: maxAttackEnergy.toDouble(),
+                                      divisions: (maxAttackEnergy.toDouble()).round(),
                                     ),
                                   ),
                                 ),
@@ -318,19 +324,24 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                               children: [
                                 Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B8'), style: Theme.of(context).textTheme.headline6)),
                                 Expanded(
-                                  child: RangeSlider(
-                                    values: widget.result.attackPower,
-                                    onChanged: (power) {
-                                      setState(() {
-                                        widget.result.attackPower = power;
-                                      });
-                                    },
-                                    min: minAttackPower.toDouble(),
-                                    max: maxAttackPower.toDouble(),
-                                    divisions: (maxAttackPower.toDouble()/10).round(),
-                                    labels: RangeLabels(
-                                      widget.result.attackPower.start.round().toString(),
-                                      widget.result.attackPower.end.round().toString(),
+                                  child: SliderTheme(
+                                    data: SliderTheme.of(context).copyWith(
+                                      rangeThumbShape: RangeSliderWithTextThumb(
+                                        thumbRadius: 15.0,
+                                        sliderMinValue: widget.result.attackPower.start,
+                                        sliderMaxValue: widget.result.attackPower.end,
+                                      ),
+                                    ),
+                                    child: RangeSlider(
+                                      values: widget.result.attackPower,
+                                      onChanged: (power) {
+                                        setState(() {
+                                          widget.result.attackPower = power;
+                                        });
+                                      },
+                                      min: minAttackPower.toDouble(),
+                                      max: maxAttackPower.toDouble(),
+                                      divisions: (maxAttackPower.toDouble()/10).round(),
                                     ),
                                   ),
                                 ),
