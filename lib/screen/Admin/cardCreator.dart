@@ -7,6 +7,7 @@ import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/ListSelector.dart';
+import 'package:statitikcard/screen/widgets/SliderWithText.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -312,26 +313,32 @@ class _CardCreatorState extends State<CardCreator> {
                     children: [
                       Row( children: level),
                       Row(children: [
-                        Container(width: 80, child: Text(StatitikLocale.of(context).read('CA_B25'), style: TextStyle(fontSize: 12))),
-                        Container(width: 30, child: Text(widget.card.data.life.toString())),
+                        Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B25'), style: TextStyle(fontSize: 12))),
                         Expanded(
-                          child: Slider(
-                            value: widget.card.data.life.toDouble(),
-                            min: minLife.toDouble(),
-                            max: maxLife.toDouble(),
-                            divisions: 40,
-                            label: widget.card.data.life.toString(),
-                            onChanged: (double value) {
-                              setState(() {
-                                widget.card.data.life = value.round().toInt();
-                              });
+                          child: SliderInfo( SliderInfoController(() {
+                              return widget.card.data.life.toDouble();
                             },
-                          ),
-                        )
+                            (double value){
+                              widget.card.data.life = value.round().toInt();
+                            }),
+                            minLife, maxLife,
+                            division: 40),
+                        ),
                       ]),
                       // Retreat
                       Row(children: [
-                        Container(width: 80, child: Text(StatitikLocale.of(context).read('CA_B26'), style: TextStyle(fontSize: 12))),
+                        Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B26'), style: TextStyle(fontSize: 12))),
+                        Expanded(
+                          child: SliderInfo( SliderInfoController(() {
+                              return widget.card.data.retreat.toDouble();
+                            },
+                            (double value){
+                              widget.card.data.retreat = value.round().toInt();
+                            }),
+                            minRetreat, maxRetreat,
+                            division: 5),
+                        ),
+                        /*
                         Container(width: 30, child: Text(widget.card.data.retreat.toString())),
                         Expanded(
                           child: Slider(
@@ -346,7 +353,7 @@ class _CardCreatorState extends State<CardCreator> {
                               });
                             },
                           ),
-                        )
+                        )*/
                       ]),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -358,25 +365,19 @@ class _CardCreatorState extends State<CardCreator> {
                             shrinkWrap: true,
                             children: weaknessCard,
                           ),
-                          Slider(
-                            value: widget.card.data.weakness != null ?
-                            widget.card.data.weakness!.value.toDouble() : 0,
-                            min: minWeakness.toDouble(),
-                            max: maxWeakness.toDouble(),
-                            divisions: 5,
-                            label: widget.card.data.weakness != null ?
-                            widget.card.data.weakness!.value.toString() : "Not activated",
-                            onChanged: (double value) {
-                              setState(() {
-                                var v = value.round().toInt();
-                                if(widget.card.data.weakness == null) {
-                                  widget.card.data.weakness = EnergyValue(Type.Unknown, v);
-                                } else {
-                                  widget.card.data.weakness!.value = v;
-                                }
-                              });
+                          SliderInfo( SliderInfoController(() {
+                              return widget.card.data.weakness != null ? widget.card.data.weakness!.value.toDouble() : 0;
                             },
-                          )
+                            (double value){
+                              var v = value.round().toInt();
+                              if(widget.card.data.weakness == null) {
+                                widget.card.data.weakness = EnergyValue(Type.Unknown, v);
+                              } else {
+                                widget.card.data.weakness!.value = v;
+                              }
+                          }),
+                          minWeakness, maxWeakness,
+                          division: 5),
                         ],
                       ),
                       Column(
@@ -389,25 +390,18 @@ class _CardCreatorState extends State<CardCreator> {
                             shrinkWrap: true,
                             children: resistanceCard,
                           ),
-                          Slider(
-                            value: widget.card.data.resistance != null ?
-                            widget.card.data.resistance!.value.toDouble() : 0,
-                            min: minResistance.toDouble(),
-                            max: maxResistance.toDouble(),
-                            divisions: 6,
-                            label: widget.card.data.resistance != null ?
-                            widget.card.data.resistance!.value.toString() : "Not activated",
-                            onChanged: (double value) {
-                              setState(() {
-                                var v = value.round().toInt();
-                                if(widget.card.data.resistance == null) {
-                                  widget.card.data.resistance = EnergyValue(Type.Unknown, v);
-                                } else {
-                                  widget.card.data.resistance!.value = v;
-                                }
-                              });
+                          SliderInfo( SliderInfoController(() {
+                              return widget.card.data.resistance != null ? widget.card.data.resistance!.value.toDouble() : 0;
                             },
-                          )
+                            (double value){
+                              var v = value.round().toInt();
+                              if(widget.card.data.resistance == null) {
+                                widget.card.data.resistance = EnergyValue(Type.Unknown, v);
+                              } else {
+                                widget.card.data.resistance!.value = v;
+                              }
+                            }), minResistance, maxResistance,
+                            division: 6),
                         ],
                       )
                     ],
