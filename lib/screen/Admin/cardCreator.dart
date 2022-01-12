@@ -9,6 +9,7 @@ import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/EnergySlider.dart';
 import 'package:statitikcard/screen/widgets/ListSelector.dart';
 import 'package:statitikcard/screen/widgets/SliderWithText.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -454,6 +455,11 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
     widget.nameInfo().forme = value;
   }
 
+  Future<int?> addNewDresseurObjectName(String newText, int idLangue) async {
+    printOutput("Start add new value");
+    return await Environment.instance.addNewDresseurObjectName(newText, idLangue);
+  }
+
   @override
   Widget build(BuildContext context) {
     var name = widget.nameInfo();
@@ -475,50 +481,52 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
     regionController.afterPress(name.region);
     specialController.afterPress(name.forme);
 
+    // Show only good list based on Type
+    Widget nameWidget = isPokemonCard(widget.card.data.type) ?
+      Card(
+        color: Colors.grey[700],
+        child: TextButton(
+          child: Text((name.name.isPokemon()) ? name.name.defaultName() : "", style: TextStyle(fontSize: 9.0)),
+          onPressed: (){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ListSelector('CE_T0', widget.language, Environment.instance.collection.pokemons, multiLangue: true)),
+            ).then((idDB) {
+              if(idDB != null) {
+                setState(() {
+                  name.name = Environment.instance.collection.pokemons[idDB];
+                });
+              }
+            });
+          },
+        )
+      ) : Card(
+        color: Colors.grey[700],
+        child: TextButton(
+          child: Text((!name.name.isPokemon()) ? name.name.defaultName() : "", style: TextStyle(fontSize: 9.0)),
+          onPressed: (){
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ListSelector('CE_T0', widget.language, Environment.instance.collection.otherNames, multiLangue:true,
+                  addNewData: addNewDresseurObjectName)),
+            ).then((idDB) {
+              if(idDB != null) {
+                setState(() {
+                  name.name = Environment.instance.collection.otherNames[idDB];
+                });
+              }
+            });
+          },
+        )
+      );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
           Row(
             children: [
               Expanded(
-                child: Card(
-                    color: Colors.grey[700],
-                    child: TextButton(
-                      child: Text((name.name.isPokemon()) ? name.name.defaultName() : "", style: TextStyle(fontSize: 9.0)),
-                      onPressed: (){
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => ListSelector('CE_T0', widget.language, Environment.instance.collection.pokemons, true)),
-                        ).then((idDB) {
-                          if(idDB != null) {
-                            setState(() {
-                              name.name = Environment.instance.collection.pokemons[idDB];
-                            });
-                          }
-                        });
-                      },
-                    )
-                ),
-              ),
-              Expanded(
-                child: Card(
-                    color: Colors.grey[700],
-                    child: TextButton(
-                      child: Text((!name.name.isPokemon()) ? name.name.defaultName() : "", style: TextStyle(fontSize: 9.0)),
-                      onPressed: (){
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => ListSelector('CE_T0', widget.language, Environment.instance.collection.otherNames, true)),
-                        ).then((idDB) {
-                          if(idDB != null) {
-                            setState(() {
-                              name.name = Environment.instance.collection.otherNames[idDB];
-                            });
-                          }
-                        });
-                      },
-                    )
-                ),
+                child: nameWidget
               ),
               IconButton(onPressed: (){
                   setState(() {

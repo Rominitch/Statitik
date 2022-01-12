@@ -176,9 +176,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                                                 Environment.instance.removeOrphans(orphans).then((value) {
                                                   if(value) {
                                                     // Reload full database to have all real data
-                                                    Environment.instance.startDB=false;
-                                                    Environment.instance.readStaticData().then((value) {
-                                                      Environment.instance.collection.adminReverse();
+                                                    Environment.instance.restoreAdminData().then( (value){
                                                       Navigator.pop(context);
                                                     });
                                                   }

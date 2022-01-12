@@ -1,6 +1,8 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/environment.dart';
 
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -10,8 +12,9 @@ class ListSelector extends StatefulWidget {
   final Language language;
   final SplayTreeMap dataMap;
   final bool multiLangue;
+  final Function(String, int)? addNewData;
 
-  ListSelector(this.titleCode, this.language, nonOrderedDataMap, [this.multiLangue = false]) :
+  ListSelector(this.titleCode, this.language, nonOrderedDataMap, {this.multiLangue = false, this.addNewData}) :
     dataMap = SplayTreeMap.from(nonOrderedDataMap,
             (key1, key2) {
               assert(nonOrderedDataMap[key1] != null, "Impossible to find: $key1");
@@ -60,17 +63,35 @@ class _ListSelectorState extends State<ListSelector> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                prefixIcon: Icon(Icons.search, color: Colors.white),
-                labelText: StatitikLocale.of(context).read('CA_B5')
-              ),
-              onChanged: (value) {
-                setState(() {
-                  computeFilteredList();
-                });
-              },
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.search, color: Colors.white),
+                      labelText: StatitikLocale.of(context).read('CA_B5')
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        computeFilteredList();
+                      });
+                    },
+                  ),
+                ),
+                if( widget.addNewData != null && Environment.instance.user != null && Environment.instance.user!.admin)
+                  Card( child: IconButton(
+                      icon: Icon(Icons.add_circle_rounded),
+                      onPressed: () {
+                        // Add new text into db and refresh view
+                        widget.addNewData!( _controller.text, widget.language.id ).then( (value) {
+                          if( value != null)
+                            Navigator.pop(context, value);
+                        });
+                      },
+                    )
+                  )
+              ]
             ),
             if(_filteredMap.isNotEmpty)
               Expanded(child: ListView.builder(

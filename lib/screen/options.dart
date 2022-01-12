@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/NewsDialog.dart';
 import 'package:statitikcard/services/News.dart';
@@ -57,9 +58,9 @@ class _OptionsPageState extends State<OptionsPage> {
                 backgroundColor: Colors.grey, // background
               ),
               onPressed: () {
-                Environment.instance.startDB=false;
-                Environment.instance.readStaticData().then((value) {
-                  Environment.instance.collection.adminReverse();
+                EasyLoading.show();
+                Environment.instance.restoreAdminData().then((value) {
+                  EasyLoading.dismiss();
                 });
               },
               child: Text(StatitikLocale.of(context).read('O_B1'))
@@ -71,11 +72,15 @@ class _OptionsPageState extends State<OptionsPage> {
                 setState(() {
                   useDebug = newValue!;
                 });
+
+                Environment.instance.restoreAdminData();
+                /*
                 Environment.instance.startDB=false;
                 Environment.instance.db = Database();
                 Environment.instance.readStaticData().then((value) {
                   Environment.instance.collection.adminReverse();
                 });
+                */
           }),
           SizedBox(height: 10),
         ];

@@ -182,6 +182,11 @@ const List<Type> orderedType = const[
   Type.Dragon, Type.Incolore, Type.Objet, Type.Supporter, Type.Stade, Type.Energy,
 ];
 
+bool isPokemonCard(Type type) {
+  const List<Type> notPokemon = [Type.Objet, Type.Supporter, Type.Stade, Type.Energy];
+  return !notPokemon.contains(type);
+}
+
 // NEVER CHANGED ORDER
 enum Rarity {
   Commune,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
@@ -20,7 +21,6 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   SubExtension? _se;
   List<Widget>  _cardInfo = [];
   bool _modify = false;
-  bool isSending = false;
   PokemonCardExtension data = PokemonCardExtension(PokemonCardData([], Level.Base, Type.Plante, CardMarkers.from([])) , Rarity.Commune);
 
   void onAddCard(int? pos) {
@@ -187,28 +187,23 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
             }
           },
         ),
-        actions: isSending
-        ? [Container(width: 40, height: 40, child: CircularProgressIndicator(color: Colors.orange[300]))]
-        : [if(_modify) Card(child: TextButton(
+        actions: [if(_modify) Card(child: TextButton(
           child: Text(StatitikLocale.of(context).read('NCE_B1')),
-          onPressed: () async {
-            if(!isSending) {
-              // Lock send button
-              setState(() {isSending = true;});
-              // Send database info
-              Environment.instance.sendCardInfo(_se!)
-                .whenComplete(() {})
-                .onError((error, stackTrace) {
-                  setState(() { isSending = false; });
-                  return false;
-                })
-                .then( (isValid) {
-                  if(isValid)
-                    Navigator.of(context).pop();
-                  else
-                    setState(() { isSending = false; });
-              });
-            }
+          onPressed: () {
+            EasyLoading.show();
+            // Send database info
+            Environment.instance.sendCardInfo(_se!)
+              .onError((error, stackTrace) {
+                EasyLoading.showError('Error');
+                return false;
+              })
+              .then( (isValid) {
+                EasyLoading.dismiss();
+                if(isValid)
+                  Navigator.of(context).pop();
+                else
+                  EasyLoading.showError('Invalid');
+            });
           },
         )) ],
       ),

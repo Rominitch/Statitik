@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:statitikcard/screen/Cartes/CardStatistic.dart';
 
@@ -82,6 +83,7 @@ class StatitikApp extends StatelessWidget {
         const Locale('en', ''),
         const Locale('fr', ''),
       ],
+      builder: EasyLoading.init(),
       routes: {
         '/': (context) => ApplicationWidget(),
         '/home': (context) => ApplicationWidget(),

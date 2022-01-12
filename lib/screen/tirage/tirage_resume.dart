@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/tirage/tirage_booster.dart';
 import 'package:statitikcard/screen/view.dart';
@@ -20,8 +21,6 @@ class ResumePage extends StatefulWidget {
 }
 
 class _ResumePageState extends State<ResumePage> {
-  bool isSending = false;
-
   @override
   void initState() {
     if( widget._activeSession.boosterDraws.length <= 0 )
@@ -91,8 +90,7 @@ class _ResumePageState extends State<ResumePage> {
               ),
             onPressed: () {
               setState(() {
-                if(!isSending)
-                  widget._activeSession.addNewBooster();
+                widget._activeSession.addNewBooster();
               });
             },
           )
@@ -117,43 +115,36 @@ class _ResumePageState extends State<ResumePage> {
             child: TextButton(
               style: TextButton.styleFrom( backgroundColor: button, ),
               child: Text(StatitikLocale.of(context).read('send')),
-              onPressed: () async {
-                if(!isSending) {
-                  Environment env = Environment.instance;
-                  env.sendDraw().then((valid) {
-                    isSending = false;
-                    if( valid ) {
-                      showDialog(
-                          context: context,
-                          builder: (_) => new AlertDialog(
-                            title: new Text(StatitikLocale.of(context).read('TR_B1')),
-                            content: Text(StatitikLocale.of(context).read('TR_B2')),
-                          )
-                      ).then((value) {
-                        Navigator.popUntil(context, ModalRoute.withName('/'));
-                        // Clean data
-                        env.currentDraw!.closeStream();
-                        env.currentDraw = null;
-                      });
-                    } else {
+              onPressed: () {
+                EasyLoading.show();
+                Environment env = Environment.instance;
+                env.sendDraw().then((valid) {
+                  EasyLoading.dismiss();
+                  if( valid ) {
+                    showDialog(
+                        context: context,
+                        builder: (_) => new AlertDialog(
+                          title: new Text(StatitikLocale.of(context).read('TR_B1')),
+                          content: Text(StatitikLocale.of(context).read('TR_B2')),
+                        )
+                    ).then((value) {
+                      Navigator.popUntil(context, ModalRoute.withName('/'));
+                      // Clean data
+                      env.currentDraw!.closeStream();
+                      env.currentDraw = null;
+                    });
+                  } else {
                     showDialog(
                       context: context,
                       builder: (_) => new AlertDialog(
                       title: new Text(StatitikLocale.of(context).read('error')),
                       content: Text(StatitikLocale.of(context).read('TR_B3')),
                       )
-                      ).then((value) {
-                        setState((){
-                          isSending=false;
-                        });
-                    });
-                    }
-                  }).whenComplete((){
-                    setState(() {
-                      isSending=true;
-                    });
-                  });
-                }
+                    );
+                  }
+                }).onError((error, stackTrace) {
+                  EasyLoading.showError('Error');
+                });
               },
             ),
           )
@@ -163,7 +154,7 @@ class _ResumePageState extends State<ResumePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget._activeSession.product.name, style: TextStyle(fontSize: 15)),
-        actions: isSending ? [Container(width: 40, height: 40, child: CircularProgressIndicator(color: Colors.orange[300]))] :  actions,
+        actions: actions,
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back),
           onPressed: () {

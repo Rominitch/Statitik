@@ -472,6 +472,37 @@ class Collection
     }
   }
 
+  Future<int> addNewDresseurObjectName(String newText, int idLangue, connection) async {
+    // Compute next Id of name
+    int nextId = 0;
+    {
+      var nextIdReq = await connection.query(
+          "SELECT MAX(`idDresseurObjet`) as maxId FROM `DresseurObjet`;");
+      for (var row in nextIdReq) {
+        nextId = row[0];
+      }
+      nextId += 1;
+      printOutput("Next id of card is $nextId");
+    }
+    // Prepare data
+    List<String> names = [ "", "", ""];
+    names[idLangue-1] = newText;
+
+    List<Object> values = <Object>[nextId] + names;
+    assert( 1 <= idLangue && idLangue <= 3);
+
+    // Run request
+    var query = 'INSERT INTO `DresseurObjet` (`idDresseurObjet`, `frNom`, `enNom`, `jpNom`) VALUES (?, ?, ?, ?);';
+    await connection.queryMulti(query, [values]);
+
+    // Add internally without reset all static (avoid side supposed effect)
+    var newName = CardTitleData(MultiLanguageString(names));
+    otherNames[nextId] = newName;
+    rOther[newName] = nextId;
+
+    return nextId;
+  }
+
   /*
   Future<void> readOldDatabaseToConvert() async {
     migration = false;

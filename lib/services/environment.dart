@@ -169,6 +169,14 @@ class Environment
         }
     }
 
+    Future<void> restoreAdminData() async {
+        // Reload full database to have all real data
+        Environment.instance.startDB=false;
+        Environment.instance.db = Database();
+        await Environment.instance.readStaticData();
+        Environment.instance.collection.adminReverse();
+    }
+
     Future<void> registerUser(String uid) async {
         if (user == null) {
             await db.transactionR( (connection) async {
@@ -300,7 +308,7 @@ class Environment
             context: context,
             applicationVersion: version,
             //applicationIcon:
-            applicationLegalese: 'Copyright (c) 2021 Rominitch',
+            applicationLegalese: 'Copyright (c) 2021 - 2022 Rominitch',
             applicationName: nameApp,
             children:[]
         );
@@ -481,5 +489,20 @@ class Environment
             }
         }
         return false;
+    }
+
+    Future<int?> addNewDresseurObjectName(String name, int language) async {
+        int? id;
+        if( isLogged() && user!.admin) {
+
+            try {
+                await db.transactionR( (connection) async {
+                    id = await collection.addNewDresseurObjectName(name, language, connection);
+                });
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
+        }
+        return id;
     }
 }
