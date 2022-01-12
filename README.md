@@ -9,7 +9,7 @@ Elle est gratuite et sans publicité.
 - [x] Comparaison des statistiques utilisateurs avec les statistiques générales.
 
 ## Télécharger
-<a href='https://play.google.com/store/apps/details?id=fr.mouca.statitikcard&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width="300" alt='Disponible sur Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/fr_badge_web_generic.png'/></a>
+<a href='https://play.google.com/store/apps/details?id=fr.mouca.statitikcard&gl=FR&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Disponible sur Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/fr_badge_web_generic.png'/></a>
 
 ## Demande d'amélioration
 Pour demander une amélioration ou corriger un bug existant, veuillez ouvrir un nouveau sujet dans 'Issues'.
