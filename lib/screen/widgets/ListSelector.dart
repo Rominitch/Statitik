@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 
 import 'package:statitikcard/services/internationalization.dart';

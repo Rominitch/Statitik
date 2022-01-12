@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/screen/loading.dart';
 import 'package:statitikcard/screen/home.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 
 class ApplicationWidget extends StatefulWidget {
@@ -24,6 +26,9 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
 
   @override
   Widget build(BuildContext context) {
+    EasyLoading.instance
+      ..indicatorWidget = drawLoading(context);
+    
     if( Environment.instance.isInitialized ) {
       return Home();
     } else {
