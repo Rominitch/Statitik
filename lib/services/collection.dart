@@ -258,12 +258,13 @@ class Collection
             });
           }
 
+
           cardsExtensions[row[0]] = (row[1] != null)
-              ? SubExtensionCards.build((row[1] as Blob).toBytes().toList(), codeNaming, pokemonCards)
-              : SubExtensionCards.emptyDraw(codeNaming);
+              ? SubExtensionCards.build((row[1] as Blob).toBytes().toList(), codeNaming, pokemonCards, row[5])
+              : SubExtensionCards.emptyDraw(codeNaming, row[5]);
         } catch(e) {
           printOutput("Bad SubExtensionCards: ${row[0]} $e");
-          cardsExtensions[row[0]] = SubExtensionCards.emptyDraw([]);
+          cardsExtensions[row[0]] = SubExtensionCards.emptyDraw([], 0);
         }
       }
       assert(cardsExtensions.isNotEmpty);
@@ -272,7 +273,7 @@ class Collection
       for (var row in subExts) {
         try {
           SubExtensionCards seCards = cardsExtensions[row[4]];
-          subExtensions[row[0]] = SubExtension(row[0], row[2], row[3], extensions[row[1]], row[6], seCards, SerieType.values[row[7]], row[8]);
+          subExtensions[row[0]] = SubExtension(row[0], row[2], row[3], extensions[row[1]], row[6], seCards, SerieType.values[row[7]], row[8], row[9]);
         } catch(e) {
           printOutput("Bad SubExtension: ${row[0]} $e");
         }

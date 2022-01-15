@@ -29,7 +29,7 @@ class StatsView extends StatelessWidget {
     assert(data.stats != null);
     final translator = StatitikLocale.of(context);
 
-    double divider = 11.0;
+    double divider = data.subExt != null ? data.subExt!.cardPerBooster.toDouble() : 11.0;
     List<Widget> rarity = [];
     {
       int sum=0;

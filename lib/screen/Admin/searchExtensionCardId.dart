@@ -18,7 +18,7 @@ class SearchExtensionsCardId extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Refresh admin info
-    //Environment.instance.collection.adminReverse();
+    Environment.instance.collection.adminReverse();
 
     Set<PokemonCardData> cards = {};
     List<Widget> cardImageWidget = [];

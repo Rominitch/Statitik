@@ -628,8 +628,9 @@ class SubExtension
   SubExtensionCards seCards;
   Extension         extension;
   SerieType         type;
+  int               cardPerBooster;
 
-  SubExtension(this.id, this.name, this.icon, this.extension, this.out, this.seCards, this.type, this.seCode);
+  SubExtension(this.id, this.name, this.icon, this.extension, this.out, this.seCards, this.type, this.seCode, this.cardPerBooster);
 
   /// Show Extension image
   Widget image({double? wSize, double? hSize}) {

@@ -337,12 +337,18 @@ class PokemonCardExtension {
   }
 }
 
+
 class SubExtensionCards {
-  List<List<PokemonCardExtension>> cards;
+  List<List<PokemonCardExtension>> cards;           ///< Main Card of set (numbered)
   List<CodeNaming>                 codeNaming = [];
   bool                             isValid;         ///< Data exists (Not waiting fill)
 
-  SubExtensionCards(List<List<PokemonCardExtension>> cards, this.codeNaming) : this.cards = cards, this.isValid = cards.length > 0;
+  List<PokemonCardExtension>       energyCard     = [];  ///< Energy card design
+  List<PokemonCardExtension>       noNumberedCard = [];  ///< Card without number
+
+  int                              configuration;
+
+  SubExtensionCards(List<List<PokemonCardExtension>> cards, this.codeNaming, this.configuration) : this.cards = cards, this.isValid = cards.length > 0;
 
   static const int version = 5;
 
@@ -364,7 +370,7 @@ class SubExtensionCards {
     return (idCard+1).toString();
   }
 
-  SubExtensionCards.build(List<int> bytes, this.codeNaming, cardCollection) : this.cards=[], this.isValid = (bytes.length > 0) {
+  SubExtensionCards.build(List<int> bytes, this.codeNaming, cardCollection, this.configuration) : this.cards=[], this.isValid = (bytes.length > 0) {
     final currentVersion = bytes[0];
     if(3 <= currentVersion && currentVersion <= 5) {
       var parser = ByteParser(gzip.decode(bytes.sublist(1)));
@@ -386,13 +392,21 @@ class SubExtensionCards {
       throw StatitikException("Bad SubExtensionCards version : need migration !");
   }
 
-  SubExtensionCards.emptyDraw(this.codeNaming) : cards = [], isValid=false {
+  SubExtensionCards.emptyDraw(this.codeNaming, this.configuration) : cards = [], isValid=false {
     // Build pre-publication: 300 card max
     for (int i = 0; i < 300; i += 1) {
       cards.add([PokemonCardExtension(
           PokemonCardData.empty(),
           Rarity.Unknown)]);
     }
+  }
+
+  bool hasBoosterEnergy() {
+    return configuration & 1 == 1;
+  }
+
+  bool hasAlternativeSet() {
+    return configuration & 2 == 2;
   }
 
   String numberOfCard(int id) {

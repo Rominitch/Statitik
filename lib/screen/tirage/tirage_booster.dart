@@ -102,15 +102,16 @@ class _BoosterPageState extends State<BoosterPage> {
         body:
          ListView(
             children: [
-              Container(
-                height: 60.0,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  primary: false,
-                  children: widgetEnergies,
+              if(widget.boosterDraw.subExtension!.seCards.hasBoosterEnergy())
+                Container(
+                  height: 60.0,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    primary: false,
+                    children: widgetEnergies,
 
+                  ),
                 ),
-              ),
               CheckboxListTile(
                 title: Text(StatitikLocale.of(context).read('TB_B0')),
                 subtitle: Text(StatitikLocale.of(context).read('TB_B1'), style: TextStyle(fontSize: 12)),

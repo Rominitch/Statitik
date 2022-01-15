@@ -356,7 +356,7 @@ class BoosterDraw {
       energiesBin.forEach((element) {
         count += element.count();
       });
-      if (count != 1 && count != 2)
+      if (subExtension!.seCards.hasBoosterEnergy() && count != 1 && count != 2)
         return Validator.ErrorEnergy;
 
       int goodCard = 0;
@@ -377,7 +377,7 @@ class BoosterDraw {
         });
         id += 1;
       });
-      if (reverse != 1 && reverse != 2)
+      if (subExtension!.seCards.hasAlternativeSet() && reverse != 1 && reverse != 2)
         return Validator.ErrorReverse;
       if (goodCard > 3)
         return Validator.ErrorTooManyGood;
