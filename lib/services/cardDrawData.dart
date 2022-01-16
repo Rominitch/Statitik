@@ -367,9 +367,12 @@ class BoosterDraw {
         cards.forEach((element) {
           if (subExtension!.seCards.cards.isNotEmpty) {
             count = element.count();
-            if (count > 0 &&
-                subExtension!.seCards.cards[id][idLocalCard].isGoodCard())
-              goodCard += count;
+            if (count > 0) {
+              if (subExtension!.seCards.cards[id][idLocalCard].isGoodCard())
+                goodCard += count;
+              if (otherThanReverse.contains(subExtension!.seCards.cards[id][idLocalCard].rarity))
+                reverse += count;
+            }
           }
           reverse += element.countReverse;
 

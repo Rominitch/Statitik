@@ -288,6 +288,12 @@ const List<Rarity> goodCard = [
   //Rarity.JCSR,
 ];
 
+const List<Rarity> otherThanReverse = const [
+  Rarity.Magnifique,
+  Rarity.Chromatique,
+  Rarity.ChromatiqueRare,
+];
+
 enum Mode {
   Normal,
   Reverse,
