@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/commonPages/productPage.dart';
 import 'package:statitikcard/screen/stats/statView.dart';
 
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/stats/statsExtension.dart';
+import 'package:statitikcard/screen/stats/statsExtensionCards.dart';
+import 'package:statitikcard/screen/stats/statsOptionDialog.dart';
 import 'package:statitikcard/screen/stats/userReport.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models.dart';
 
 class StatsExtensionWidget extends StatefulWidget {
 
@@ -30,7 +34,32 @@ class _StatsExtensionWidgetState extends State<StatsExtensionWidget> {
 
     if(sData.stats != null) {
       if(sData.stats!.nbBoosters > 0) {
-        finalWidget.add(StatsView(data: sData, options: widget.info.options));
+        finalWidget += <Widget>[
+            Row( children: [
+              Expanded(
+                child: Card( child: TextButton(
+                  child: Text(productButton, softWrap: true, style: TextStyle(fontSize: (productButton.length > 20) ? 10 : 14),),
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.MultiSelection, language: widget.info.statsData.language!, subExt: widget.info.statsData.subExt!, afterSelected: afterSelectProduct) ));
+                  },
+                ))
+              ),
+              Card(
+                child: IconButton(
+                  icon: Icon(Icons.settings),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return createOptionDialog(context, widget.info.options);
+                      }
+                    ).then( (result) { setState((){}); } );
+                  }
+                ),
+              ),
+            ]),
+            StatsView(data: sData, options: widget.info.options)
+        ];
       } else {
         finalWidget = [
           SizedBox(height: 20.0),
@@ -43,25 +72,6 @@ class _StatsExtensionWidgetState extends State<StatsExtensionWidget> {
           )
         ];
       }
-      /*
-      if(widget.d.subExt!.seCards.isValid)
-        finalWidget.add(
-            Card(
-              color: Colors.grey[700],
-              child: TextButton(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.bar_chart_rounded),
-                      Text(StatitikLocale.of(context).read('S_B7'), style: Theme.of(context).textTheme.headline6)
-                    ],
-                  ),
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ));
-                  }
-              ),
-            ));
-      */
       if(sData.userStats != null)
         finalWidget.add(
             Card(
@@ -80,36 +90,45 @@ class _StatsExtensionWidgetState extends State<StatsExtensionWidget> {
                   }
               ),
             ));
-    } else {
-      if( sData.subExt != null) {
-        finalWidget = [
-          drawLoading(context)
-        ];
-      }
     }
     return finalWidget;
+  }
+
+  void afterSelectProduct(BuildContext context, Language language, Product? product, int category) {
+    Navigator.pop(context);
+    setState(() {
+      if(product != null) {
+        widget.info.statsData.product  = product;
+        widget.info.statsData.category = -1;
+      } else if( category != -1 ) {
+        widget.info.statsData.product  = null;
+        widget.info.statsData.category = category;
+      } else { // All products
+        widget.info.statsData.product  = null;
+        widget.info.statsData.category = -1;
+      }
+      widget.info.waitStats( () { setState(() {}); } );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     var sData = widget.info.statsData;
-    List<Widget> page = [];
-    switch( widget.info.state ) {
-      case StateStatsExtension.Draw:
-        page = showDrawPage(context);
-        break;
-      case StateStatsExtension.Cards:
-        page = showDrawPage(context);
-        break;
-      case StateStatsExtension.GlobalStats:
-        page = [StatsExtensionsPage(stats: sData.stats!, data: sData)];
-        break;
-      default :
-        page = [];
-    }
 
-    return Column(
-      children : page
-    );
+    if(sData.stats == null && sData.subExt != null) {
+      return drawLoading(context);
+    } else {
+      switch( widget.info.state ) {
+        case StateStatsExtension.Draw:
+          return Column(children : showDrawPage(context));
+        case StateStatsExtension.Cards:
+          return StatsExtensionCards(widget.info);
+        case StateStatsExtension.GlobalStats:
+          var sData = widget.info.statsData;
+          return StatsExtensionsPage(stats: sData.stats!, data: sData);
+        default :
+          return Text("No data");
+      }
+    }
   }
 }

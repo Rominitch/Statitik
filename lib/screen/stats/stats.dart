@@ -29,6 +29,40 @@ class StatsConfiguration {
   StatsData           statsData = StatsData();
   List<SubExtension>  se        = [];
   StatsViewOptions    options   = StatsViewOptions();
+
+  Future<void> waitStats(refresh) async {
+    var sData = statsData;
+
+    // Clean old result
+    sData.userStats = null;
+    sData.stats     = null;
+    sData.cardStats.stats = CardStats();
+
+    // Get data from DB
+    Environment env = Environment.instance;
+    env.getStats(statsData.subExt!, sData.product, sData.category).then( (stats) {
+      sData.stats = stats;
+      // Compute Cards stats
+      int idCard=0;
+      sData.subExt!.seCards.cards.forEach((listCardSE) {
+        listCardSE.forEach((cardSE) {
+          sData.cardStats.stats!.add(sData.subExt!, cardSE, idCard);
+          idCard +=1;
+        });
+      });
+
+      // Get user info after
+      if(env.user != null) {
+        env.getStats(sData.subExt!, sData.product, sData.category, env.user!.idDB).then( (ustats) {
+          if(ustats.nbBoosters > 0) {
+            sData.userStats = ustats;
+            refresh();
+          }
+        });
+      }
+      refresh();
+    });
+  }
 }
 
 
@@ -42,6 +76,12 @@ class StatsPage extends StatefulWidget {
 class _StatsPageState extends State<StatsPage> {
   late CustomRadioController menuBarController = CustomRadioController(onChange: (value) { afterChangeMenu(value); });
   PageController _pageController = PageController(keepPage: false);
+
+  @override
+  void initState() {
+    menuBarController.currentValue = StateStatsExtension.Cards;
+    super.initState();
+  }
 
   void afterChangeMenu(value) {
     setState(() {
@@ -75,9 +115,10 @@ class _StatsPageState extends State<StatsPage> {
     _pageController.jumpToPage(idPage);
 
     //Launch compute stats
-    waitStats();
+    widget.info.waitStats( () { setState(() {}); } );
   }
 
+  /*
   Future<void> waitStats() async {
     var sData = widget.info.statsData;
 
@@ -111,18 +152,20 @@ class _StatsPageState extends State<StatsPage> {
       setState(() {});
     });
   }
+  */
 
   Widget menuBar(BuildContext context) {
     return Row( 
       children: [
-        CustomRadio(value: StateStatsExtension.Cards,       controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_0'))),
-        CustomRadio(value: StateStatsExtension.GlobalStats, controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_1'))),
-        CustomRadio(value: StateStatsExtension.Draw,        controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_2'))),
+        Expanded(child: CustomRadio(value: StateStatsExtension.Cards,       controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_0')))),
+        Expanded(child: CustomRadio(value: StateStatsExtension.GlobalStats, controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_1')))),
+        Expanded(child: CustomRadio(value: StateStatsExtension.Draw,        controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_2')))),
     ]);
   }
 
   Widget extensionButton(BuildContext context) {
     return Card(
+        color: Colors.grey.shade600,
         child: TextButton(
           child: widget.info.statsData.language != null ? Row(
               children: [
@@ -166,25 +209,25 @@ class _StatsPageState extends State<StatsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(
-            StatitikLocale.of(context).read('H_T1'), style: Theme.of(context).textTheme.headline3),
-          actions: [
-            if(widget.info.se.isNotEmpty)
-              menuBar(context)
-            /*
-            TextButton(
-                  child: Icon(Icons.settings),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return createOptionDialog(context, widget.info.options);
-                      }
-                    ).then( (result) { setState((){}); } );
-                  }
+          title: (widget.info.se.isEmpty && widget.info.statsData.subExt == null) ?
+            Text(StatitikLocale.of(context).read('H_T1'), style: Theme.of(context).textTheme.headline3)
+            : TextButton(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Icon(Icons.arrow_back_rounded),
+                  SizedBox(width: 8.0),
+                  Image(image: widget.info.statsData.language!.create(), height: 30),
+                  SizedBox(width: 8.0),
+                  widget.info.statsData.subExt!.image(hSize: 30),
+                  SizedBox(width: 8.0),
+                  Flexible(child: Text(widget.info.statsData.subExt!.name, style: Theme.of(context).textTheme.headline6, softWrap: true, maxLines: 3)),
+                ]
               ),
-           */
-          ],
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension, addMode: false)));
+              },
+            ),
         ),
         body: PageView.builder(
             controller: _pageController,
@@ -195,7 +238,7 @@ class _StatsPageState extends State<StatsPage> {
                 var se = position < widget.info.se.length ? widget.info.se[position] : null;
                 if(se != widget.info.statsData.subExt) {
                   widget.info.statsData.subExt = se;
-                  waitStats();
+                  widget.info.waitStats( () { setState(() {}); } );
                 }
               });
             },
@@ -205,7 +248,7 @@ class _StatsPageState extends State<StatsPage> {
                   startPage(context) :
                   Column(
                     children: [
-                      extensionButton(context),
+                      menuBar(context),
                       StatsExtensionWidget(widget.info)
                     ],
                   )
@@ -213,22 +256,5 @@ class _StatsPageState extends State<StatsPage> {
             }
         )
     );
-  }
-
-  void afterSelectProduct(BuildContext context, Language language, Product? product, int category) {
-    Navigator.pop(context);
-    setState(() {
-      if(product != null) {
-        widget.info.statsData.product  = product;
-        widget.info.statsData.category = -1;
-      } else if( category != -1 ) {
-        widget.info.statsData.product  = null;
-        widget.info.statsData.category = category;
-      } else { // All products
-        widget.info.statsData.product  = null;
-        widget.info.statsData.category = -1;
-      }
-      waitStats();
-    });
   }
 }

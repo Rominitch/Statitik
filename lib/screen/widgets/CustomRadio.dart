@@ -63,9 +63,11 @@ class _CustomRadioState extends State<CustomRadio> {
     _activate = widget.controller.currentValue == widget.value;
 
     widget.afterChange.stream.listen((cmpValue) {
-      setState(() {
-        _activate = cmpValue == widget.value;
-      });
+      if( !widget.afterChange.isClosed ) {
+        setState(() {
+          _activate = cmpValue == widget.value;
+        });
+      }
     });
     super.initState();
   }

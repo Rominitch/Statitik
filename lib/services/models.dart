@@ -353,66 +353,66 @@ Widget energyImage(Type type) {
 
 List<List<Widget>?> cachedImageRarity = List.filled(Rarity.values.length, null);
 
-List<Widget> getImageRarity(Rarity rarity, {fontSize=12.0, generate=false}) {
+List<Widget> getImageRarity(Rarity rarity, {iconSize, fontSize=12.0, generate=false}) {
   if(generate || cachedImageRarity[rarity.index] == null) {
     List<Widget> rendering;
     //star_border
     switch(rarity) {
       case Rarity.Commune:
-        rendering = [Icon(Icons.circle)];
+        rendering = [Icon(Icons.circle, size: iconSize)];
         break;
       case Rarity.PeuCommune:
         rendering = [Transform.rotate(
             angle: pi / 4.0,
-            child: Icon(Icons.stop))];
+            child: Icon(Icons.stop, size: iconSize))];
         break;
       case Rarity.Rare:
-        rendering = [Icon(Icons.star)];
+        rendering = [Icon(Icons.star, size: iconSize,)];
         break;
       case Rarity.Prism:
-        rendering = [Icon(Icons.star), Text('P', style: TextStyle(fontSize: fontSize))];
+        rendering = [Icon(Icons.star, size: iconSize), Text('P', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.Chromatique:
-        rendering = [Icon(Icons.star), Text('CH', style: TextStyle(fontSize: fontSize-2.0))];
+        rendering = [Icon(Icons.star, size: iconSize), Text('CH', style: TextStyle(fontSize: fontSize-2.0))];
         break;
       case Rarity.ChromatiqueRare:
-        rendering = [Icon(Icons.star_border), Text('CH', style: TextStyle(fontSize: fontSize-2.0))];
+        rendering = [Icon(Icons.star_border, size: iconSize), Text('CH', style: TextStyle(fontSize: fontSize-2.0))];
         break;
       case Rarity.V:
-        rendering = [Icon(Icons.star_border)];
+        rendering = [Icon(Icons.star_border, size: iconSize)];
         break;
       case Rarity.VMax:
-        rendering = [Icon(Icons.star), Text('X', style: TextStyle(fontSize: fontSize))];
+        rendering = [Icon(Icons.star, size: iconSize), Text('X', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.Turbo:
-        rendering = [Icon(Icons.star), Text('T', style: TextStyle(fontSize: fontSize))];
+        rendering = [Icon(Icons.star, size: iconSize), Text('T', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.HoloRare:
-        rendering = [Icon(Icons.star), Text('H', style: TextStyle(fontSize: fontSize))];
+        rendering = [Icon(Icons.star, size: iconSize), Text('H', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.BrillantRare:
-        rendering = [Icon(Icons.star), Text('PB', style: TextStyle(fontSize: fontSize-2.0))];
+        rendering = [Icon(Icons.star, size: iconSize), Text('PB', style: TextStyle(fontSize: fontSize-2.0))];
         break;
       case Rarity.UltraRare:
-        rendering = [Icon(Icons.star), Text('U', style: TextStyle(fontSize: fontSize))];
+        rendering = [Icon(Icons.star, size: iconSize), Text('U', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.Magnifique:
-        rendering = [Icon(Icons.star), Text('M', style: TextStyle(fontSize: fontSize))];
+        rendering = [Icon(Icons.star, size: iconSize), Text('M', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.Secret:
-        rendering = [Icon(Icons.star_border), Text('S', style: TextStyle(fontSize: fontSize))];
+        rendering = [Icon(Icons.star_border, size: iconSize), Text('S', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.HoloRareSecret:
-        rendering = [Icon(Icons.star_border), Text('H', style: TextStyle(fontSize: fontSize))];
+        rendering = [Icon(Icons.star_border, size: iconSize), Text('H', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.ArcEnCiel:
-        rendering = [Icon(Icons.looks)];
+        rendering = [Icon(Icons.looks, size: iconSize)];
         break;
       case Rarity.Gold:
-        rendering = [Icon(Icons.local_play, color: Colors.yellow[300])];
+        rendering = [Icon(Icons.local_play, size: iconSize, color: Colors.yellow[300])];
         break;
       case Rarity.Unknown:
-        rendering = [Icon(Icons.help_outline)];
+        rendering = [Icon(Icons.help_outline, size: iconSize)];
         break;
 
       case Rarity.JC:
@@ -440,7 +440,7 @@ List<Widget> getImageRarity(Rarity rarity, {fontSize=12.0, generate=false}) {
         rendering = [Text('UR', style: TextStyle(fontSize: fontSize))];
         break;
       case Rarity.JA:
-        rendering = [drawCachedImage('logo', 'a', height: 20)];
+        rendering = [drawCachedImage('logo', 'a', height: iconSize ?? 20)];
         break;
       case Rarity.JS:
         rendering = [Text('S', style: TextStyle(fontSize: fontSize))];
@@ -461,7 +461,7 @@ List<Widget> getImageRarity(Rarity rarity, {fontSize=12.0, generate=false}) {
         rendering = [Text('')];
       break;
       default:
-        rendering = [Icon(Icons.help_outline)];
+        rendering = [Icon(Icons.help_outline, size: iconSize)];
         assert(false);
         //throw Exception("Unknown rarity: $rarity");
     }
