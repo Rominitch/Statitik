@@ -291,6 +291,9 @@ Images and illustrations used are the property of their respective authors.
       'SE_TYPE_0': 'Normal',
       'SE_TYPE_1': 'Promo',
       'SE_TYPE_2': 'Deck',
+      'SMENU_0': 'Cards',
+      'SMENU_1': 'Global stats',
+      'SMENU_2': 'Draw',
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -577,6 +580,9 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'SE_TYPE_0': 'Normal',
       'SE_TYPE_1': 'Promo',
       'SE_TYPE_2': 'Deck',
+      'SMENU_0': 'Cartes',
+      'SMENU_1': 'Statistiques',
+      'SMENU_2': 'Tirages',
     },
   };
 
