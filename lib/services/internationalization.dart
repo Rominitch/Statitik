@@ -13,7 +13,7 @@ class StatitikLocale {
   static Map<String, Map<String, String>> _localizedValues = {
     'en': {
       'H_T0': 'Draw',
-      'H_T1': 'Statistics',
+      'H_T1': 'Expansions',
       'H_T2': 'Settings',
       'H_T3': 'Cards',
       'SE_T': 'Expansion\'s statistics',
@@ -294,11 +294,13 @@ Images and illustrations used are the property of their respective authors.
       'SMENU_0': 'Cards',
       'SMENU_1': 'Global stats',
       'SMENU_2': 'Draw',
-      'SEC_0': 'Cards info was not fill. Expansion will be release at %s',
+      'SMENU_3': 'Product',
+      'SEC_0':   'There is no information about this expansion',
+      'SEC_1':   'It will be release at %s',
     },
     'fr': {
       'H_T0': 'Tirage',
-      'H_T1': 'Statistiques',
+      'H_T1': 'Extensions',
       'H_T2': 'Options',
       'H_T3': 'Cartes',
       'SE_T': 'Statistiques de l\'extension',
@@ -584,7 +586,9 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'SMENU_0': 'Cartes',
       'SMENU_1': 'Statistiques',
       'SMENU_2': 'Tirages',
-      'SEC_0': 'Aucune carte n\'a été renseigné. L\'extension sortira à partir du %s',
+      'SMENU_3': 'Produits',
+      'SEC_0':   'Aucune information sur cette extension',
+      'SEC_1':   'Elle sortira à partir du %s',
     },
   };
 

@@ -117,7 +117,13 @@ class _OptionsPageState extends State<OptionsPage> {
                         }
                       });
                     },
-                    child: Text(StatitikLocale.of(context).read('NE_T0'))
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children:[
+                        drawImagePress(context, 'news', 40),
+                        SizedBox(width: 5),
+                        Text(StatitikLocale.of(context).read('NE_T0'))
+                    ])
                 ),
               )),
             ]

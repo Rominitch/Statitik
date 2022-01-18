@@ -30,9 +30,23 @@ CachedNetworkImage drawCachedImage(folder, image, {double? width, double? height
 }
 
 Widget drawOut(BuildContext context, SubExtension se) {
-  return Column( children: [
-    Text(sprintf(StatitikLocale.of(context).read('SEC_0'), [DateFormat.yMMMMd(StatitikLocale.of(context).locale).format(se.out)])),
-  ]);
+  return Card(
+    child: Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(sprintf(StatitikLocale.of(context).read('SEC_0'), [DateFormat.yMMMMd(StatitikLocale.of(context).locale.toLanguageTag()).format(se.out)]),
+              style: Theme.of(context).textTheme.headline3, textAlign: TextAlign.center),
+          SizedBox(height: 30),
+          drawImagePress(context, 'zorua', 300),
+          SizedBox(height: 30),
+          Center(child: Text(sprintf(StatitikLocale.of(context).read('SEC_1'), [DateFormat.yMMMMd(StatitikLocale.of(context).locale.toLanguageTag()).format(se.out)]),
+            style: Theme.of(context).textTheme.headline5),
+          ),
+      ]),
+    ),
+  );
 }
 
 Widget drawImagePress(BuildContext context, String image, double imgHeight) {

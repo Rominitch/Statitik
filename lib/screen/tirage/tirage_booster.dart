@@ -139,6 +139,7 @@ class _BoosterPageState extends State<BoosterPage> {
                 shrinkWrap: true,
                 scrollDirection: Axis.vertical,
                 primary: false,
+                childAspectRatio: 1.15,
                 children: widgets,
               ),
             ],

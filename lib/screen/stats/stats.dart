@@ -1,10 +1,12 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/stats/statView.dart';
 import 'package:statitikcard/screen/stats/statsExtensionWidget.dart';
+import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 
 import 'package:statitikcard/services/Tools.dart';
@@ -16,6 +18,7 @@ enum StateStatsExtension {
   Cards,
   GlobalStats,
   Draw,
+  Product,
 }
 
 class StatsConfiguration {
@@ -115,7 +118,9 @@ class _StatsPageState extends State<StatsPage> {
       children: [
         Expanded(child: CustomRadio(value: StateStatsExtension.Cards,       controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_0')))),
         Expanded(child: CustomRadio(value: StateStatsExtension.GlobalStats, controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_1')))),
-        Expanded(child: CustomRadio(value: StateStatsExtension.Draw,        controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_2')))),
+        if(widget.info.statsData.subExt != null && widget.info.statsData.subExt!.type == SerieType.Normal)
+          Expanded(child: CustomRadio(value: StateStatsExtension.Draw,      controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_2')))),
+        //Expanded(child: CustomRadio(value: StateStatsExtension.Product,      controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_3')))),
     ]);
   }
 
@@ -131,7 +136,15 @@ class _StatsPageState extends State<StatsPage> {
                 SizedBox(width: 8.0),
                 Tooltip(message: widget.info.statsData.subExt!.name,
                     child:widget.info.statsData.subExt!.image(hSize: 30)),
-              ]) : Text(StatitikLocale.of(context).read('S_B0')),
+              ]) : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                drawImagePress(context, 'Minccino', 40),
+                SizedBox(width: 15.0),
+                Text(StatitikLocale.of(context).read('S_B0'), style: Theme.of(context).textTheme.headline5),
+                SizedBox(width: 15.0),
+                drawImagePress(context, 'pika', 40),
+            ]),
           onPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension, addMode: false)));
           },
@@ -139,23 +152,57 @@ class _StatsPageState extends State<StatsPage> {
     );
   }
 
+  Widget buildExplain(BuildContext context, String image, String title, String explains) {
+    return Expanded(child: // Rowlet
+      Card(
+          color: Colors.grey.shade800,
+          child: Container(height:150,
+              padding: const EdgeInsets.all(6.0),
+              child: Column(children: [
+                drawImagePress(context, image, 40.0),
+                Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold)),
+                SizedBox(height: 5),
+                Expanded(child: Text(explains, style: TextStyle(fontSize: 8))),
+                Icon(Icons.arrow_drop_down_circle_outlined)
+              ])
+          )
+      )
+    );
+  }
+
   Widget startPage(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children : [
-        extensionButton(context),
-        Container( child:
-          Row( children: [
-            SizedBox(width: 40.0),
-            Image(image: AssetImage('assets/arrow.png'), height: 30.0,),
-            SizedBox(width: 25.0),
-            Flexible(child: Text(StatitikLocale.of(context).read('S_B2'), style: Theme.of(context).textTheme.headline5)),
-          ])
-        ),
         SizedBox(height: 20.0),
+        extensionButton(context),
         Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: drawImagePress(context, 'PikaNoResult', 250.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Container(child:
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+              Image(image: AssetImage('assets/arrowL.png'), height: 20.0,),
+              SizedBox(width: 5.0),
+              Text(StatitikLocale.of(context).read('S_B2'), style: Theme.of(context).textTheme.headline6),
+              SizedBox(width: 5.0),
+              Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
+            ])
+          ),
+        ),
+        SizedBox(height: 40.0),
+        MovingImageWidget(Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: drawImagePress(context, 'Artwork', 300.0),
+        )),
+        Expanded(child: SizedBox(height: 5)),
+        Row(
+          children: [
+            buildExplain(context, "Rowlet", "Ajouter un tirage", "Un text plutot long"),
+            buildExplain(context, "Growl", "Visualiser les extensions", "Un text plutot long"),
+            buildExplain(context, "Voltorb", "Rechercher des cartes précisement", "Un text plutot long"),
+            buildExplain(context, "news", "Réglages et contact", "Un text plutot long"),
+          ]
         )
       ]
     );
@@ -166,7 +213,7 @@ class _StatsPageState extends State<StatsPage> {
     return Scaffold(
         appBar: AppBar(
           title: (widget.info.se.isEmpty && widget.info.statsData.subExt == null) ?
-            Text(StatitikLocale.of(context).read('H_T1'), style: Theme.of(context).textTheme.headline3)
+            Center(child: Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headline3))
             : TextButton(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -186,30 +233,30 @@ class _StatsPageState extends State<StatsPage> {
             ),
         ),
         body: PageView.builder(
-            controller: _pageController,
-            itemCount: max(1, widget.info.se.length),
-            pageSnapping: true,
-            onPageChanged: (position) {
-              setState(() {
-                var se = position < widget.info.se.length ? widget.info.se[position] : null;
-                if(se != widget.info.statsData.subExt) {
-                  widget.info.statsData.subExt = se;
-                  widget.info.waitStats( () { setState(() {}); } );
-                }
-              });
-            },
-            itemBuilder: (context, position) {
-              return SingleChildScrollView(
-                child: (widget.info.se.isEmpty) ?
-                  startPage(context) :
-                  Column(
-                    children: [
-                      menuBar(context),
-                      StatsExtensionWidget(widget.info)
-                    ],
-                  )
-              );
-            }
+          controller: _pageController,
+          itemCount: max(1, widget.info.se.length),
+          pageSnapping: true,
+          onPageChanged: (position) {
+            setState(() {
+              var se = position < widget.info.se.length ? widget.info.se[position] : null;
+              if(se != widget.info.statsData.subExt) {
+                widget.info.statsData.subExt = se;
+                widget.info.waitStats( () { setState(() {}); } );
+              }
+            });
+          },
+          itemBuilder: (context, position) {
+            return (widget.info.se.isEmpty) ?
+              startPage(context) :
+              SingleChildScrollView(child:
+                Column(
+                  children: [
+                    menuBar(context),
+                    StatsExtensionWidget(widget.info)
+                  ],
+                )
+            );
+          }
         )
     );
   }
