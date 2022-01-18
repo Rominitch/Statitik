@@ -49,26 +49,6 @@ class ExtensionDrawCards {
       pointer += count;
     }
   }
-/*
-  ExtensionDrawCards.fromByteV2(List<int> bytes) {
-    int pointer = 0;
-    while(pointer < bytes.length) {
-      int count = bytes[pointer];
-      pointer += 1;
-
-      List<CodeDraw> cardCode = [];
-      bytes.sublist(pointer, pointer+count).forEach(
-              (code){
-            cardCode.add(CodeDraw.fromInt(code));
-          }
-      );
-      assert(cardCode.isNotEmpty);
-
-      draw.add(cardCode);
-      pointer += count;
-    }
-  }
-*/
 
   /// Fill current draw with another (generally full Subextension with saved and truncate data)
   int fillWith(ExtensionDrawCards savedData) {

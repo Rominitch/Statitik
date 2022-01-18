@@ -117,6 +117,8 @@ class _StatsExtensionWidgetState extends State<StatsExtensionWidget> {
 
     if(sData.stats == null && sData.subExt != null) {
       return drawLoading(context);
+    } else if(widget.info.statsData.subExt != null && !widget.info.statsData.subExt!.seCards.isValid) {
+      return drawOut(context, widget.info.statsData.subExt!);
     } else {
       switch( widget.info.state ) {
         case StateStatsExtension.Draw:
@@ -124,10 +126,9 @@ class _StatsExtensionWidgetState extends State<StatsExtensionWidget> {
         case StateStatsExtension.Cards:
           return StatsExtensionCards(widget.info);
         case StateStatsExtension.GlobalStats:
-          var sData = widget.info.statsData;
           return StatsExtensionsPage(stats: sData.stats!, data: sData);
         default :
-          return Text("No data");
+          throw Exception("Bad Id of panel");
       }
     }
   }

@@ -246,26 +246,8 @@ class CardEffects {
   List<int> toBytes() {
     List<int> b = [version, effects.length];
     effects.forEach((element) {
-      //assert(element.title != null || element.description != null);
       b += element.toBytes();
     });
-
-    //printOutput("CardEffects: data: ${b.length}");
     return b;
-
-    // Don't use compression -> No gain in place
-    /*
-    List<int> b = [effects.length];
-    effects.forEach((element) {
-      b += element.toBytes();
-    });
-
-    List<int> finalBytes = [version];
-    finalBytes += gzip.encode(b);
-
-    printOutput("CardEffects: data: ${b.length+1} compressed: ${finalBytes.length}");
-
-    return finalBytes;
-    */
   }
 }

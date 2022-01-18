@@ -48,14 +48,4 @@ class ScreenPrint
        }
      });
    }
-/*
-   final _boundaryKey = GlobalKey();
-   Future<Uint8List> captureImage(BuildContext context) async {
-     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
-     final boundary = _boundaryKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-     final image = await boundary.toImage(pixelRatio: pixelRatio);
-     final data = await image.toByteData(format: ui.ImageByteFormat.png);
-     return data!.buffer.asUint8List();
-   }
-*/
  }

@@ -1,9 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models.dart';
 
 import 'connection.dart';
 
@@ -26,6 +29,11 @@ CachedNetworkImage drawCachedImage(folder, image, {double? width, double? height
   );
 }
 
+Widget drawOut(BuildContext context, SubExtension se) {
+  return Column( children: [
+    Text(sprintf(StatitikLocale.of(context).read('SEC_0'), [DateFormat.yMMMMd(StatitikLocale.of(context).locale).format(se.out)])),
+  ]);
+}
 
 Widget drawImagePress(BuildContext context, String image, double imgHeight) {
   if(Environment.instance.showPressImages) {

@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:screenshot/screenshot.dart';
-import 'package:statitikcard/screen/Cartes/CardViewer.dart';
+
 import 'package:statitikcard/screen/Cartes/statsCard.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
-import 'package:statitikcard/screen/widgets/screenPrint.dart';
-import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
 
 class StatsExtensionsPage extends StatefulWidget {
   final Stats stats;
@@ -21,7 +17,6 @@ class StatsExtensionsPage extends StatefulWidget {
 
 class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
   late StatsExtension statsExtension;
-  static const bool isCard=false;
 
   @override
   void initState() {
@@ -31,26 +26,6 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
 
   @override
   Widget build(BuildContext context) {
-    /*
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            StatitikLocale.of(context).read('SE_T'), style: Theme.of(context).textTheme.headline5,
-          ),
-          actions: [
-            if(Environment.instance.user != null && Environment.instance.user!.admin) IconButton(
-              icon: Icon(Icons.share_outlined),
-              onPressed: () {
-                print.shareReport(context, widget.stats.subExt.seCode);
-              }
-            ),
-          ],
-        ),
-        backgroundColor: Colors.grey[850],
-        body: SafeArea(
-            child: SingleChildScrollView(
-              child:
-     */
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(

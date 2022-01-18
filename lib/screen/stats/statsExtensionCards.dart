@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
 import 'package:statitikcard/screen/Cartes/CardViewer.dart';
 
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
-import 'package:statitikcard/services/Tools.dart';
 
-import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
@@ -84,10 +83,11 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.info.se.isEmpty
-      ? drawLoading(context)
-      : (widget.info.statsData.subExt != null)
-      ? GridView.builder(
+    if(widget.info.se.isEmpty || widget.info.statsData.stats == null) {
+      return drawLoading(context);
+    } else {
+      assert(widget.info.statsData.subExt != null);
+      return GridView.builder(
         padding: EdgeInsets.all(1.0),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
@@ -129,6 +129,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> {
             ),
           );
         },
-      ) : Text("No data");
+      );
+    }
   }
 }

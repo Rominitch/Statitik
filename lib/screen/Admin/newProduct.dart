@@ -161,17 +161,6 @@ class _NewProductPageState extends State<NewProductPage> {
             onPressed: () { _selectDate(context); },
             child: Text(DateFormat('yyyy-MM-dd').format(product.out)),
           )
-          /*
-          SpinBox(
-            value: product.year.toDouble(),
-            min: 1996,
-            max: 2100,
-            decoration: InputDecoration(labelText: 'Année'),
-            onChanged: (value) {
-              product.year = value.toInt();
-            },
-          ),
-          */
         ),
       ] + bs + [
         SizedBox(height: 20),

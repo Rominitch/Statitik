@@ -222,37 +222,19 @@ class _UserReportState extends State<UserReport> {
   }
 
   Widget buildBestCards(translator, limit) {
-    //if(finalData.subExt!.seCards)
-      return Card(
-          child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(translator.read('RE_B0'), style: Theme.of(context).textTheme.headline5),
-                ListView(
-                  shrinkWrap: true,
-                  primary: false,
-                  children: bestCards,
-                )
-              ]
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(translator.read('RE_B0'), style: Theme.of(context).textTheme.headline5),
+          ListView(
+            shrinkWrap: true,
+            primary: false,
+            children: bestCards,
           )
-      );
-      /*
-    else
-      return Card(
-          child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(translator.read('RE_B0'), style: Theme.of(context).textTheme.headline5),
-                GridView.count(
-                  crossAxisCount: limit,
-                  shrinkWrap: true,
-                  primary: false,
-                  children: bestCards,
-                )
-              ]
-          )
-      );
-      */
+        ]
+      )
+    );
   }
 
   Widget buildProducts(translator, limit) {

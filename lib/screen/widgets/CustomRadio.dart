@@ -89,11 +89,6 @@ class _CustomRadioState extends State<CustomRadio> {
   Widget build(BuildContext context) {
     return Container(
       width: widget.widthBox,
-      /*
-      constraints: BoxConstraints(
-        maxWidth: 55.0,
-      ),
-       */
       padding: EdgeInsets.all(1.0),
       child: TextButton(
         style: TextButton.styleFrom(

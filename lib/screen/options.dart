@@ -74,13 +74,6 @@ class _OptionsPageState extends State<OptionsPage> {
                 });
 
                 Environment.instance.restoreAdminData();
-                /*
-                Environment.instance.startDB=false;
-                Environment.instance.db = Database();
-                Environment.instance.readStaticData().then((value) {
-                  Environment.instance.collection.adminReverse();
-                });
-                */
           }),
           SizedBox(height: 10),
         ];

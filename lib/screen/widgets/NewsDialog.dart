@@ -48,11 +48,6 @@ class _CarouselNewsState extends State<CarouselNews> {
     for(var newsItem in widget.news) {
       newsWidget.add(Container(
           width: MediaQuery.of(context).size.width,
-          /*
-          decoration: BoxDecoration(
-              color: Colors.amber
-          ),
-          */
           child: Column(
                 children: [
                   Center( child: Text(newsItem.title, style: Theme.of(context).textTheme.headline5)),

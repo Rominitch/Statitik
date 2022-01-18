@@ -65,19 +65,7 @@ class _HomeState extends State<Home> {
         ),
       ),
       bottomNavigationBar:
-      /*Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            //colors: [Color(0xFF002F00), Colors.grey[900]!],
-            colors: [Colors.grey[700]!, Colors.grey[900]!],
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            stops: [0.0, 0.3],
-            tileMode: TileMode.clamp,
-            ),
-          ),
-          child:*/ BottomNavigationBar(
-          //backgroundColor: Colors.transparent,
+       BottomNavigationBar(
           backgroundColor: useDebug ? Color.fromARGB(255,50, 0, 0) : Colors.grey[900],
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(

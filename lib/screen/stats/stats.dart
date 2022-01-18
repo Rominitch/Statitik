@@ -4,13 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/stats/statView.dart';
-import 'package:statitikcard/screen/stats/statsExtension.dart';
-import 'package:statitikcard/screen/commonPages/productPage.dart';
 import 'package:statitikcard/screen/stats/statsExtensionWidget.dart';
-import 'package:statitikcard/screen/stats/statsOptionDialog.dart';
-import 'package:statitikcard/screen/stats/userReport.dart';
-import 'package:statitikcard/screen/view.dart';
-
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 
 import 'package:statitikcard/services/Tools.dart';
@@ -110,49 +104,11 @@ class _StatsPageState extends State<StatsPage> {
     });
 
     var idPage = widget.info.se.indexOf(subExt);
-    //printOutput("Page after extension: $idPage");
-    //_pageController = widget._se.isNotEmpty ? PageController(initialPage: idPage) : PageController();
     _pageController.jumpToPage(idPage);
 
     //Launch compute stats
     widget.info.waitStats( () { setState(() {}); } );
   }
-
-  /*
-  Future<void> waitStats() async {
-    var sData = widget.info.statsData;
-
-    // Clean old result
-    sData.userStats = null;
-    sData.stats     = null;
-    sData.cardStats.stats = CardStats();
-
-    // Get data from DB
-    Environment env = Environment.instance;
-    env.getStats(widget.info.statsData.subExt!, sData.product, sData.category).then( (stats) {
-      sData.stats = stats;
-      // Compute Cards stats
-      int idCard=0;
-      sData.subExt!.seCards.cards.forEach((listCardSE) {
-        listCardSE.forEach((cardSE) {
-          sData.cardStats.stats!.add(sData.subExt!, cardSE, idCard);
-          idCard +=1;
-        });
-      });
-
-      // Get user info after
-      if(env.user != null) {
-        env.getStats(sData.subExt!, sData.product, sData.category, env.user!.idDB).then( (ustats) {
-          if(ustats.nbBoosters > 0) {
-            sData.userStats = ustats;
-            setState(() {});
-          }
-        });
-      }
-      setState(() {});
-    });
-  }
-  */
 
   Widget menuBar(BuildContext context) {
     return Row( 
@@ -215,7 +171,7 @@ class _StatsPageState extends State<StatsPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Icon(Icons.arrow_back_rounded),
+                  Icon(Icons.menu),
                   SizedBox(width: 8.0),
                   Image(image: widget.info.statsData.language!.create(), height: 30),
                   SizedBox(width: 8.0),
