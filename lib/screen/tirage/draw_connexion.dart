@@ -45,156 +45,163 @@ class _DrawHomePageState extends State<DrawHomePage> {
          ),
         ),
         body: SafeArea(
-          child: SingleChildScrollView(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
                 children: [
-                  Text(StatitikLocale.of(context).read('DC_B0')),
-                  SizedBox(height: 30),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Card( color: greenValid, 
-                            child: TextButton(child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.add_box_outlined),
-                                Text(StatitikLocale.of(context).read('DC_B1'), softWrap: true, maxLines: 2, ),
-                                SizedBox(width: 15.0),
-                                drawImagePress(context, 'Snorlax_Pikachu_Pose', 40.0),
-                              ],
-                            ),
-                            onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage, addMode: true)));
-                            }
-                          )
+                  Expanded(
+                    child: Card( color: greenValid,
+                        child: TextButton(child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_box_outlined),
+                            Text(StatitikLocale.of(context).read('DC_B1'), softWrap: true, maxLines: 2, ),
+                            SizedBox(width: 15.0),
+                            drawImagePress(context, 'Snorlax_Pikachu_Pose', 40.0),
+                          ],
                         ),
-                      ),
-                      Card( child: TextButton(child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.info_outline),
-                          Text(StatitikLocale.of(context).read('DC_B10') ),
-                          SizedBox(width: 15.0),
-                          drawImagePress(context, 'Snorlax_Pikachu', 40.0),
-                        ],
-                      ),
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => DrawTutorial()));
-                        },
-                      )),
-                    ],
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage, addMode: true)));
+                        }
+                      )
+                    ),
                   ),
-
-                  Card( child: TextButton(child: Center(child: Row(
+                  Card( child: TextButton(child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      drawImagePress(context, 'CafeMix_Pikachu', 40.0),
+                      Icon(Icons.info_outline),
+                      Text(StatitikLocale.of(context).read('DC_B10') ),
                       SizedBox(width: 15.0),
-                      Icon(Icons.history),
-                      Text(StatitikLocale.of(context).read('DC_B11') ),
-                      SizedBox(width: 15.0),
-                      drawImagePress(context, 'Piplup', 40.0),
+                      drawImagePress(context, 'Snorlax_Pikachu', 40.0),
                     ],
-                  )),
+                  ),
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => DrawTutorial()));
                     },
                   )),
-                  drawImagePress(context, 'Zeraora', 370.0),
-                  Text(StatitikLocale.of(context).read('DC_B2'), style: TextStyle(fontSize: 13, decoration: TextDecoration.underline, )),
-                  SizedBox(height: 8.0,),
-                  Row(children: [
-                    Icon(Icons.help_outline),
-                    SizedBox(width: 10.0),
-                    Flexible(child: Text(StatitikLocale.of(context).read('DC_B3'), style: TextStyle(fontSize: 11))),]),
-                    if(Environment.instance.user!.admin)
-                      Card(
-                        child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Text(StatitikLocale.of(context).read('DC_B13')),
-                          CircleAvatar(
-                            backgroundColor: Colors.lightGreen,
-                            radius: 20,
-                            child: IconButton(
-                              padding: EdgeInsets.zero,
-                              icon: Icon(Icons.add_shopping_cart),
-                              color: Colors.white,
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => NewProductPage()));
-                              },
-                            ),
-                          ),
-                          CircleAvatar(
-                            backgroundColor: Colors.deepOrange,
-                            radius: 20,
-                            child: IconButton(
-                              padding: EdgeInsets.zero,
-                              icon: Icon(Icons.post_add_outlined),
-                              color: Colors.white,
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => NewCardExtensions()));
-                              },
-                            ),
-                          ),
-                          CircleAvatar(
-                              backgroundColor: Colors.blueAccent,
-                              radius: 20,
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                icon: Icon(Icons.remove_red_eye_rounded),
-                                color: Colors.white,
-                                onPressed: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory(true)));
-                                },
-                          )),
-                          CircleAvatar(
-                              backgroundColor: Colors.blueAccent,
-                              radius: 20,
-                              child: IconButton(
-                                padding: EdgeInsets.zero,
-                                icon: Icon(Icons.delete_forever),
-                                color: Colors.white,
-                                onPressed: () {
-                                  var orphans = Environment.instance.collection.searchOrphanCard();
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) => new AlertDialog(
-                                      title: new Text(StatitikLocale.of(context).read('warning')),
-                                      content: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                        children: [
-                                          Text( sprintf(StatitikLocale.of(context).read('CA_B33'), [orphans.length]),
-                                              textAlign: TextAlign.justify),
-                                          if(orphans.isNotEmpty) Card(
-                                            color: Colors.red,
-                                            child: TextButton(
-                                              child: Text(StatitikLocale.of(context).read('yes')),
-                                              onPressed: () {
-                                                // Remove card
-                                                Environment.instance.removeOrphans(orphans).then((value) {
-                                                  if(value) {
-                                                    // Reload full database to have all real data
-                                                    Environment.instance.restoreAdminData().then( (value){
-                                                      Navigator.pop(context);
-                                                    });
-                                                  }
+                ],
+              ),
+
+              Card( child: TextButton(child: Center(child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  drawImagePress(context, 'CafeMix_Pikachu', 40.0),
+                  SizedBox(width: 15.0),
+                  Icon(Icons.history),
+                  Text(StatitikLocale.of(context).read('DC_B11') ),
+                  SizedBox(width: 15.0),
+                  drawImagePress(context, 'Piplup', 40.0),
+                ],
+              )),
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory()));
+                },
+              )),
+              drawImagePress(context, 'Zeraora', 370.0),
+              Expanded(child: SizedBox(height: 1.0)),
+              Padding(padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(StatitikLocale.of(context).read('DC_B2'), style: TextStyle(fontSize: 13, decoration: TextDecoration.underline, )),
+                    SizedBox(height: 8.0),
+                    Row(children: [
+                      Icon(Icons.help_outline),
+                      SizedBox(width: 10.0),
+                      Flexible(child: Text(StatitikLocale.of(context).read('DC_B3'), style: TextStyle(fontSize: 11))),
+                    ])
+                  ]
+                )
+              ),
+              if(Environment.instance.user!.admin)
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Text(StatitikLocale.of(context).read('DC_B13')),
+                      CircleAvatar(
+                        backgroundColor: Colors.lightGreen,
+                        radius: 20,
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          icon: Icon(Icons.add_shopping_cart),
+                          color: Colors.white,
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => NewProductPage()));
+                          },
+                        ),
+                      ),
+                      CircleAvatar(
+                        backgroundColor: Colors.deepOrange,
+                        radius: 20,
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          icon: Icon(Icons.post_add_outlined),
+                          color: Colors.white,
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => NewCardExtensions()));
+                          },
+                        ),
+                      ),
+                      CircleAvatar(
+                          backgroundColor: Colors.blueAccent,
+                          radius: 20,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: Icon(Icons.remove_red_eye_rounded),
+                            color: Colors.white,
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory(true)));
+                            },
+                      )),
+                      CircleAvatar(
+                          backgroundColor: Colors.blueAccent,
+                          radius: 20,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            icon: Icon(Icons.delete_forever),
+                            color: Colors.white,
+                            onPressed: () {
+                              var orphans = Environment.instance.collection.searchOrphanCard();
+                              showDialog(
+                                context: context,
+                                builder: (_) => new AlertDialog(
+                                  title: new Text(StatitikLocale.of(context).read('warning')),
+                                  content: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      Text( sprintf(StatitikLocale.of(context).read('CA_B33'), [orphans.length]),
+                                          textAlign: TextAlign.justify),
+                                      if(orphans.isNotEmpty) Card(
+                                        color: Colors.red,
+                                        child: TextButton(
+                                          child: Text(StatitikLocale.of(context).read('yes')),
+                                          onPressed: () {
+                                            // Remove card
+                                            Environment.instance.removeOrphans(orphans).then((value) {
+                                              if(value) {
+                                                // Reload full database to have all real data
+                                                Environment.instance.restoreAdminData().then( (value){
+                                                  Navigator.pop(context);
                                                 });
                                               }
-                                            )
-                                          )
-                                        ]
+                                            });
+                                          }
+                                        )
                                       )
-                                    )
-                                  );
-                                },
-                              )),
-                        ]),
-                      )
-                ]
-              ),
-            ),
+                                    ]
+                                  )
+                                )
+                              );
+                            },
+                          )),
+                    ]),
+                  ),
+                )
+            ]
+          ),
         ),
       );
     } else {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/NewsDialog.dart';
 import 'package:statitikcard/services/News.dart';
 import 'package:statitikcard/services/Tools.dart';
@@ -8,6 +9,7 @@ import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models.dart';
 
 class OptionsPage extends StatefulWidget {
   @override
@@ -16,9 +18,18 @@ class OptionsPage extends StatefulWidget {
 
 class _OptionsPageState extends State<OptionsPage> {
   String? message;
+  late CustomRadioController langueController = CustomRadioController(onChange: (value) { refreshLocale(value); });
+
+  void refreshLocale(String language) {
+    setState((){
+      StatitikLocale.of(context).setLocale(Locale(language));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    langueController.currentValue = StatitikLocale.of(context).locale.languageCode;
+
     var refreshWithError = (String? message) {
       setState((){
         this.message = message;
@@ -28,62 +39,12 @@ class _OptionsPageState extends State<OptionsPage> {
       setState(() {});
     };
 
-    List<Widget> buttons = [];
-    if(Environment.instance.isLogged())
-    {
-      buttons = [
-        signOutButton(refresh, context),
-        TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.red[800], // background
-            ),
-            onPressed: () {
-              setState(()
-              {
-                showDialog(
-                    context: context,
-                    builder: (_) => forgetMeDialog()
-                );
-              });
-            },
-            child: Text(StatitikLocale.of(context).read('O_B0'))
-        ),
-        SizedBox(height: 10),
-      ];
-
-      if(Environment.instance.user!.admin) {
-        buttons += [
-          TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.grey, // background
-              ),
-              onPressed: () {
-                EasyLoading.show();
-                Environment.instance.restoreAdminData().then((value) {
-                  EasyLoading.dismiss();
-                });
-              },
-              child: Text(StatitikLocale.of(context).read('O_B1'))
-          ),
-          SizedBox(height: 10),
-          CheckboxListTile(value: useDebug,
-              title: Text(StatitikLocale.of(context).read('O_B2')),
-              onChanged: (newValue) {
-                setState(() {
-                  useDebug = newValue!;
-                });
-
-                Environment.instance.restoreAdminData();
-          }),
-          SizedBox(height: 10),
-        ];
-      }
-
-    } else {
-      buttons = [
-        signInButton('V_B5', CredentialMode.Google, refreshWithError, context),
-        signInButton('V_B6', CredentialMode.Phone, refreshWithError, context),
-      ];
+    Widget toolBarLanguage() {
+      return Row( children: [
+        Expanded(child: Text(StatitikLocale.of(context).read('L_T0'))),
+        CustomRadio(value: "fr", controller: langueController, widget: Environment.instance.collection.languages[1].barIcon()),
+        CustomRadio(value: "en", controller: langueController, widget: Environment.instance.collection.languages[2].barIcon()),
+      ]);
     }
 
     return Scaffold(
@@ -96,7 +57,87 @@ class _OptionsPageState extends State<OptionsPage> {
       padding: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: buttons + <Widget>[
+        children: [
+          // Profile Panel
+          Card(child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(child: Text(StatitikLocale.of(context).read('O_B9'), style: Theme.of(context).textTheme.headline5)),
+                  if(Environment.instance.isLogged())
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        signOutButton(refresh, context),
+                        TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.red[800], // background
+                            ),
+                            onPressed: () {
+                              setState(()
+                              {
+                                showDialog(
+                                    context: context,
+                                    builder: (_) => forgetMeDialog()
+                                );
+                              });
+                            },
+                            child: Text(StatitikLocale.of(context).read('O_B0'))
+                        ),
+                      ]
+                    )
+                  else
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                      signInButton('V_B5', CredentialMode.Google, refreshWithError, context),
+                      signInButton('V_B6', CredentialMode.Phone, refreshWithError, context),
+                    ],)
+                ]
+              )
+            )
+          ),
+          // Options panel
+          Card(child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline5)),
+                toolBarLanguage(),
+                if(Environment.instance.user!.admin)
+                  Row( children: [
+                    Text(StatitikLocale.of(context).read('O_B2')),
+                    Checkbox(value: useDebug,
+                      onChanged: (newValue) {
+                        useDebug = newValue!;
+                        EasyLoading.show();
+                        Environment.instance.restoreAdminData().then((value){
+                          setState(() {});
+                          EasyLoading.dismiss();
+                        });
+                      }
+                    ),
+                    Expanded(
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.grey, // background
+                        ),
+                        onPressed: () {
+                          EasyLoading.show();
+                          Environment.instance.restoreAdminData().then((value) {
+                            EasyLoading.dismiss();
+                          });
+                        },
+                        child: Text(StatitikLocale.of(context).read('O_B1'))
+                      ),
+                    ),
+                  ]
+                  ),
+              ],
+            ),
+          )),
           Expanded(child: Center(child: drawImagePress(context, "PikaOption", 200.0))),
           Row(
             children: [

@@ -37,8 +37,11 @@ class _CardCreatorState extends State<CardCreator> {
   late CustomRadioController rarityController     = CustomRadioController(onChange: (value) { onRarityChanged(value); });
   late CustomRadioController typeExtController    = CustomRadioController(onChange: (value) { onTypeExtChanged(value); });
   late CustomRadioController levelController      = CustomRadioController(onChange: (value) { onLevel(value); });
+
+  late CustomRadioController listChooserController = CustomRadioController(onChange: (value) { onChangeList(value); });
   final imageController  = TextEditingController();
   final jpCodeController = TextEditingController();
+  final specialIDController = TextEditingController();
 
   List<Widget> typeCard = [];
   List<Widget> typeExtCard = [];
@@ -47,6 +50,10 @@ class _CardCreatorState extends State<CardCreator> {
   List<Widget> level   = [];
   List<Widget> longMarkerWidget = [];
   bool         _auto    = false;
+
+  void onChangeList(value) {
+
+  }
 
   void onTypeChanged(value) {
     widget.card.data.type = value;
@@ -119,6 +126,8 @@ class _CardCreatorState extends State<CardCreator> {
       widget.card.data.resistance = EnergyValue(Type.Unknown, 0);
     }
 
+    listChooserController.currentValue = 0;
+
     selectCard();
   }
 
@@ -141,8 +150,9 @@ class _CardCreatorState extends State<CardCreator> {
     // Set current value
     typeController.afterPress(widget.card.data.type);
     rarityController.afterPress(widget.card.rarity);
-    imageController.text  = widget.card.image;
-    jpCodeController.text = widget.card.jpDBId.toString();
+    imageController.text     = widget.card.image;
+    jpCodeController.text    = widget.card.jpDBId.toString();
+    specialIDController.text = widget.card.specialID;
   }
 
   Widget createImageFieldWidget() {
@@ -180,6 +190,18 @@ class _CardCreatorState extends State<CardCreator> {
                     widget.card.jpDBId = 0;
                 });
               }),
+          Column(
+            children: [
+              Text(StatitikLocale.of(context).read('CA_B38')),
+              TextField(
+                  controller: specialIDController,
+                  decoration: InputDecoration(hintText: StatitikLocale.of(context).read('CA_B38') ),
+                  onChanged: (data) {
+                    widget.card.specialID = data;
+                  }
+              ),
+            ]
+          )
         ]
     );
   }
@@ -342,6 +364,7 @@ class _CardCreatorState extends State<CardCreator> {
                 primary: false,
                 shrinkWrap: true,
                 children: marker,
+                childAspectRatio: 1.2,
               ),
               Row(children: longMarkerWidget.sublist(0, 3)),
               Row(children: longMarkerWidget.sublist(3)),
@@ -391,16 +414,22 @@ class _CardCreatorState extends State<CardCreator> {
           primary: false,
           shrinkWrap: true,
           children: typeCard,
+          childAspectRatio: 1.1,
         ),
         GridView.count(
           crossAxisCount: 7,
           primary: false,
           shrinkWrap: true,
           children: rarity,
+          childAspectRatio: 1.3,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            CustomRadio(value: 0, controller: listChooserController, widget: Text("Normal")),
+            CustomRadio(value: 1, controller: listChooserController, widget: Text("Energie")),
+            CustomRadio(value: 2, controller: listChooserController, widget: Text("Special")),
+            Expanded(child: SizedBox(width: 1)),
             Card(
                 color: Colors.grey[800],
                 child: TextButton(

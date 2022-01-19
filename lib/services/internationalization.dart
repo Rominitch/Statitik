@@ -1,10 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StatitikLocale {
   StatitikLocale(this.locale);
 
-  final Locale locale;
+  Locale locale;
 
   static StatitikLocale of(BuildContext context) {
     return Localizations.of<StatitikLocale>(context, StatitikLocale)!;
@@ -20,10 +21,9 @@ class StatitikLocale {
       'SE_B0': 'Cards distribution',
       'SE_B1': 'Rate by card',
       'SE_B2': 'Number of cards:',
-      'DC_B0': 'Welcome on draw registration wizard.',
       'DC_B1': 'Add a draw',
       'DC_B2': 'Tips:',
-      'DC_B3': 'Long press offer more options for cards or boosters !',
+      'DC_B3': 'Long press offers more options for cards or boosters !',
       'DC_B4': 'Sign In',
       'DC_B5': 'With signin, you can:',
       'DC_B6': 'Register your draw',
@@ -82,6 +82,7 @@ class StatitikLocale {
       'O_B6': 'Respecting European rules, you have the right to oblivion.\n',
       'O_B7': 'UID removing inside our database is an irreversible action, you will not able to access to your draw.\n',
       'O_B8': 'Do you want to remove your account ?\n',
+      'O_B9': 'Profile',
       'L_T0': 'Language',
       'LO_B0': 'Database connection is impossible.\nCheck your internet access.',
       'TB_B0': 'Booster is not conform ?',
@@ -241,6 +242,7 @@ Images and illustrations used are the property of their respective authors.
       'CA_B35':   'Generality',
       'CA_B36':   'Card\'s effects',
       'CA_B37':   'Image',
+      'CA_B38':   'Special ID',
       'MARK_0': 'Legende',
       'MARK_1': 'Restaure',
       'MARK_2': 'Mega',
@@ -297,6 +299,14 @@ Images and illustrations used are the property of their respective authors.
       'SMENU_3': 'Product',
       'SEC_0':   'There is no information about this expansion',
       'SEC_1':   'It will be release at %s',
+      'S_TOOL_T0': 'Add your opening',
+      'S_TOOL_B0': '- Register boosters\' opening.',
+      'S_TOOL_T1': 'Display expansions',
+      'S_TOOL_B1': '- Cards by expansions\n- Global Statistics\n- Draw result',
+      'S_TOOL_T2': 'Search Card',
+      'S_TOOL_B2': '- by Pokemon\n- by characteristics\n-...',
+      'S_TOOL_T3': 'Settings & Contact',
+      'S_TOOL_B3': '- News\n- Contact\n- Your profile',
     },
     'fr': {
       'H_T0': 'Tirage',
@@ -307,7 +317,6 @@ Images and illustrations used are the property of their respective authors.
       'SE_B0': 'Répartition des cartes',
       'SE_B1': 'Fréquence par carte',
       'SE_B2': 'Nombre de cartes :',
-      'DC_B0': 'Bienvenue sur l\'enregistrement des tirages.',
       'DC_B1': 'Ajouter un tirage',
       'DC_B2': 'Astuces:',
       'DC_B3': 'L\' "appui long" vous offre plus d\'options pour vos cartes ou boosters !',
@@ -369,6 +378,7 @@ Images and illustrations used are the property of their respective authors.
       'O_B6': 'Conformement à la réglementation en rigeur, vous avez le droit à l\'oubli.\n',
       'O_B7': 'La suppression de votre UID dans la base de données est irréversible, vous ne pourrez plus jamais accéder à vos tirages.\n',
       'O_B8': 'Voulez-vous supprimer votre compte ?\n',
+      'O_B9': 'Compte',
       'L_T0': 'Langue',
       'LO_B0': 'Connexion à la base de données impossible.\nVérifier votre connexion.',
       'TB_B0': 'Le booster n\'est pas conforme ?',
@@ -533,6 +543,7 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'CA_B35':   'Généralité',
       'CA_B36':   'Effects de la carte',
       'CA_B37':   'Image',
+      'CA_B38':   'Special ID',
       'MARK_0': 'Legende',
       'MARK_1': 'Restaure',
       'MARK_2': 'Mega',
@@ -589,6 +600,14 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'SMENU_3': 'Produits',
       'SEC_0':   'Aucune information sur cette extension',
       'SEC_1':   'Elle sortira à partir du %s',
+      'S_TOOL_T0': 'Ajouter vos tirages',
+      'S_TOOL_B0': '- Enregistrer vos ouvertures de booster.',
+      'S_TOOL_T1': 'Visualiser les extensions',
+      'S_TOOL_B1': '- Cartes par extensions\n- Statistiques globales\n- Tirages',
+      'S_TOOL_T2': 'Rechercher de carte',
+      'S_TOOL_B2': '- par pokemon\n- par caractéristiques\n-...',
+      'S_TOOL_T3': 'Options & Contact',
+      'S_TOOL_B3': '- News\n- Contact\n- Votre compte',
     },
   };
 
@@ -601,6 +620,13 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
     }
     return "";
   }
+
+  void setLocale(Locale language) {
+    locale = language;
+    SharedPreferences.getInstance().then( (prefs) {
+      prefs.setString('appLocale', language.languageCode);
+    });
+  }
 }
 
 class StatitikLocaleDelegate extends LocalizationsDelegate<StatitikLocale> {
@@ -610,10 +636,14 @@ class StatitikLocaleDelegate extends LocalizationsDelegate<StatitikLocale> {
   bool isSupported(Locale locale) => ['en', 'fr'].contains(locale.languageCode);
 
   @override
-  Future<StatitikLocale> load(Locale locale) {
+  Future<StatitikLocale> load(Locale locale) async {
     // Returning a SynchronousFuture here because an async "load" operation
     // isn't needed to produce an instance of DemoLocalizations.
-    return SynchronousFuture<StatitikLocale>(StatitikLocale(locale));
+    var prefs = await SharedPreferences.getInstance();
+    String? languageLocale = prefs.getString('appLocale');
+    return SynchronousFuture<StatitikLocale>(StatitikLocale(
+        languageLocale != null ? Locale(languageLocale) : locale)
+    );
   }
 
   @override

@@ -20,7 +20,7 @@ class StatitikException implements Exception {
 
 class Database
 {
-    final String version = '2.7';
+    final String version = '2.8';
     final ConnectionSettings settings = createConnection();
 
     Future<bool> transactionR(Function queries) async

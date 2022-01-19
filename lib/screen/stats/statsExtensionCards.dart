@@ -116,14 +116,14 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> {
                     )
                   ),
                   SizedBox(height:5),
-                  Expanded(child: CardImage(widget.info.statsData.subExt!, cardData, id, height: 150)),
+                  Expanded(child: CardImage(widget.info.statsData.subExt!, cardData, id, height: 150, language: widget.info.statsData.language!,)),
                   if(statsOfCard != null)
                     textStats(statsOfCard)
                 ],
               ),
               onPressed: (){
-                Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => CardViewer(widget.info.statsData.subExt!, id, cardData)),
+                Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => CardSEViewer(widget.info.statsData.subExt!, id)),
                 );
               }
             ),

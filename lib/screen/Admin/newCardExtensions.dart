@@ -233,6 +233,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                 primary: false,
                 children: _cardInfo,
                 shrinkWrap: true,
+                childAspectRatio: 1.3,
                 crossAxisCount: 5,
             ),
           ],

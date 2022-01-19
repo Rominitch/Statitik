@@ -155,17 +155,18 @@ class _StatsPageState extends State<StatsPage> {
   Widget buildExplain(BuildContext context, String image, String title, String explains) {
     return Expanded(child: // Rowlet
       Card(
-          color: Colors.grey.shade800,
-          child: Container(height:150,
-              padding: const EdgeInsets.all(6.0),
-              child: Column(children: [
-                drawImagePress(context, image, 40.0),
-                Text(title, textAlign: TextAlign.center, style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold)),
-                SizedBox(height: 5),
-                Expanded(child: Text(explains, style: TextStyle(fontSize: 8))),
-                Icon(Icons.arrow_drop_down_circle_outlined)
-              ])
-          )
+        margin: EdgeInsets.all(2.0),
+        color: Colors.grey.shade800,
+        child: Container(height:145,
+          padding: const EdgeInsets.all(6.0),
+          child: Column(children: [
+            drawImagePress(context, image, 40.0),
+            Text(StatitikLocale.of(context).read(title), textAlign: TextAlign.center, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
+            SizedBox(height: 5),
+            Expanded(child: Text(StatitikLocale.of(context).read(explains), style: TextStyle(fontSize: 8.2))),
+            Icon(Icons.arrow_drop_down_circle_outlined)
+          ])
+        )
       )
     );
   }
@@ -198,10 +199,10 @@ class _StatsPageState extends State<StatsPage> {
         Expanded(child: SizedBox(height: 5)),
         Row(
           children: [
-            buildExplain(context, "Rowlet", "Ajouter un tirage", "Un text plutot long"),
-            buildExplain(context, "Growl", "Visualiser les extensions", "Un text plutot long"),
-            buildExplain(context, "Voltorb", "Rechercher des cartes précisement", "Un text plutot long"),
-            buildExplain(context, "news", "Réglages et contact", "Un text plutot long"),
+            buildExplain(context, "Rowlet",  "S_TOOL_T0", "S_TOOL_B0"),
+            buildExplain(context, "Growl",   "S_TOOL_T1", "S_TOOL_B1"),
+            buildExplain(context, "Voltorb", "S_TOOL_T2", "S_TOOL_B2"),
+            buildExplain(context, "news",    "S_TOOL_T3", "S_TOOL_B3"),
           ]
         )
       ]

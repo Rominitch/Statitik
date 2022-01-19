@@ -85,7 +85,7 @@ void main() {
     [
       PokemonCardExtension(collection[1], Rarity.Chromatique),
       PokemonCardExtension(collection[2], Rarity.ArcEnCiel),
-      PokemonCardExtension(collection[3], Rarity.Empty, "Image.png"),
+      PokemonCardExtension(collection[3], Rarity.Empty, image: "Image.png"),
     ];
 
     for(PokemonCardExtension code in c) {

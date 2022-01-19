@@ -13,9 +13,11 @@ class CardImage extends StatefulWidget {
   final double height;
   final SubExtension se;
   final PokemonCardExtension card;
+  final int idCard;
+  final Language? language;
 
-  CardImage(SubExtension se, PokemonCardExtension card, int id, {this.height=400}) :
-    cardImage = computeImageLabel(se, card, id), this.card = card, this.se = se;
+  CardImage(SubExtension se, PokemonCardExtension card, this.idCard, {this.height=400, this.language}) :
+    cardImage = computeImageLabel(se, card, idCard), this.card = card, this.se = se;
 
   static String convertRomaji(String name) {
     const Map<String, String> convertions = {
@@ -166,7 +168,9 @@ class _CardImageState extends State<CardImage> {
         height: widget.height,
       );
     } else {
-      return Icon(Icons.help_outline);
+      return widget.language != null
+          ? Center(child: Text(widget.se.seCards.titleOfCard(widget.language!, widget.idCard)))
+          : Icon(Icons.help_outline);
     }
   }
   @override

@@ -346,7 +346,7 @@ class Collection
     try {
       await connection.queryMulti(query, [data]);
     } catch(e) {
-      printOutput("Request error");
+      printOutput("Request error: "+e.toString());
       throw e;
     }
     return idCard == null;
