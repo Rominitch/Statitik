@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Cartes/CardViewer.dart';
 
 import 'package:statitikcard/screen/stats/stats.dart';
+import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 
 import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
@@ -28,15 +30,17 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> {
   List<StatsPerCard> statsPerCard = [];
   late double ratio;
   late double uniform;
+  List showState = [true, true, true];
 
   @override
   void initState() {
+    showState[1] = widget.info.statsData.subExt!.seCards.energyCard.isNotEmpty;
+    showState[2] = widget.info.statsData.subExt!.seCards.noNumberedCard.isNotEmpty;
     computeStats().then((value) {
       setState(() {
 
       });
     });
-
     super.initState();
   }
 
@@ -81,54 +85,121 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> {
     );
   }
 
+  Widget createCardWidget(int id, PokemonCardExtension cardData, String cardName, StatsPerCard? statsOfCard, int listId) {
+    Widget? extendedType = cardData.imageTypeExtended(generate: false, sizeIcon: 14.0);
+    return Card(
+      margin: EdgeInsets.all(2.0),
+      child: TextButton(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: 15,
+                  child: Row( children: [
+                    cardData.imageType(generate: false, sizeIcon: 14.0),
+                    if(extendedType != null) extendedType,
+                  ] + getImageRarity(cardData.rarity, iconSize: 14.0, fontSize: 12.0, generate: true) + [
+                    Expanded(child: Text( cardName, textAlign: TextAlign.right, style: TextStyle(fontSize: cardName.length > 3 ? 9.0: 12.0))),
+                  ]
+                  )
+              ),
+              SizedBox(height:5),
+              Expanded(child: CardImage(widget.info.statsData.subExt!, cardData, id, height: 150, language: widget.info.statsData.language!,)),
+              if(statsOfCard != null)
+                textStats(statsOfCard)
+            ],
+          ),
+          onPressed: (){
+            Navigator.push(context,
+              MaterialPageRoute(builder: (context) => CardSEViewer(widget.info.statsData.subExt!, id, listId)),
+            );
+          }
+      ),
+    );
+  }
+
+  Widget createCardSerieButton(BuildContext context, List showState, int id) {
+    return Expanded( child: Card(
+        margin: EdgeInsets.all(2.0),
+        child: TextButton(child:
+          Text(StatitikLocale.of(context).read('S_SERIE_$id'),
+            style: TextStyle(fontSize: 12)
+          ),
+          onPressed: () { setState(() { showState[id] = !showState[id];});}
+        ),
+        color: showState[id] ? Colors.green : Colors.grey
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     if(widget.info.se.isEmpty || widget.info.statsData.stats == null) {
       return drawLoading(context);
     } else {
       assert(widget.info.statsData.subExt != null);
-      return GridView.builder(
-        padding: EdgeInsets.all(1.0),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
-          childAspectRatio: 0.7),
-        itemCount: widget.info.statsData.subExt!.seCards.cards.length,
-        shrinkWrap: true,
-        primary: false,
-        itemBuilder: (context, id) {
-          var cardData = widget.info.statsData.subExt!.seCards.cards[id][0];
-          var statsOfCard = id < statsPerCard.length ? statsPerCard[id] : null;
-          final cardName = widget.info.statsData.subExt!.seCards.numberOfCard(id);
+      return Column(
+        children: [
+          if(widget.info.statsData.subExt!.seCards.energyCard.isNotEmpty ||
+             widget.info.statsData.subExt!.seCards.noNumberedCard.isNotEmpty)
+          Row(
+            children: [
+              createCardSerieButton(context, showState, 0),
+              if(widget.info.statsData.subExt!.seCards.energyCard.isNotEmpty)
+                createCardSerieButton(context, showState, 1),
+              if(widget.info.statsData.subExt!.seCards.noNumberedCard.isNotEmpty)
+                createCardSerieButton(context, showState, 2),
+            ],
+          ),
+          if(showState[0])
+            GridView.builder(
+            padding: EdgeInsets.all(1.0),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
+              childAspectRatio: 0.7),
+            itemCount: widget.info.statsData.subExt!.seCards.cards.length,
+            shrinkWrap: true,
+            primary: false,
+            itemBuilder: (context, id) {
+              var cardData = widget.info.statsData.subExt!.seCards.cards[id][0];
+              var statsOfCard = id < statsPerCard.length ? statsPerCard[id] : null;
+              final cardName = widget.info.statsData.subExt!.seCards.numberOfCard(id);
 
-          return Card(
-            margin: EdgeInsets.all(2.0),
-            child: TextButton(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(height: 15,
-                    child: Row( children: [
-                       cardData.imageType(),
-                       ] + getImageRarity(cardData.rarity, iconSize: 14.0, fontSize: 12.0, generate: true) + [
-                       Expanded(child: Text( cardName, textAlign: TextAlign.right, style: TextStyle(fontSize: cardName.length > 3 ? 9.0: 12.0))),
-                      ]
-                    )
-                  ),
-                  SizedBox(height:5),
-                  Expanded(child: CardImage(widget.info.statsData.subExt!, cardData, id, height: 150, language: widget.info.statsData.language!,)),
-                  if(statsOfCard != null)
-                    textStats(statsOfCard)
-                ],
-              ),
-              onPressed: (){
-                Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => CardSEViewer(widget.info.statsData.subExt!, id)),
-                );
-              }
+              return createCardWidget(id, cardData, cardName, statsOfCard, 0);
+            },
+          ),
+          if(showState[1])
+            GridView.builder(
+              padding: EdgeInsets.all(1.0),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
+                  childAspectRatio: 0.7),
+              itemCount: widget.info.statsData.subExt!.seCards.energyCard.length,
+              shrinkWrap: true,
+              primary: false,
+              itemBuilder: (context, id) {
+                var cardData = widget.info.statsData.subExt!.seCards.energyCard[id];
+                final cardName = cardData.numberOfCard(id);
+
+                return createCardWidget(id, cardData, cardName, null, 1);
+              },
             ),
-          );
-        },
+          if(showState[2])
+            GridView.builder(
+              padding: EdgeInsets.all(1.0),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
+                  childAspectRatio: 0.7),
+              itemCount: widget.info.statsData.subExt!.seCards.noNumberedCard.length,
+              shrinkWrap: true,
+              primary: false,
+              itemBuilder: (context, id) {
+                var cardData = widget.info.statsData.subExt!.seCards.noNumberedCard[id];
+                final cardName = cardData.numberOfCard(id);
+
+                return createCardWidget(id, cardData, cardName, null, 2);
+              },
+            ),
+        ],
       );
     }
   }

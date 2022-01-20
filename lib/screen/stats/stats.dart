@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
@@ -175,7 +174,7 @@ class _StatsPageState extends State<StatsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children : [
-        SizedBox(height: 20.0),
+        SizedBox(height: 5.0),
         extensionButton(context),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -191,12 +190,12 @@ class _StatsPageState extends State<StatsPage> {
             ])
           ),
         ),
-        SizedBox(height: 40.0),
-        MovingImageWidget(Padding(
+        SizedBox(height: 5.0),
+        Expanded(child: MovingImageWidget(Padding(
           padding: const EdgeInsets.all(8.0),
           child: drawImagePress(context, 'Artwork', 300.0),
-        )),
-        Expanded(child: SizedBox(height: 5)),
+        ))),
+        SizedBox(height: 5),
         Row(
           children: [
             buildExplain(context, "Rowlet",  "S_TOOL_T0", "S_TOOL_B0"),
@@ -225,7 +224,10 @@ class _StatsPageState extends State<StatsPage> {
                   SizedBox(width: 8.0),
                   widget.info.statsData.subExt!.image(hSize: 30),
                   SizedBox(width: 8.0),
-                  Flexible(child: Text(widget.info.statsData.subExt!.name, style: Theme.of(context).textTheme.headline6, softWrap: true, maxLines: 3)),
+                  Flexible(child: Text(widget.info.statsData.subExt!.name, style: TextStyle(
+                    fontFamily: Theme.of(context).textTheme.headline6!.fontFamily,
+                    fontSize: widget.info.statsData.subExt!.name.length > 25 ? 10 : 16,
+                  ), softWrap: true, maxLines: 3)),
                 ]
               ),
               onPressed: () {

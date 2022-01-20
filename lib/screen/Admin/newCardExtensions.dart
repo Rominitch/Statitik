@@ -19,11 +19,22 @@ class NewCardExtensions extends StatefulWidget {
 class _NewCardExtensionsState extends State<NewCardExtensions> {
   Language?     _language;
   SubExtension? _se;
-  List<Widget>  _cardInfo = [];
+  List<Widget>  _cardInfo         = [];
+  List<Widget>  _cardEnergyInfo   = [];
+  List<Widget>  _cardNoNumberInfo = [];
   bool _modify = false;
   PokemonCardExtension data = PokemonCardExtension(PokemonCardData([], Level.Base, Type.Plante, CardMarkers.from([])) , Rarity.Commune);
 
-  void onAddCard(int? pos) {
+  void updateCardList(int listId) {
+    if(listId == 1)
+      _cardEnergyInfo   = _cardsEnergy();
+    else if(listId == 2)
+      _cardNoNumberInfo = _cardsNoNumber();
+    else
+      _cardInfo = _cards();
+  }
+
+  void onAddCard(int listId, int? pos) {
     setState((){
       _modify = true;
 
@@ -32,23 +43,51 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         _se!.seCards.cards.clear();
         _se!.seCards.isValid = true;
       }
-      // Add new card
+
+      // Create new card
       var newItem = PokemonCardExtension(PokemonCardData([], data.data.level, data.data.type, CardMarkers.from([])),
-                    data.rarity);
-      if( pos == null) {
-        _se!.seCards.cards.add([newItem]);
-      } else {
-        _se!.seCards.cards.insert(pos, [newItem]);
+          data.rarity);
+
+      // Added
+      if(listId == 1) {
+        if( pos == null) {
+            _se!.seCards.energyCard.add(newItem);
+        } else {
+          _se!.seCards.energyCard.insert(pos, newItem);
+        }
       }
-      _cardInfo = _cards();
+      else if(listId == 2) {
+        if( pos == null) {
+          _se!.seCards.noNumberedCard.add(newItem);
+        } else {
+          _se!.seCards.noNumberedCard.insert(pos, newItem);
+        }
+      } else {
+        if( pos == null) {
+          _se!.seCards.cards.add([newItem]);
+        } else {
+          _se!.seCards.cards.insert(pos, [newItem]);
+        }
+      }
+
+      updateCardList(listId);
     });
   }
 
-  void removeCard(int localId) {
+  void removeCard(int listId,int localId) {
     setState(() {
+      var cardList;
+      if(listId == 1)
+        cardList = _se!.seCards.energyCard;
+      else if(listId == 2)
+        cardList = _se!.seCards.noNumberedCard;
+      else
+        cardList = _se!.seCards.cards;
+
       _modify = true;
-      _se!.seCards.cards.removeAt(localId);
-      _cardInfo = _cards();
+      cardList.removeAt(localId);
+
+      updateCardList(listId);
     });
   }
 
@@ -59,105 +98,147 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
       // Change selection
       _language = language;
       _se       = subExt;
-      _cardInfo = _cards();
+
+      updateCardList(0);
+      updateCardList(1);
+      updateCardList(2);
     });
+  }
+
+  Widget cardBuilder(PokemonCardExtension card, int id, int listId) {
+    // Search if Jap Card link exist
+    var colorCard = Color(0xFF5D9070);
+    if( Environment.instance.collection.pokemonCards.containsValue(card.data) ) {
+      var subEx = Environment.instance.collection
+          .searchCardIntoAllSubExtension(card.data);
+      int count = 0;
+      for (var element in subEx) {
+        if (element.se.extension.language.isJapanese()) {
+          count += 1;
+        }
+      }
+
+      if(_language!.isJapanese()) {
+        // Show multi link
+        colorCard = count > 1 ? Colors.cyan : Colors.green[900]!;
+      } else {
+        // Show link with japan
+        colorCard = count > 0 ? Colors.green[800]! : Colors.grey[900]!;
+      }
+    } else  {
+      colorCard = Colors.grey[800]!;
+    }
+
+    int localId     = id;
+    int localListId = listId;
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: TextButton(
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row( mainAxisAlignment: MainAxisAlignment.center,
+                  children: [card.imageType()]+card.imageRarity()),
+              Row(mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(_se!.seCards.numberOfCard(localId)),
+                  if(_language!.isJapanese() && card.jpDBId == 0) Icon(Icons.broken_image, color: Colors.deepOrange, size: 11)
+              ])
+            ]
+        ),
+        style: TextButton.styleFrom(
+            backgroundColor: colorCard,
+            padding: const EdgeInsets.all(2.0)
+        ),
+        onLongPress: () {
+          setState(() {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return SimpleDialog(
+                      title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.headline3)),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                      children: [
+                        Card(
+                            color: Colors.grey[700],
+                            child: TextButton(
+                              child: Text(StatitikLocale.of(context).read('NCE_B4')),
+                              onPressed: () {
+                                onAddCard(localListId, localId);
+                                Navigator.of(context).pop();
+                              },
+                            )),
+                        Card(
+                            color: Colors.red,
+                            child: TextButton(
+                              child: Text(StatitikLocale.of(context).read('NCE_B5')),
+                              onPressed: () {
+                                removeCard(localListId, localId);
+                                Navigator.of(context).pop();
+                              },
+                            )),
+                      ]
+                  );
+                }
+            );
+          });
+        },
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CardEditor(card, _language!.isWorld(), _se!, localId, localListId)),
+          ).then((value) {
+            setState(() {
+              updateCardList(localListId);
+              _modify   = true;
+            });
+          });
+        },
+      ),
+    );
   }
 
   List<Widget> _cards() {
     List<Widget> myCards = [];
     int id=0;
+    int listId=0;
     if( _se!.seCards.isValid ) {
       _se!.seCards.cards.forEach((cardList) {
         // Select only first
         var card = cardList[0];
+        myCards.add( cardBuilder(card, id, listId) );
 
-        // Search if Jap Card link exist
-        var colorCard = Color(0xFF5D9070);
-        if( Environment.instance.collection.pokemonCards.containsValue(card.data) ) {
-          var subEx = Environment.instance.collection
-              .searchCardIntoAllSubExtension(card.data);
-          int count = 0;
-          for (var element in subEx) {
-            if (element.se.extension.language.isJapanese()) {
-              count += 1;
-            }
-          }
+        id += 1;
+      });
+    }
+    return myCards;
+  }
 
-          if(_language!.isJapanese()) {
-            // Show multi link
-            colorCard = count > 1 ? Colors.cyan : Colors.green[900]!;
-          } else {
-            // Show link with japan
-            colorCard = count > 0 ? Colors.green[800]! : Colors.grey[900]!;
-          }
-        } else  {
-          colorCard = Colors.grey[800]!;
-        }
+  List<Widget> _cardsEnergy() {
+    List<Widget> myCards = [];
+    int id=0;
+    int listId=1;
+    if( _se!.seCards.isValid ) {
+      _se!.seCards.energyCard.forEach((cardList) {
+        myCards.add( cardBuilder(cardList, id, listId) );
 
-        int localId = id;
-        myCards.add( Padding(
-          padding: const EdgeInsets.all(2.0),
-          child: TextButton(
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Row( mainAxisAlignment: MainAxisAlignment.center,
-                         children: [card.imageType()]+card.imageRarity()),
-                    Text(_se!.seCards.numberOfCard(localId)),
-                    if(_language!.isJapanese() && card.jpDBId == 0) Icon(Icons.broken_image),
-                    ]
-              ),
-              style: TextButton.styleFrom(
-                  backgroundColor: colorCard,
-                  padding: const EdgeInsets.all(2.0)
-              ),
-              onLongPress: () {
-                setState(() {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return SimpleDialog(
-                            title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.headline3)),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                            children: [
-                              Card(
-                                color: Colors.grey[700],
-                                child: TextButton(
-                                  child: Text(StatitikLocale.of(context).read('NCE_B4')),
-                                  onPressed: () {
-                                    onAddCard(localId);
-                                    Navigator.of(context).pop();
-                                  },
-                              )),
-                              Card(
-                                color: Colors.red,
-                                child: TextButton(
-                                child: Text(StatitikLocale.of(context).read('NCE_B5')),
-                                onPressed: () {
-                                  removeCard(localId);
-                                  Navigator.of(context).pop();
-                                },
-                              )),
-                            ]
-                        );
-                      }
-                  );
-                });
-              },
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CardEditor(card, _language!.isWorld(), _se!, localId)),
-                ).then((value) =>
-                    setState(() {
-                      _cardInfo = _cards();
-                      _modify   = true;
-                    }));
-              },
-          ),
-        ));
-        id +=1;
+        id += 1;
+      });
+    }
+    return myCards;
+  }
+
+  List<Widget> _cardsNoNumber() {
+    List<Widget> myCards = [];
+    int id=0;
+    int listId=2;
+    if( _se!.seCards.isValid ) {
+      _se!.seCards.noNumberedCard.forEach((cardList) {
+        // Select only first
+        myCards.add( cardBuilder(cardList, id, listId) );
+
+        id += 1;
       });
     }
     return myCards;
@@ -215,14 +296,14 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
             Card(
               child: TextButton(
                 child: _language != null ? Row(
-                    children: [
-                      Text(StatitikLocale.of(context).read('S_B0')),
-                      SizedBox(width: 8.0),
-                      Image(image: _language!.create(), height: 30),
-                      SizedBox(width: 8.0),
-                      Tooltip(message: _se!.name,
-                          child:_se!.image(hSize: 30)),
-                    ]) : Text(StatitikLocale.of(context).read('S_B0')),
+                  children: [
+                    Text(StatitikLocale.of(context).read('S_B0')),
+                    SizedBox(width: 8.0),
+                    Image(image: _language!.create(), height: 30),
+                    SizedBox(width: 8.0),
+                    Tooltip(message: _se!.name,
+                      child:_se!.image(hSize: 30)),
+                  ]) : Text(StatitikLocale.of(context).read('S_B0')),
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension, addMode: false)));
                 },
@@ -235,6 +316,20 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                 shrinkWrap: true,
                 childAspectRatio: 1.3,
                 crossAxisCount: 5,
+            ),
+            if(_se != null && _se!.seCards.energyCard.isNotEmpty) GridView.count(
+              primary: false,
+              children: _cardEnergyInfo,
+              shrinkWrap: true,
+              childAspectRatio: 1.3,
+              crossAxisCount: 5,
+            ),
+            if(_se != null && _se!.seCards.noNumberedCard.isNotEmpty) GridView.count(
+              primary: false,
+              children: _cardNoNumberInfo,
+              shrinkWrap: true,
+              childAspectRatio: 1.3,
+              crossAxisCount: 5,
             ),
           ],
         )

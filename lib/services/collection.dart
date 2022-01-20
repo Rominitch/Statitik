@@ -258,9 +258,11 @@ class Collection
             });
           }
 
+          var energyList   = row[3] != null ? (row[3] as Blob).toBytes().toList() : null;
+          var noNumberList = row[4] != null ? (row[4] as Blob).toBytes().toList() : null;
 
           cardsExtensions[row[0]] = (row[1] != null)
-              ? SubExtensionCards.build((row[1] as Blob).toBytes().toList(), codeNaming, pokemonCards, row[5])
+              ? SubExtensionCards.build((row[1] as Blob).toBytes().toList(), codeNaming, pokemonCards, row[5], energyList, noNumberList)
               : SubExtensionCards.emptyDraw(codeNaming, row[5]);
         } catch(e) {
           printOutput("Bad SubExtensionCards: ${row[0]} $e");
@@ -338,9 +340,13 @@ class Collection
       // Update internal database
       pokemonCards[nextId] = card;
       rPokemonCards[card] = nextId;
+    
+      //printOutput("New card added at $nextId and we update internal list");
     } else {
       query = 'UPDATE `Cartes` SET `noms` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?'
-          ' WHERE `Cartes`.`idCartes` = $idCard';
+              ' WHERE `Cartes`.`idCartes` = $idCard';
+
+      //printOutput("Update card at $idCard and we update internal list");
     }
 
     try {
@@ -378,13 +384,30 @@ class Collection
         }
       }
     }
+    for(var cardLists in [seCards.energyCard, seCards.noNumberedCard]) {
+      for(var card in cardLists) {
+        // Save and update + maintain admin DB
+        if( await saveDatabase(card.data, nextId, connection) ) {
+          created += 1;
+          nextId  += 1;
+          printOutput("New card is add. Next id will be $nextId");
+        } else {
+          updated +=1;
+        }
+      }
+    }
     printOutput("Done update card data: created: $created | updated: $updated.");
 
     // Just change card info
     int idSEC = rCardsExtensions[seCards];
-    var query = 'UPDATE `CartesExtension` SET `cartes` = ?'
+    var query = 'UPDATE `CartesExtension` SET `cartes` = ?, `energies` = ?, `cartesSansNumero` = ?'
         ' WHERE `CartesExtension`.`idCartesExtension` = $idSEC';
-    await connection.queryMulti(query, [[Int8List.fromList(seCards.toBytes(rPokemonCards))]]);
+    await connection.queryMulti(query, [
+      [
+        Int8List.fromList(seCards.toBytes(rPokemonCards)),
+        seCards.energyCard.isEmpty     ? null : Int8List.fromList(seCards.otherToBytes(seCards.energyCard,     rPokemonCards)),
+        seCards.noNumberedCard.isEmpty ? null : Int8List.fromList(seCards.otherToBytes(seCards.noNumberedCard, rPokemonCards))
+      ]]);
   }
 
   List<CardIntoSubExtensions> searchCardIntoAllSubExtension(PokemonCardData searchCard) {

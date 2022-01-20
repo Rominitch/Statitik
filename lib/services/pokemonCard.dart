@@ -217,11 +217,15 @@ class PokemonCardData {
 }
 
 class PokemonCardExtension {
-  PokemonCardData  data;
+  late PokemonCardData  data;
   Rarity           rarity;
   String           image = "";
   int              jpDBId = 0;
   String           specialID = ""; /// For card without number or special (like energy, celebration card, ...)
+
+  String numberOfCard(int id) {
+    return specialID.isNotEmpty ? specialID : (id + 1).toString();
+  }
 
   PokemonCardExtension(this.data, this.rarity, {this.image="", this.jpDBId=0, this.specialID=""});
 
@@ -270,6 +274,11 @@ class PokemonCardExtension {
         data   = collection[parser.extractInt16()],
         rarity = Rarity.Unknown
   {
+/*
+    int code = parser.extractInt16();
+    assert(collection.containsKey(code), "Impossible to find card $code into database");
+    data  = collection[code]!;
+*/
     try {
       rarity = Rarity.values[parser.extractInt8()];
     }
@@ -306,8 +315,11 @@ class PokemonCardExtension {
     return getImageRarity(rarity);
   }
 
-  Widget imageType() {
-    return getImageType(data.type);
+  Widget imageType({bool generate=false, double? sizeIcon}) {
+    return getImageType(data.type, generate: generate, sizeIcon: sizeIcon);
+  }
+  Widget? imageTypeExtended({bool generate=false, double? sizeIcon}) {
+    return data.typeExtended != null ? getImageType(data.typeExtended!, generate: generate, sizeIcon: sizeIcon) : null;
   }
 
   bool hasAnotherRendering() {
@@ -344,8 +356,8 @@ class SubExtensionCards {
   List<CodeNaming>                 codeNaming = [];
   bool                             isValid;         ///< Data exists (Not waiting fill)
 
-  List<PokemonCardExtension>       energyCard     = [];  ///< Energy card design
-  List<PokemonCardExtension>       noNumberedCard = [];  ///< Card without number
+  List<PokemonCardExtension>       energyCard     = []; ///< Energy card design
+  List<PokemonCardExtension>       noNumberedCard = []; ///< Card without number
 
   int                              configuration;
 
@@ -371,7 +383,38 @@ class SubExtensionCards {
     return (idCard+1).toString();
   }
 
-  SubExtensionCards.build(List<int> bytes, this.codeNaming, cardCollection, this.configuration) : this.cards=[], this.isValid = (bytes.length > 0) {
+  PokemonCardExtension extractCard(int currentVersion, parser, cardCollection) {
+    if(currentVersion == 6)
+      return PokemonCardExtension.fromBytes(parser, cardCollection);
+    else if(currentVersion == 5)
+      return PokemonCardExtension.fromBytesV5(parser, cardCollection);
+    else if(currentVersion == 4)
+      return PokemonCardExtension.fromBytesV4(parser, cardCollection);
+    else if (currentVersion == 3)
+      return PokemonCardExtension.fromBytesV3(parser, cardCollection);
+    else
+      throw StatitikException("Unknown version of card");
+  }
+
+  List<PokemonCardExtension> extractOtherCards(List<int>? byteCard, cardCollection) {
+    List<PokemonCardExtension> listCards = [];
+    if(byteCard != null) {
+      final currentVersion = byteCard[0];
+      if(6 <= currentVersion && currentVersion <= 6) {
+        List<int> binary = gzip.decode(byteCard.sublist(1));
+        var parser = ByteParser(binary);
+
+        // Extract card
+        while(parser.canParse) {
+          listCards.add(extractCard(currentVersion, parser, cardCollection));
+        }
+      } else
+        throw StatitikException("Bad SubExtensionCards version : need migration !");
+    }
+    return listCards;
+  }
+
+  SubExtensionCards.build(List<int> bytes, this.codeNaming, cardCollection, this.configuration, List<int>? energy, List<int>? noNumber) : this.cards=[], this.isValid = (bytes.length > 0) {
     final currentVersion = bytes[0];
     if(3 <= currentVersion && currentVersion <= 6) {
       var parser = ByteParser(gzip.decode(bytes.sublist(1)));
@@ -380,19 +423,15 @@ class SubExtensionCards {
         List<PokemonCardExtension> numberedCard = [];
         int nbTitle = parser.extractInt8();
         for( int cardId=0; cardId < nbTitle; cardId +=1) {
-          if(currentVersion == 6)
-            numberedCard.add(PokemonCardExtension.fromBytes(parser, cardCollection));
-          else if(currentVersion == 5)
-            numberedCard.add(PokemonCardExtension.fromBytesV5(parser, cardCollection));
-          else if(currentVersion == 4)
-            numberedCard.add(PokemonCardExtension.fromBytesV4(parser, cardCollection));
-          else if (currentVersion == 3)
-            numberedCard.add(PokemonCardExtension.fromBytesV3(parser, cardCollection));
+          numberedCard.add(extractCard(currentVersion, parser, cardCollection));
         }
         cards.add(numberedCard);
       }
     } else
       throw StatitikException("Bad SubExtensionCards version : need migration !");
+
+    energyCard     = extractOtherCards(energy,   cardCollection);
+    noNumberedCard = extractOtherCards(noNumber, cardCollection);
   }
 
   SubExtensionCards.emptyDraw(this.codeNaming, this.configuration) : cards = [], isValid=false {
@@ -451,6 +490,19 @@ class SubExtensionCards {
     finalBytes += gzip.encode(cardBytes);
 
     printOutput("SubExtensionCards: data: ${cardBytes.length+1} compressed: ${finalBytes.length}");
+    return finalBytes;
+  }
+
+  List<int> otherToBytes(List otherCards, Map collectionCards) {
+    List<int> cardBytes = [];
+    otherCards.forEach((card) {
+      cardBytes += card.toBytes(collectionCards);
+    });
+
+    List<int> finalBytes = [version];
+    finalBytes += gzip.encode(cardBytes);
+
+    printOutput("SubExtensionCards: other Card data: ${cardBytes.length+1} compressed: ${finalBytes.length}");
     return finalBytes;
   }
 }

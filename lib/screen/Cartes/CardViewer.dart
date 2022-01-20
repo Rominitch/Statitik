@@ -279,8 +279,25 @@ class CardViewer extends StatelessWidget {
 class CardSEViewer extends StatefulWidget {
   final SubExtension se;
   final int idStart;
+  final int idList;
 
-  const CardSEViewer(this.se, this.idStart);
+  const CardSEViewer(this.se, this.idStart, this.idList);
+
+  List cardList() {
+    if(idList == 1)
+      return se.seCards.energyCard;
+    else if(idList == 2)
+      return se.seCards.noNumberedCard;
+    else
+    return se.seCards.cards;
+  }
+
+  PokemonCardExtension getCard(int cardId) {
+    if(idList == 1 || idList == 2)
+      return cardList()[cardId];
+    else
+      return cardList()[cardId][0];
+  }
 
   @override
   _CardSEViewerState createState() => _CardSEViewerState();
@@ -299,7 +316,7 @@ class _CardSEViewerState extends State<CardSEViewer> {
   @override
   Widget build(BuildContext context) {
     if(viewer == null)
-      viewer = CardViewerBody(widget.se, _pageController.initialPage, widget.se.seCards.cards[_pageController.initialPage][0]);
+      viewer = CardViewerBody(widget.se, _pageController.initialPage, widget.getCard(_pageController.initialPage));
 
     return Scaffold(
       appBar: AppBar(
@@ -307,12 +324,12 @@ class _CardSEViewerState extends State<CardSEViewer> {
       ),
       body: PageView.builder(
         controller: _pageController,
-        itemCount: widget.se.seCards.cards.length,
+        itemCount: widget.cardList().length,
         pageSnapping: true,
         onPageChanged: (position) {
           //printOutput("Page after change: $position");
           setState(() {
-            viewer = CardViewerBody(widget.se, position, widget.se.seCards.cards[position][0]);
+            viewer = CardViewerBody(widget.se, position, widget.getCard(position));
           });
         },
         itemBuilder: (context, position) {

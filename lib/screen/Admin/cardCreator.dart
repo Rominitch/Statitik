@@ -21,7 +21,7 @@ class CardCreator extends StatefulWidget {
   final SubExtension          se;
   final PokemonCardExtension  card;
   final int                   idCard;
-  final Function(int?)?       onAppendCard;
+  final Function(int listId, int?)?       onAppendCard;
   final List                  listRarity;
   final String                title;
 
@@ -47,7 +47,7 @@ class _CardCreatorState extends State<CardCreator> {
   List<Widget> typeExtCard = [];
   List<Widget> rarity   = [];
   List<Widget> marker   = [];
-  List<Widget> level   = [];
+  List<Widget> level    = [];
   List<Widget> longMarkerWidget = [];
   bool         _auto    = false;
 
@@ -71,19 +71,35 @@ class _CardCreatorState extends State<CardCreator> {
   void onRarityChanged(value) {
     widget.card.rarity = value;
     if(_auto)
-      widget.onAppendCard!(null);
+      widget.onAppendCard!(listChooserController.currentValue, null);
   }
 
   void computeJPCardID() {
     try {
       int idFind = 0;
-      var ancestorCard = widget.se.seCards.cards.sublist(0, widget.idCard).reversed.firstWhere((element) {
-        idFind+=1;
-        return (element[0].jpDBId != 0);
-      });
+
+      // Search list of card
+      var ancestorCard = widget.se.seCards.cards[0][0];
+      if(widget.se.seCards.cards[widget.idCard][0] == widget.card ) {
+        ancestorCard = widget.se.seCards.cards.sublist(0, widget.idCard).reversed.firstWhere((element) {
+          idFind+=1;
+          return (element[0].jpDBId != 0);
+        })[0];
+      } else if(widget.se.seCards.energyCard[widget.idCard] == widget.card ) {
+        ancestorCard = widget.se.seCards.energyCard.sublist(0, widget.idCard).reversed.firstWhere((element) {
+          idFind+=1;
+          return (element.jpDBId != 0);
+        });
+      } else if(widget.se.seCards.noNumberedCard[widget.idCard] == widget.card ) {
+        ancestorCard = widget.se.seCards.noNumberedCard.sublist(0, widget.idCard).reversed.firstWhere((element) {
+          idFind+=1;
+          return (element.jpDBId != 0);
+        });
+      }
+
       // Zero propagation or next number
-      if(ancestorCard[0].jpDBId != 0)
-        widget.card.jpDBId = ancestorCard[0].jpDBId + idFind;
+      if(ancestorCard.jpDBId != 0)
+        widget.card.jpDBId = ancestorCard.jpDBId + idFind;
     } catch(e) {
       // Nothing found !
     }
@@ -435,7 +451,7 @@ class _CardCreatorState extends State<CardCreator> {
                 child: TextButton(
                   child: Text(StatitikLocale.of(context).read('NCE_B0')),
                   onPressed: (){
-                    widget.onAppendCard!(null);
+                    widget.onAppendCard!(listChooserController.currentValue, null);
                   },
                 )
             ),

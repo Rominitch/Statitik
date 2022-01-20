@@ -546,28 +546,35 @@ Widget getDescriptionEffectWidget(DescriptionEffect de, {size}) {
 
 List<Widget?> cachedImageType = List.filled(Type.values.length, null);
 
-Widget getImageType(Type type)
+Widget getImageType(Type type, {bool generate=false, double? sizeIcon})
 {
-  if(cachedImageType[type.index] == null) {
+  var iconWidget;
+  if(generate || cachedImageType[type.index] == null) {
     switch(type) {
       case Type.Objet:
-        cachedImageType[type.index] = Icon(Icons.build, color: Colors.blueAccent,);
+        iconWidget = Icon(Icons.build, color: Colors.blueAccent, size: sizeIcon);
         break;
       case Type.Stade:
-        cachedImageType[type.index] = Icon(Icons.landscape, color: Colors.green[700]);
+        iconWidget = Icon(Icons.landscape, color: Colors.green[700], size: sizeIcon);
         break;
       case Type.Supporter:
-        cachedImageType[type.index] = Icon(Icons.accessibility_new, color: Colors.red[900]);
+        iconWidget = Icon(Icons.accessibility_new, color: Colors.red[900], size: sizeIcon);
         break;
       case Type.Energy:
-        cachedImageType[type.index] = Icon(Icons.battery_charging_full);
+        iconWidget = Icon(Icons.battery_charging_full, size: sizeIcon);
         break;
       case Type.Unknown:
-        cachedImageType[type.index] = Icon(Icons.help_outline);
+        iconWidget = Icon(Icons.help_outline, size: sizeIcon);
         break;
       default:
-        cachedImageType[type.index] = energyImage(type);
+        iconWidget = energyImage(type);
     }
+
+    if(generate)
+      return iconWidget;
+    else
+      cachedImageType[type.index] = iconWidget;
+
   }
   return cachedImageType[type.index]!;
 }

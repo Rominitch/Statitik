@@ -98,8 +98,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory()));
                 },
               )),
-              drawImagePress(context, 'Zeraora', 370.0),
-              Expanded(child: SizedBox(height: 1.0)),
+              Expanded(child: Center(child:drawImagePress(context, 'Zeraora', 370.0))),
               Padding(padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,

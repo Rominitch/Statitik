@@ -9,7 +9,6 @@ import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
 
 class OptionsPage extends StatefulWidget {
   @override
