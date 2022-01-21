@@ -160,10 +160,18 @@ class _OptionsPageState extends State<OptionsPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children:[
-                        drawImagePress(context, 'news', 40),
+                        drawImagePress(context, 'news', 35),
                         SizedBox(width: 5),
                         Text(StatitikLocale.of(context).read('NE_T0'))
                     ])
+                ),
+              )),
+              Expanded(child: Card(
+                child: TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/support');
+                    },
+                    child: Text(StatitikLocale.of(context).read('O_B4'))
                 ),
               )),
             ]
@@ -186,18 +194,6 @@ class _OptionsPageState extends State<OptionsPage> {
                     child: Text(StatitikLocale.of(context).read('O_B3'))
                 ),
               )),
-            ]
-          ),
-          Row(
-            children: [
-              Expanded(child: Card(
-                child: TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/support');
-                    },
-                    child: Text(StatitikLocale.of(context).read('O_B4'))
-                ),
-              )),
               Expanded(child: Card(
                 child: TextButton(
                     onPressed: () {
@@ -206,9 +202,8 @@ class _OptionsPageState extends State<OptionsPage> {
                     child: Text(StatitikLocale.of(context).read('O_B5'))
                 ),
               )),
-            ],
+            ]
           ),
-
         ],
       ),
     ),

@@ -134,14 +134,6 @@ class _CardCreatorState extends State<CardCreator> {
         typeExtCard.add(CustomRadio(value: element, controller: typeExtController, widget: getImageType(element)));
       });
     }
-
-    if( widget.card.data.weakness == null ) {
-      widget.card.data.weakness = EnergyValue(Type.Unknown, 0);
-    }
-    if( widget.card.data.resistance == null ) {
-      widget.card.data.resistance = EnergyValue(Type.Unknown, 0);
-    }
-
     listChooserController.currentValue = 0;
 
     selectCard();
@@ -161,6 +153,13 @@ class _CardCreatorState extends State<CardCreator> {
       });
 
       typeExtController.afterPress(widget.card.data.typeExtended != null ? widget.card.data.typeExtended! : Type.Unknown);
+    }
+
+    if( widget.card.data.weakness == null ) {
+      widget.card.data.weakness = EnergyValue(Type.Unknown, 0);
+    }
+    if( widget.card.data.resistance == null ) {
+      widget.card.data.resistance = EnergyValue(Type.Unknown, 0);
     }
 
     // Set current value

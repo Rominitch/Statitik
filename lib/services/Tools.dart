@@ -52,7 +52,7 @@ Widget drawOut(BuildContext context, SubExtension se) {
 Widget drawImagePress(BuildContext context, String image, double imgHeight) {
   if(Environment.instance.showPressImages) {
     double mediaH = MediaQuery.of(context).size.height;
-    double finalH = (mediaH / 1000 * imgHeight).clamp(40.0, imgHeight);
+    double finalH = (mediaH / 1000 * imgHeight).clamp(30.0, imgHeight);
     return drawCachedImage('press', image, height: finalH);
   } else {
     return SizedBox();
