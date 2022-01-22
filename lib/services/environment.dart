@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/services/Rarity.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/collection.dart';
@@ -253,8 +254,8 @@ class Environment
         }
     }
 
-    Future<Stats> getStats(SubExtension subExt, Product? product, int category, [int? user]) async {
-        Stats stats = new Stats(subExt: subExt);
+    Future<StatsBooster> getStats(SubExtension subExt, Product? product, int category, [int? user]) async {
+        StatsBooster stats = new StatsBooster(subExt: subExt);
         try {
             String userReq = '';
             if(user != null)

@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/services/CardEffect.dart';
+import 'package:statitikcard/services/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 
 import 'package:statitikcard/services/models.dart';

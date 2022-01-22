@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Cartes/CardViewer.dart';
 
 import 'package:statitikcard/screen/stats/stats.dart';
-import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
+import 'package:statitikcard/services/Rarity.dart';
 
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 class StatsExtensionCards extends StatefulWidget {

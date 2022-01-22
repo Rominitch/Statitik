@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:statitikcard/services/Rarity.dart';
 import 'package:statitikcard/services/models.dart';
 
 class PieChartGeneric extends StatefulWidget {
-  final Stats allStats;
+  final StatsBooster allStats;
 
   PieChartGeneric({required this.allStats});
 

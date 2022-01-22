@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/Cartes/CardViewer.dart';
+import 'package:statitikcard/services/Rarity.dart';
 
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';

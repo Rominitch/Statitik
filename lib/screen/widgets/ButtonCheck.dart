@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/Rarity.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 import 'package:statitikcard/services/models.dart';

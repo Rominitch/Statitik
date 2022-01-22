@@ -6,7 +6,7 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
 class StatsExtensionsPage extends StatefulWidget {
-  final Stats stats;
+  final StatsBooster stats;
   final StatsData data;
 
   StatsExtensionsPage({required this.stats, required this.data});
