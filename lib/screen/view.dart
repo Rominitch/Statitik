@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
+import 'package:statitikcard/screen/widgets/CustomRadio.dart';
+import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 
-Widget createLanguage(Language l, BuildContext context, Function press)
+Widget createLanguage(Language l, BuildContext context, Widget Function(BuildContext) press)
 {
   return Container(
-    child: FlatButton(
+    child: TextButton(
       child: Image(
         image: AssetImage('assets/langue/${l.image}.png'),
       ),
@@ -19,10 +23,10 @@ Widget createLanguage(Language l, BuildContext context, Function press)
 }
 
 class ExtensionButton extends StatefulWidget {
-  final Function     press;
+  final void Function()     press;
   final SubExtension subExtension;
 
-  ExtensionButton({this.subExtension, this.press});
+  ExtensionButton({required this.subExtension, required this.press});
 
   @override
   _ExtensionButtonState createState() => _ExtensionButtonState();
@@ -33,110 +37,118 @@ class _ExtensionButtonState extends State<ExtensionButton> {
   Widget build(BuildContext context) {
     return Card(
       color: Colors.grey[850],
-      child: FlatButton(
+      child: Container(
         height: 40.0,
-        minWidth: 30.0,
-        child: Environment.instance.showExtensionName
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [widget.subExtension.image(hSize: iconSize),
-                           Text(widget.subExtension.name, textAlign: TextAlign.center,)
-                          ]
-            )
-            : widget.subExtension.image(),
-        onPressed: widget.press,
+        child: TextButton(
+          style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0),
+                                      minimumSize: Size(30.0, 40.0)),
+          child: Environment.instance.showExtensionName
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [widget.subExtension.image(hSize: iconSize),
+                             Text(widget.subExtension.name, textAlign: TextAlign.center,)
+                            ]
+              )
+              : widget.subExtension.image(),
+          onPressed: widget.press,
+        ),
       ),
     );
   }
 }
 
-Widget createSubExtension(SubExtension se, BuildContext context, Function press, bool withName)
+Widget createSubExtension(SubExtension se, BuildContext context, void Function() press, bool withName)
 {
   return Card(
     color: Colors.grey[850],
-    child: FlatButton(
-      height: 40.0,
-        child: withName ? Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            se.image(),
-            SizedBox(width: 10.0),
-            Text( '${se.name}' ),
-          ])
-        : se.image(),
-        onPressed: press,
-      ),
+    child: TextButton(
+      style: TextButton.styleFrom(minimumSize: Size(0.0, 40.0)),
+      child: withName ? Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          se.image(),
+          SizedBox(width: 10.0),
+          Text( '${se.name}' ),
+        ])
+      : se.image(),
+      onPressed: press,
+    ),
   );
 }
 
-Widget createBoosterDrawTitle(BoosterDraw bd, BuildContext context, Function press, Function update) {
-  SessionDraw current = Environment.instance.currentDraw;
+Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext context, Function press, Function update) {
+  Color? color = Colors.grey[900];
+  if( bd.isFinished() ) {
+    final valid = bd.validationWorld(current.language);
+    color = (valid == Validator.Valid) ? greenValid : Colors.deepOrange;
+  }
 
   return Card(
-      color: bd.isFinished() ? greenValid : Colors.grey[900],
-      child: FlatButton(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              (bd.subExtension != null) ? bd.subExtension.image(hSize: iconSize) : Icon(Icons.add_to_photos),
-              SizedBox(height: 6.0),
-              Text('${bd.id}'),
-          ]),
-        ),
-        onPressed: () => press(context),
-        onLongPress: () {
-          if(current.productAnomaly || bd.isRandom())
-          showDialog(
-              context: context,
-              builder: (_) => new AlertDialog(
-                title: new Text(StatitikLocale.of(context).read('V_B2')),
-                actions: [
-                  Card(
-                    color: Colors.grey[700],
-                    child: FlatButton(
-                      child: Text(StatitikLocale.of(context).read('V_B3')),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        bd.resetExtensions();
-                        press(context);
-                      }
-                    ),
+    color: color,
+    child: TextButton(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            (bd.subExtension != null) ? bd.subExtension!.image(hSize: iconSize) : Icon(Icons.add_to_photos),
+            SizedBox(height: 6.0),
+            Text('${bd.id}'),
+        ]),
+      ),
+      onPressed: () => press(context),
+      onLongPress: () {
+        if(current.productAnomaly || bd.isRandom())
+        showDialog(
+          context: context,
+          builder: (_) => new AlertDialog(
+            title: new Text(StatitikLocale.of(context).read('V_B2')),
+            actions: [
+              Card(
+                color: Colors.grey[700],
+                child: TextButton(
+                  child: Text(StatitikLocale.of(context).read('V_B3')),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    bd.resetExtensions();
+                    press(context);
+                  }
+                ),
+              ),
+              if( current.productAnomaly && current.canDelete() ) Card(
+                color: Colors.red,
+                child: TextButton(
+                  child: Text(StatitikLocale.of(context).read('delete'), style: TextStyle(color: Colors.white),),
+                    onPressed: () {
+                      current.deleteBooster(bd.id-1);
+                      Navigator.of(context).pop();
+                      update();
+                    }
                   ),
-                  if( current.productAnomaly && current.canDelete() ) Card(
-                    color: Colors.red,
-                    child: FlatButton(
-                      child: Text(StatitikLocale.of(context).read('delete'), style: TextStyle(color: Colors.white),),
-                        onPressed: () {
-                          current.deleteBooster(bd.id-1);
-                          Navigator.of(context).pop();
-                          update();
-                        }
-                      ),
-                    ),
-                ],
-              )
-          );
-        },
-      )
+                ),
+            ],
+          )
+        );
+      },
+    )
   );
 }
 
 class PokemonCard extends StatefulWidget {
-  final int idCard;
-  final PokeCard card;
-  final BoosterDraw boosterDraw;
-  final Function refresh;
+  final int                  idCard;
+  final PokemonCardExtension card;
+  final BoosterDraw          boosterDraw;
+  final Function             refresh;
+  final bool                 readOnly;
 
-  PokemonCard({this.idCard, this.card, this.boosterDraw, this.refresh});
+  PokemonCard({required this.idCard, required this.card, required this.boosterDraw, required this.refresh, required this.readOnly});
 
   @override
   _PokemonCardState createState() => _PokemonCardState();
 }
 
 class _PokemonCardState extends State<PokemonCard> {
-  List<Widget> icons;
+  late List<Widget> icons;
 
   @override
   void initState() {
@@ -152,44 +164,51 @@ class _PokemonCardState extends State<PokemonCard> {
 
   @override
   Widget build(BuildContext context) {
-    CodeDraw cardValue = widget.boosterDraw.cardBin[widget.idCard];
-    int nbCard = cardValue.count();
+    List<CodeDraw> cardValues = widget.boosterDraw.cardDrawing!.draw[widget.idCard];
+    var cardValue = cardValues[0];
+    int nbCard = 0;
+    cardValues.forEach((card) { nbCard += cardValue.count(); });
     Function update = () {
       setState(() {});
       widget.refresh();
     };
 
-    return Card(
-        color: cardValue.color(),
-        child: FlatButton(
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: icons+[
-                  if( nbCard > 1)
-                    Text('${widget.boosterDraw.nameCard(widget.idCard)} ($nbCard)')
-                  else
-                    Text('${widget.boosterDraw.nameCard(widget.idCard)}')
-                ]),
-            padding: EdgeInsets.all(2.0),
-            onLongPress: () {
-              if( widget.card.hasAnotherRendering() ) {
-                setState(() {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.idCard, update, false); }
-                  );
-                  widget.refresh();
-                });
-              }
-            },
-            onPressed: () {
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: TextButton(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: icons+[
+                if( nbCard > 1)
+                  Text('${widget.boosterDraw.nameCard(widget.idCard)} ($nbCard)')
+                else
+                  Text('${widget.boosterDraw.nameCard(widget.idCard)}')
+              ]),
+          style: TextButton.styleFrom(
+            backgroundColor: cardValue.color(),
+            padding: const EdgeInsets.all(2.0)
+          ),
+          onLongPress: () {
+            // Show more info if many rendering of more cards
+            if( widget.card.hasAnotherRendering() || cardValues.length > 1 ) {
               setState(() {
-                widget.boosterDraw.toggleCard(widget.boosterDraw.cardBin[widget.idCard], widget.card.defaultMode());
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.idCard, update, false, widget.readOnly); }
+                );
                 widget.refresh();
               });
             }
-        )
+          },
+          onPressed: widget.readOnly ? null : () {
+            setState(() {
+              // WARNING: default press is always on first
+              widget.boosterDraw.toggleCard(widget.boosterDraw.cardDrawing!.draw[widget.idCard], widget.card.defaultMode());
+              widget.refresh();
+            });
+          }
+      ),
     );
   }
 }
@@ -198,8 +217,9 @@ class EnergyButton extends StatefulWidget {
   final BoosterDraw boosterDraw;
   final Type type;
   final Function refresh;
+  final bool readOnly;
 
-  EnergyButton({this.type, this.boosterDraw, this.refresh});
+  EnergyButton({required this.type, required this.boosterDraw, required this.refresh, required this.readOnly});
 
   @override
   _EnergyButtonState createState() => _EnergyButtonState();
@@ -229,48 +249,56 @@ class _EnergyButtonState extends State<EnergyButton> {
     };
 
     CodeDraw code = widget.boosterDraw.energiesBin[widget.type.index];
-    return Card(
-      child: FlatButton(
-        color: code.color(),
-        minWidth: 20.0,
-        child: energyImage(widget.type),
-        onPressed: () {
-          setState(() {
-            widget.boosterDraw.toggleCard(code, Mode.Normal);
-            widget.boosterDraw.onEnergyChanged.add(true);
-          });
-        },
-        onLongPress: () {
-          setState(() {
-            showDialog(
-                context: context,
-                builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.type.index, update, true); }
-            ).whenComplete(()  {
-              setState(() {
-                widget.boosterDraw.onEnergyChanged.add(true);
-                widget.refresh();
+    return Container(
+        constraints: BoxConstraints(
+          maxWidth: 55.0,
+        ),
+        padding: EdgeInsets.all(2.0),
+        child: TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: code.color(),
+          ),
+          child: energyImage(widget.type),
+          onPressed: () {
+            setState(() {
+              widget.boosterDraw.toggleCard([code], Mode.Normal);
+              widget.boosterDraw.onEnergyChanged.add(true);
+            });
+          },
+          onLongPress: () {
+            setState(() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.type.index, update, true, widget.readOnly); }
+              ).whenComplete(()  {
+                setState(() {
+                  widget.boosterDraw.onEnergyChanged.add(true);
+                  widget.refresh();
+                });
               });
             });
-          });
-        },
-      ),
+          },
+        ),
     );
   }
 }
 
-Widget signInButton(Function press, BuildContext context) {
+Widget signInButton(String nameId, CredentialMode mode, Function(String?) press, BuildContext context) {
   return  Card(
-    child: FlatButton(
+    child: TextButton(
         onPressed: () {
-          // Login
-          Environment.instance.login(0).then((result) {
-              press(result);
-          });
+          try {
+            // Login
+            Environment.instance.login(mode, context, press);
+          }
+          catch (e) {
+
+          }
         },
         child:Padding(
           padding: const EdgeInsets.only(left: 10),
           child: Text(
-            StatitikLocale.of(context).read('V_B5'),
+            StatitikLocale.of(context).read(nameId),
             style: TextStyle(
               fontSize: 20,
               color: Colors.grey,
@@ -282,24 +310,24 @@ Widget signInButton(Function press, BuildContext context) {
 }
 
 Widget signOutButton(Function press, context) {
-  return  Card(
-    child: FlatButton(
-        onPressed: () {
-          Environment.instance.credential.signOutGoogle().then((result) {
-            press();
-          });
-        },
-        child:Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Text(
-            StatitikLocale.of(context).read('deconnexion'),
-            style: TextStyle(
-              fontSize: 20,
-              color: Colors.grey,
-            ),
-          ),
-        )
-    ),
+  return TextButton(
+      style: TextButton.styleFrom(
+        backgroundColor: Theme.of(context).primaryColor, // background
+      ),
+    onPressed: () {
+      Environment.instance.credential.signOutGoogle().then((result) {
+        press();
+      });
+    },
+    child:Padding(
+      padding: const EdgeInsets.only(left: 10),
+      child: Text(
+        StatitikLocale.of(context).read('deconnexion'),
+        style: TextStyle(
+          fontSize: 20,
+        ),
+      ),
+    )
   );
 }
 
@@ -340,4 +368,88 @@ RichText textBullet(text) {
       ],
     ),
   );
+}
+
+String categoryName(BuildContext context, int id) {
+  try {
+    return (id == -1) ? StatitikLocale.of(context).read('S_B9') : StatitikLocale.of(context).read('CAT_$id');
+  } catch (e) {
+    return StatitikLocale.of(context).read('error');
+  }
+}
+
+List<Widget> createRegionsWidget(context, regionController, Language language) {
+  List<Widget> regionsWidget = [];
+
+  // No region item
+  regionsWidget.add(CustomRadio(value: null, controller: regionController,
+      widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Flexible(child: Center(child: Text(
+              StatitikLocale.of(context).read('REG_0'),
+              style: TextStyle(fontSize: 9),)))
+          ])
+    )
+  );
+
+  // parse region
+  Environment.instance.collection.regions.values.forEach((region) {
+    regionsWidget.add(CustomRadio(value: region, controller: regionController,
+        widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(child: Center(child: Text(
+                region.name(language),
+                style: TextStyle(fontSize: 9),)))
+            ])
+      )
+    );
+  });
+  return regionsWidget;
+}
+
+class MovingImageWidget extends StatefulWidget {
+  final Widget child;
+
+  const MovingImageWidget(this.child, {Key? key}) : super(key: key);
+
+  @override
+  _MovingImageWidgetState createState() => _MovingImageWidgetState();
+}
+
+class _MovingImageWidgetState extends State<MovingImageWidget> with SingleTickerProviderStateMixin {
+  static const double maxAngle = 0.05;
+
+  late AnimationController animationControler = AnimationController(
+      value: 0,
+      lowerBound: -maxAngle,
+      upperBound: maxAngle,
+      duration: Duration(seconds: 2),
+      reverseDuration: Duration(seconds: 2), vsync: this
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    // Go
+    animationControler.repeat(reverse: true);
+  }
+  @override
+  void dispose() {
+    Environment.instance.onInfoLoading.close();
+    animationControler.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+        animation: animationControler,
+        builder: (context, child) => Transform.rotate(
+          angle: animationControler.value,
+          child: Center(child: widget.child),
+        )
+    );
+  }
 }

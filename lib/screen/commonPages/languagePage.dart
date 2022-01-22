@@ -7,23 +7,24 @@ import 'package:statitikcard/services/environment.dart';
 
 class LanguagePage extends StatefulWidget {
   final Function afterSelected;
+  final bool addMode;
 
-  LanguagePage({this.afterSelected});
+  LanguagePage({required this.afterSelected, required this.addMode});
 
   @override
   _LanguagePageState createState() => _LanguagePageState();
 }
 
 class _LanguagePageState extends State<LanguagePage> {
-  List<Widget> widgetLanguage;
+  late List<Widget> widgetLanguage;
 
   @override
   void initState() {
     widgetLanguage = [];
-    for( Language l in Environment.instance.collection.languages)
+    for( Language l in Environment.instance.collection.languages.values)
     {
-      Function press = (ctx) {
-        return ExtensionPage(language: l, afterSelected: widget.afterSelected);
+      Widget Function(BuildContext) press = (ctx) {
+        return ExtensionPage(language: l, afterSelected: widget.afterSelected, addMode: widget.addMode);
       };
       widgetLanguage.add(createLanguage(l, context, press));
     }

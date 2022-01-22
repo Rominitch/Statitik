@@ -1,20 +1,20 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:statitikcard/services/Rarity.dart';
 import 'package:statitikcard/services/models.dart';
 
 class PieChartGeneric extends StatefulWidget {
-  final Stats allStats;
+  final StatsBooster allStats;
 
-  PieChartGeneric({this.allStats});
+  PieChartGeneric({required this.allStats});
 
   @override
   State<StatefulWidget> createState() => PieChartGenericState();
 }
 
 class PieChartGenericState extends State<PieChartGeneric> {
-  int touchedIndex;
+  int touchedIndex = -1;
   List<PieChartSectionData> sections = [];
 
   void createPie() {
@@ -70,37 +70,40 @@ class PieExtension extends StatefulWidget {
   final StatsExtension stats;
   final Visualize visu;
 
-  PieExtension({this.stats, this.visu});
+  PieExtension({required this.stats, required this.visu});
 
   @override
   _PieExtensionState createState() => _PieExtensionState();
 }
 
 class _PieExtensionState extends State<PieExtension> {
-  int touchedIndex;
+  int touchedIndex=-1;
   List<PieChartSectionData> sections = [];
 
   void createPie() {
     sections.clear();
 
-    final double ratio = 100.0 / widget.stats.subExt.cards.length;
+    bool odd=false;
+    final double ratio = 100.0 / widget.stats.subExt.seCards.cards.length;
     if( widget.visu == Visualize.Type) {
       for(var type in Type.values) {
         final isTouched = type.index == touchedIndex;
         final double radius = isTouched ? 130 : 100;
         int count = widget.stats.countByType[type.index];
         if (count > 0) {
+          var percent = count * ratio;
           sections.add(PieChartSectionData(
             color: typeColors[type.index],
             value: count.toDouble(),
-            title: ( count * ratio ).toStringAsFixed(2) + ' %',
+            title: "$count (${percent.toStringAsPrecision(2)}%)",
             radius: radius,
-            titlePositionPercentageOffset: 0.8,
+            titlePositionPercentageOffset: odd ? 0.7 : 0.4,
             titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
             badgeWidget: getImageType(type),
             badgePositionPercentageOffset: 1.15,
           )
           );
+          odd = !odd;
         }
       }
     } else {
@@ -109,17 +112,19 @@ class _PieExtensionState extends State<PieExtension> {
         final double radius = isTouched ? 130 : 100;
         int count = widget.stats.countByRarity[rarity.index];
         if (count > 0) {
+          var percent = count * ratio;
           sections.add(PieChartSectionData(
-            color: typeColors[rarity.index],
+            color: rarityColors[rarity.index],
             value: count.toDouble(),
-            title: ( count * ratio ).toStringAsFixed(2) + ' %',
+            title: "$count (${percent.toStringAsPrecision(2)}%)",
             radius: radius,
-            titlePositionPercentageOffset: 0.8,
+            titlePositionPercentageOffset: odd ? 0.75 : 0.5,
             titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
             badgeWidget: Row( mainAxisSize: MainAxisSize.min,  children: getImageRarity(rarity), ),
             badgePositionPercentageOffset: 1.15,
           )
           );
+          odd = !odd;
         }
       }
     }

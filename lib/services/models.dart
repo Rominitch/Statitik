@@ -1,23 +1,122 @@
-import 'dart:async';
 import 'dart:core';
-import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/connection.dart';
-import 'package:statitikcard/services/environment.dart';
+import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:statitikcard/services/Rarity.dart';
 
-double iconSize = 25.0;
+import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/statitik_font_icons.dart';
 
-final Color greenValid = Colors.green[500];
+const double iconSize = 25.0;
+
+final Color greenValid = Colors.green[500]!;
+
+const int minLife = 0;
+const int maxLife = 400;
+
+const int minAttackPower = 0;
+const int maxAttackPower = 400;
+
+const int minAttackEnergy = 0;
+const int maxAttackEnergy = 5;
+
+const int minRetreat = 0;
+const int maxRetreat = 5;
+
+const int minResistance = 0;
+const int maxResistance = 60;
+
+const int minWeakness = 0;
+const int maxWeakness = 5;
+
+class ByteEncoder
+{
+  static List<int> encodeInt32(int value) {
+    return <int>[
+      (value & 0xFF000000) >> 24,
+      (value & 0xFF0000) >> 16,
+      (value & 0xFF00) >> 8,
+      (value & 0xFF)
+    ];
+  }
+
+  static List<int> encodeInt16(int value) {
+    return <int>[
+      (value & 0xFF00) >> 8,
+      (value & 0xFF)
+    ];
+  }
+
+  static encodeString16(List<int> stringInfo) {
+    assert(stringInfo.length * 2 <= 255);
+    var imageCode = <int>[
+      stringInfo.length * 2, // Not more than 256
+    ];
+    stringInfo.forEach((element) {
+      assert(element < 65536);
+      imageCode += ByteEncoder.encodeInt16(element);
+    });
+    assert(imageCode[0] == imageCode.length-1);
+    return imageCode;
+  }
+}
+
+class ByteParser
+{
+  List<int> byteArray;
+  Iterator<int>  it;
+  late bool canParse;
+
+  ByteParser(this.byteArray) : it = byteArray.iterator {
+    canParse = it.moveNext();
+  }
+
+  String decodeString16() {
+    List<int> charCodes = [];
+    int length = extractInt8();
+    assert(length % 2 == 0);
+    for(int i = 0; i < length/2; i +=1) {
+      charCodes.add(extractInt16());
+    }
+    return String.fromCharCodes(charCodes);
+  }
+
+  int extractInt32() {
+    int v = it.current << 24;
+    canParse = it.moveNext();
+    v |= it.current << 16;
+    canParse = it.moveNext();
+    v |= it.current << 8;
+    canParse = it.moveNext();
+    v |= it.current;
+    canParse = it.moveNext();
+    return v;
+  }
+  int extractInt16() {
+    int v = it.current << 8;
+    canParse = it.moveNext();
+    v |= it.current;
+    canParse = it.moveNext();
+    return v;
+  }
+  int extractInt8() {
+    int v = it.current;
+    canParse = it.moveNext();
+    return v;
+  }
+}
 
 class UserPoke {
   int idDB;
-  String uid;
+  late String uid;
   bool admin = false;
 
-  UserPoke({this.idDB});
+  UserPoke({required this.idDB});
 }
 
 class Language
@@ -25,7 +124,7 @@ class Language
   int id;
   String image;
 
-  Language({this.id, this.image});
+  Language({required this.id, required this.image});
 
   AssetImage create()
   {
@@ -38,18 +137,51 @@ class Language
     height: AppBar().preferredSize.height * 0.4,
     );
   }
+
+  bool isWorld() {
+    return id != 3;
+  }
+
+  bool isJapanese() {
+    return id == 3;
+  }
 }
 
 class Extension
 {
-  int    id;
-  String name;
-  int    idLanguage;
+  int      id;
+  String   name;
+  Language language;
 
-  Extension({ this.id, this.name, this.idLanguage });
+  Extension(this.id, this.name, this.language);
 }
 
-// Fr type / rarity
+enum SerieType {
+  Normal,
+  Promo,
+  Deck,
+}
+const List<String> seTypeString = ['SE_TYPE_0', 'SE_TYPE_1', 'SE_TYPE_2'];
+
+enum Validator {
+  Valid,
+  ErrorReverse,
+  ErrorEnergy,
+  ErrorTooManyGood,
+}
+
+enum Level {
+  Base,
+  Level1,
+  Level2,
+}
+
+const List<String> levelString = ['LEVEL_0', 'LEVEL_1', 'LEVEL_2'];
+String getLevelText(context, Level element) {
+  return StatitikLocale.of(context).read(levelString[element.index]);
+}
+
+// Fr type / rarity -> NEVER CHANGED ORDER
 enum Type {
   Plante,
   Feu,
@@ -68,66 +200,15 @@ enum Type {
   Energy,
   Unknown,
 }
-enum Rarity {
-  Commune,
-  PeuCommune,
-  Rare,
-  HoloRare,
-  Magnifique,
-  Prism,
-  Chromatique,
-  ChromatiqueRare,
-  V,
-  VMax,
-  UltraRare,
-  Secret,
-  ArcEnCiel,
-  Gold,
-  Unknown,
-}
-
-List<Color> rarityColors = [Colors.green, Colors.green, Colors.green,
-  Colors.blue, Colors.blue, Colors.blue, Colors.blue, Colors.blue,
-  Colors.purple, Colors.purple, Colors.purple,
-  Colors.yellow, Colors.yellow, Colors.yellow
+const List<Type> orderedType = const[
+  Type.Unknown, Type.Plante, Type.Feu, Type.Eau, Type.Electrique, Type.Psy, Type.Combat, Type.Obscurite, Type.Metal, Type.Fee,
+  Type.Dragon, Type.Incolore, Type.Objet, Type.Supporter, Type.Stade, Type.Energy,
 ];
 
-const Map convertType =
-{
-  'P': Type.Plante,
-  'R': Type.Feu,
-  'E': Type.Eau,
-  'W': Type.Electrique,
-  'Y': Type.Psy,
-  'C': Type.Combat,
-  'O': Type.Obscurite,
-  'M': Type.Metal,
-  'I': Type.Incolore,
-  'F': Type.Fee,
-  'D': Type.Dragon,
-  'o': Type.Objet,
-  'd': Type.Supporter,
-  's': Type.Stade,
-  'e': Type.Energy,
-};
-
-const Map convertRarity =
-{
-  'c': Rarity.Commune,
-  'p': Rarity.PeuCommune,
-  'r': Rarity.Rare,
-  'H': Rarity.HoloRare,
-  'U': Rarity.UltraRare,
-  'M': Rarity.Magnifique,
-  'P': Rarity.Prism,
-  'q': Rarity.Chromatique,
-  'Q': Rarity.ChromatiqueRare,
-  'v': Rarity.V, // or GX
-  'V': Rarity.VMax,
-  'S': Rarity.Secret,
-  'A': Rarity.ArcEnCiel,
-  'G': Rarity.Gold,
-};
+bool isPokemonCard(Type type) {
+  const List<Type> notPokemon = [Type.Objet, Type.Supporter, Type.Stade, Type.Energy];
+  return !notPokemon.contains(type);
+}
 
 enum Mode {
   Normal,
@@ -135,13 +216,13 @@ enum Mode {
   Halo,
 }
 
-const Map modeImgs   = {Mode.Normal: "normal", Mode.Reverse: "reverse", Mode.Halo: "halo"};
-const Map modeNames  = {Mode.Normal: "Normal", Mode.Reverse: "Reverse", Mode.Halo: "Halo"};
+const Map modeImgs   = {Mode.Normal: "normal", Mode.Reverse: "reverse", Mode.Halo: "halo", };
+const Map modeNames  = {Mode.Normal: "SET_0", Mode.Reverse: "SET_1", Mode.Halo: "SET_2"};
 const Map modeColors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAccent, Mode.Halo: Colors.purple};
 
 const String emptyMode = '_';
 
-Map imageName = {
+const Map imageName = {
   Type.Plante: 'plante',
   Type.Feu: 'feu',
   Type.Eau: 'eau',
@@ -155,23 +236,34 @@ Map imageName = {
   Type.Dragon: 'dragon',
 };
 
+bool isPokemonType(type) {
+  return type != Type.Energy
+      && type != Type.Objet
+      && type != Type.Supporter
+      && type != Type.Stade;
+}
+
 const List<Type> energies = [Type.Plante,  Type.Feu,  Type.Eau,
   Type.Electrique,  Type.Psy,  Type.Combat,  Type.Obscurite,
   Type.Metal, Type.Fee,  Type.Dragon, Type.Incolore];
 
-List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
-  Colors.yellow, Colors.purple[600], Colors.deepOrange[800], Colors.deepPurple[900],
-  Colors.grey[400],  Colors.pinkAccent, Colors.orange, Colors.white70,
+const List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
+  Colors.yellow, Color(0xFF8E24AA), Color(0xFFD84315), Color(0xFF311B92),
+  Color(0xFF7D7D7D),  Colors.pinkAccent, Colors.orange, Colors.white70,
 ];
 
-List<Color> typeColors = energiesColors + [Colors.blue[700], Colors.red[800], Colors.greenAccent[100], Colors.yellowAccent[100]];
+const List<Color> generationColor = [
+  Colors.black, Colors.blue, Colors.red, Colors.green, Colors.brown,
+  Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal
+];
 
-List<Widget> cachedEnergies = List.filled(energies.length, null);
+List<Color> typeColors = energiesColors + [Color(0xFF1976D2), Color(0xFFC62828), Color(0xFFB9F6CA), Color(0xFFFFFF8D), Colors.black];
+
+List<Widget?> cachedEnergies = List.filled(energies.length, null);
 
 Widget energyImage(Type type) {
+  assert (type != Type.Unknown);
   if(cachedEnergies[type.index] == null) {
-    if (type == Type.Unknown)
-      cachedEnergies[type.index] = Icon(Icons.help_outline);
     if (imageName[type].isNotEmpty) {
       cachedEnergies[type.index] = Image(
         image: AssetImage('assets/energie/${imageName[type]}.png'),
@@ -179,182 +271,189 @@ Widget energyImage(Type type) {
       );
     }
   }
-  return cachedEnergies[type.index];
+  return cachedEnergies[type.index]!;
 }
 
-String typeToString(Type type) {
-  return convertType.keys.firstWhere(
-          (k) => convertType[k] == type, orElse: () => emptyMode);
+enum DescriptionEffect {
+  Unknown,          // 0
+  Attack,           // 1
+  Draw,             // 2
+  FlipCoin,         // 4
+  Poison,           // 8
+  Burn,             // 16
+  Sleep,            // 32
+  Paralyzed,        // 64
+  Search,           // 128
+  Heal,             // 256
+  Mix,              // 512
+  Confusion,        // 1024
 }
 
-List<List<Widget>> cachedImageRarity = List.filled(Rarity.values.length, null);
+String labelDescriptionEffect(BuildContext context, DescriptionEffect de) {
+  return StatitikLocale.of(context).read("STATE_${de.index}");
+}
 
-
-List<Widget> getImageRarity(Rarity rarity) {
-  if(cachedImageRarity[rarity.index] == null) {
-    //star_border
-    switch(rarity) {
-      case Rarity.Commune:
-        cachedImageRarity[rarity.index] = [Icon(Icons.circle)];
-        break;
-      case Rarity.PeuCommune:
-        cachedImageRarity[rarity.index] = [Transform.rotate(
-            angle: pi / 4.0,
-            child: Icon(Icons.stop))];
-        break;
-      case Rarity.Rare:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star)];
-        break;
-      case Rarity.Prism:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('P', style: TextStyle(fontSize: 12.0))];
-        break;
-      case Rarity.Chromatique:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('CH', style: TextStyle(fontSize: 12.0))];
-        break;
-      case Rarity.ChromatiqueRare:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star_border), Text('CH', style: TextStyle(fontSize: 12.0))];
-        break;
-      case Rarity.V:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star_border)];
-        break;
-      case Rarity.VMax:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('X', style: TextStyle(fontSize: 12.0))];
-        break;
-      case Rarity.HoloRare:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('H', style: TextStyle(fontSize: 12.0))];
-        break;
-      case Rarity.UltraRare:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('U', style: TextStyle(fontSize: 12.0))];
-        break;
-      case Rarity.Magnifique:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star), Text('M', style: TextStyle(fontSize: 12.0))];
-        break;
-      case Rarity.Secret:
-        cachedImageRarity[rarity.index] = [Icon(Icons.star_border), Text('S', style: TextStyle(fontSize: 12.0))];
-        break;
-      case Rarity.ArcEnCiel:
-        cachedImageRarity[rarity.index] = [Icon(Icons.looks)];
-        break;
-      case Rarity.Gold:
-        cachedImageRarity[rarity.index] = [Icon(Icons.local_play, color: Colors.yellow[300])];
-        break;
-      case Rarity.Unknown:
-        cachedImageRarity[rarity.index] = [Icon(Icons.help_outline)];
-        break;
-      default:
-        throw Exception("Unknown rarity: $rarity");
-    }
+Widget getDescriptionEffectWidget(DescriptionEffect de, {size}) {
+  switch(de) {
+    case DescriptionEffect.Attack:
+      return Icon(StatitikFont.font_09_attack, size: size);
+    case DescriptionEffect.Draw:
+      return Icon(StatitikFont.font_02_pioche, size: size);
+    case DescriptionEffect.FlipCoin:
+      return Icon(StatitikFont.font_03_coin, size: size);
+    case DescriptionEffect.Poison:
+      return Icon(StatitikFont.font_05_poison, size: size);
+    case DescriptionEffect.Burn:
+      return Icon(StatitikFont.font_04_burn, size: size);
+    case DescriptionEffect.Sleep:
+      return Icon(StatitikFont.font_07_sleep, size: size);
+    case DescriptionEffect.Paralyzed:
+      return Icon(StatitikFont.font_06_paralized, size: size);
+    case DescriptionEffect.Search:
+      return Icon(StatitikFont.font_08_search, size: size);
+    case DescriptionEffect.Heal:
+      return Icon(StatitikFont.font_12_heal, size: size);
+    case DescriptionEffect.Mix:
+      return Icon(StatitikFont.font_10_mix, size: size);
+    case DescriptionEffect.Confusion:
+      return Icon(StatitikFont.font_11_confusion, size: size);
+    default:
+      return Icon(Icons.help_outline, size: size);
   }
-  return cachedImageRarity[rarity.index];
 }
 
-List<Widget> cachedImageType = List.filled(Type.values.length, null);
+List<Widget?> cachedImageType = List.filled(Type.values.length, null);
 
-Widget getImageType(Type type)
+Widget getImageType(Type type, {bool generate=false, double? sizeIcon})
 {
-  if(cachedImageType[type.index] == null) {
+  var iconWidget;
+  if(generate || cachedImageType[type.index] == null) {
     switch(type) {
       case Type.Objet:
-        cachedImageType[type.index] = Icon(Icons.build);
+        iconWidget = Icon(Icons.build, color: Colors.blueAccent, size: sizeIcon);
         break;
       case Type.Stade:
-        cachedImageType[type.index] = Icon(Icons.landscape);
+        iconWidget = Icon(Icons.landscape, color: Colors.green[700], size: sizeIcon);
         break;
       case Type.Supporter:
-        cachedImageType[type.index] = Icon(Icons.accessibility_new);
+        iconWidget = Icon(Icons.accessibility_new, color: Colors.red[900], size: sizeIcon);
         break;
       case Type.Energy:
-        cachedImageType[type.index] = Icon(Icons.battery_charging_full);
+        iconWidget = Icon(Icons.battery_charging_full, size: sizeIcon);
+        break;
+      case Type.Unknown:
+        iconWidget = Icon(Icons.help_outline, size: sizeIcon);
         break;
       default:
-        cachedImageType[type.index] = energyImage(type);
+        iconWidget = energyImage(type);
     }
+
+    if(generate)
+      return iconWidget;
+    else
+      cachedImageType[type.index] = iconWidget;
+
   }
-  return cachedImageType[type.index];
+  return cachedImageType[type.index]!;
 }
 
-class PokeCard
+class MultiLanguageString {
+  List<String> _names;
+
+  MultiLanguageString(this._names){
+    assert(_names.length == 3, "MultiLanguageString Error: $_names");
+  }
+
+  String defaultName([separator='\n']) {
+    return _names.join(separator);
+  }
+
+  String name(Language l) {
+    assert(0 <= l.id-1 && l.id-1 < _names.length);
+    return _names[l.id-1];
+  }
+
+  bool search(Language? l, String searchPart) {
+    if(l != null) {
+      return name(l).toLowerCase().contains(searchPart.toLowerCase());
+    } else {
+      for( var name in _names) {
+        if( name.toLowerCase().contains(searchPart.toLowerCase()))
+          return true;
+      }
+      return false;
+    }
+  }
+}
+
+class CardTitleData
 {
-  Type   type;
-  Rarity rarity;
+  MultiLanguageString _names;
 
-  PokeCard({this.type, this.rarity});
+  CardTitleData(this._names);
 
-  bool isValid() {
-    return type!= Type.Unknown && rarity != Rarity.Unknown;
+  String fullname(Language l) {
+    return _names.name(l);
   }
 
-  List<Widget> imageRarity() {
-    return getImageRarity(rarity);
+  String defaultName([separator='\n']) {
+    return _names.defaultName(separator);
   }
 
-  Widget imageType() {
-    return getImageType(type);
+  String name(Language l) {
+    return _names.name(l);
   }
 
-  bool hasAnotherRendering() {
-    return !isValid() || rarity == Rarity.Commune || rarity == Rarity.PeuCommune || rarity == Rarity.Rare
-        || rarity == Rarity.HoloRare;
+  bool isPokemon() {
+    return false;
   }
 
-  Mode defaultMode() {
-    return rarity == Rarity.HoloRare ? Mode.Halo : Mode.Normal;
+  bool search(Language? l, String searchPart) {
+    return _names.search(l, searchPart);
+  }
+}
+
+class PokemonInfo extends CardTitleData
+{
+  int         generation;
+  int         idPokedex;
+
+  PokemonInfo(MultiLanguageString names, this.generation, this.idPokedex) :
+  super(names);
+
+  @override
+  String fullname(Language l) {
+    return name(l) + " - n°" + idPokedex.toString();
   }
 
+  @override
+  bool isPokemon() {
+    return true;
+  }
 }
 
 class SubExtension
 {
-  int    id;
-  String name;
-  String icon;
-  List<PokeCard> cards = [];
-  int    idExtension;
-  int    year;
-  bool   validCard = true;
-  int    chromatique;
+  int               id;           ///< ID into database
+  String            name;         ///< Name of extension (translate)
+  String            icon;         ///< Path to extension's icon (on Statitik card folder)
+  String            seCode;       ///< Official Se code (use into web folder and other stuff)
+  DateTime          out;
+  SubExtensionCards seCards;
+  Extension         extension;
+  SerieType         type;
+  int               cardPerBooster;
 
-  SubExtension({ this.id, this.name, this.icon, this.idExtension, this.year, this.chromatique });
+  SubExtension(this.id, this.name, this.icon, this.extension, this.out, this.seCards, this.type, this.seCode, this.cardPerBooster);
 
-  void extractCard(String code)
-  {
-      cards.clear();
-      validCard = true;
-
-      if(code.isEmpty) {
-        validCard=false;
-        // Build pre-publication: 300 card max
-        for (int i = 0; i < 300; i += 1) {
-          cards.add(PokeCard(type: Type.Unknown, rarity: Rarity.Unknown));
-        }
-      } else {
-        if (code.length % 2 == 1) {
-          throw Exception('Corrupt database code');
-        }
-
-        for (int i = 0; i < code.length; i += 2) {
-          Type t = convertType[code[i]];
-          if (t == null)
-            throw Exception(
-                'Data card list corruption: $i was found with type ${code[i]}');
-          Rarity r = convertRarity[code[i + 1]];
-          if (r == null)
-            throw Exception(
-                'Data card list corruption: $i was found with rarity ${code[i +
-                    1]}');
-          cards.add(PokeCard(type: t, rarity: r));
-        }
-      }
+  /// Show Extension image
+  Widget image({double? wSize, double? hSize}) {
+    return drawCachedImage('extensions', icon, width: wSize, height: hSize);
   }
 
-  Widget image({double wSize, double hSize})
-  {
-    return CachedNetworkImage(imageUrl: '$adresseHTML/StatitikCard/extensions/$icon.png',
-      errorWidget: (context, url, error) => Icon(Icons.help_outline),
-      placeholder: (context, url) => CircularProgressIndicator(),
-      width:  wSize,
-      height: hSize,
-    );
+  /// Get formated release date of product
+  String outDate() {
+    return DateFormat('yyyyMMdd').format(out);
   }
 }
 
@@ -363,7 +462,7 @@ class ProductBooster
   int nbBoosters;
   int nbCardsPerBooster;
 
-  ProductBooster({this.nbBoosters, this.nbCardsPerBooster});
+  ProductBooster({required this.nbBoosters, required this.nbCardsPerBooster});
 }
 
 class Product
@@ -371,10 +470,11 @@ class Product
   int idDB;
   String name;
   String imageURL;
-  Map<int,ProductBooster> boosters;
+  Map<int, ProductBooster> boosters;
   Color color;
+  int count;
 
-  Product({this.idDB, this.name, this.imageURL, this.boosters, this.color});
+  Product({required this.idDB, required this.name, required this.imageURL, required this.count, required this.boosters, required this.color});
 
   bool hasImages() {
     return imageURL.isNotEmpty;
@@ -382,11 +482,7 @@ class Product
 
   CachedNetworkImage image()
   {
-    return CachedNetworkImage(imageUrl: Environment.instance.serverImages+imageURL,
-      errorWidget: (context, url, error) => Icon(Icons.error),
-      placeholder: (context, url) => CircularProgressIndicator(),
-      height: 70,
-    );
+    return drawCachedImage('products', imageURL, height: 70);
   }
 
   int countBoosters() {
@@ -395,12 +491,12 @@ class Product
     return count;
   }
 
-  List buildBoosterDraw() {
-    List list = [];
+  List<BoosterDraw> buildBoosterDraw() {
+    var list = <BoosterDraw>[];
     int id=1;
     boosters.forEach((key, value) {
       for( int i=0; i < value.nbBoosters; i+=1) {
-        SubExtension se = key != null ? Environment.instance.collection.getSubExtensionID(key) : null;
+        SubExtension? se = Environment.instance.collection.subExtensions[key];
         list.add(new BoosterDraw(creation: se, id: id, nbCards: value.nbCardsPerBooster));
         id += 1;
       }
@@ -408,256 +504,46 @@ class Product
     return list;
   }
 
-  Future<int> countProduct() async {
-    int count=0;
-    await Environment.instance.db.transactionR((connection) async {
-      var req = await connection.query('SELECT count(idProduit) FROM `UtilisateurProduit` WHERE idProduit = $idDB;');
-      for (var row in req) {
-        count = row[0];
-      }
-    });
+  int countProduct() {
     return count;
   }
 }
 
-class CodeDraw {
-  int countNormal;
-  int countReverse;
-  int countHalo;
-
-  CodeDraw(this.countNormal, this.countReverse, this.countHalo){
-    assert(this.countNormal <= 7);
-    assert(this.countReverse <= 7);
-    assert(this.countHalo <= 7);
-  }
-
-  CodeDraw.fromInt(int code) {
-    countNormal  = code & 0x07;
-    countReverse = (code>>3) & 0x07;
-    countHalo    = (code>>6) & 0x07;
-  }
-
-  int getCountFrom(Mode mode) {
-    List<int> byMode = [countNormal, countReverse, countHalo];
-    return byMode[mode.index];
-  }
-
-  int toInt() {
-    int code = countNormal
-             + (countReverse<<3)
-             + (countHalo   <<6);
-    return code;
-  }
-  int count() {
-    return countNormal+countReverse+countHalo;
-  }
-
-  bool isEmpty() {
-    return count()==0;
-  }
-
-  Color color() {
-    return countHalo > 0
-          ? modeColors[Mode.Halo]
-          : (countReverse > 0
-              ?modeColors[Mode.Reverse]
-              : (countNormal > 0
-                 ? modeColors[Mode.Normal]
-                 : Colors.grey[900]));
-  }
-
-  void increase(Mode mode) {
-    if( mode == Mode.Normal)
-      countNormal = min(countNormal + 1, 7);
-    else if( mode == Mode.Reverse)
-      countReverse = min(countReverse + 1, 7);
-    else
-      countHalo = min(countHalo + 1, 7);
-  }
-
-  void decrease(Mode mode) {
-    if( mode == Mode.Normal)
-      countNormal = max(countNormal - 1, 0);
-    else if( mode == Mode.Reverse)
-      countReverse = max(countReverse - 1, 0);
-    else
-      countHalo = max(countHalo - 1, 0);
-  }
-}
-
-class BoosterDraw {
-  final int id;
-  final SubExtension creation;    ///< Keep product extension.
-  final int nbCards;              ///< Number of cards inside booster
-  ///
-  List<CodeDraw> energiesBin;     ///< Energy inside booster.
-  List<CodeDraw> cardBin;         ///< All card select by extension.
-  SubExtension subExtension;      ///< Current extensions.
-  int count = 0;
-  bool abnormal = false;          ///< Packaging error
-
-  // Event
-  final StreamController onEnergyChanged = new StreamController.broadcast();
-
-  BoosterDraw({this.creation, this.id, this.nbCards })
-  {
-    assert(nbCards != null);
-    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0); });
-    subExtension = creation;
-    if(hasSubExtension()) {
-      fillCard();
-    }
-  }
-  bool isRandom() {
-    return creation == null;
-  }
-
-  String nameCard(int id) {
-    if(subExtension != null && subExtension.chromatique != null) {
-      return id < subExtension.chromatique ? (id+1).toString() : 'SV' + (id-subExtension.chromatique+1).toString();
-    } else {
-      return (id + 1).toString();
-    }
-  }
-
-  void resetBooster() {
-    count    = 0;
-    abnormal = false;
-    cardBin  = null;
-    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(0,0,0); });
-  }
-
-  void resetExtensions() {
-    resetBooster();
-    cardBin  = null;
-    subExtension = null;
-  }
-
-  void fillCard() {
-      cardBin = List<CodeDraw>.generate(subExtension.cards.length, (index) { return CodeDraw(0,0,0); });
-  }
-
-  bool isFinished() {
-    return abnormal ? count >=1 : count == nbCards;
-  }
-
-  bool hasSubExtension() {
-    return subExtension != null;
-  }
-
-  bool canAdd() {
-    return abnormal ? true : count < nbCards;
-  }
-
-  int countEnergy() {
-    int count=0;
-    for( CodeDraw c in energiesBin ){
-      count += c.count();
-    }
-    return count;
-  }
-
-  void toggleCard(CodeDraw code, Mode mode) {
-    count -= code.count();
-    if(code.isEmpty()) {
-      if(canAdd()) {
-        code.countNormal  = mode==Mode.Normal  ? 1 : 0;
-        code.countReverse = mode==Mode.Reverse ? 1 : 0;
-        code.countHalo    = mode==Mode.Halo    ? 1 : 0;
-      }
-    } else {
-      code.countNormal  = 0;
-      code.countReverse = 0;
-      code.countHalo    = 0;
-    }
-    count += code.count();
-  }
-
-  void increase(CodeDraw code, Mode mode) {
-    if(canAdd()) {
-      count -= code.count();
-      code.increase(mode);
-      count += code.count();
-    }
-  }
-
-  void decrease(CodeDraw code, Mode mode) {
-    if(count > 0) {
-      count -= code.count();
-      code.decrease(mode);
-      count += code.count();
-    }
-  }
-
-  void setOtherRendering(CodeDraw code, Mode mode) {
-    if(canAdd()) {
-      count -= code.count();
-
-      code.countNormal  = mode==Mode.Normal  ? 1 : 0;
-      code.countReverse = mode==Mode.Reverse ? 1 : 0;
-      code.countHalo    = mode==Mode.Halo    ? 1 : 0;
-
-      count += code.count();
-    }
-  }
-
-  bool needReset() {
-    return true;
-  }
-
-  void revertAnomaly() {
-    resetBooster();
-    fillCard();
-  }
-
-  List buildQuery(int idAchat) {
-    // Clean code to minimal binary data
-    //Int8List bin = new Int8List(cardBin.length);
-    List<int> elements = [];
-    for(CodeDraw c in cardBin) {
-      elements.add(c.toInt());
-    }
-    while(elements.last == 0) {
-      elements.removeLast();
-    }
-
-    List<int> energyCode = [];
-    for(CodeDraw c in energiesBin) {
-      energyCode.add(c.toInt());
-    }
-    while(energyCode.last == 0) {
-      energyCode.removeLast();
-    }
-
-    return [idAchat, subExtension.id, abnormal ? 1 : 0, Int8List.fromList(energyCode), Int8List.fromList(elements)];
-  }
-}
-
-class Stats {
+class StatsBooster {
   final SubExtension subExt;
   int nbBoosters = 0;
   int cardByBooster = 0;
   int anomaly = 0;
-  List<int> count;
+  late List<List<int>> count;   /// Card count into extension list
   int totalCards = 0;
 
   // Cached
-  List<int> countByType;
-  List<int> countByRarity;
-  List<int> countByMode;
+  late List<int> countByType;
+  late List<int> countByRarity;
+  late List<int> countByMode;
 
-  List<int> countEnergy;
+  late List<int> countEnergy;
 
-  Stats({this.subExt}) {
-    count         = List<int>.filled(subExt.cards.length, 0);
+  StatsBooster({required this.subExt}) {
+    count         = List<List<int>>.generate(subExt.seCards.cards.length, (id) {
+      return List<int>.filled(subExt.seCards.cards[id].length, 0);
+    });
     countByType   = List<int>.filled(Type.values.length, 0);
     countByRarity = List<int>.filled(Rarity.values.length, 0);
     countByMode   = List<int>.filled(Mode.values.length, 0);
     countEnergy   = List<int>.filled(energies.length, 0);
   }
 
-  void addBoosterDraw(List<int> draw, List<int> energy , int anomaly) {
-    if( draw.length > subExt.cards.length)
+  bool hasEnergy() {
+    for(int e in countEnergy ) {
+      if(e > 0)
+        return true;
+    }
+    return false;
+  }
+
+  void addBoosterDraw(ExtensionDrawCards edc, List<int> energy , int anomaly) {
+    if( edc.draw.length > subExt.seCards.cards.length)
       throw StatitikException('Corruption des données de tirages');
 
     anomaly += anomaly;
@@ -666,24 +552,32 @@ class Stats {
     for(int energyI=0; energyI < energy.length; energyI +=1) {
       CodeDraw c = CodeDraw.fromInt(energy[energyI]);
       countEnergy[energyI] += c.count();
+      // Energy can be reverse
+      countByMode[Mode.Reverse.index] += c.countReverse;
+      assert((c.countHalo) == 0);
     }
 
-    for(int cardI=0; cardI < draw.length; cardI +=1) {
-      CodeDraw c = CodeDraw.fromInt(draw[cardI]);
-      int nbCard = c.count();
-      if( nbCard > 0 ) {
-        cardByBooster += nbCard;
-        if(subExt.validCard) {
-          // Count
-          countByType[subExt.cards[cardI].type.index] += nbCard;
-          countByRarity[subExt.cards[cardI].rarity.index] += nbCard;
+    int cardsId=0;
+    for(List<CodeDraw> cards in edc.draw) {
+      int cardId=0;
+      for(CodeDraw card in cards) {
+        int nbCard = card.count();
+        if( nbCard > 0 ) {
+          cardByBooster += nbCard;
+          if(subExt.seCards.isValid) {
+            // Count
+            countByType[subExt.seCards.cards[cardsId][cardId].data.type.index] += nbCard;
+            countByRarity[subExt.seCards.cards[cardsId][cardId].rarity.index]  += nbCard;
+          }
+          totalCards             += nbCard;
+          count[cardsId][cardId] += nbCard;
+          countByMode[Mode.Normal.index]      += card.countNormal;
+          countByMode[Mode.Reverse.index]     += card.countReverse;
+          countByMode[Mode.Halo.index]        += card.countHalo;
         }
-        totalCards   += nbCard;
-        count[cardI] += nbCard;
-        countByMode[Mode.Normal.index]  += c.countNormal;
-        countByMode[Mode.Reverse.index] += c.countReverse;
-        countByMode[Mode.Halo.index]    += c.countHalo;
+        cardId += 1;
       }
+      cardsId += 1;
     }
   }
 }
@@ -691,36 +585,47 @@ class Stats {
 class StatsExtension {
   final SubExtension subExt;
 
-  List<int> countByType;
-  List<int> countByRarity;
+  late List<int> countByType;
+  late List<int> countByRarity;
+  late List<Rarity> rarities;
 
-  StatsExtension({this.subExt}) {
+  StatsExtension({required this.subExt}) {
     countByType   = List<int>.filled(Type.values.length, 0);
     countByRarity = List<int>.filled(Rarity.values.length, 0);
+    rarities      = [];
 
-    for(PokeCard c in subExt.cards) {
-      countByType[c.type.index]     += 1;
-      countByRarity[c.rarity.index] += 1;
-    }
+    subExt.seCards.cards.forEach((cards) {
+      cards.forEach((c) {
+        countByType[c.data.type.index] += 1;
+        countByRarity[c.rarity.index]  += 1;
+        if(!rarities.contains(c.rarity))
+          rarities.add(c.rarity);
+      });
+    });
   }
 }
 
 class SessionDraw
 {
+  int idProduit=-1;
   Language language;
   Product product;
   bool productAnomaly=false;
-  List boosterDraws;
+  List<BoosterDraw> boosterDraws;
 
-  SessionDraw({this.product, this.language})
-  {
-    boosterDraws = product.buildBoosterDraw();
+  SessionDraw({required this.product, required this.language}):
+        boosterDraws = product.buildBoosterDraw();
+
+  void closeStream() {
+    boosterDraws.forEach((booster) {
+      booster.closeStream();
+    });
   }
 
   void addNewBooster() {
     BoosterDraw booster = boosterDraws.last;
 
-    boosterDraws.add(new BoosterDraw(creation: booster.subExtension, id: booster.id+1) );
+    boosterDraws.add(new BoosterDraw(creation: booster.subExtension, id: booster.id+1, nbCards: booster.nbCards) );
   }
 
   void deleteBooster(int id) {
@@ -730,7 +635,7 @@ class SessionDraw
     boosterDraws.removeAt(id);
     // Change Label ID
     id = 1;
-    boosterDraws.forEach((element) {element.id = id; id += 1; });
+    boosterDraws.forEach((BoosterDraw element) {element.id = id; id += 1; });
   }
 
   bool canDelete() {
@@ -752,5 +657,468 @@ class SessionDraw
     }
 
     return editedBooster || boosterDraws.length != product.countBoosters();
+  }
+}
+
+class StatsData {
+  Language?         language;
+  SubExtension?     subExt;
+  Product?          product;
+  int               category = -1;
+  StatsBooster?            stats;
+  StatsBooster?            userStats;
+  CardResults       cardStats = CardResults();
+
+  bool isValid() {
+    return language != null && subExt != null && stats != null;
+  }
+}
+
+const List<Color> regionColors = [
+  Colors.white70, Colors.blue, Colors.red, Colors.green, Colors.brown,
+  Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal
+];
+
+enum CardMarker {
+  Nothing,
+  Escouade,
+  V,
+  VMAX,
+  GX,
+  MillePoint,
+  PointFinal,
+  Turbo,
+  EX,
+  Mega,
+  Legende,
+  Restaure,
+  Ultra,
+  UltraChimere,
+  Talent,
+  PrismStar,
+  Fusion,
+  OutilsPokemon,
+  Primal,
+  TeamPlasma,
+  TeamFlare,
+  PlusDelta,
+  EvolutionDelta,
+  BarriereOmega,
+  OffensiveOmega,
+  CroissanceAlpha,
+  RegenerationAlpha,
+  CapSpe,
+  PokePower,
+  PokeBody,
+  TeamGalaxy,
+  PokemonChampion,
+  SP, //32
+  Yon, //33
+  EspeceDelta,
+  TeamRocket,
+  VSTAR,
+  VUNION, //37
+  //First Limited 24 values (Bit 3 bytes)
+  //Limited 40 values (Bit 5 bytes)
+}
+
+const List<Color> markerColors = [
+  Colors.white70, Colors.blue, Colors.red, Colors.green, Colors.brown,
+  Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal,
+  Colors.indigo, Colors.deepOrange, Colors.lime, Colors.purpleAccent,
+  Colors.greenAccent, Colors.blueGrey, Colors.deepPurple, Colors.pinkAccent,
+  Colors.lightBlue, Colors.black26, Colors.redAccent, Colors.redAccent,
+  Color(0xFF558B2F),Color(0xFF558B2F), Color(0xFFB71C1C), Color(0xFFB71C1C),
+  Color(0xFF0D47A1), Color(0xFF0D47A1), Colors.redAccent, Color(0xFFB71C1C),
+  Color(0xFF558B2F), Colors.amber, Colors.brown, Colors.deepPurpleAccent,
+  Colors.teal, Colors.lightGreen, Colors.deepPurpleAccent, Color(0xFFFFF9C4),
+  Colors.blueGrey
+];
+
+const List longMarker = [CardMarker.Escouade, CardMarker.UltraChimere, CardMarker.Talent, CardMarker.MillePoint, CardMarker.PointFinal, CardMarker.Fusion];
+
+List<Widget?> cachedMarkers = List.filled(CardMarker.values.length, null);
+Widget pokeMarker(BuildContext context, CardMarker marker, {double? height=15.0}) {
+  if( cachedMarkers[marker.index] == null ) {
+    switch(marker) {
+      case CardMarker.Escouade:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'escouade', height: height);
+      break;
+      case CardMarker.V:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'v', height: height);
+        break;
+      case CardMarker.VMAX:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'vmax', height: height);
+        break;
+      case CardMarker.GX:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'gx', height: height);
+        break;
+      case CardMarker.MillePoint:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'millepoint', height: height);
+        break;
+      case CardMarker.PointFinal:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'pointfinal', height: height);
+        break;
+      case CardMarker.Turbo:
+        var newheight = (height != null) ? height-7 : null;
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'turbo', height: newheight);
+        break;
+      case CardMarker.EX:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'ex', height: height);
+        break;
+      case CardMarker.Legende:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_0'), style: TextStyle(fontSize: 9));
+        break;
+      case CardMarker.Restaure:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_1'), style: TextStyle(fontSize: 9));
+        break;
+      case CardMarker.Mega:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_2'), style: TextStyle(fontSize: 12));
+        break;
+      case CardMarker.Ultra:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_3'), style: TextStyle(fontSize: 12));
+        break;
+      case CardMarker.UltraChimere:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'ultra-chimere', height: height);
+        break;
+      case CardMarker.Talent:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'talent', height: height);
+        break;
+      case CardMarker.PrismStar:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'prismstar', height: height);
+        break;
+      case CardMarker.Fusion:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'fusion', height: height);
+        break;
+      case CardMarker.OutilsPokemon:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_4'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.Primal:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_5'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.TeamFlare:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_6'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.PlusDelta:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_7'), style: TextStyle(fontSize: 8, color: Color(0xFF1B5E20)));
+        break;
+      case CardMarker.EvolutionDelta:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_8'), style: TextStyle(fontSize: 8, color: Color(0xFF1B5E20)));
+        break;
+      case CardMarker.BarriereOmega:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_9'), style: TextStyle(fontSize: 8, color: Color(0xFFB71C1C)));
+        break;
+      case CardMarker.OffensiveOmega:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_10'), style: TextStyle(fontSize: 8, color: Color(0xFFB71C1C)));
+        break;
+      case CardMarker.CroissanceAlpha:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_11'), style: TextStyle(fontSize: 8, color: Color(0xFF0D47A1)));
+        break;
+      case CardMarker.RegenerationAlpha:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_12'), style: TextStyle(fontSize: 8, color: Color(0xFF0D47A1)));
+        break;
+      case CardMarker.TeamPlasma:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_13'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.CapSpe:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_14'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.PokePower:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_15'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.PokeBody:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_16'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.TeamGalaxy:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'teamGalaxy', height: height);
+        break;
+      case CardMarker.PokemonChampion:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'pokeChampion', height: height);
+        break;
+      case CardMarker.SP:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'SP', height: height);
+        break;
+      case CardMarker.Yon:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_17'), style: TextStyle(fontSize: 20));
+        break;
+      case CardMarker.EspeceDelta:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_18'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.TeamRocket:
+        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_19'), style: TextStyle(fontSize: 8));
+        break;
+      case CardMarker.VSTAR:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'VSTAR', height: height);
+        break;
+      case CardMarker.VUNION:
+        cachedMarkers[marker.index] = drawCachedImage('logo', 'VUNION', height: height);
+        break;
+
+      default:
+        cachedMarkers[marker.index] = Icon(Icons.help_outline);
+    }
+  }
+  return cachedMarkers[marker.index]!;
+}
+
+class CodeNaming
+{
+  int    idStart = 0;
+  String naming = "%d";
+
+  CodeNaming([this.idStart=0, this.naming="%s"]);
+}
+
+class CardStats {
+  int count = 0;
+  Map<Region, int>             countRegion = {};
+  Map<SubExtension, List<int>> countSubExtension = {};
+  Map<CardMarker, int>         countMarker = {};
+  Map<Rarity, int>             countRarity = {};
+  Map<Type, int>               countType   = {};
+
+  bool hasData() {
+    return countSubExtension.isNotEmpty;
+  }
+
+  int nbCards() {
+    return count;
+  }
+
+  void add(SubExtension se, PokemonCardExtension card, int idCard) {
+    count += 1;
+
+    var d = card.data;
+    for(var pokemon in d.title) {
+      if(pokemon.region != null) {
+        countRegion[pokemon.region!] = countRegion[pokemon.region!] != null ? countRegion[pokemon.region!]! + 1 : 1;
+      }
+    }
+    countRarity[card.rarity] = countRarity[card.rarity] != null ? countRarity[card.rarity]! + 1 : 1;
+    countType[d.type]        = countType[d.type]        != null ? countType[d.type]!        + 1 : 1;
+    if(countSubExtension[se] != null) {
+      countSubExtension[se]!.add(idCard);
+    } else {
+      countSubExtension[se] = [idCard];
+    }
+    d.markers.markers.forEach((marker) {
+      countMarker[marker] = countMarker[marker] != null ? countMarker[marker]! + 1 : 1;
+    });
+  }
+}
+
+class TriState {
+  bool? value;
+
+  void set(bool v) {
+    if(value==null)
+      value = v;
+    else
+      value = value! | v;
+  }
+  bool isCheck() {
+    if( value == null)
+      return true;
+    return value!;
+  }
+}
+
+class CardResults {
+  static RangeValues defaultLife       = RangeValues(minLife.toDouble(), maxLife.toDouble());
+  static RangeValues defaultWeakness   = RangeValues(minWeakness.toDouble(), maxWeakness.toDouble());
+  static RangeValues defaultResistance = RangeValues(minResistance.toDouble(), maxResistance.toDouble());
+  static RangeValues defaultAttack     = RangeValues(minAttackPower.toDouble(), maxAttackPower.toDouble());
+  static RangeValues defaultEnergyAttack = RangeValues(minAttackEnergy.toDouble(), maxAttackEnergy.toDouble());
+
+  CardTitleData?  specificCard;
+  CardMarkers     filter = CardMarkers();
+  Region?         filterRegion;
+  CardStats?      stats;
+  List<Type>      types    = [];
+  List<Rarity>    rarities = [];
+
+  MultiLanguageString? effectName;
+
+  // Attack
+  Type?           attackType   = Type.Unknown;
+  RangeValues     attackEnergy = defaultEnergyAttack;
+  RangeValues     attackPower  = defaultAttack;
+  List<DescriptionEffect> effects = [];
+
+  // Pokémon card
+  RangeValues     life           = defaultLife;
+  Type            weaknessType   = Type.Unknown;
+  RangeValues     weakness       = defaultWeakness;
+  Type            resistanceType = Type.Unknown;
+  RangeValues     resistance     = defaultResistance;
+
+  bool isSelected(PokemonCardExtension card){
+    bool select = true;
+    if(specificCard != null) {
+      select = false;
+      for(var n in card.data.title) {
+        select |= (n.name == specificCard);
+      }
+    }
+    if(select && hasRegionFilter()) {
+      select = false;
+      for(var n in card.data.title) {
+        select |= (n.region == filterRegion);
+      }
+    }
+    if(select && hasMarkersFilter()) {
+      select = false;
+      filter.markers.forEach((marker) {
+        select |= card.data.markers.markers.contains(marker);
+      });
+    }
+    if(select && types.isNotEmpty) {
+      select = types.contains(card.data.type);
+    }
+    if(select && rarities.isNotEmpty) {
+      select = rarities.contains(card.rarity);
+    }
+    if(select && life != defaultLife) {
+      select = life.start.round() <= card.data.life && card.data.life <= life.end.round();
+    }
+    if(select && (resistance != defaultResistance || resistanceType != Type.Unknown)) {
+      select = card.data.resistance != null;
+      if(select) {
+        var res = card.data.resistance!;
+        if(resistanceType != Type.Unknown)
+          select = res.energy == resistanceType;
+        if(select && resistance != defaultResistance)
+          select = resistance.start.round() <= res.value && res.value <= resistance.end.round();
+      }
+    }
+    if(select && (weakness != defaultWeakness || weaknessType != Type.Unknown)) {
+      select = card.data.weakness != null;
+      if(select) {
+        var weak = card.data.weakness!;
+        if(weaknessType != Type.Unknown)
+          select = weak.energy == weaknessType;
+        if(select && weakness != defaultWeakness)
+          select = weakness.start.round() <= weak.value && weak.value <= weakness.end.round();
+      }
+    }
+
+    if(select && hasAttackFilter()) {
+      List<TriState> count = List.filled(4, TriState());
+      List<bool> checkDescriptions = List.filled(effects.length, false);
+
+      if(card.data.cardEffects.effects.isNotEmpty) {
+        // Parse each effect to find filter item at least one time.
+        //card.data.cardEffects.effects.forEach((effect) {
+        for(var effect in card.data.cardEffects.effects) {
+          if(attackType != Type.Unknown)
+            count[0].set(effect.attack.contains(attackType));
+          if(attackEnergy != defaultEnergyAttack) {
+            var attackCount = effect.attack.length;
+            count[1].set(attackEnergy.start.round() <= attackCount && attackCount <= attackEnergy.end.round());
+          }
+          if(attackPower != defaultAttack)
+            count[2].set(attackPower.start.round() <= effect.power && effect.power <= attackPower.end.round());
+          if(effects.isNotEmpty) {
+            if(effect.description != null) {
+              // Check we find at least each effect demanded (on the card).
+              int idDes = 0;
+              for (var e in effects) {
+                checkDescriptions[idDes] |=
+                    effect.description!.effects.contains(e);
+                idDes += 1;
+              }
+              // Compile all result
+              bool allCheck = true;
+              checkDescriptions.forEach((element) {
+                allCheck &= element;
+              });
+              count[3].set(allCheck);
+            } else {
+              count[3].set(false);
+            }
+          }
+        }
+        //});
+
+        // Compile final result
+        select = true;
+        for(var value in count) {
+          select &= value.isCheck();
+        }
+      } else select = false;
+    }
+    return select;
+  }
+
+  bool isSpecific() {
+    return specificCard != null;
+  }
+
+  bool isFiltered() {
+    return hasMarkersFilter() || hasRegionFilter()
+    || hasTypeRarityFilter() || hasGeneralityFilter()
+    || hasAttackFilter();
+  }
+
+  bool hasStats() {
+    return stats != null;
+  }
+
+  bool hasRegionFilter() {
+    return filterRegion != null;
+  }
+  void clearRegionFilter() {
+    filterRegion = null;
+  }
+  bool hasTypeRarityFilter() {
+    return types.isNotEmpty || rarities.isNotEmpty;
+  }
+  void clearTypeRarityFilter() {
+    types.clear();
+    rarities.clear();
+  }
+  bool hasMarkersFilter() {
+    return filter.markers.isNotEmpty;
+  }
+  void clearMarkersFilter() {
+    filter.markers.clear();
+  }
+
+  bool hasWeaknessFilter() {
+    return weaknessType != Type.Unknown
+        || weakness != defaultWeakness;
+  }
+
+  bool hasResistanceFilter() {
+    return resistanceType != Type.Unknown
+        || resistance != defaultResistance;
+  }
+
+  bool hasGeneralityFilter() {
+    return hasWeaknessFilter()
+    || hasResistanceFilter()
+    || life != defaultLife;
+  }
+
+  void clearGeneralityFilter() {
+    life           = defaultLife;
+    weaknessType   = Type.Unknown;
+    weakness       = defaultWeakness;
+    resistanceType = Type.Unknown;
+    resistance     = defaultResistance;
+  }
+
+  bool hasAttackFilter() {
+    return attackType != Type.Unknown
+        || attackEnergy != defaultEnergyAttack
+        || attackPower != defaultAttack
+        || effects.isNotEmpty;
+  }
+
+  void clearAttackFilter() {
+    attackType   = Type.Unknown;
+    attackEnergy  = defaultEnergyAttack;
+    attackPower  = defaultAttack;
+    effects.clear();
   }
 }

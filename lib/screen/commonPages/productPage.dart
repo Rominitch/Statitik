@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/product.dart';
 
 enum ProductPageMode {
   SingleSelection,
@@ -14,14 +17,14 @@ class ProductPage extends StatefulWidget {
   final Function afterSelected;
   final ProductPageMode mode;
 
-  ProductPage({ this.mode, this.language, this.subExt, this.afterSelected });
+  ProductPage({ required this.mode, required this.language, required this.subExt, required this.afterSelected });
 
   @override
   _ProductPageState createState() => _ProductPageState();
 }
 
 class _ProductPageState extends State<ProductPage> {
-  List<Widget> widgetProd;
+  List<Widget>? widgetProd;
   bool productFound = false;
 
   bool isMulti() {
@@ -29,18 +32,19 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   void setupProducts(BuildContext context) {
-    if(widgetProd != null)
-      widgetProd.clear();
+    if(widgetProd != null) {
+      widgetProd!.clear();
+    }
 
-    Environment.instance.readProducts(widget.language, widget.subExt).then((products) async {
+    readProducts(widget.language, widget.subExt, null, isMulti() ? widget.subExt : null ).then((products) {
       widgetProd = [];
       productFound = false;
 
       // All products
       if( isMulti() ) {
-        widgetProd.add(
+        widgetProd!.add(
             Card(
-              child: FlatButton(child: Row(
+              child: TextButton(child: Row(
                   children: [
                     Text(StatitikLocale.of(context).read('S_B9'), style: Theme
                         .of(context)
@@ -59,27 +63,29 @@ class _ProductPageState extends State<ProductPage> {
       }
 
       // For each product
-      for (int id = 0; id < products.length; id += 1) {
+      int count = 1;
+      for (var catProd in products) {
+        int idCategory = count;
         List<Widget> productCard = [];
 
-        for (Product prod in products[id]) {
+        for (Product prod in catProd) {
           productFound = true;
 
           String nameProduct = prod.name;
           if(isMulti()) {
-            int countP = await prod.countProduct();
+            int countP = prod.countProduct();
             // Stop and don't show
             if(countP == 0)
               continue;
 
-            nameProduct += " (" + countP.toString() + ")";
+            nameProduct += ' (${countP.toString()})';
           }
 
           bool productImage = prod.hasImages() && Environment.instance.showPressProductImages;
           productCard.add(Card(
               color: prod.color,
-              child: FlatButton(
-                padding: const EdgeInsets.all(8.0),
+              child: TextButton(
+                style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -104,14 +110,14 @@ class _ProductPageState extends State<ProductPage> {
         }
 
         if (productCard.isNotEmpty) {
-          assert(Environment.instance.collection.category.containsKey(id));
+          assert(1 <= idCategory && idCategory <= Environment.instance.collection.category);
           if(isMulti()) {
-            widgetProd.add(
+            widgetProd!.add(
                 Card(
-                  child: FlatButton(
+                  child: TextButton(
                     child: Row(
                     children: [
-                      Text(Environment.instance.collection.category[id], style: Theme
+                      Text(categoryName(context, idCategory), style: Theme
                       .of(context)
                       .textTheme
                       .headline5),
@@ -120,19 +126,19 @@ class _ProductPageState extends State<ProductPage> {
                       Icon(Icons.arrow_right_outlined)
                     ]),
                     onPressed: () {
-                      widget.afterSelected(context, widget.language, null, id);
+                      widget.afterSelected(context, widget.language, null, idCategory);
                     },
                   ),
 
                 ));
           } else {
-            widgetProd.add(
-                Text(Environment.instance.collection.category[id], style: Theme
+            widgetProd!.add(
+                Text(categoryName(context, idCategory), style: Theme
                     .of(context)
                     .textTheme
                     .headline5));
           }
-          widgetProd.add(GridView.count(
+          widgetProd!.add(GridView.count(
             crossAxisCount: 3,
             scrollDirection: Axis.vertical,
             primary: false,
@@ -140,6 +146,7 @@ class _ProductPageState extends State<ProductPage> {
             shrinkWrap: true,
           ));
         }
+        count += 1;
       }
 
       setState(() {});
@@ -159,43 +166,114 @@ class _ProductPageState extends State<ProductPage> {
               title: Container(
                 child: Row(
                   children:[
-                    Text(StatitikLocale.of(context).read('TP_T0')),
-                    SizedBox(width: 10.0),
+                    Text(StatitikLocale.of(context).read('TP_T0'), style: Theme.of(context).textTheme.headline5),
+                    SizedBox(width: 5),
                     widget.language.barIcon(),
-                    SizedBox(width: 10.0),
                     widget.subExt.image( wSize: iconSize ),
                   ],
                 ),
               ),
               actions: [
-                Card(child: FlatButton(
-                    child: Icon(Icons.help_outline,),
-                    onPressed: () {
-                      showDialog(
-                          context: context,
-                          builder: (_) => new AlertDialog(
-                            title: new Text(StatitikLocale.of(context).read('help')),
-                            content: Text( StatitikLocale.of(context).read('TP_B1'),
-                                textAlign: TextAlign.justify),
+                CircleAvatar(
+                  backgroundColor: Colors.grey[800],
+                  radius: 20,
+                  child: TextButton(
+                      child: Icon(Icons.add_photo_alternate_outlined,),
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (_) => createRequest()
+                        );
+                      },
+                  ),
+                ),
+                SizedBox(width: 5),
+                CircleAvatar(
+                    backgroundColor: Colors.grey[800],
+                    radius: 20,
+                    child: TextButton(
+                      child: Icon(Icons.help_outline,),
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (_) => new AlertDialog(
+                              title: new Text(StatitikLocale.of(context).read('help')),
+                              content: Text( StatitikLocale.of(context).read('TP_B1'),
+                                  textAlign: TextAlign.justify),
                             )
-                      );
-                    },
-                ))
+                        );
+                      },
+                  ),
+                ),
+                SizedBox(width: 5),
               ],
             ),
             body:
                 widgetProd == null
-                    ? Center( child: Text(StatitikLocale.of(context).read('loading'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
-                    : (widgetProd.isEmpty ? Center( child: Text(StatitikLocale.of(context).read('TP_B0'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
+                    ? drawLoading(context)
+                    : (widgetProd!.isEmpty ? Center( child: Text(StatitikLocale.of(context).read('TP_B0'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
                       : SingleChildScrollView(
                         padding: EdgeInsets.all(8.0),
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: widgetProd,
+                            children: widgetProd!,
                           ),
                       )
               )
+    );
+  }
+
+  AlertDialog createRequest()
+  {
+    String info="";
+    String eac="";
+    return new AlertDialog(
+      title: new Text(StatitikLocale.of(context).read('TP_B3')),
+      content: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Card(child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [Text(StatitikLocale.of(context).read('TP_B4')),
+                TextField(
+                    onChanged: (value) {
+                      info = value;
+                    }
+                ),
+              ]),
+            )),
+            Card(child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [Text(StatitikLocale.of(context).read('TP_B5')),
+                TextField(
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    eac = value;
+                  }
+                ),
+              ]),
+            )),
+          ]
+      ),
+      actions: <Widget>[
+        TextButton(
+          child: Text(StatitikLocale.of(context).read('confirm')),
+          onPressed: () {
+            if(info.isNotEmpty) {
+              Environment.instance.sendRequestProduct(info, eac).then((value) => Navigator.of(context).pop());
+            }
+          },
+        ),
+        TextButton(
+          child: Text(StatitikLocale.of(context).read('cancel')),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
     );
   }
 }

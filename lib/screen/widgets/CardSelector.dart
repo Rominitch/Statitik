@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 
@@ -6,16 +8,17 @@ class CardSelector extends StatefulWidget {
   final BoosterDraw boosterDraw;
   final int      id;
   final Function refresh;
-  final bool isEnergy;
+  final bool     isEnergy;
+  final bool     readOnly;
 
-  CardSelector(this.boosterDraw, this.id, this.refresh, this.isEnergy);
+  CardSelector(this.boosterDraw, this.id, this.refresh, this.isEnergy, this.readOnly);
 
   @override
   _CardSelectorState createState() => _CardSelectorState();
 }
 
 class _CardSelectorState extends State<CardSelector> {
-  List<Widget> cardModes;
+  late List<Widget> cardModes;
 
   @override
   void initState() {
@@ -24,18 +27,29 @@ class _CardSelectorState extends State<CardSelector> {
       CodeDraw code = widget.boosterDraw.energiesBin[widget.id];
       cardModes =
       [
-        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh),
-        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh),
+        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
+        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
       ];
     } else {
-      PokeCard card = widget.boosterDraw.subExtension.cards[widget.id];
-      CodeDraw code = widget.boosterDraw.cardBin[widget.id];
-      cardModes =
-      [
-        if( card.rarity != Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh),
-        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh),
-        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Halo, refresh: widget.refresh),
-      ];
+      // WARNING: always work on first (migration)
+      var seCard = widget.boosterDraw.subExtension!.seCards;
+      var card = seCard.cards[widget.id][0];
+      bool forceEnable = widget.boosterDraw.abnormal || card.rarity == Rarity.Unknown;
+
+      CodeDraw code = widget.boosterDraw.cardDrawing!.draw[widget.id][0];
+      if(widget.boosterDraw.subExtension!.extension.language.isJapanese())
+        cardModes =
+        [
+          IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
+          if( forceEnable || (seCard.hasAlternativeSet() && card.rarity.index <= Rarity.JR.index)) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
+        ];
+      else
+        cardModes =
+        [
+          if( forceEnable || card.rarity != Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
+          if( forceEnable || card.rarity.index <= Rarity.HoloRare.index) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
+          if( forceEnable || card.rarity == Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Halo, refresh: widget.refresh, readOnly: widget.readOnly),
+        ];
     }
 
     super.initState();
@@ -59,15 +73,16 @@ class IconCard extends StatefulWidget {
   final CodeDraw code;
   final Function refresh;
   final Mode mode;
+  final bool readOnly;
 
-  IconCard({this.boosterDraw, this.code, this.mode, this.refresh});
+  IconCard({required this.boosterDraw, required this.code, required this.mode, required this.refresh, required this.readOnly});
 
   @override
   _IconCardState createState() => _IconCardState();
 }
 
 class _IconCardState extends State<IconCard> {
-  final Color background = Colors.grey[800];
+  final Color? background = Colors.grey[800];
 
   @override
   Widget build(BuildContext context) {
@@ -78,15 +93,15 @@ class _IconCardState extends State<IconCard> {
             children: [
               Card(
                 color: count > 0 ? modeColors[widget.mode] : background,
-                child: FlatButton(
+                child: TextButton(
                   child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [Image(image: AssetImage('assets/carte/${modeImgs[widget.mode]}.png'), width: 75.0),
                         SizedBox(height: 6.0),
-                        Text(modeNames[widget.mode]),
+                        Text(StatitikLocale.of(context).read(modeNames[widget.mode])),
                       ]),
-                  padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-                  onPressed: () {
+                  style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
+                  onPressed: widget.readOnly ? null : () {
                     widget.boosterDraw.setOtherRendering(widget.code, widget.mode);
                     Navigator.of(context).pop();
                     widget.refresh();
@@ -96,14 +111,16 @@ class _IconCardState extends State<IconCard> {
               SizedBox(width: 10),
               Column(
                 children: [
-                  RaisedButton(
-                      onPressed: () {
+                  ElevatedButton(
+                      onPressed: widget.readOnly ? null : () {
                         setState(() {
                           widget.boosterDraw.increase(widget.code, widget.mode);
                         });
                         widget.refresh();
                       },
-                      color: background,
+                      style: ElevatedButton.styleFrom(
+                        primary: background, // background
+                      ),
                       child: Container(
                         child: Text('+', style: TextStyle(fontSize: 20)),
                       )
@@ -111,14 +128,16 @@ class _IconCardState extends State<IconCard> {
                   Container(
                       child: Text('$count', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),)
                   ),
-                  RaisedButton(
-                      onPressed: () {
+                  ElevatedButton(
+                      onPressed: widget.readOnly ? null : () {
                         setState(() {
                           widget.boosterDraw.decrease(widget.code, widget.mode);
                         });
                         widget.refresh();
                       },
-                      color: background,
+                      style: ElevatedButton.styleFrom(
+                        primary: background, // background
+                      ),
                       child: Container(
                         child: Text('-', style: TextStyle(fontSize: 20)),
                       )

@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/collection.dart';
+import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 import 'package:statitikcard/services/models.dart';
@@ -17,65 +19,15 @@ class StatitikException implements Exception {
     StatitikException(this.msg);
 }
 
-class Credential
-{
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-
-    Future<void> initialize() async
-    {
-        try {
-            await Firebase.initializeApp();
-
-            // Auto login
-            var prefs = await SharedPreferences.getInstance();
-            if( prefs.getString('uid') != null ) {
-                await Environment.instance.login(1);
-            }
-        } catch(e) {
-            Environment.instance.user = null;
-        }
-    }
-
-    Future<String> signInWithGoogle() async {
-        try {
-            FirebaseAuth _auth = FirebaseAuth.instance;
-
-            final GoogleSignInAccount googleSignInAccount = await googleSignIn
-                .signIn();
-            final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount
-                .authentication;
-            final AuthCredential credential = GoogleAuthProvider.credential(
-                accessToken: googleSignInAuthentication.accessToken,
-                idToken: googleSignInAuthentication.idToken,
-            );
-
-            final UserCredential authResult = await _auth.signInWithCredential(
-                credential);
-
-            return "google-" + authResult.user.uid;
-
-        } catch(e) {
-            Environment.instance.user = null;
-        }
-        return null;
-    }
-
-    Future<void> signOutGoogle() async {
-        Environment.instance.user = null;
-        await googleSignIn.signOut();
-
-        var prefs = await SharedPreferences.getInstance();
-        prefs.remove('uid');
-    }
-}
-
 class Database
 {
-    final String version = '1.3';
+    final String version = '2.8';
     final ConnectionSettings settings = createConnection();
 
-    Future<void> transactionR(Function queries) async
+    Future<bool> transactionR(Function queries) async
     {
+        bool valid=false;
+
         MySqlConnection connection;
         try
         {
@@ -87,68 +39,16 @@ class Database
         // Execute request
         try {
             await connection.transaction(queries);
-        } catch( e ) {
-            if(local)
-                print(e.toString());
+
+            valid = true;
+        } catch( e, stacktrace ) {
+            printOutput(e.toString());
+            printOutput(stacktrace.toString());
         }
         finally {
             connection.close();
         }
-    }
-}
-
-class Collection
-{
-    List languages = [];
-    List extensions = [];
-    List subExtensions = [];
-    Map<int, String> category = {};
-
-    void clear() {
-        languages.clear();
-        extensions.clear();
-        subExtensions.clear();
-        category.clear();
-    }
-
-    void addLanguage(Language l) {
-        languages.add(l);
-    }
-
-    void addExtension(Extension e) {
-        extensions.add(e);
-    }
-    void addSubExtension(SubExtension e) {
-        subExtensions.add(e);
-    }
-
-    List getExtensions(Language language) {
-        List l = [];
-        for(Extension e in extensions) {
-            if (e.idLanguage == language.id) {
-                l.add(e);
-            }
-        }
-        return l;
-    }
-
-    List getSubExtensions(Extension e) {
-        List l = [];
-        for(SubExtension se in subExtensions) {
-            if (se.idExtension == e.id) {
-                l.add(se);
-            }
-        }
-        return l;
-    }
-
-    SubExtension getSubExtensionID(int id) {
-        for(SubExtension se in subExtensions) {
-            if (se.id == id) {
-                return se;
-            }
-        }
-        return null;
+        return valid;
     }
 }
 
@@ -158,8 +58,9 @@ class Environment
     static final Environment instance = Environment._privateConstructor();
 
     // Event
-    final StreamController<bool> onInitialize = StreamController<bool>();
+    final StreamController<bool>   onInitialize  = StreamController<bool>();
     final StreamController<String> onServerError = StreamController<String>();
+    final StreamController<String> onInfoLoading = StreamController<String>();
 
     // Manager
     Credential credential = Credential();
@@ -167,37 +68,78 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '0.5.1';
+    final String version = '1.5.2';
 
     // State
-    bool isInitialized=false;
-    bool startDB=false;
-    bool showExtensionName = false;
-    bool showPressImages = false;
+    bool isInitialized          = false;
+    bool startDB                = false;
+    bool showExtensionName      = false;
+    bool showPressImages        = false;
     bool showPressProductImages = false;
-    final String serverImages = 'https://mouca.fr/StatitikCard/products/';
+    bool showTCGImages          = false;
 
     // Cached data
     Collection collection = Collection();
 
     // Current draw
-    UserPoke user;
-    SessionDraw currentDraw;
+    UserPoke? user;
+    SessionDraw? currentDraw;
 
-    void initialize() async
+    void initialize()
     {
+        // General data control
+        assert(Rarity.values.length <= 255);
+        assert(Rarity.values.length     == rarityColors.length);
+        assert(Rarity.values.length     == orderedRarity.length);
+        assert(Type.values.length <= 255);
+        assert(Type.values.length       == orderedType.length);
+        assert(Type.values.length       == typeColors.length);
+        assert(CardMarker.values.length == markerColors.length);
+        assert(CardMarker.values.length <= 40);
+
         if(!isInitialized) {
             // Sync event
             try {
-                await Future.wait(
-                    [
-                        databaseReady(),
-                        credential.initialize(),
-                        readStaticData(),
-                    ]);
+                bool isDBReady       = false;
+                bool isDatabaseMatch = false;
+                db.transactionR( (connection) async {
+                    var info = await connection.query("SELECT * FROM `BaseInfo`");
 
-                isInitialized = true;
-                onInitialize.add(isInitialized);
+                    for (var row in info) {
+                        isDatabaseMatch = (row[0] == db.version);
+                        showPressImages        = (row[2] == 1);
+                        showPressProductImages = (row[3] == 1);
+                        showTCGImages          = (row[4] == 1);
+                    }
+                }).then( (result) {
+                    isDBReady = result;
+                }).whenComplete( () {
+                    if(!isDBReady) {
+                        throw StatitikException('DB_0');
+                    }
+                    if(!isDatabaseMatch) {
+                        throw StatitikException('DB_1');
+                    }
+                    onInfoLoading.add('LOAD_0');
+                    credential.initialize().
+                    whenComplete( () async {
+                        onInfoLoading.add('LOAD_1');
+                        readStaticData().whenComplete(() async {
+                            if (isLogged() && user!.admin) {
+                                printOutput("Admin is launched !");
+                                collection.adminReverse();
+                            }
+                            isInitialized = true;
+                            onInitialize.add(isInitialized);
+                        });
+                    });
+                }).catchError((error) {
+                    isInitialized = false;
+                    onServerError.add(error.msg);
+                }).onError((error, stackTrace) {
+                    isInitialized = false;
+                    //onServerError.add(error.msg);
+                });
             }
             on StatitikException catch(e) {
                 isInitialized = false;
@@ -214,105 +156,33 @@ class Environment
         showExtensionName = ! showExtensionName;
     }
 
-    Future<void> databaseReady() async
-    {
-        await db.transactionR( (connection) async {
-            var info = await connection.query("SELECT * FROM `BaseInfo`");
-            bool isValid = false;
-            for (var row in info) {
-                isValid = row[0] == db.version;
-                showPressImages = row[2] == 1;
-                showPressProductImages = showPressImages;
-            }
-            if(info == null || !isValid)
-                throw StatitikException('DB_1');
-        });
-    }
-
     Future<void> readStaticData() async
     {
         if(!startDB) {
+            printOutput("Clean Database");
             // Avoid reentrance
             collection.clear();
 
-            await db.transactionR( (connection) async {
-                var langues = await connection.query("SELECT * FROM `Langue`");
-                for (var row in langues) {
-                    collection.addLanguage(Language(id: row[0], image: row[1]));
-                }
-
-                var exts = await connection.query("SELECT * FROM `Extension` ORDER BY `code` DESC");
-                for (var row in exts) {
-                    collection.addExtension(Extension(id: row[0], name: row[2], idLanguage: row[1]));
-                }
-
-                var subExts = await connection.query("SELECT * FROM `SousExtension` ORDER BY `code` DESC");
-                for (var row in subExts) {
-                    SubExtension se = SubExtension(id: row[0], name: row[2], icon: row[3], idExtension: row[1], year: row[6], chromatique: row[7]);
-                    try {
-                        se.extractCard(row[4]);
-                        collection.addSubExtension(se);
-                    } catch(e) {
-                        print("Bad Subextension: ${se.name} $e");
-                    }
-                }
-
-                var catExts = await connection.query("SELECT * FROM `Categorie` ORDER BY `nom` DESC");
-                for (var row in catExts) {
-                    collection.category[row[0]-1] = row[1];
-                }
-            });
+            printOutput("Read Database");
+            await db.transactionR( collection.readStaticData );
 
             startDB = true;
         }
     }
 
-    Future<List> readProducts(Language l, SubExtension se) async
-    {
-        List produits = List<List<Product>>.generate(Environment.instance.collection.category.length, (index) { return []; });
-
-        Function fillProd = (connection, exts, color) async {
-            for (var row in exts) {
-                Map<int, ProductBooster> boosters = {};
-                var reqBoosters = await connection.query("SELECT `ProduitBooster`.`idSousExtension`, `ProduitBooster`.`nombre`, `ProduitBooster`.`carte` FROM `ProduitBooster`"
-                    " WHERE `ProduitBooster`.`idProduit` = ${row[0]}");
-                for (var row in reqBoosters) {
-                    boosters[row[0]] = ProductBooster(nbBoosters: row[1], nbCardsPerBooster: row[2]);
-                }
-                int cat = row[3]-1;
-                assert(0 <= cat && cat < produits.length);
-                produits[cat].add(Product(idDB: row[0], name: row[1], imageURL: row[2], boosters: boosters, color: color ));
-            }
-        };
-
-        await db.transactionR( (connection) async {
-            String query = "SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie` FROM `Produit`, `ProduitBooster`"
-                " WHERE `Produit`.`approuve` = 1"
-                " AND `Produit`.`idLangue` = ${l.id}"
-                " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
-                " AND `ProduitBooster`.`idSousExtension` = ${se.id}"
-                " ORDER BY `Produit`.`nom` ASC";
-            var exts = await connection.query(query);
-            await fillProd(connection, exts, Colors.grey[600]);
-
-            query ="SELECT `Produit`.`idProduit`, `Produit`.`nom`, `Produit`.`icone`, `Produit`.`idCategorie` FROM `Produit`, `ProduitBooster`"
-                " WHERE `Produit`.`approuve` = 1"
-                " AND `Produit`.`idLangue` = ${l.id}"
-                " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
-                " AND `ProduitBooster`.`idSousExtension` IS NULL"
-                " AND `Produit`.`annee` >= ${se.year}"
-                " ORDER BY `Produit`.`annee` DESC, `Produit`.`nom` ASC";
-            exts = await connection.query(query);
-            await fillProd(connection, exts, Colors.deepOrange[700]);
-        });
-        return produits;
+    Future<void> restoreAdminData() async {
+        // Reload full database to have all real data
+        Environment.instance.startDB=false;
+        Environment.instance.db = Database();
+        await Environment.instance.readStaticData();
+        Environment.instance.collection.adminReverse();
     }
 
     Future<void> registerUser(String uid) async {
         if (user == null) {
             await db.transactionR( (connection) async {
                 // Check user data exists into database
-                int idNewID;
+                int idNewID=-1;
                 var reqCountUser = await connection.query(
                     'SELECT count(`idUtilisateur`) FROM `Utilisateur`;');
                 for (var row in reqCountUser) {
@@ -326,13 +196,13 @@ class Environment
                         if(row[1] != 0)
                             throw StatitikException("Utilisateur banni pour non respect des règles.");
                         user = UserPoke(idDB: row[0]);
-                        user.admin = row[2] == 1 ? true : false;
+                        user!.admin = row[2] == 1 ? true : false;
                     }
                 } else {
                     await connection.query('INSERT INTO `Utilisateur` (idUtilisateur, identifiant, ban) VALUES ($idNewID, \'$uid\', 0);');
                     user = UserPoke(idDB: idNewID);
                 }
-                user.uid = uid;
+                user!.uid = uid;
             });
         }
     }
@@ -342,28 +212,29 @@ class Environment
             return false;
 
         try {
-            await db.transactionR( (connection) async {
-                int idAchat;
+            return await db.transactionR( (connection) async {
+                // Get new ID
+                int idAchat = 1;
                 var req = await connection.query('SELECT count(idAchat) FROM `UtilisateurProduit`;');
                 for (var row in req) {
                     idAchat = row[0] + 1;
                 }
 
-                await connection.query('INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user.idDB}, ${currentDraw.product.idDB}, ${currentDraw.productAnomaly ? 1 : 0});');
+                // Add new product
+                final queryStr = 'INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user!.idDB}, ${currentDraw!.product.idDB}, ${currentDraw!.productAnomaly ? 1 : 0})';
+                await connection.query(queryStr);
 
                 // Prepare data
-                List<List<dynamic>> draw = [];
-                for(BoosterDraw booster in currentDraw.boosterDraws) {
+                List<List<Object>> draw = [];
+                for(BoosterDraw booster in currentDraw!.boosterDraws) {
                     draw.add(booster.buildQuery(idAchat));
                 }
                 // Send data
                 await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, energieBin, cartesBin) VALUES (?, ?, ?, ?, ?);',
                                             draw);
             });
-            return true;
         } catch( e ) {
-            if(local)
-                print("Database error $e");
+            printOutput("Database error $e");
         }
         return false;
     }
@@ -374,7 +245,7 @@ class Environment
 
         try {
             await db.transactionR( (connection) async {
-                await connection.query('UPDATE `Utilisateur` SET `identifiant` = \'unregistred\' WHERE `identifiant` = \'${user.uid}\';');
+                await connection.query('UPDATE `Utilisateur` SET `identifiant` = \'unregistred\' WHERE `identifiant` = \'${user!.uid}\';');
 
                 user = null;
             });
@@ -383,8 +254,8 @@ class Environment
         }
     }
 
-    Future<Stats> getStats(SubExtension subExt, Product product, int category, [int user]) async {
-        Stats stats = new Stats(subExt: subExt);
+    Future<StatsBooster> getStats(SubExtension subExt, Product? product, int category, [int? user]) async {
+        StatsBooster stats = new StatsBooster(subExt: subExt);
         try {
             String userReq = '';
             if(user != null)
@@ -398,11 +269,11 @@ class Environment
                             'AND `UtilisateurProduit`.`idProduit` = ${product.idDB} '
                             'AND `idSousExtension` = ${subExt.id} '
                             '$userReq;';
-                } else if(category != -1) {
+                } else if(category > 0) {
                     query = 'SELECT `cartesBin`, `energieBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit`, `Produit` '
                         'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
                         'AND `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit` '
-                        'AND `Produit`.`idCategorie` = ${category+1} '
+                        'AND `Produit`.`idCategorie` = $category '
                         'AND `idSousExtension` = ${subExt.id} '
                         '$userReq;';
                 } else {
@@ -411,16 +282,24 @@ class Environment
                             'AND `idSousExtension` = ${subExt.id} '
                             '$userReq;';
                 }
+                //printOutput(query);
+
                 var req = await connection.query(query);
-                print(query);
                 for (var row in req) {
-                    stats.addBoosterDraw((row[0] as Blob).toBytes(), (row[1] as Blob).toBytes(), row[2]);
+                    try {
+                        var bytes = (row[0] as Blob).toBytes().toList();
+                        ExtensionDrawCards edc = ExtensionDrawCards.fromBytes(bytes);
+
+                        stats.addBoosterDraw(edc, (row[1] as Blob).toBytes(), row[2]);
+                    } catch(e) {
+                        printOutput("Stats extraction failure - SE=${subExt.id} : $e");
+                    }
                 }
             });
         }
         catch( e ) {
-            if( local && e is StatitikException)
-                print(e.msg);
+            if( e is StatitikException)
+                printOutput(e.msg);
         }
         return stats;
     }
@@ -430,7 +309,7 @@ class Environment
             context: context,
             applicationVersion: version,
             //applicationIcon:
-            applicationLegalese: 'Copyright (c) 2021 Rominitch',
+            applicationLegalese: 'Copyright (c) 2021 - 2022 Rominitch',
             applicationName: nameApp,
             children:[]
         );
@@ -451,32 +330,180 @@ class Environment
         return user != null;
     }
 
-    Future<String> login(int mode) async {
-        try {
-            String uid;
-            var prefs = await SharedPreferences.getInstance();
-
-            // Log system
-            if(mode==0) {
-                uid = await credential.signInWithGoogle();
+    void login(CredentialMode mode, context, Function(String?)? updateGUI) {
+        var onSuccess = (uid) {
+            //printOutput("Credential Success: "+uid);
+            SharedPreferences.getInstance().then((prefs) {
+                // Save to preferences
                 prefs.setString('uid', uid);
-            } else {
-                uid = prefs.getString('uid');
-            }
 
-            // Register and check access
-            if(uid != null) {
-                await registerUser(uid);
+                // Register and check access
+                assert(uid != null);
+                registerUser(uid).then((value) {
+                    if(updateGUI != null)
+                        updateGUI(null);
+                });
+            });
+        };
+        var onError = (message, [code]) {
+            //printOutput("Credential Error: "+message);
+            Environment.instance.user = null;
+            if(updateGUI != null)
+                updateGUI(sprintf(StatitikLocale.of(context).read(message), [code]));
+        };
+
+        try {
+            // Log system
+            if(mode==CredentialMode.Phone) {
+                credential.signInWithPhone(context, onError, onSuccess);
+            } else if(mode==CredentialMode.Google) {
+                credential.signInWithGoogle(onSuccess);
+            } else if(mode==CredentialMode.AutoLog) {
+                SharedPreferences.getInstance().then((prefs) {
+                    onSuccess(prefs.getString('uid'));
+                });
+            } else {
+                onError('LOG_3');
             }
         } catch(e) {
-            Environment.instance.user = null;
-            if( e is StatitikException) {
-                return e.msg;
-            } else {
-                return "Une erreur interne est apparue !";
-            }
+            onError('LOG_4');
         }
-        return null;
     }
 
+  Future<bool> sendRequestProduct(String info, String eac) async
+  {
+      if( !isLogged() )
+          return false;
+      try {
+          return await db.transactionR( (connection) async {
+              // Get new ID
+              int idRequest = 1;
+              var req = await connection.query('SELECT count(idDemande) FROM `Demande`;');
+              for (var row in req) {
+                  idRequest = row[0] + 1;
+              }
+
+              // Add new request
+              final queryStr = 'INSERT INTO `Demande` (idDemande, Information, EAC) VALUES (?, ?, ?)';
+
+              await connection.queryMulti(queryStr, [[idRequest, info, eac]]);
+          });
+      } catch( e ) {
+          printOutput("Database error $e");
+      }
+      return false;
+  }
+
+    Future<List<SessionDraw>> getMyDraw([bool showAll=false]) async
+    {
+        List<SessionDraw> myBooster = [];
+        if( isLogged() ) {
+            try {
+                String filteredUser = (showAll && user!.admin) ? '' : ' `UtilisateurProduit`.`idUtilisateur`= \'${user!.idDB}\' AND ';
+
+                await db.transactionR( (connection) async {
+                    String query = 'SELECT `idAchat`, `anomalie`, `Produit`.`idProduit`, `Produit`.`idLangue`, `Produit`.`nom`, `Produit`.`icone`'
+                        ' FROM `UtilisateurProduit`, `Produit`'
+                        ' WHERE $filteredUser'
+                        ' `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`'
+                        ' ORDER BY `idAchat` DESC';
+                    //printOutput(query);
+
+                    var req = await connection.query(query);
+                    for (var row in req) {
+                        Map<int, ProductBooster> boosters = {};
+                        var reqBoosters = await connection.query("SELECT `idSousExtension`, `nombre`, `carte`"
+                            " FROM `ProduitBooster`"
+                            " WHERE `idProduit` = \'${row[2]}\'");
+                        for (var rowBooster in reqBoosters) {
+                            var idBooster = rowBooster[0] == null ? 0 : rowBooster[0];
+                            boosters[idBooster] = ProductBooster(nbBoosters: rowBooster[1], nbCardsPerBooster: rowBooster[2]);
+                        }
+
+                        // Start session
+                        var p = Product(idDB: row[2], name: row[4], imageURL: row[5], count: 1, boosters: boosters, color: Colors.grey[600]!);
+                        var l = collection.languages[row[3]];
+                        var session = SessionDraw(product: p, language: l);
+                        session.idProduit = row[0];
+
+                        // Read user data
+                        var reqUserBoosters = await connection.query("SELECT `idSousExtension`, `anomalie`, `cartesBin`, `energieBin` "
+                            " FROM `TirageBooster`"
+                            " WHERE `idAchat` = \'${row[0]}\'");
+                        int id=0;
+                        for (var rowUserBooster in reqUserBoosters) {
+                            BoosterDraw booster;
+                            if(id >= session.boosterDraws.length) {
+                                session.addNewBooster();
+                            }
+                            booster = session.boosterDraws[id];
+
+                            var edc = ExtensionDrawCards.fromBytes((rowUserBooster[2] as Blob).toBytes());
+                            booster.fill(collection.subExtensions[rowUserBooster[0]], rowUserBooster[1]==1, edc, (rowUserBooster[3] as Blob).toBytes());
+
+                            id += 1;
+                        }
+                        myBooster.add(session);
+                    }
+                });
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
+        }
+        return myBooster;
+    }
+
+    Future<bool> sendCardInfo(SubExtension se) async {
+        if( isLogged() && user!.admin) {
+            try {
+                return db.transactionR( (connection) async {
+                    await collection.saveDatabaseSEC(se.seCards, connection);
+                });
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
+        }
+        return false;
+    }
+
+    Future<bool> removeOrphans(cardId) async {
+        if( isLogged() && user!.admin) {
+            try {
+                return await db.transactionR( (connection) async {
+                    await collection.removeListCards(cardId, connection);
+                });
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
+        }
+        return false;
+    }
+
+    Future<bool> removeUserProduct(draw) async {
+        if( isLogged() && user!.admin) {
+            try {
+                return await db.transactionR( (connection) async {
+                    await collection.removeUserProduct(draw, connection);
+                });
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
+        }
+        return false;
+    }
+
+    Future<int?> addNewDresseurObjectName(String name, int language) async {
+        int? id;
+        if( isLogged() && user!.admin) {
+
+            try {
+                await db.transactionR( (connection) async {
+                    id = await collection.addNewDresseurObjectName(name, language, connection);
+                });
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
+        }
+        return id;
+    }
 }

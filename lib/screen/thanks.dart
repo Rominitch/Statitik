@@ -18,7 +18,7 @@ class ThanksPage extends StatelessWidget {
             Text(StatitikLocale.of(context).read('TH_B0')),
             textBullet('Kyuubi'),
             textBullet('3l3ktr0'),
-            FlatButton(
+            TextButton(
                 onPressed: () => _launchURL('https://www.pokecardex.com'),
                 child: Center(child: Text('https://www.pokecardex.com', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)))
             ),
