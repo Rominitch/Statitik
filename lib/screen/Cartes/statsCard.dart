@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/Cartes/CardViewer.dart';
+import 'package:statitikcard/services/Marker.dart';
 import 'package:statitikcard/services/Rarity.dart';
 
 import 'package:statitikcard/services/internationalization.dart';
@@ -111,7 +112,7 @@ class _StatsCardState extends State<StatsCard> {
             Expanded(child: LinearPercentIndicator(
               lineHeight: 8.0,
               percent: ( r / count).clamp(0.0, 1.0),
-              progressColor: rarityColors[rarity.index],
+              progressColor: rarity.color,
             )),
             createCountWidget(value)
           ]));
@@ -137,11 +138,11 @@ class _StatsCardState extends State<StatsCard> {
     s.countMarker.entries.forEach((item) {
       var r = item.value.toDouble();
       markers.add( Row(
-          children: [ Container(child: pokeMarker(context, item.key, height: 15.0), alignment: Alignment.centerLeft, width: _spaceBefore),
+          children: [ Container(child: pokeMarker(widget.l, item.key, height: 15.0), alignment: Alignment.centerLeft, width: _spaceBefore),
             Expanded(child: LinearPercentIndicator(
               lineHeight: 8.0,
               percent: ( r / count).clamp(0.0, 1.0),
-              progressColor: markerColors[item.key.index],
+              progressColor: item.key.color,
             )),
             createCountWidget(item.value)
           ]));

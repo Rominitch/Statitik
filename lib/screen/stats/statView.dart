@@ -6,8 +6,8 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
+import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/Rarity.dart';
-import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
@@ -53,15 +53,15 @@ class StatsView extends StatelessWidget {
     }
 
     if( data.subExt!.seCards.isValid ) {
-      for( var rare in Rarity.values ) {
-        if(rare == Rarity.Unknown)
+      for(Rarity rare in Environment.instance.collection.rarities.values ) {
+        if(rare == unknownRarity)
           continue;
-        int sum = data.stats!.countByRarity[rare.index];
+        int sum = data.stats!.countByRarity[rare.id];
         double luck = sum.toDouble() / data.stats!.nbBoosters;
         if(luck > 0)
         {
-          double? userLuck = (data.userStats != null && data.userStats!.nbBoosters > 0) ? (data.userStats!.countByRarity[rare.index] / data.userStats!.nbBoosters) : null;
-          rarity.add( buildLine(getImageRarity(rare), sum, luck, rarityColors[rare.index], divider, userLuck) );
+          double? userLuck = (data.userStats != null && data.userStats!.nbBoosters > 0) ? (data.userStats!.countByRarity[rare.id] / data.userStats!.nbBoosters) : null;
+          rarity.add( buildLine(getImageRarity(rare), sum, luck, rare.color, divider, userLuck) );
         }
       }
 
@@ -184,9 +184,8 @@ class ProbaResult {
 }
 
 class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
-  ProbaResult base      = ProbaResult(0,0);
-  ProbaResult full      = ProbaResult(0,0);
-  ProbaResult? parallel;
+  //Map<CardSet, ProbaResult> setProba = {};
+  ProbaResult full = ProbaResult(0,0);
   bool approximated = false;
 
   @override
@@ -194,8 +193,13 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
     var statsExtension = StatsExtension(subExt: widget.data.subExt!);
 
     Map<Rarity, double> info = computeProbabilities(statsExtension, statsExtension.rarities);
+/*
+    statsExtension.allSets.forEach((set) {
+      setProba[set] = computeCompletion(statsExtension, statsExtension.rarities, info);
+    });
 
-    base = computeCompletion(statsExtension, baseSet, info);
+ */
+
     full = computeCompletion(statsExtension, statsExtension.rarities, info);
 
     super.initState();
@@ -205,17 +209,17 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
     Map<Rarity, double> info = {};
     int     countZero = 0;
     int?    minRarity;
-    Rarity  idMinRarity = Rarity.Unknown;
+    Rarity  idMinRarity = unknownRarity!;
     List<Rarity> findEmpty = [];
     int countEmpty = 0;
 
     // Compute basic info and search invalid data
     for(Rarity r in raritiesSelected) {
-      int validRarity = widget.data.stats!.countByRarity[r.index];
+      int validRarity = widget.data.stats!.countByRarity[r.id];
       if(validRarity == 0) {
         countZero += 1;
         findEmpty.add(r);
-        countEmpty += statsExtension.countByRarity[r.index];
+        countEmpty += statsExtension.countByRarity[r.id];
       } else {
         if( minRarity != null) {
           if(validRarity < minRarity) {
@@ -232,13 +236,20 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
 
     if(countZero > 0 && minRarity != null) {
       approximated = true;
-      findEmpty.add(idMinRarity);
-      countEmpty += statsExtension.countByRarity[idMinRarity.index];
-      double unityProbability = minRarity.toDouble() / countEmpty.toDouble();
+
+      // Remove one card for probability (or cut in two if only one)
+      double unityProbability = 1.0;
+      if(statsExtension.countByRarity[idMinRarity.id] == 1){
+        unityProbability = 0.5;
+        info[idMinRarity] = statsExtension.countByRarity[idMinRarity.id] / 2;
+      } else {
+        info[idMinRarity] = statsExtension.countByRarity[idMinRarity.id]-1;
+      }
+      unityProbability = unityProbability / countEmpty.toDouble();
 
       // Fill invalid data
       findEmpty.forEach((r) {
-          info[r] = unityProbability * statsExtension.countByRarity[r.index];
+          info[r] = unityProbability * statsExtension.countByRarity[r.id];
       });
     }
 /*
@@ -258,7 +269,7 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
     int mean    = 0;
 
     for(Rarity r in raritiesSelected) {
-      int nbRarity = statsExtension.countByRarity[r.index];
+      int nbRarity = statsExtension.countByRarity[r.id];
       // Filter can be more than real data
       if( nbRarity > 0) {
         double coutPerBooster = info[r]!
@@ -314,9 +325,9 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
               ]),
             SizedBox(height: 8),
             lineResult("", "", StatitikLocale.of(context).read('SCB_B1'),StatitikLocale.of(context).read('SCB_B2')),
-            lineResult(StatitikLocale.of(context).read('SCB_B3'), StatitikLocale.of(context).read('SCB_B7'), base.minimum.toString(), base.mean.toString()),
-            if(parallel != null)
-              lineResult(StatitikLocale.of(context).read('SCB_B4'), "", parallel!.minimum.toString(), parallel!.mean.toString()),
+            //lineResult(StatitikLocale.of(context).read('SCB_B3'), StatitikLocale.of(context).read('SCB_B7'), base.minimum.toString(), base.mean.toString()),
+            //if(parallel != null)
+            //  lineResult(StatitikLocale.of(context).read('SCB_B4'), "", parallel!.minimum.toString(), parallel!.mean.toString()),
             lineResult(StatitikLocale.of(context).read('SCB_B5'), StatitikLocale.of(context).read('SCB_B6'), full.minimum.toString(), full.mean.toString()),
           ],
         ),

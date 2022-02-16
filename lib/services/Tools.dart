@@ -11,16 +11,16 @@ import 'package:statitikcard/services/models.dart';
 import 'connection.dart';
 
 
-CachedNetworkImage drawCachedImage(folder, image, {double? width, double? height}){
+CachedNetworkImage drawCachedImage(folder, image, {double? width, double? height, alternativeRendering}){
   return CachedNetworkImage(
     imageUrl: '$adresseHTTPS/StatitikCard/$folder/$image.png',
     errorWidget: (context, url, error) {
       if(Environment.instance.user != null && Environment.instance.user!.admin) {
         return Tooltip(
             message: '$adresseHTTPS\r\n$image\r\n$url\r\n$error\r\n',
-            child: Icon(Icons.help_outline));
+            child: alternativeRendering ?? Icon(Icons.help_outline));
       } else {
-        return Icon(Icons.help_outline);
+        return alternativeRendering ?? Icon(Icons.help_outline);
       }
     },
     placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
@@ -90,4 +90,8 @@ Widget drawNothing(BuildContext context, String code) {
         SizedBox(height: 20),
         drawImagePress(context, 'Arrozard', 300),
       ]);
+}
+
+bool mask(int value, int mask) {
+  return value & mask == mask;
 }

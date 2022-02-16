@@ -21,7 +21,7 @@ class StatitikException implements Exception {
 
 class Database
 {
-    final String version = '2.8';
+    final String version = '2.9';
     final ConnectionSettings settings = createConnection();
 
     Future<bool> transactionR(Function queries) async
@@ -68,7 +68,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.5.2';
+    final String version = '1.6.0';
 
     // State
     bool isInitialized          = false;
@@ -88,14 +88,9 @@ class Environment
     void initialize()
     {
         // General data control
-        assert(Rarity.values.length <= 255);
-        assert(Rarity.values.length     == rarityColors.length);
-        assert(Rarity.values.length     == orderedRarity.length);
         assert(Type.values.length <= 255);
         assert(Type.values.length       == orderedType.length);
         assert(Type.values.length       == typeColors.length);
-        assert(CardMarker.values.length == markerColors.length);
-        assert(CardMarker.values.length <= 40);
 
         if(!isInitialized) {
             // Sync event
@@ -184,7 +179,7 @@ class Environment
                 // Check user data exists into database
                 int idNewID=-1;
                 var reqCountUser = await connection.query(
-                    'SELECT count(`idUtilisateur`) FROM `Utilisateur`;');
+                    'SELECT MAX(`idUtilisateur`) FROM `Utilisateur`;');
                 for (var row in reqCountUser) {
                     idNewID = row[0] + 1;
                 }
@@ -215,7 +210,7 @@ class Environment
             return await db.transactionR( (connection) async {
                 // Get new ID
                 int idAchat = 1;
-                var req = await connection.query('SELECT count(idAchat) FROM `UtilisateurProduit`;');
+                var req = await connection.query('SELECT MAX(idAchat) FROM `UtilisateurProduit`;');
                 for (var row in req) {
                     idAchat = row[0] + 1;
                 }
@@ -378,7 +373,7 @@ class Environment
           return await db.transactionR( (connection) async {
               // Get new ID
               int idRequest = 1;
-              var req = await connection.query('SELECT count(idDemande) FROM `Demande`;');
+              var req = await connection.query('SELECT MAX(idDemande) FROM `Demande`;');
               for (var row in req) {
                   idRequest = row[0] + 1;
               }

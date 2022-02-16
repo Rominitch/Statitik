@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models.dart';
 
 class PieChartGeneric extends StatefulWidget {
@@ -107,14 +108,14 @@ class _PieExtensionState extends State<PieExtension> {
         }
       }
     } else {
-      for(var rarity in Rarity.values) {
-        final isTouched = rarity.index == touchedIndex;
+      for(Rarity rarity in Environment.instance.collection.rarities.values) {
+        final isTouched = rarity.id == touchedIndex;
         final double radius = isTouched ? 130 : 100;
-        int count = widget.stats.countByRarity[rarity.index];
+        int count = widget.stats.countByRarity[rarity.id];
         if (count > 0) {
           var percent = count * ratio;
           sections.add(PieChartSectionData(
-            color: rarityColors[rarity.index],
+            color: rarity.color,
             value: count.toDouble(),
             title: "$count (${percent.toStringAsPrecision(2)}%)",
             radius: radius,

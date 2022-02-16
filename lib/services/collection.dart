@@ -1,7 +1,11 @@
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:statitikcard/services/CardEffect.dart';
+import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/Marker.dart';
+import 'package:statitikcard/services/Rarity.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
@@ -17,6 +21,7 @@ class Collection
 {
   bool migration = false;
   Map languages = {};
+  Map sets = {};
   Map extensions = {};
   Map subExtensions = {};
   Map cardsExtensions = {};
@@ -29,18 +34,24 @@ class Collection
   Map illustrators = {};
   Map descriptions = {};
   Map effects      = {};
+  Map rarities     = {};
+  Map markers      = {};
 
   // Admin part
-  Map rIllustrators = {};
-  Map rRegions     = {};
-  Map rPokemonCards= {};
-  Map rFormes      = {};
-  Map rPokemon     = {};
-  Map rOther       = {};
+  Map rIllustrators    = {};
+  Map rRegions         = {};
+  Map rPokemonCards    = {};
+  Map rFormes          = {};
+  Map rPokemon         = {};
+  Map rOther           = {};
   Map rCardsExtensions = {};
+  Map rSets            = {};
+  Map rRarities        = {};
+  Map rMarkers         = {};
 
   void clear() {
     languages.clear();
+    sets.clear();
     extensions.clear();
     subExtensions.clear();
     cardsExtensions.clear();
@@ -49,6 +60,8 @@ class Collection
     formes.clear();
     illustrators.clear();
     pokemonCards.clear();
+    rarities.clear();
+    markers.clear();
     category=0;
   }
 
@@ -87,11 +100,75 @@ class Collection
 
   Future<void> readStaticData(connection) async
   {
-      var langues = await connection.query("SELECT * FROM `Langue`");
-      for (var row in langues) {
+      var languagesReq = await connection.query("SELECT * FROM `Langue`");
+      for (var row in languagesReq) {
         languages[row[0]] = Language(id: row[0], image: row[1]);
       }
       assert(languages.isNotEmpty);
+
+      var setResult = await connection.query("SELECT * FROM `Set`");
+      for (var row in setResult) {
+        try {
+          sets[row[0]] = CardSet(MultiLanguageString([row[1] ?? "", row[2] ?? "", row[3] ?? ""]));
+        } catch(e) {
+          printOutput("Bad Set: ${row[0]} $e");
+        }
+      }
+      assert(sets.isNotEmpty);
+
+      var rarityResult = await connection.query("SELECT * FROM `Rarete` ORDER BY `order` ASC");
+      for (var row in rarityResult) {
+        try {
+          // Build
+          var rarity;
+          if(row[1] != null)
+            rarity = Rarity.fromIcon(row[0], row[1], row[2] ?? "", Color(row[6]), rotate: mask(row[4], 4));
+          else if(row[2] != null)
+            rarity = Rarity.fromText(row[0], row[2], Color(row[6]));
+          else if(row[3] != null)
+            rarity = Rarity.fromImage(row[0], row[3], Color(row[6]));
+          assert(rarity != null);
+
+          // register into list
+          if(mask(row[4],1))
+            japanRarity.add(rarity);
+          else
+            worldRarity.add(rarity);
+
+          // Order
+          orderedRarity.add(rarity);
+          // Good card
+          if(mask(row[4], 8))
+            goodCard.add(rarity);
+          // Other than  reverse
+          if(mask(row[4], 2))
+            otherThanReverse.add(rarity);
+
+          // Save
+          rarities[row[0]] = rarity;
+        } catch(e) {
+          printOutput("Bad Rarity: ${row[0]} $e");
+        }
+      }
+      assert(rarities.isNotEmpty);
+      unknownRarity = rarities[28];
+
+
+      var markersResult = await connection.query("SELECT * FROM `Markers`");
+      for (var row in markersResult) {
+        try {
+          var mark = CardMarker(MultiLanguageString([row[1], row[2], row[3]]), Color(row[4]), mask(row[5], 1));
+          markers[row[0]] = mark;
+
+          // long markers
+          if( mask(row[5], 2) )
+            longMarkers.add(mark);
+        } catch(e) {
+          printOutput("Bad Marker: ${row[0]} $e");
+        }
+      }
+      assert(markers.isNotEmpty);
+      assert(markers.length <= 40); // Game over : need to change data !!
 
       var exts = await connection.query("SELECT * FROM `Extension` ORDER BY `code` DESC");
       for (var row in exts) {
@@ -208,20 +285,21 @@ class Collection
         var type       = Type.values[typeBytes[0]];
         var life       = row[4] ?? 0;
         // Extract markers
-        CardMarkers markers;
+        CardMarkers cardMarkers;
         if( row[5] != null) {
-          markers = CardMarkers.fromBytes((row[5] as Blob).toBytes().toList());
+          cardMarkers = CardMarkers.fromBytes((row[5] as Blob).toBytes().toList(), markers);
         } else {
-          markers = CardMarkers();
+          cardMarkers = CardMarkers();
         }
         var effects      = row[6] != null ? CardEffects.fromBytes((row[6] as Blob).toBytes().toList()) : null;
         var retreat      = row[7] != null ? (row[7] as Blob).toBytes().toList()[0] : 0;
         var weakness     = row[8] != null ? EnergyValue.fromBytes((row[8] as Blob).toBytes().toList()) : null;
         var resistance   = row[9] != null ? EnergyValue.fromBytes((row[9] as Blob).toBytes().toList()) : null;
         var illustrator  = row[10] != null ? illustrators[row[10]]: null;
+        var design       = Design.values[row[11]];
 
         //Build card
-        PokemonCardData p = PokemonCardData(namePokemons, level, type, markers, life, retreat, resistance, weakness);
+        PokemonCardData p = PokemonCardData(namePokemons, level, type, cardMarkers, design, life, retreat, resistance, weakness);
         //Extract typeExtended (for double energy card)
         if(typeBytes.length > 1) {
           p.typeExtended = Type.values[typeBytes[1]];
@@ -262,7 +340,7 @@ class Collection
           var noNumberList = row[4] != null ? (row[4] as Blob).toBytes().toList() : null;
 
           cardsExtensions[row[0]] = (row[1] != null)
-              ? SubExtensionCards.build((row[1] as Blob).toBytes().toList(), codeNaming, pokemonCards, row[5], energyList, noNumberList)
+              ? SubExtensionCards.build((row[1] as Blob).toBytes().toList(), codeNaming, pokemonCards, sets, rarities, row[5], energyList, noNumberList)
               : SubExtensionCards.emptyDraw(codeNaming, row[5]);
         } catch(e) {
           printOutput("Bad SubExtensionCards: ${row[0]} $e");
@@ -297,6 +375,9 @@ class Collection
     rPokemon         = pokemons.map((k, v)        => MapEntry(v, k));
     rOther           = otherNames.map((k, v)      => MapEntry(v, k));
     rCardsExtensions = cardsExtensions.map((k, v) => MapEntry(v, k));
+    rSets            = sets.map((k, v)            => MapEntry(v, k));
+    rRarities        = rarities.map((k, v)        => MapEntry(v, k));
+    rMarkers         = markers.map((k, v)         => MapEntry(v, k));
   }
 
   Future<bool> saveDatabase(PokemonCardData card, int nextId, connection) async {
@@ -331,11 +412,15 @@ class Collection
       effects = Int8List.fromList(card.cardEffects.toBytes());
     }
 
-    List data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life, Int8List.fromList(card.markers.toBytes()), effects, retreat, weakness, resistance, idIllustrator];
+    List data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life,
+      Int8List.fromList(card.markers.toBytes(rMarkers)),
+      effects, retreat, weakness, resistance, idIllustrator, card.design.index
+    ];
+
     var query = "";
     if (idCard == null) {
       data.insert(0, nextId);
-      query = 'INSERT INTO `Cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
+      query = 'INSERT INTO `Cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
 
       // Update internal database
       pokemonCards[nextId] = card;
@@ -343,7 +428,7 @@ class Collection
     
       //printOutput("New card added at $nextId and we update internal list");
     } else {
-      query = 'UPDATE `Cartes` SET `noms` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?'
+      query = 'UPDATE `Cartes` SET `noms` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?, `design` = ?'
               ' WHERE `Cartes`.`idCartes` = $idCard';
 
       //printOutput("Update card at $idCard and we update internal list");
@@ -404,9 +489,9 @@ class Collection
         ' WHERE `CartesExtension`.`idCartesExtension` = $idSEC';
     await connection.queryMulti(query, [
       [
-        Int8List.fromList(seCards.toBytes(rPokemonCards)),
-        seCards.energyCard.isEmpty     ? null : Int8List.fromList(seCards.otherToBytes(seCards.energyCard,     rPokemonCards)),
-        seCards.noNumberedCard.isEmpty ? null : Int8List.fromList(seCards.otherToBytes(seCards.noNumberedCard, rPokemonCards))
+        Int8List.fromList(seCards.toBytes(rPokemonCards, rSets, rRarities)),
+        seCards.energyCard.isEmpty     ? null : Int8List.fromList(seCards.otherToBytes(seCards.energyCard,     rPokemonCards, rSets)),
+        seCards.noNumberedCard.isEmpty ? null : Int8List.fromList(seCards.otherToBytes(seCards.noNumberedCard, rPokemonCards, rSets))
       ]]);
   }
 

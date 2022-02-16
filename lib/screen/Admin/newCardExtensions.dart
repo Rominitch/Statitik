@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
+import 'package:statitikcard/services/Marker.dart';
 import 'package:statitikcard/services/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -24,7 +25,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   List<Widget>  _cardEnergyInfo   = [];
   List<Widget>  _cardNoNumberInfo = [];
   bool _modify = false;
-  PokemonCardExtension data = PokemonCardExtension(PokemonCardData([], Level.Base, Type.Plante, CardMarkers.from([])) , Rarity.Commune);
+  PokemonCardExtension data = PokemonCardExtension(PokemonCardData([], Level.Base, Type.Plante, CardMarkers.from([])), unknownRarity!);
 
   void updateCardList(int listId) {
     if(listId == 1)
@@ -245,9 +246,32 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     return myCards;
   }
 
+  Future<bool> backAction(BuildContext context) async {
+    if( !_modify ) {
+      Navigator.of(context).pop(true);
+    } else {
+      var exit = await showDialog(
+          context: context,
+          barrierDismissible: false, // user must tap button!
+          builder: (BuildContext context) {
+            return showExit(context);
+          });
+      if (exit) {
+        Navigator.of(context).pop(true);
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () {
+        return backAction(context);
+    },
+    child: Scaffold(
       appBar: AppBar(
         title: Container(
           child: Text(StatitikLocale.of(context).read('NCE_T0')),
@@ -255,18 +279,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back),
           onPressed: () {
-            if( !_modify ) {
-              Navigator.of(context).pop(true);
-            } else {
-              showDialog(
-                  context: context,
-                  barrierDismissible: false, // user must tap button!
-                  builder: (BuildContext context) { return showExit(context); }).then((exit)
-              {
-                if(exit)
-                  Navigator.of(context).pop(true);
-              });
-            }
+            backAction(context);
           },
         ),
         actions: [if(_modify) Card(child: TextButton(
@@ -336,6 +349,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         )
 
       )
+    )
     );
   }
 

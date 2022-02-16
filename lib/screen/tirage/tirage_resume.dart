@@ -28,6 +28,23 @@ class _ResumePageState extends State<ResumePage> {
 
     super.initState();
   }
+
+  Future<bool> backAction(BuildContext context) async {
+    if( widget._readOnly ) {
+      Navigator.of(context).pop(true);
+    } else {
+     var exit = await showDialog(
+          context: context,
+          barrierDismissible: false, // user must tap button!
+          builder: (BuildContext context) { return showExit(context); });
+      if(exit)
+        Navigator.of(context).pop(true);
+      else
+        return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     Function update = () { setState(() {}); };
@@ -151,25 +168,16 @@ class _ResumePageState extends State<ResumePage> {
       );
     }
 
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () { return backAction(context); },
+      child: Scaffold(
       appBar: AppBar(
         title: Text(widget._activeSession.product.name, style: TextStyle(fontSize: 15)),
         actions: actions,
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back),
           onPressed: () {
-            if( widget._readOnly ) {
-              Navigator.of(context).pop(true);
-            } else {
-              showDialog(
-                context: context,
-                barrierDismissible: false, // user must tap button!
-                builder: (BuildContext context) { return showExit(context); }).then((exit)
-                  {
-                    if(exit)
-                      Navigator.of(context).pop(true);
-                  });
-            }
+            backAction(context);
           },
         ),
       ),
@@ -219,6 +227,7 @@ class _ResumePageState extends State<ResumePage> {
             ],
         ),
       ),
+      )
     );
   }
 

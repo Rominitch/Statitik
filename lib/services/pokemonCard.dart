@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/services/CardEffect.dart';
+import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/Marker.dart';
 import 'package:statitikcard/services/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 
@@ -105,69 +108,6 @@ class Illustrator {
   Illustrator(this.name);
 }
 
-class CardMarkers {
-  List<CardMarker> markers = [];
-
-  CardMarkers();
-
-  CardMarkers.from(List<CardMarker> markers) : this.markers = markers;
-
-  static const int byteLength=5;
-  CardMarkers.fromBytes(List<int> bytes) {
-    var fullcode = <int>[
-      bytes[0],
-      ((bytes[1] << 8 | bytes[2]) << 8 | bytes[3]) << 8 | bytes[4]
-    ];
-    int nextId = 33;
-    int id = 1;
-    fullcode.reversed.forEach((code) {
-      while(code > 0)
-      {
-        if((code & 0x1) == 0x1) {
-          try {
-            markers.add(CardMarker.values[id]);
-          } catch(e) {
-            printOutput("Error Marker: $id");
-          }
-        }
-        id = id+1;
-        code = code >> 1;
-      }
-      id = nextId;
-      nextId += 32;
-    });
-  }
-
-  List<int> toBytes() {
-    List<int> codeMarkers = [0, 0];
-    markers.forEach((element) {
-      if(element != CardMarker.Nothing) {
-        if(element.index < 33) {
-          codeMarkers[1] |= (1<<(element.index-1));
-        } else {
-          var multiple = element.index-33;
-          codeMarkers[0] |= (1<<(multiple));
-        }
-      }
-    });
-    return <int>[
-      codeMarkers[0] & 0xFF,
-    ]+ByteEncoder.encodeInt32(codeMarkers[1]);
-  }
-
-  void add(value) {
-    markers.add(value);
-  }
-
-  void remove(value) {
-    markers.remove(value);
-  }
-
-  bool contains(value) {
-    return markers.contains(value);
-  }
-}
-
 class EnergyValue {
   Type energy;
   int  value;
@@ -187,6 +127,28 @@ class EnergyValue {
   }
 }
 
+enum Design {
+  Basic,
+  Holographic,
+  ArcEnCiel,
+  Gold,
+}
+
+Widget icon(Design design) {
+  switch(design) {
+    case Design.Basic:
+      return Icon(Icons.article_outlined);
+    case Design.Holographic:
+      return Icon(Icons.article);
+    case Design.ArcEnCiel:
+      return Icon(Icons.looks);
+    case Design.Gold:
+      return Icon(Icons.stars_rounded);
+    default:
+      return Icon(Icons.help_outline);
+  }
+}
+
 /// Full card definition except Number/Extension/Rarity
 class PokemonCardData {
   List<Pokemon>    title;
@@ -200,8 +162,9 @@ class PokemonCardData {
   int              retreat;
   EnergyValue?     resistance;
   EnergyValue?     weakness;
+  Design           design = Design.Basic;
 
-  PokemonCardData(this.title, this.level, this.type, this.markers, [this.life=0, this.retreat=0, this.resistance, this.weakness]) {
+  PokemonCardData(this.title, this.level, this.type, this.markers, [this.design = Design.Basic, this.life=0, this.retreat=0, this.resistance, this.weakness]) {
     if( this.retreat > 5)
       this.retreat = 0;
   }
@@ -223,31 +186,38 @@ class PokemonCardExtension {
   String           image = "";
   int              jpDBId = 0;
   String           specialID = ""; /// For card without number or special (like energy, celebration card, ...)
+  List<CardSet>    sets=[];
+  bool             isSecret = false;
 
   String numberOfCard(int id) {
     return specialID.isNotEmpty ? specialID : (id + 1).toString();
   }
 
-  PokemonCardExtension(this.data, this.rarity, {this.image="", this.jpDBId=0, this.specialID=""});
+  bool hasMultiSet() {
+    return sets.length > 1;
+  }
 
-  PokemonCardExtension.fromBytesV3(ByteParser parser, Map collection) :
+  PokemonCardExtension(this.data, this.rarity, {this.image="", this.jpDBId=0, this.specialID="", this.isSecret=false});
+
+  PokemonCardExtension.fromBytesV3(ByteParser parser, Map collection, Map allSets, Map allRarities) :
     data   = collection[parser.extractInt16()],
-    rarity = Rarity.Unknown
+    rarity = unknownRarity!
   {
     try {
-      rarity = Rarity.values[parser.extractInt8()];
+      rarity = allRarities[parser.extractInt8()];
     }
     catch(e){
 
     }
+    sets.add(allSets[0]);
   }
 
-  PokemonCardExtension.fromBytesV4(ByteParser parser, Map collection) :
+  PokemonCardExtension.fromBytesV4(ByteParser parser, Map collection, Map allSets, Map allRarities) :
     data   = collection[parser.extractInt16()],
-    rarity = Rarity.Unknown
+    rarity = unknownRarity!
   {
     try {
-      rarity = Rarity.values[parser.extractInt8()];
+      rarity = allRarities[parser.extractInt8()];
     }
     catch(e){
 
@@ -255,33 +225,32 @@ class PokemonCardExtension {
     image  = parser.decodeString16();
     int otherData = parser.extractInt8();
     assert(otherData == 0); //Not used
+
+    sets.add(allSets[0]);
   }
 
-  PokemonCardExtension.fromBytesV5(ByteParser parser, Map collection) :
-        data   = collection[parser.extractInt16()],
-        rarity = Rarity.Unknown
+  PokemonCardExtension.fromBytesV5(ByteParser parser, Map collection, Map allSets, Map allRarities) :
+    data   = collection[parser.extractInt16()],
+    rarity = unknownRarity!
   {
     try {
-      rarity = Rarity.values[parser.extractInt8()];
+      rarity = allRarities[parser.extractInt8()];
     }
     catch(e){
 
     }
     image  = parser.decodeString16();
     jpDBId = parser.extractInt32();
+
+    sets.add(allSets[0]);
   }
 
-  PokemonCardExtension.fromBytes(ByteParser parser, Map collection) :
-        data   = collection[parser.extractInt16()],
-        rarity = Rarity.Unknown
+  PokemonCardExtension.fromBytesV6(ByteParser parser, Map collection, Map allSets, Map allRarities) :
+    data   = collection[parser.extractInt16()],
+    rarity = unknownRarity!
   {
-/*
-    int code = parser.extractInt16();
-    assert(collection.containsKey(code), "Impossible to find card $code into database");
-    data  = collection[code]!;
-*/
     try {
-      rarity = Rarity.values[parser.extractInt8()];
+      rarity = allRarities[parser.extractInt8()];
     }
     catch(e){
 
@@ -290,9 +259,33 @@ class PokemonCardExtension {
     image     = parser.decodeString16();
     jpDBId    = parser.extractInt32();
     specialID = parser.decodeString16();
+
+    sets.add(allSets[0]);
   }
 
-  List<int> toBytes(Map rCollection) {
+  PokemonCardExtension.fromBytes(ByteParser parser, Map collection, Map allSets, Map allRarities) :
+    data   = collection[parser.extractInt16()],
+    rarity = unknownRarity!
+  {
+    try {
+      rarity = allRarities[parser.extractInt8()];
+    }
+    catch(e){
+
+    }
+
+    image     = parser.decodeString16();
+    jpDBId    = parser.extractInt32();
+    specialID = parser.decodeString16();
+
+    var nbSets = parser.extractInt8();
+    for(int i = 0; i < nbSets; i +=1){
+      sets.add(allSets[parser.extractInt8()]);
+    }
+    isSecret = parser.extractInt8() == 1;
+  }
+
+  List<int> toBytes(Map rCollection, Map rSet, Map rRarity) {
     assert(rCollection.isNotEmpty); // Admin condition
 
     int idCard = rCollection[data];
@@ -300,16 +293,21 @@ class PokemonCardExtension {
 
     var imageCode    = ByteEncoder.encodeString16(image.codeUnits);
     var specialImage = ByteEncoder.encodeString16(specialID.codeUnits);
+    var setsInfo     = [sets.length];
+    for(var s in sets) {
+      setsInfo.add(rSet[s]);
+    }
 
     return ByteEncoder.encodeInt16(idCard) +
-        <int>[rarity.index] +
+        <int>[rRarity[rarity]] +
         imageCode +
         ByteEncoder.encodeInt32(jpDBId) +
-        specialImage;
+        specialImage +
+        setsInfo + <int>[isSecret ? 1 : 0];
   }
 
   bool isValid() {
-    return data.type!= Type.Unknown && rarity != Rarity.Unknown;
+    return data.type!= Type.Unknown && rarity != unknownRarity;
   }
 
   List<Widget> imageRarity() {
@@ -324,23 +322,21 @@ class PokemonCardExtension {
   }
 
   bool hasAnotherRendering() {
-    return !isValid() || rarity == Rarity.Commune || rarity == Rarity.PeuCommune || rarity == Rarity.Rare
-        || rarity == Rarity.HoloRare;
+    return !isValid() || hasMultiSet();
   }
 
   Mode defaultMode() {
-    return rarity == Rarity.HoloRare ? Mode.Halo : Mode.Normal;
+    return data.design == Design.Holographic ? Mode.Halo : Mode.Normal;
   }
 
   bool isForReport() {
-    return rarity.index >= Rarity.HoloRare.index;
+    return goodCard.contains(rarity);
   }
 
-  Widget? showImportantMarker(BuildContext context, {double? height}) {
-    var importantMarkers = [CardMarker.Escouade, CardMarker.EX, CardMarker.GX, CardMarker.V, CardMarker.VMAX];
-    for(var m in importantMarkers) {
-      if(data.markers.markers.contains(m)) {
-        return pokeMarker(context, m, height: height);
+  Widget? showImportantMarker(Language l, {double? height}) {
+    for(var m in data.markers.markers) {
+      if(m.toTitle) {
+        return pokeMarker(l, m, height: height);
       }
     }
     return null;
@@ -364,7 +360,7 @@ class SubExtensionCards {
 
   SubExtensionCards(List<List<PokemonCardExtension>> cards, this.codeNaming, this.configuration) : this.cards = cards, this.isValid = cards.length > 0;
 
-  static const int version = 6;
+  static const int version = 7;
 
   String tcgImage(idCard) {
     if(codeNaming.isNotEmpty) {
@@ -384,30 +380,32 @@ class SubExtensionCards {
     return (idCard+1).toString();
   }
 
-  PokemonCardExtension extractCard(int currentVersion, parser, cardCollection) {
+  PokemonCardExtension extractCard(int currentVersion, parser, Map cardCollection, Map allSets, Map rarities) {
+    if(currentVersion == 7)
+      return PokemonCardExtension.fromBytes(parser, cardCollection, allSets, rarities);
     if(currentVersion == 6)
-      return PokemonCardExtension.fromBytes(parser, cardCollection);
+      return PokemonCardExtension.fromBytesV6(parser, cardCollection, allSets, rarities);
     else if(currentVersion == 5)
-      return PokemonCardExtension.fromBytesV5(parser, cardCollection);
+      return PokemonCardExtension.fromBytesV5(parser, cardCollection, allSets, rarities);
     else if(currentVersion == 4)
-      return PokemonCardExtension.fromBytesV4(parser, cardCollection);
+      return PokemonCardExtension.fromBytesV4(parser, cardCollection, allSets, rarities);
     else if (currentVersion == 3)
-      return PokemonCardExtension.fromBytesV3(parser, cardCollection);
+      return PokemonCardExtension.fromBytesV3(parser, cardCollection, allSets, rarities);
     else
       throw StatitikException("Unknown version of card");
   }
 
-  List<PokemonCardExtension> extractOtherCards(List<int>? byteCard, cardCollection) {
+  List<PokemonCardExtension> extractOtherCards(List<int>? byteCard, Map cardCollection, Map allSets, Map rarities) {
     List<PokemonCardExtension> listCards = [];
     if(byteCard != null) {
       final currentVersion = byteCard[0];
-      if(6 <= currentVersion && currentVersion <= 6) {
+      if(6 <= currentVersion && currentVersion <= 7) {
         List<int> binary = gzip.decode(byteCard.sublist(1));
         var parser = ByteParser(binary);
 
         // Extract card
         while(parser.canParse) {
-          listCards.add(extractCard(currentVersion, parser, cardCollection));
+          listCards.add(extractCard(currentVersion, parser, cardCollection, allSets, rarities));
         }
       } else
         throw StatitikException("Bad SubExtensionCards version : need migration !");
@@ -415,24 +413,24 @@ class SubExtensionCards {
     return listCards;
   }
 
-  SubExtensionCards.build(List<int> bytes, this.codeNaming, cardCollection, this.configuration, List<int>? energy, List<int>? noNumber) : this.cards=[], this.isValid = (bytes.length > 0) {
+  SubExtensionCards.build(List<int> bytes, this.codeNaming, Map cardCollection, Map allSets, Map rarities, this.configuration, List<int>? energy, List<int>? noNumber) : this.cards=[], this.isValid = (bytes.length > 0) {
     final currentVersion = bytes[0];
-    if(3 <= currentVersion && currentVersion <= 6) {
+    if(3 <= currentVersion && currentVersion <= 7) {
       var parser = ByteParser(gzip.decode(bytes.sublist(1)));
       // Extract card
       while(parser.canParse) {
         List<PokemonCardExtension> numberedCard = [];
         int nbTitle = parser.extractInt8();
         for( int cardId=0; cardId < nbTitle; cardId +=1) {
-          numberedCard.add(extractCard(currentVersion, parser, cardCollection));
+          numberedCard.add(extractCard(currentVersion, parser, cardCollection, allSets, rarities));
         }
         cards.add(numberedCard);
       }
     } else
       throw StatitikException("Bad SubExtensionCards version : need migration !");
 
-    energyCard     = extractOtherCards(energy,   cardCollection);
-    noNumberedCard = extractOtherCards(noNumber, cardCollection);
+    energyCard     = extractOtherCards(energy,   cardCollection, allSets, rarities);
+    noNumberedCard = extractOtherCards(noNumber, cardCollection, allSets, rarities);
   }
 
   SubExtensionCards.emptyDraw(this.codeNaming, this.configuration) : cards = [], isValid=false {
@@ -440,7 +438,7 @@ class SubExtensionCards {
     for (int i = 0; i < 300; i += 1) {
       cards.add([PokemonCardExtension(
           PokemonCardData.empty(),
-          Rarity.Unknown)]);
+          unknownRarity!)]);
     }
   }
 
@@ -476,14 +474,14 @@ class SubExtensionCards {
     : "";
   }
 
-  List<int> toBytes(Map collectionCards) {
+  List<int> toBytes(Map collectionCards, Map allSets, Map rarities) {
     List<int> cardBytes = [];
     cards.forEach((cardById) {
       // Add nb cards by number
       cardBytes.add(cardById.length);
       // Add card code
       cardById.forEach((card) {
-        cardBytes += card.toBytes(collectionCards);
+        cardBytes += card.toBytes(collectionCards, allSets, rarities);
       });
     });
 
@@ -494,10 +492,10 @@ class SubExtensionCards {
     return finalBytes;
   }
 
-  List<int> otherToBytes(List otherCards, Map collectionCards) {
+  List<int> otherToBytes(List otherCards, Map collectionCards, Map allSets) {
     List<int> cardBytes = [];
     otherCards.forEach((card) {
-      cardBytes += card.toBytes(collectionCards);
+      cardBytes += card.toBytes(collectionCards, allSets);
     });
 
     List<int> finalBytes = [version];

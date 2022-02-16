@@ -3,6 +3,7 @@ import 'package:statitikcard/services/Rarity.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 
 class CardSelector extends StatefulWidget {
   final BoosterDraw boosterDraw;
@@ -34,21 +35,21 @@ class _CardSelectorState extends State<CardSelector> {
       // WARNING: always work on first (migration)
       var seCard = widget.boosterDraw.subExtension!.seCards;
       var card = seCard.cards[widget.id][0];
-      bool forceEnable = widget.boosterDraw.abnormal || card.rarity == Rarity.Unknown;
+      bool forceEnable = widget.boosterDraw.abnormal || card.rarity == unknownRarity;
 
       CodeDraw code = widget.boosterDraw.cardDrawing!.draw[widget.id][0];
       if(widget.boosterDraw.subExtension!.extension.language.isJapanese())
         cardModes =
         [
           IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
-          if( forceEnable || (seCard.hasAlternativeSet() && card.rarity.index <= Rarity.JR.index)) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
+          if( forceEnable || (seCard.hasAlternativeSet() && card.hasMultiSet())) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
         ];
       else
         cardModes =
         [
-          if( forceEnable || card.rarity != Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
-          if( forceEnable || card.rarity.index <= Rarity.HoloRare.index) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
-          if( forceEnable || card.rarity == Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Halo, refresh: widget.refresh, readOnly: widget.readOnly),
+          if( forceEnable || card.data.design != Design.Holographic) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
+          if( forceEnable || card.hasMultiSet())                     IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
+          if( forceEnable || card.data.design == Design.Holographic) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Halo, refresh: widget.refresh, readOnly: widget.readOnly),
         ];
     }
 

@@ -3,7 +3,9 @@ import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/SliderWithText.dart';
+import 'package:statitikcard/services/Marker.dart';
 import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
@@ -76,12 +78,12 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
     super.initState();
 
     // Build static card marker
-    CardMarker.values.forEach((element) {
-      if (element != CardMarker.Nothing && !longMarker.contains(element))
-        widgetMarkers.add(MarkerButtonCheck(widget.result.filter, element, controller: refreshController,));
+    Environment.instance.collection.markers.values.forEach((element) {
+      if (!longMarkers.contains(element))
+        widgetMarkers.add(MarkerButtonCheck(widget.language, widget.result.filter, element, controller: refreshController));
     });
-    longMarker.forEach((element) {
-      longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.result.filter, element, controller: refreshController)));
+    longMarkers.forEach((element) {
+      longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.language, widget.result.filter, element, controller: refreshController)));
     });
 
     orderedType.forEach((type) {

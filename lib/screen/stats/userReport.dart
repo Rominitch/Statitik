@@ -41,7 +41,7 @@ class _UserReportState extends State<UserReport> {
     finalData.category = widget.data.category;
     finalData.subExt   = widget.data.subExt;
 
-    List<Map<int,PokemonCardExtension>> cardSort = List.generate(Rarity.values.length, (id) => {});
+    List<Map<int,PokemonCardExtension>> cardSort = List.generate(Environment.instance.collection.rarities.length, (id) => {});
 
     bestCards.clear();
 
@@ -52,7 +52,7 @@ class _UserReportState extends State<UserReport> {
         for (int idCard = 0; idCard < finalData.stats!.count[idCardNumber].length; idCard += 1) {
           var card = finalData.subExt!.seCards.cards[idCardNumber][idCard];
           if (finalData.stats!.count[idCardNumber][idCard] > 0 && card.isForReport() ) {
-            cardSort[card.rarity.index][idCardNumber] = card;
+            cardSort[card.rarity.id][idCardNumber] = card;
           }
         }
       }
@@ -64,7 +64,7 @@ class _UserReportState extends State<UserReport> {
 
           if(finalData.subExt!.seCards.cards.isNotEmpty) {
             String realName = c.value.data.titleOfCard(finalData.subExt!.extension.language);
-            Widget? markerInfo = c.value.showImportantMarker(context, height: 15);
+            Widget? markerInfo = c.value.showImportantMarker(finalData.subExt!.extension.language, height: 15);
             bestCards.add(Card(
               color: Colors.grey[600],
               child: Padding(

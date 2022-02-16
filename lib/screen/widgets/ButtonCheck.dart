@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/Marker.dart';
 import 'package:statitikcard/services/Rarity.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
@@ -94,11 +96,12 @@ class _ButtonCheckState extends State<ButtonCheck> {
 }
 
 class MarkerButtonCheck extends ButtonCheck<CardMarker> {
-  MarkerButtonCheck(cardMarkers, value, {controller}) : super(cardMarkers, value, controller);
+  Language l;
+  MarkerButtonCheck(this.l, cardMarkers, value, {controller}) : super(cardMarkers, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {
-    return pokeMarker(context, value, height: 15);
+    return pokeMarker(this.l, value, height: 15);
   }
 }
 
@@ -138,5 +141,15 @@ class SerieTypeButtonCheck extends ButtonCheck<SerieType> {
   @override
   Widget makeWidget(BuildContext context) {
     return Text(StatitikLocale.of(context).read(seTypeString[value.index]));
+  }
+}
+
+class CardSetButtonCheck extends ButtonCheck<CardSet> {
+  Language l;
+  CardSetButtonCheck(this.l, seList, value, {controller}) : super(seList, value, controller);
+
+  @override
+  Widget makeWidget(BuildContext context) {
+    return Text(value.names.name(l));
   }
 }

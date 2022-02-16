@@ -29,7 +29,7 @@ class CardViewerBody extends StatelessWidget {
           Expanded(child: Text(se.seCards.titleOfCard(se.extension.language, id), style: Theme.of(context).textTheme.headline5)),
           getImageType(card.data.type),
           if(card.data.typeExtended != null) getImageType(card.data.typeExtended!),
-          if(card.rarity != Rarity.Unknown)  Row(children: getImageRarity(card.rarity)),
+          if(card.rarity != unknownRarity)  Row(children: getImageRarity(card.rarity)),
         ]
     );
   }

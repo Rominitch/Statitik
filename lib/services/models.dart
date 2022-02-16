@@ -3,6 +3,8 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/Marker.dart';
 import 'package:statitikcard/services/Rarity.dart';
 
 import 'package:statitikcard/services/Tools.dart';
@@ -529,7 +531,7 @@ class StatsBooster {
       return List<int>.filled(subExt.seCards.cards[id].length, 0);
     });
     countByType   = List<int>.filled(Type.values.length, 0);
-    countByRarity = List<int>.filled(Rarity.values.length, 0);
+    countByRarity = List<int>.filled(Environment.instance.collection.rarities.length, 0);
     countByMode   = List<int>.filled(Mode.values.length, 0);
     countEnergy   = List<int>.filled(energies.length, 0);
   }
@@ -567,7 +569,7 @@ class StatsBooster {
           if(subExt.seCards.isValid) {
             // Count
             countByType[subExt.seCards.cards[cardsId][cardId].data.type.index] += nbCard;
-            countByRarity[subExt.seCards.cards[cardsId][cardId].rarity.index]  += nbCard;
+            countByRarity[subExt.seCards.cards[cardsId][cardId].rarity.id]  += nbCard;
           }
           totalCards             += nbCard;
           count[cardsId][cardId] += nbCard;
@@ -583,21 +585,40 @@ class StatsBooster {
 }
 
 class StatsExtension {
-  final SubExtension subExt;
+  final SubExtension      subExt;
 
-  late List<int> countByType;
-  late List<int> countByRarity;
-  late List<Rarity> rarities;
+  late List<int>          countByType;
+  late List<int>          countByRarity;
+  late Map<CardSet, int>  countBySet;
+  late List<Rarity>       rarities;
+
+  late List<CardSet>      allSets;
+  late int                countSecret;
 
   StatsExtension({required this.subExt}) {
     countByType   = List<int>.filled(Type.values.length, 0);
-    countByRarity = List<int>.filled(Rarity.values.length, 0);
+    countByRarity = List<int>.filled(Environment.instance.collection.rarities.length, 0);
     rarities      = [];
+    allSets       = [];
+    countBySet    = {};
+    countSecret   = 0;
 
     subExt.seCards.cards.forEach((cards) {
       cards.forEach((c) {
+        c.sets.forEach((element) {
+          if(!allSets.contains(element)) {
+            allSets.add(element);
+            countBySet[element] = 1;
+          } else {
+            countBySet[element] = countBySet[element]! + 1;
+          }
+        });
+
+        if(c.isSecret)
+          countSecret += 1;
+
         countByType[c.data.type.index] += 1;
-        countByRarity[c.rarity.index]  += 1;
+        countByRarity[c.rarity.id]  += 1;
         if(!rarities.contains(c.rarity))
           rarities.add(c.rarity);
       });
@@ -678,188 +699,6 @@ const List<Color> regionColors = [
   Colors.white70, Colors.blue, Colors.red, Colors.green, Colors.brown,
   Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal
 ];
-
-enum CardMarker {
-  Nothing,
-  Escouade,
-  V,
-  VMAX,
-  GX,
-  MillePoint,
-  PointFinal,
-  Turbo,
-  EX,
-  Mega,
-  Legende,
-  Restaure,
-  Ultra,
-  UltraChimere,
-  Talent,
-  PrismStar,
-  Fusion,
-  OutilsPokemon,
-  Primal,
-  TeamPlasma,
-  TeamFlare,
-  PlusDelta,
-  EvolutionDelta,
-  BarriereOmega,
-  OffensiveOmega,
-  CroissanceAlpha,
-  RegenerationAlpha,
-  CapSpe,
-  PokePower,
-  PokeBody,
-  TeamGalaxy,
-  PokemonChampion,
-  SP, //32
-  Yon, //33
-  EspeceDelta,
-  TeamRocket,
-  VSTAR,
-  VUNION, //37
-  //First Limited 24 values (Bit 3 bytes)
-  //Limited 40 values (Bit 5 bytes)
-}
-
-const List<Color> markerColors = [
-  Colors.white70, Colors.blue, Colors.red, Colors.green, Colors.brown,
-  Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal,
-  Colors.indigo, Colors.deepOrange, Colors.lime, Colors.purpleAccent,
-  Colors.greenAccent, Colors.blueGrey, Colors.deepPurple, Colors.pinkAccent,
-  Colors.lightBlue, Colors.black26, Colors.redAccent, Colors.redAccent,
-  Color(0xFF558B2F),Color(0xFF558B2F), Color(0xFFB71C1C), Color(0xFFB71C1C),
-  Color(0xFF0D47A1), Color(0xFF0D47A1), Colors.redAccent, Color(0xFFB71C1C),
-  Color(0xFF558B2F), Colors.amber, Colors.brown, Colors.deepPurpleAccent,
-  Colors.teal, Colors.lightGreen, Colors.deepPurpleAccent, Color(0xFFFFF9C4),
-  Colors.blueGrey
-];
-
-const List longMarker = [CardMarker.Escouade, CardMarker.UltraChimere, CardMarker.Talent, CardMarker.MillePoint, CardMarker.PointFinal, CardMarker.Fusion];
-
-List<Widget?> cachedMarkers = List.filled(CardMarker.values.length, null);
-Widget pokeMarker(BuildContext context, CardMarker marker, {double? height=15.0}) {
-  if( cachedMarkers[marker.index] == null ) {
-    switch(marker) {
-      case CardMarker.Escouade:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'escouade', height: height);
-      break;
-      case CardMarker.V:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'v', height: height);
-        break;
-      case CardMarker.VMAX:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'vmax', height: height);
-        break;
-      case CardMarker.GX:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'gx', height: height);
-        break;
-      case CardMarker.MillePoint:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'millepoint', height: height);
-        break;
-      case CardMarker.PointFinal:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'pointfinal', height: height);
-        break;
-      case CardMarker.Turbo:
-        var newheight = (height != null) ? height-7 : null;
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'turbo', height: newheight);
-        break;
-      case CardMarker.EX:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'ex', height: height);
-        break;
-      case CardMarker.Legende:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_0'), style: TextStyle(fontSize: 9));
-        break;
-      case CardMarker.Restaure:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_1'), style: TextStyle(fontSize: 9));
-        break;
-      case CardMarker.Mega:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_2'), style: TextStyle(fontSize: 12));
-        break;
-      case CardMarker.Ultra:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_3'), style: TextStyle(fontSize: 12));
-        break;
-      case CardMarker.UltraChimere:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'ultra-chimere', height: height);
-        break;
-      case CardMarker.Talent:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'talent', height: height);
-        break;
-      case CardMarker.PrismStar:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'prismstar', height: height);
-        break;
-      case CardMarker.Fusion:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'fusion', height: height);
-        break;
-      case CardMarker.OutilsPokemon:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_4'), style: TextStyle(fontSize: 8));
-        break;
-      case CardMarker.Primal:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_5'), style: TextStyle(fontSize: 8));
-        break;
-      case CardMarker.TeamFlare:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_6'), style: TextStyle(fontSize: 8));
-        break;
-      case CardMarker.PlusDelta:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_7'), style: TextStyle(fontSize: 8, color: Color(0xFF1B5E20)));
-        break;
-      case CardMarker.EvolutionDelta:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_8'), style: TextStyle(fontSize: 8, color: Color(0xFF1B5E20)));
-        break;
-      case CardMarker.BarriereOmega:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_9'), style: TextStyle(fontSize: 8, color: Color(0xFFB71C1C)));
-        break;
-      case CardMarker.OffensiveOmega:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_10'), style: TextStyle(fontSize: 8, color: Color(0xFFB71C1C)));
-        break;
-      case CardMarker.CroissanceAlpha:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_11'), style: TextStyle(fontSize: 8, color: Color(0xFF0D47A1)));
-        break;
-      case CardMarker.RegenerationAlpha:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_12'), style: TextStyle(fontSize: 8, color: Color(0xFF0D47A1)));
-        break;
-      case CardMarker.TeamPlasma:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_13'), style: TextStyle(fontSize: 8));
-        break;
-      case CardMarker.CapSpe:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_14'), style: TextStyle(fontSize: 8));
-        break;
-      case CardMarker.PokePower:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_15'), style: TextStyle(fontSize: 8));
-        break;
-      case CardMarker.PokeBody:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_16'), style: TextStyle(fontSize: 8));
-        break;
-      case CardMarker.TeamGalaxy:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'teamGalaxy', height: height);
-        break;
-      case CardMarker.PokemonChampion:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'pokeChampion', height: height);
-        break;
-      case CardMarker.SP:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'SP', height: height);
-        break;
-      case CardMarker.Yon:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_17'), style: TextStyle(fontSize: 20));
-        break;
-      case CardMarker.EspeceDelta:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_18'), style: TextStyle(fontSize: 8));
-        break;
-      case CardMarker.TeamRocket:
-        cachedMarkers[marker.index] = Text(StatitikLocale.of(context).read('MARK_19'), style: TextStyle(fontSize: 8));
-        break;
-      case CardMarker.VSTAR:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'VSTAR', height: height);
-        break;
-      case CardMarker.VUNION:
-        cachedMarkers[marker.index] = drawCachedImage('logo', 'VUNION', height: height);
-        break;
-
-      default:
-        cachedMarkers[marker.index] = Icon(Icons.help_outline);
-    }
-  }
-  return cachedMarkers[marker.index]!;
-}
 
 class CodeNaming
 {

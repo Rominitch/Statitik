@@ -9,6 +9,7 @@ import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/EnergySlider.dart';
 import 'package:statitikcard/screen/widgets/ListSelector.dart';
 import 'package:statitikcard/screen/widgets/SliderWithText.dart';
+import 'package:statitikcard/services/Marker.dart';
 import 'package:statitikcard/services/Rarity.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -38,6 +39,7 @@ class _CardCreatorState extends State<CardCreator> {
   late CustomRadioController rarityController     = CustomRadioController(onChange: (value) { onRarityChanged(value); });
   late CustomRadioController typeExtController    = CustomRadioController(onChange: (value) { onTypeExtChanged(value); });
   late CustomRadioController levelController      = CustomRadioController(onChange: (value) { onLevel(value); });
+  late CustomRadioController designController     = CustomRadioController(onChange: (value) { onDesignChanged(value); });
 
   late CustomRadioController listChooserController = CustomRadioController(onChange: (value) { onChangeList(value); });
   final imageController  = TextEditingController();
@@ -49,7 +51,9 @@ class _CardCreatorState extends State<CardCreator> {
   List<Widget> rarity   = [];
   List<Widget> marker   = [];
   List<Widget> level    = [];
+  List<Widget> designs  = [];
   List<Widget> longMarkerWidget = [];
+  List<Widget> setsWidget = [];
   bool         _auto    = false;
 
   void onChangeList(value) {
@@ -73,6 +77,9 @@ class _CardCreatorState extends State<CardCreator> {
     widget.card.rarity = value;
     if(_auto)
       widget.onAppendCard!(listChooserController.currentValue, null);
+  }
+  void onDesignChanged(value) {
+    widget.card.data.design = value;
   }
 
   void computeJPCardID() {
@@ -120,7 +127,7 @@ class _CardCreatorState extends State<CardCreator> {
     });
 
     widget.listRarity.forEach((element) {
-      if( element != Rarity.Unknown )
+      if( element != unknownRarity )
         rarity.add(CustomRadio(value: element, controller: rarityController,
             widget: Row(mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -143,14 +150,18 @@ class _CardCreatorState extends State<CardCreator> {
   void selectCard() {
     marker = [];
     longMarkerWidget = [];
+    setsWidget = [];
 
     if( widget.editor ) {
-      CardMarker.values.forEach((element) {
-        if (element != CardMarker.Nothing && !longMarker.contains(element))
-          marker.add(MarkerButtonCheck(widget.card.data.markers, element));
+      Environment.instance.collection.markers.values.forEach((element) {
+        if (!longMarkers.contains(element))
+          marker.add(MarkerButtonCheck(widget.activeLanguage, widget.card.data.markers, element));
       });
-      longMarker.forEach((element) {
-        longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.card.data.markers, element)));
+      longMarkers.forEach((element) {
+        longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.activeLanguage, widget.card.data.markers, element)));
+      });
+      Environment.instance.collection.sets.values.forEach((element) {
+        setsWidget.add(Expanded(child: CardSetButtonCheck(widget.activeLanguage, widget.card.sets, element)));
       });
 
       typeExtController.afterPress(widget.card.data.typeExtended != null ? widget.card.data.typeExtended! : Type.Unknown);
@@ -239,6 +250,12 @@ class _CardCreatorState extends State<CardCreator> {
       });
       levelController.afterPress(widget.card.data.level);
 
+      designs = [];
+      Design.values.forEach((element) {
+        designs.add(Expanded(child: CustomRadio(value: element, controller: designController, widget: icon(element) )));
+      });
+      designController.afterPress(widget.card.data.design);
+
       int? databaseCardId = Environment.instance.collection.pokemonCards.containsValue(widget.card.data)
                           ? Environment.instance.collection.rPokemonCards[widget.card.data]
                           : null;
@@ -254,7 +271,7 @@ class _CardCreatorState extends State<CardCreator> {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-            CardImage(widget.se, widget.card, widget.idCard, height: 100),
+            Container(child: CardImage(widget.se, widget.card, widget.idCard, height: 100), height: 100),
             SizedBox(width:8),
             Expanded(child: Text(StatitikLocale.of(context).read('CA_B30')+ " " + codeDB, style: Theme.of(context).textTheme.headline5)),
             Card (
@@ -295,8 +312,9 @@ class _CardCreatorState extends State<CardCreator> {
                     Card(child: TextButton(
                     child: Text(StatitikLocale.of(context).read('NCE_B7')),
                     onPressed: () {
-                      setState(() {
-                        widget.card.data.title.add(Pokemon(Environment.instance.collection.pokemons[1]));
+                      widget.card.data.title.add(Pokemon(Environment.instance.collection.pokemons[1]));
+                      PokeCardNaming.selectCardName(context, widget.activeLanguage, widget.card, widget.card.data.title.length-1).then((value) {
+                        setState(() {});
                       });
                     },
                   ))
@@ -314,6 +332,7 @@ class _CardCreatorState extends State<CardCreator> {
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: [
+                      Row( children: designs),
                       Row( children: level),
                       Row(children: [
                         Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B25'), style: TextStyle(fontSize: 12))),
@@ -363,10 +382,35 @@ class _CardCreatorState extends State<CardCreator> {
           ExpansionPanelRadio(
             canTapOnHeader: true,
             headerBuilder: (context, isOpen) { return ListTile(
-            title:Text(StatitikLocale.of(context).read('CA_B37'), style: TextStyle(fontSize: 12))); },
+            title:Text(StatitikLocale.of(context).read('CA_B39'), style: TextStyle(fontSize: 12))); },
             value: 2,
             backgroundColor: Colors.blueGrey[800],
-            body: createImageFieldWidget()
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: createImageFieldWidget(),
+                ),
+                Text("Set"),
+                GridView.count(
+                  crossAxisCount: 4,
+                  primary: false,
+                  shrinkWrap: true,
+                  children: setsWidget,
+                ),
+                Row(
+                  children: [
+                    Text("Carte secrète: "),
+                    Checkbox(value: widget.card.isSecret, onChanged: (value) {
+                      setState(() {
+                        widget.card.isSecret = value!;
+                      });
+                    }
+                    )
+                  ],
+                )
+              ])
             ),
           ExpansionPanelRadio(
             value: 3,
@@ -486,6 +530,42 @@ class PokeCardNaming extends StatefulWidget {
 
   @override
   _PokeCardNamingState createState() => _PokeCardNamingState();
+
+  static Future selectPokemonName(BuildContext context, Language language, PokemonCardExtension card, int idName) {
+    return Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ListSelector('CE_T0', language, Environment.instance.collection.pokemons, multiLangue: true)),
+    ).then((idDB) {
+      if(idDB != null) {
+        card.data.title[idName].name = Environment.instance.collection.pokemons[idDB];
+      }
+    });
+  }
+
+  static Future<int?> addNewDresseurObjectName(String newText, int idLangue) async {
+    printOutput("Start add new value");
+    return await Environment.instance.addNewDresseurObjectName(newText, idLangue);
+  }
+
+  static Future selectOtherName(BuildContext context, Language language, PokemonCardExtension card, int idName) {
+    return Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ListSelector('CE_T0', language, Environment.instance.collection.otherNames, multiLangue:true,
+          addNewData: addNewDresseurObjectName)),
+    ).then((idDB) {
+      if(idDB != null) {
+        card.data.title[idName].name = Environment.instance.collection.otherNames[idDB];
+      }
+    });
+  }
+
+  static Future selectCardName(BuildContext context, Language language, PokemonCardExtension card, int idName) {
+    if( isPokemonCard(card.data.type) ) {
+      return selectPokemonName(context, language, card, idName);
+    } else {
+      return selectOtherName(context, language, card, idName);
+    }
+  }
 }
 
 class _PokeCardNamingState extends State<PokeCardNaming> {
@@ -498,11 +578,6 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
 
   void onSpecialChanged(Forme? value) {
     widget.nameInfo().forme = value;
-  }
-
-  Future<int?> addNewDresseurObjectName(String newText, int idLangue) async {
-    printOutput("Start add new value");
-    return await Environment.instance.addNewDresseurObjectName(newText, idLangue);
   }
 
   @override
@@ -553,7 +628,7 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ListSelector('CE_T0', widget.language, Environment.instance.collection.otherNames, multiLangue:true,
-                  addNewData: addNewDresseurObjectName)),
+                  addNewData: PokeCardNaming.addNewDresseurObjectName)),
             ).then((idDB) {
               if(idDB != null) {
                 setState(() {

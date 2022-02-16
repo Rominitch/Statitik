@@ -80,12 +80,17 @@ class CardImage extends StatefulWidget {
     try {
       romajiName = convertRomaji(card.data.titleOfCard(se.extension.language));
 
-      if( card.data.markers.markers.contains(CardMarker.V) )           { romajiName += "V"; }
-      else if( card.data.markers.markers.contains(CardMarker.VMAX) )   { romajiName += "VMAX"; }
-      else if( card.data.markers.markers.contains(CardMarker.VUNION) ) { romajiName += "VUNION"; }
-      else if( card.data.markers.markers.contains(CardMarker.VSTAR)  ) { romajiName += "VSTAR"; }
-      else if( card.data.markers.markers.contains(CardMarker.GX)  )    { romajiName += "GX"; }
-      else if( card.data.markers.markers.contains(CardMarker.EX)  )    { romajiName += "EX"; }
+      card.data.markers.markers.firstWhere((element) {
+        if(element.toTitle)
+          romajiName += element.name.name(se.extension.language).toUpperCase();
+        return element.toTitle;
+      });
+      //if( card.data.markers.markers.contains(ECardMarker.V) )           { romajiName += "V"; }
+      //else if( card.data.markers.markers.contains(ECardMarker.VMAX) )   { romajiName += "VMAX"; }
+      //else if( card.data.markers.markers.contains(ECardMarker.VUNION) ) { romajiName += "VUNION"; }
+      //else if( card.data.markers.markers.contains(ECardMarker.VSTAR)  ) { romajiName += "VSTAR"; }
+      //else if( card.data.markers.markers.contains(ECardMarker.GX)  )    { romajiName += "GX"; }
+      //else if( card.data.markers.markers.contains(ECardMarker.EX)  )    { romajiName += "EX"; }
 
     } catch(e) {
 
