@@ -5,11 +5,11 @@ import 'package:statitikcard/services/models.dart';
 
 class CardMarker
 {
-  MultiLanguageString name;
-  Color               color;
-  bool                toTitle;
+  final MultiLanguageString name;
+  final Color               color;
+  final bool                toTitle;
 
-  CardMarker(this.name, this.color, this.toTitle);
+  const CardMarker(this.name, this.color, this.toTitle);
 
   Widget icon(Language l, {height}) {
     var val = name.name(l);

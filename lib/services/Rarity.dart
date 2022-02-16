@@ -4,23 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/services/Tools.dart';
 
 class Rarity {
-  int id;
-  int? iconId;
-  String value="";
-  String image="";
-  bool rotate = false;
-  Color color;
+  final int id;
+  final IconData? iconId;
+  final String value;
+  final String image;
+  final bool rotate;
+  final Color color;
 
-  Rarity.fromText(this.id,  this.value, this.color);
-  Rarity.fromIcon(this.id,  this.iconId, this.value, this.color, {this.rotate=false});
-  Rarity.fromImage(this.id, this.image, this.color);
+  const Rarity.fromText(this.id,  this.value, this.color) : this.iconId = null, this.image = "", this.rotate = false;
+  const Rarity.fromIcon(this.id,  this.iconId, this.value, this.color, {this.rotate=false}): this.image = "";
+  const Rarity.fromImage(this.id, this.image, this.color) : this.iconId = null, this.value="", this.rotate = false;
 
   List<Widget> icon({iconSize, fontSize=12.0}) {
     return [
       if(image.isNotEmpty)  drawCachedImage('logo', image, height: iconSize ?? 20),
       if(iconId != null)
-        rotate ? Transform.rotate(angle: pi / 4.0, child: Icon(IconData(iconId!, fontFamily: 'MaterialIcons'), size: iconSize))
-               : Icon(IconData(iconId!, fontFamily: 'MaterialIcons'), size: iconSize),
+        rotate ? Transform.rotate(angle: pi / 4.0, child: Icon(iconId, size: iconSize))
+               : Icon(iconId, size: iconSize),
       if(value.isNotEmpty)  Text(value, style: TextStyle(fontSize: fontSize)),
     ];
   }

@@ -98,6 +98,18 @@ class Collection
     return otherNames[id];
   }
 
+  // Temporary: need to understand tree shake
+  IconData getIcon(int id) {
+    switch(id) {
+      case 0xe163: return Icons.circle;
+      case 0xe606: return Icons.stop;
+      case 0xe5f9: return Icons.star;
+      case 0xe5fd: return Icons.star_outline;
+      case 0xe3b4: return Icons.looks;
+    }
+    return Icons.help_outline;
+  }
+
   Future<void> readStaticData(connection) async
   {
       var languagesReq = await connection.query("SELECT * FROM `Langue`");
@@ -121,8 +133,9 @@ class Collection
         try {
           // Build
           var rarity;
-          if(row[1] != null)
-            rarity = Rarity.fromIcon(row[0], row[1], row[2] ?? "", Color(row[6]), rotate: mask(row[4], 4));
+          if(row[1] != null) {
+            rarity = Rarity.fromIcon(row[0], getIcon(row[1]), row[2] ?? "", Color(row[6]), rotate: mask(row[4], 4));
+          }
           else if(row[2] != null)
             rarity = Rarity.fromText(row[0], row[2], Color(row[6]));
           else if(row[3] != null)
