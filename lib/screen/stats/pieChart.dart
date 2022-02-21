@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
-import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/models.dart';
 
 class PieChartGeneric extends StatefulWidget {

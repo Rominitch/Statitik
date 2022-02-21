@@ -42,7 +42,7 @@ class ExtensionDrawCards {
       List<CodeDraw> cardCode = [];
       bytes.sublist(pointer, pointer+count).forEach(
         (code){
-          cardCode.add(CodeDraw.oldDecode(code));
+          cardCode.add(CodeDraw.fromCode(code));
         }
       );
       assert(cardCode.isNotEmpty);
@@ -124,7 +124,7 @@ class CodeDraw {
     assert(countBySet[1] <= 7);
   }
 
-  CodeDraw.oldDecode(int code) :
+  CodeDraw.fromCode(int code) :
         countBySet = List<int>.filled(2, 0)
   {
     countBySet[0] = code & 0x07 + (code>>6) & 0x07;
@@ -390,7 +390,7 @@ class BoosterDraw {
     count = cardDrawing!.fillWith(edc);
     int id=0;
     newEnergiesBin.forEach((element) {
-      energiesBin[id] = CodeDraw.oldDecode(element);
+      energiesBin[id] = CodeDraw.fromCode(element);
       count += energiesBin[id].count();
       id += 1;
     });

@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/services/cardDrawData.dart';
@@ -40,7 +38,7 @@ class SessionDraw
         element.energiesBin.clear();
         var energyCodes = parser.extractBytesArray();
         energyCodes.forEach((code) {
-          element.energiesBin.add(CodeDraw.oldDecode(code));
+          element.energiesBin.add(CodeDraw.fromCode(code));
         });
       }
     });

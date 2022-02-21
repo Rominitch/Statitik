@@ -508,7 +508,7 @@ class StatsBooster {
     countByType   = List<int>.filled(Type.values.length, 0);
     countByRarity = {};
     countBySet    = {};
-    countEnergy   = List<int>.filled(energies.length, 0);
+    countEnergy   = List<int>.filled(subExt.seCards.energyCard.length, 0);
   }
 
   bool hasEnergy() {
@@ -526,14 +526,21 @@ class StatsBooster {
     anomaly += anomaly;
     nbBoosters += 1;
 
+    var energyCard = subExt.seCards.energyCard.iterator;
     for(int energyI=0; energyI < energy.length; energyI +=1) {
-      CodeDraw c = CodeDraw.oldDecode(energy[energyI]);
+      if(!energyCard.moveNext())
+        break;
+
+      CodeDraw c = CodeDraw.fromCode(energy[energyI]);
       countEnergy[energyI] += c.count();
       // Energy can be reversed
       int setId=0;
       c.countBySet.forEach((element) {
-        var setCard = Environment.instance.collection.sets[setId];
-        countBySet[setCard] = countBySet[setCard]! + element;
+        var setCard = energyCard.current.sets[setId];
+        if(countBySet.containsKey(setCard))
+          countBySet[setCard] = countBySet[setCard]! + element;
+        else
+          countBySet[setCard] = element;
 
         setId += 1;
       });
@@ -542,8 +549,8 @@ class StatsBooster {
     int cardsId=0;
     for(List<CodeDraw> cards in edc.draw) {
       int cardId=0;
-      for(CodeDraw card in cards) {
-        int nbCard = card.count();
+      for(CodeDraw code in cards) {
+        int nbCard = code.count();
         if( nbCard > 0 ) {
           cardByBooster += nbCard;
           if(subExt.seCards.isValid) {
@@ -551,20 +558,27 @@ class StatsBooster {
             // Count
             countByType[cardInfo.data.type.index] += nbCard;
             if(countByRarity.containsKey(cardInfo.rarity))
-              countByRarity[cardInfo.rarity] = countByRarity[cardInfo.rarity.id]! + nbCard;
+              countByRarity[cardInfo.rarity] = countByRarity[cardInfo.rarity]! + nbCard;
             else
               countByRarity[cardInfo.rarity] = nbCard;
 
             var setInfo = cardInfo.sets.iterator;
-            card.countBySet.forEach((element) {
-              countBySet[setInfo.current] = countBySet[setInfo.current]! + element;
-              setInfo.moveNext();
+            code.countBySet.forEach((countPerSet) {
+              if(setInfo.moveNext()) {
+                if(countBySet.containsKey(setInfo.current))
+                  countBySet[setInfo.current] = countBySet[setInfo.current]! + countPerSet;
+                else
+                  countBySet[setInfo.current] = countPerSet;
+              }
             });
           } else {
             int setId=0;
-            card.countBySet.forEach((element) {
+            code.countBySet.forEach((element) {
               var setCard = Environment.instance.collection.sets[setId];
-              countBySet[setCard] = countBySet[setCard]! + element;
+              if(countBySet.containsKey(setCard))
+                countBySet[setCard] = countBySet[setCard]! + element;
+              else
+                countBySet[setCard] = element;
 
               setId += 1;
             });
