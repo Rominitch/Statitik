@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 class BoosterPage extends StatefulWidget {
   final BoosterDraw boosterDraw;
@@ -37,10 +37,10 @@ class _BoosterPageState extends State<BoosterPage> {
     }
 
     widgetEnergies = [];
-    for(Type type in energies) {
+    widget.boosterDraw.subExtension!.seCards.energyCard.forEach((card) {
       widgetEnergies.add(EnergyButton(
-          type: type, boosterDraw: widget.boosterDraw, refresh: refresh, readOnly: widget.readOnly ));
-    }
+          card, boosterDraw: widget.boosterDraw, refresh: refresh, readOnly: widget.readOnly ));
+    });
   }
 
   @override
@@ -56,7 +56,7 @@ class _BoosterPageState extends State<BoosterPage> {
           break;
         case Validator.ErrorReverse:
           buttonColor = Colors.deepOrange;
-          buttonLabel = Row(children:[Icon(Icons.warning_amber_outlined), Image(image: AssetImage('assets/carte/${modeImgs[Mode.Reverse]}.png'), height: 30.0)]);
+          buttonLabel = Row(children:[Icon(Icons.warning_amber_outlined), Image(image: AssetImage('assets/carte/reverse.png'), height: 30.0)]);
           break;
         case Validator.ErrorTooManyGood:
           buttonColor = Colors.deepOrange;

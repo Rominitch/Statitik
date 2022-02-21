@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/services/Tools.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 class CardMarker
 {

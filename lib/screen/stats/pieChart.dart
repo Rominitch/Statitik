@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:fl_chart/fl_chart.dart';
-import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 class PieChartGeneric extends StatefulWidget {
   final StatsBooster allStats;
@@ -108,12 +108,17 @@ class _PieExtensionState extends State<PieExtension> {
         }
       }
     } else {
-      for(Rarity rarity in Environment.instance.collection.rarities.values) {
+      final smallValue = 3.5;
+      bool oldSmall = false;
+      widget.stats.rarities.forEach( (rarity) {
+        var isSmall = false;
         final isTouched = rarity.id == touchedIndex;
-        final double radius = isTouched ? 130 : 100;
-        int count = widget.stats.countByRarity[rarity.id];
+        final double radius = isTouched ? 110 : 90;
+        int count = widget.stats.countByRarity[rarity] ?? 0;
         if (count > 0) {
           var percent = count * ratio;
+          isSmall = percent < smallValue;
+
           sections.add(PieChartSectionData(
             color: rarity.color,
             value: count.toDouble(),
@@ -122,12 +127,13 @@ class _PieExtensionState extends State<PieExtension> {
             titlePositionPercentageOffset: odd ? 0.75 : 0.5,
             titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
             badgeWidget: Row( mainAxisSize: MainAxisSize.min,  children: getImageRarity(rarity), ),
-            badgePositionPercentageOffset: 1.15,
+            badgePositionPercentageOffset: isSmall ? (oldSmall ? 1.35 : 1.15) : 1.2,
           )
           );
           odd = !odd;
+          oldSmall = !oldSmall && isSmall;
         }
-      }
+      });
     }
   }
 
@@ -144,7 +150,7 @@ class _PieExtensionState extends State<PieExtension> {
                 show: false,
               ),
               sectionsSpace: 2,
-              centerSpaceRadius: 60,
+              centerSpaceRadius: 50,
               sections: sections),
         ),
       ),

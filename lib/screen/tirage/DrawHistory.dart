@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/tirage/tirage_resume.dart';
+import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
 
 class DrawHistory extends StatefulWidget {
   final bool isAdmin;
@@ -18,7 +18,7 @@ class _DrawHistoryState extends State<DrawHistory> {
   List<Widget>? myDrawWidgets;
 
   void buildWidget() {
-    Environment.instance.getMyDraw(widget.isAdmin).then((List<SessionDraw> value) {
+    Environment.instance.getMyDraw(widget.isAdmin).then((dynamic value) {
       myDraw = value;
       myDrawWidgets = [];
       setState(() {

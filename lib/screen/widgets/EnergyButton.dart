@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/CardEffect.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 abstract class EnergyButtonController {

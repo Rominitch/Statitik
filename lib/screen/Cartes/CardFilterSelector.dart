@@ -3,11 +3,11 @@ import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/SliderWithText.dart';
-import 'package:statitikcard/services/Marker.dart';
-import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 class CardFilterSelector extends StatefulWidget {

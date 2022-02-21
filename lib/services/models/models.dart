@@ -2,16 +2,17 @@ import 'dart:core';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/Marker.dart';
-import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
 
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';
 
 const double iconSize = 25.0;
@@ -54,7 +55,7 @@ class ByteEncoder
     ];
   }
 
-  static encodeString16(List<int> stringInfo) {
+  static List<int> encodeString16(List<int> stringInfo) {
     assert(stringInfo.length * 2 <= 255);
     var imageCode = <int>[
       stringInfo.length * 2, // Not more than 256
@@ -65,6 +66,15 @@ class ByteEncoder
     });
     assert(imageCode[0] == imageCode.length-1);
     return imageCode;
+  }
+
+  static List<int> encodeBytesArray(List<int> byteArray) {
+    assert(byteArray.length < 65536);
+    return encodeInt16(byteArray.length) + byteArray;
+  }
+
+  static List<int> encodeBool(bool value) {
+    return <int>[value ? 1 : 0];
   }
 }
 
@@ -110,6 +120,21 @@ class ByteParser
     int v = it.current;
     canParse = it.moveNext();
     return v;
+  }
+
+  bool extractBool() {
+    int v = it.current;
+    canParse = it.moveNext();
+    return v != 0;
+  }
+
+  List<int> extractBytesArray() {
+    int nbItems = extractInt16();
+    List<int> extract = [];
+    for(int i = 0 ; i < nbItems; i +=1) {
+      extract.add(extractInt8());
+    }
+    return extract;
   }
 }
 
@@ -212,6 +237,7 @@ bool isPokemonCard(Type type) {
   return !notPokemon.contains(type);
 }
 
+/*
 enum Mode {
   Normal,
   Reverse,
@@ -223,6 +249,7 @@ const Map modeNames  = {Mode.Normal: "SET_0", Mode.Reverse: "SET_1", Mode.Halo: 
 const Map modeColors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAccent, Mode.Halo: Colors.purple};
 
 const String emptyMode = '_';
+*/
 
 const Map imageName = {
   Type.Plante: 'plante',
@@ -459,58 +486,6 @@ class SubExtension
   }
 }
 
-class ProductBooster
-{
-  int nbBoosters;
-  int nbCardsPerBooster;
-
-  ProductBooster({required this.nbBoosters, required this.nbCardsPerBooster});
-}
-
-class Product
-{
-  int idDB;
-  String name;
-  String imageURL;
-  Map<int, ProductBooster> boosters;
-  Color color;
-  int count;
-
-  Product({required this.idDB, required this.name, required this.imageURL, required this.count, required this.boosters, required this.color});
-
-  bool hasImages() {
-    return imageURL.isNotEmpty;
-  }
-
-  CachedNetworkImage image()
-  {
-    return drawCachedImage('products', imageURL, height: 70);
-  }
-
-  int countBoosters() {
-    int count=0;
-    boosters.forEach((key, value) { count += value.nbBoosters; });
-    return count;
-  }
-
-  List<BoosterDraw> buildBoosterDraw() {
-    var list = <BoosterDraw>[];
-    int id=1;
-    boosters.forEach((key, value) {
-      for( int i=0; i < value.nbBoosters; i+=1) {
-        SubExtension? se = Environment.instance.collection.subExtensions[key];
-        list.add(new BoosterDraw(creation: se, id: id, nbCards: value.nbCardsPerBooster));
-        id += 1;
-      }
-    });
-    return list;
-  }
-
-  int countProduct() {
-    return count;
-  }
-}
-
 class StatsBooster {
   final SubExtension subExt;
   int nbBoosters = 0;
@@ -521,8 +496,8 @@ class StatsBooster {
 
   // Cached
   late List<int> countByType;
-  late List<int> countByRarity;
-  late List<int> countByMode;
+  late Map<Rarity, int> countByRarity;
+  late Map<CardSet,int> countBySet;
 
   late List<int> countEnergy;
 
@@ -531,8 +506,8 @@ class StatsBooster {
       return List<int>.filled(subExt.seCards.cards[id].length, 0);
     });
     countByType   = List<int>.filled(Type.values.length, 0);
-    countByRarity = List<int>.filled(Environment.instance.collection.rarities.length, 0);
-    countByMode   = List<int>.filled(Mode.values.length, 0);
+    countByRarity = {};
+    countBySet    = {};
     countEnergy   = List<int>.filled(energies.length, 0);
   }
 
@@ -544,7 +519,7 @@ class StatsBooster {
     return false;
   }
 
-  void addBoosterDraw(ExtensionDrawCards edc, List<int> energy , int anomaly) {
+  void addBoosterDraw(ExtensionDrawCards edc, List<int> energy, int anomaly) {
     if( edc.draw.length > subExt.seCards.cards.length)
       throw StatitikException('Corruption des données de tirages');
 
@@ -552,11 +527,16 @@ class StatsBooster {
     nbBoosters += 1;
 
     for(int energyI=0; energyI < energy.length; energyI +=1) {
-      CodeDraw c = CodeDraw.fromInt(energy[energyI]);
+      CodeDraw c = CodeDraw.oldDecode(energy[energyI]);
       countEnergy[energyI] += c.count();
-      // Energy can be reverse
-      countByMode[Mode.Reverse.index] += c.countReverse;
-      assert((c.countHalo) == 0);
+      // Energy can be reversed
+      int setId=0;
+      c.countBySet.forEach((element) {
+        var setCard = Environment.instance.collection.sets[setId];
+        countBySet[setCard] = countBySet[setCard]! + element;
+
+        setId += 1;
+      });
     }
 
     int cardsId=0;
@@ -567,15 +547,30 @@ class StatsBooster {
         if( nbCard > 0 ) {
           cardByBooster += nbCard;
           if(subExt.seCards.isValid) {
+            var cardInfo = subExt.seCards.cards[cardsId][cardId];
             // Count
-            countByType[subExt.seCards.cards[cardsId][cardId].data.type.index] += nbCard;
-            countByRarity[subExt.seCards.cards[cardsId][cardId].rarity.id]  += nbCard;
+            countByType[cardInfo.data.type.index] += nbCard;
+            if(countByRarity.containsKey(cardInfo.rarity))
+              countByRarity[cardInfo.rarity] = countByRarity[cardInfo.rarity.id]! + nbCard;
+            else
+              countByRarity[cardInfo.rarity] = nbCard;
+
+            var setInfo = cardInfo.sets.iterator;
+            card.countBySet.forEach((element) {
+              countBySet[setInfo.current] = countBySet[setInfo.current]! + element;
+              setInfo.moveNext();
+            });
+          } else {
+            int setId=0;
+            card.countBySet.forEach((element) {
+              var setCard = Environment.instance.collection.sets[setId];
+              countBySet[setCard] = countBySet[setCard]! + element;
+
+              setId += 1;
+            });
           }
           totalCards             += nbCard;
           count[cardsId][cardId] += nbCard;
-          countByMode[Mode.Normal.index]      += card.countNormal;
-          countByMode[Mode.Reverse.index]     += card.countReverse;
-          countByMode[Mode.Halo.index]        += card.countHalo;
         }
         cardId += 1;
       }
@@ -587,17 +582,17 @@ class StatsBooster {
 class StatsExtension {
   final SubExtension      subExt;
 
-  late List<int>          countByType;
-  late List<int>          countByRarity;
-  late Map<CardSet, int>  countBySet;
   late List<Rarity>       rarities;
-
   late List<CardSet>      allSets;
+
+  late List<int>          countByType;
+  late Map<Rarity, int>   countByRarity;
+  late Map<CardSet, int>  countBySet;
   late int                countSecret;
 
   StatsExtension({required this.subExt}) {
     countByType   = List<int>.filled(Type.values.length, 0);
-    countByRarity = List<int>.filled(Environment.instance.collection.rarities.length, 0);
+    countByRarity = {};
     rarities      = [];
     allSets       = [];
     countBySet    = {};
@@ -618,7 +613,11 @@ class StatsExtension {
           countSecret += 1;
 
         countByType[c.data.type.index] += 1;
-        countByRarity[c.rarity.id]  += 1;
+        if(countByRarity.containsKey(c.rarity))
+          countByRarity[c.rarity] = countByRarity[c.rarity]! + 1;
+        else
+          countByRarity[c.rarity] = 1;
+
         if(!rarities.contains(c.rarity))
           rarities.add(c.rarity);
       });
@@ -626,68 +625,13 @@ class StatsExtension {
   }
 }
 
-class SessionDraw
-{
-  int idProduit=-1;
-  Language language;
-  Product product;
-  bool productAnomaly=false;
-  List<BoosterDraw> boosterDraws;
-
-  SessionDraw({required this.product, required this.language}):
-        boosterDraws = product.buildBoosterDraw();
-
-  void closeStream() {
-    boosterDraws.forEach((booster) {
-      booster.closeStream();
-    });
-  }
-
-  void addNewBooster() {
-    BoosterDraw booster = boosterDraws.last;
-
-    boosterDraws.add(new BoosterDraw(creation: booster.subExtension, id: booster.id+1, nbCards: booster.nbCards) );
-  }
-
-  void deleteBooster(int id) {
-    if( id >= boosterDraws.length || id < 0 )
-      throw StatitikException("Impossible de trouver le booster $id");
-    // Delete
-    boosterDraws.removeAt(id);
-    // Change Label ID
-    id = 1;
-    boosterDraws.forEach((BoosterDraw element) {element.id = id; id += 1; });
-  }
-
-  bool canDelete() {
-    return boosterDraws.length > 1;
-  }
-
-  void revertAnomaly()
-  {
-    //Brutal reset
-    boosterDraws = product.buildBoosterDraw();
-    productAnomaly = false;
-  }
-
-  bool needReset() {
-    bool editedBooster = false;
-    for(BoosterDraw b in boosterDraws){
-      if(b.creation != null && b.creation != b.subExtension)
-        editedBooster |= true;
-    }
-
-    return editedBooster || boosterDraws.length != product.countBoosters();
-  }
-}
-
 class StatsData {
   Language?         language;
   SubExtension?     subExt;
-  Product?          product;
+  ProductRequested? pr;
   int               category = -1;
-  StatsBooster?            stats;
-  StatsBooster?            userStats;
+  StatsBooster?     stats;
+  StatsBooster?     userStats;
   CardResults       cardStats = CardResults();
 
   bool isValid() {

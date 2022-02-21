@@ -1,29 +1,46 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 class CardSelector extends StatefulWidget {
+  final PokemonCardExtension card;
   final BoosterDraw boosterDraw;
   final int      id;
   final Function refresh;
   final bool     isEnergy;
   final bool     readOnly;
 
-  CardSelector(this.boosterDraw, this.id, this.refresh, this.isEnergy, this.readOnly);
+  CardSelector(this.card, this.boosterDraw, this.id, this.refresh, this.isEnergy, this.readOnly);
 
   @override
   _CardSelectorState createState() => _CardSelectorState();
 }
 
 class _CardSelectorState extends State<CardSelector> {
-  late List<Widget> cardModes;
+  List<Widget> cardModes = [];
 
   @override
   void initState() {
+    // Read code data
+    CodeDraw code;
+    if( widget.isEnergy  ) {
+      code = widget.boosterDraw.energiesBin[widget.id];
+    } else {
+      // WARNING: always work on first (migration)
+      code = widget.boosterDraw.cardDrawing!.draw[widget.id][0];
+    }
 
+    // Create for all set each widget
+    int idSet=0;
+    cardModes.clear();
+    widget.card.sets.forEach((set) {
+      cardModes.add(IconCard(widget.boosterDraw, set, idSet, code, refresh: widget.refresh, readOnly: widget.readOnly));
+      idSet += 1;
+    });
+
+    /*
     if( widget.isEnergy  ) {
       CodeDraw code = widget.boosterDraw.energiesBin[widget.id];
       cardModes =
@@ -41,7 +58,7 @@ class _CardSelectorState extends State<CardSelector> {
       if(widget.boosterDraw.subExtension!.extension.language.isJapanese())
         cardModes =
         [
-          IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
+          IconCard(boosterDraw: widget.boosterDraw, code: code, refresh: widget.refresh, readOnly: widget.readOnly),
           if( forceEnable || (seCard.hasAlternativeSet() && card.hasMultiSet())) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
         ];
       else
@@ -52,7 +69,7 @@ class _CardSelectorState extends State<CardSelector> {
           if( forceEnable || card.data.design == Design.Holographic) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Halo, refresh: widget.refresh, readOnly: widget.readOnly),
         ];
     }
-
+*/
     super.initState();
   }
 
@@ -70,13 +87,14 @@ class _CardSelectorState extends State<CardSelector> {
 }
 
 class IconCard extends StatefulWidget {
+  final CardSet set;
   final BoosterDraw boosterDraw;
   final CodeDraw code;
   final Function refresh;
-  final Mode mode;
+  final int setId;
   final bool readOnly;
 
-  IconCard({required this.boosterDraw, required this.code, required this.mode, required this.refresh, required this.readOnly});
+  IconCard(this.boosterDraw, this.set, this.setId, this.code, {required this.refresh, required this.readOnly});
 
   @override
   _IconCardState createState() => _IconCardState();
@@ -87,23 +105,23 @@ class _IconCardState extends State<IconCard> {
 
   @override
   Widget build(BuildContext context) {
-    int count = widget.code.getCountFrom(widget.mode);
+    int count = widget.code.getCountFrom(widget.setId);
     return  Card(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Card(
-                color: count > 0 ? modeColors[widget.mode] : background,
+                color: count > 0 ? widget.set.color : background,
                 child: TextButton(
                   child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      children: [Image(image: AssetImage('assets/carte/${modeImgs[widget.mode]}.png'), width: 75.0),
+                      children: [Image(image: AssetImage('assets/carte/${widget.set.image}.png'), width: 75.0),
                         SizedBox(height: 6.0),
-                        Text(StatitikLocale.of(context).read(modeNames[widget.mode])),
+                        Text(widget.set.names.name(widget.boosterDraw.subExtension!.extension.language)),
                       ]),
                   style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
                   onPressed: widget.readOnly ? null : () {
-                    widget.boosterDraw.setOtherRendering(widget.code, widget.mode);
+                    widget.boosterDraw.setOtherRendering(widget.code, widget.setId);
                     Navigator.of(context).pop();
                     widget.refresh();
                   },
@@ -115,7 +133,7 @@ class _IconCardState extends State<IconCard> {
                   ElevatedButton(
                       onPressed: widget.readOnly ? null : () {
                         setState(() {
-                          widget.boosterDraw.increase(widget.code, widget.mode);
+                          widget.boosterDraw.increase(widget.code, widget.setId);
                         });
                         widget.refresh();
                       },
@@ -132,7 +150,7 @@ class _IconCardState extends State<IconCard> {
                   ElevatedButton(
                       onPressed: widget.readOnly ? null : () {
                         setState(() {
-                          widget.boosterDraw.decrease(widget.code, widget.mode);
+                          widget.boosterDraw.decrease(widget.code, widget.setId);
                         });
                         widget.refresh();
                       },

@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/Marker.dart';
-import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
+import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/models/product.dart';
 
 class CardIntoSubExtensions {
   SubExtension se;
@@ -36,6 +38,7 @@ class Collection
   Map effects      = {};
   Map rarities     = {};
   Map markers      = {};
+  Map products     = {};
 
   // Admin part
   Map rIllustrators    = {};
@@ -104,7 +107,7 @@ class Collection
       case 0xe163: return Icons.circle;
       case 0xe606: return Icons.stop;
       case 0xe5f9: return Icons.star;
-      case 0xe5fd: return Icons.star_outline;
+      case 0xe5fa: return Icons.star_outline;
       case 0xe3b4: return Icons.looks;
     }
     return Icons.help_outline;
@@ -121,7 +124,7 @@ class Collection
       var setResult = await connection.query("SELECT * FROM `Set`");
       for (var row in setResult) {
         try {
-          sets[row[0]] = CardSet(MultiLanguageString([row[1] ?? "", row[2] ?? "", row[3] ?? ""]));
+          sets[row[0]] = CardSet(MultiLanguageString([row[1] ?? "", row[2] ?? "", row[3] ?? ""]), Color(row[4]), row[5]);
         } catch(e) {
           printOutput("Bad Set: ${row[0]} $e");
         }
@@ -165,7 +168,6 @@ class Collection
       }
       assert(rarities.isNotEmpty);
       unknownRarity = rarities[28];
-
 
       var markersResult = await connection.query("SELECT * FROM `Markers`");
       for (var row in markersResult) {
@@ -377,6 +379,27 @@ class Collection
       for (var row in catExts) {
         category = row[0];
       }
+
+      // Read static data product
+      var productRequest = await connection.query("SELECT * FROM `Produit`");
+      for (var row in productRequest) {
+        try {
+          Map<int, ProductBooster> boosters = {};
+          var reqBoosters = await connection.query("SELECT `idSousExtension`, `nombre`, `carte`"
+              " FROM `ProduitBooster`"
+              " WHERE `idProduit` = \'${row[0]}\'");
+          for (var rowBooster in reqBoosters) {
+            var idBooster = rowBooster[0] == null ? 0 : rowBooster[0];
+            boosters[idBooster] = ProductBooster(nbBoosters: rowBooster[1], nbCardsPerBooster: rowBooster[2]);
+          }
+
+          // Start session
+          products[row[0]] = Product(idDB: row[0], name: row[3], imageURL: row[4], boosters: boosters);
+        } catch(e) {
+          printOutput("Bad SubExtension: ${row[0]} $e");
+        }
+      }
+      assert(products.isNotEmpty);
   }
 
   void adminReverse() {
@@ -586,11 +609,11 @@ class Collection
   }
 
   Future<void> removeUserProduct(SessionDraw session, connection) async {
-    if(session.idProduit != -1) {
+    if(session.idAchat != -1) {
       var query = 'DELETE FROM `TirageBooster` WHERE (`idAchat` = ?)';
-      await connection.queryMulti(query, [[session.idProduit]]);
+      await connection.queryMulti(query, [[session.idAchat]]);
       query = 'DELETE FROM `UtilisateurProduit` WHERE (`idAchat` = ?)';
-      await connection.queryMulti(query, [[session.idProduit]]);
+      await connection.queryMulti(query, [[session.idAchat]]);
     }
   }
 

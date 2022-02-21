@@ -1,7 +1,10 @@
-import 'package:statitikcard/services/models.dart';
+import 'package:flutter/material.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 class CardSet {
-  MultiLanguageString names;
+  final MultiLanguageString names;
+  final Color               color;
+  final String              image;
 
-  CardSet(this.names);
+  const CardSet(this.names, this.color, this.image);
 }

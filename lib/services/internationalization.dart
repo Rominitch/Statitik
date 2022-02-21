@@ -115,7 +115,8 @@ class StatitikLocale {
 Images and illustrations used are the property of their respective authors.
 © 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon and Pokémon character names are trademarks of Nintendo.''',
       'DB_0': 'Impossible to connect.',
-      'DB_1': 'Software is too old.\nPlease go to GooglePlay for update (can take time to detect).\nSorry for inconvenience.',
+      'DB_1': 'Software is too old.\nPlease go to Play Store for update (can take time to detect).\n\nSorry for inconvenience.',
+      'DB_2': 'Software / Database are in maintenance.\nPlease retry in one hour.\n\nSorry for inconvenience.',
       'RE_B0': 'Best cards',
       'RE_B1': 'Shared',
       'RE_B2': 'Report is saved into Pictures.',
@@ -428,7 +429,8 @@ Les personnages, le thème "Pokémon ®" et ses marques dérivées sont proprié
 Les images et illustrations utilisées sont la propriété de leurs auteurs respectifs.
 © 2021 Pokémon. © 1995–2021 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon et les noms des personnages Pokémon sont des marques de Nintendo.''',
       'DB_0': 'Impossible de se connecter à la base de données.',
-      'DB_1': 'Le programme est trop vieux.\nInstallez les mises à jour sous GooglePlay (peut mettre du temps a être détecté).\n\nDésolé pour la gêne occasionnée.',
+      'DB_1': 'Le programme n\'est plus à jour.\nInstallez les mises à jour grâce au Play Store (peut mettre du temps a être détecté).\n\nExcusez nous pour la gêne occasionnée.',
+      'DB_2': 'Le programme / base de données sont en maintenance.\nVeuillez réessayer dans une heure.\n\nExcusez nous pour la gêne occasionnée.',
       'NP_T0': 'Nouveau produit',
       'RE_B0': 'Meilleures cartes',
       'RE_B1': 'Partage',

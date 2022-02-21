@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/widgets/EnergyButton.dart';
 import 'package:statitikcard/screen/widgets/SliderWithText.dart';
 
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 class EnergySlider extends StatefulWidget {

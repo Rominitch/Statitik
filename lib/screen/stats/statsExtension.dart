@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Cartes/statsCard.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 class StatsExtensionsPage extends StatefulWidget {
   final StatsBooster stats;

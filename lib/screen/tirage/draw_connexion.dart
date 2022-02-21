@@ -10,11 +10,13 @@ import 'package:statitikcard/screen/tirage/DrawHistory.dart';
 import 'package:statitikcard/screen/tirage/tirage_resume.dart';
 import 'package:statitikcard/screen/tutorial/drawTuto.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/product.dart';
 
 class DrawHomePage extends StatefulWidget {
   @override
@@ -252,10 +254,10 @@ class _DrawHomePageState extends State<DrawHomePage> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.SingleSelection, language: language, subExt: subExt, afterSelected: afterSelectProduct) ));
   }
 
-  void afterSelectProduct(BuildContext context, Language language, Product? product, int categorie) {
+  void afterSelectProduct(BuildContext context, Language language, ProductRequested? product, int categorie) {
     // Build new session of draw
     Environment.instance.currentDraw =
-        SessionDraw(product: product!, language: language);
+        SessionDraw(product: product!.product, language: language);
     // Go to page
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => ResumePage()));

@@ -6,11 +6,11 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
-import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/product.dart';
 
 enum OptionShowState {
   RealCount,
@@ -53,27 +53,26 @@ class StatsView extends StatelessWidget {
     }
 
     if( data.subExt!.seCards.isValid ) {
-      for(Rarity rare in Environment.instance.collection.rarities.values ) {
-        if(rare == unknownRarity)
-          continue;
-        int sum = data.stats!.countByRarity[rare.id];
-        double luck = sum.toDouble() / data.stats!.nbBoosters;
-        if(luck > 0)
-        {
-          double? userLuck = (data.userStats != null && data.userStats!.nbBoosters > 0) ? (data.userStats!.countByRarity[rare.id] / data.userStats!.nbBoosters) : null;
-          rarity.add( buildLine(getImageRarity(rare), sum, luck, rare.color, divider, userLuck) );
+      data.stats!.countByRarity.forEach((rare, sum) {
+        if(rare != unknownRarity) {
+          double luck = sum.toDouble() / data.stats!.nbBoosters;
+          if(luck > 0)
+          {
+            double? userLuck = (data.userStats != null && data.userStats!.nbBoosters > 0) ? (sum.toDouble() / data.userStats!.nbBoosters) : null;
+            rarity.add( buildLine(getImageRarity(rare), sum, luck, rare.color, divider, userLuck) );
+          }
         }
-      }
+      });
 
-      for( var mode in [Mode.Reverse, Mode.Halo] ) {
-        int sum = data.stats!.countByMode[mode.index];
+      data.stats!.countBySet.forEach((set, sum) {
         double luck = sum.toDouble() / data.stats!.nbBoosters;
         if(luck > 0)
         {
-          double? userLuck = (data.userStats != null && data.userStats!.nbBoosters > 0) ? (data.userStats!.countByMode[mode.index] / data.userStats!.nbBoosters) : null;
-          rarity.add( buildLine([Image(image: AssetImage('assets/carte/${modeImgs[mode]}.png'), height: 30.0)], sum, luck, modeColors[mode.index], divider, userLuck) );
+          double? userLuck = (data.userStats != null && data.userStats!.nbBoosters > 0) ? (sum.toDouble() / data.userStats!.nbBoosters) : null;
+          rarity.add( buildLine([Image(image: AssetImage('assets/carte/${set.image}.png'), height: 30.0)], sum, luck, set.color, divider, userLuck) );
         }
-      }
+      });
+
     } else {
       rarity.add(Text(translator.read('S_B3')));
     }
@@ -132,32 +131,32 @@ class StatsView extends StatelessWidget {
 }
 
 class ProductCard extends StatelessWidget {
-  final Product prod;
-  final bool    showCount;
+  final ProductRequested  pr;
+  final bool              showCount;
 
-  ProductCard(this.prod, this.showCount);
+  ProductCard(this.pr, this.showCount);
 
   @override
   Widget build(BuildContext context) {
-    bool productImage = prod.hasImages() && Environment.instance.showPressProductImages;
+    bool productImage = pr.product.hasImages() && Environment.instance.showPressProductImages;
 
-    String nameProduct = prod.name;
+    String nameProduct = pr.product.name;
     if(showCount) {
-      nameProduct += ' (${prod.countProduct()})';
+      nameProduct += ' (${pr.count})';
     }
 
     return Card(
-        color: prod.color,
+        color: pr.color,
         child: Padding(
         padding: const EdgeInsets.all(4.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            if(productImage) prod.image(),
+            if(productImage) pr.product.image(),
             if(productImage) Text(
               nameProduct, textAlign: TextAlign.center,
               softWrap: true,
-              style: TextStyle(fontSize: ((prod.name.length > 15) ? 8 : 13)))
+              style: TextStyle(fontSize: ((pr.product.name.length > 15) ? 8 : 13)))
             else
               Text(nameProduct, textAlign: TextAlign.center, softWrap: true,),
           ]
@@ -215,11 +214,11 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
 
     // Compute basic info and search invalid data
     for(Rarity r in raritiesSelected) {
-      int validRarity = widget.data.stats!.countByRarity[r.id];
+      int validRarity = widget.data.stats!.countByRarity[r] ?? 0;
       if(validRarity == 0) {
         countZero += 1;
         findEmpty.add(r);
-        countEmpty += statsExtension.countByRarity[r.id];
+        countEmpty += statsExtension.countByRarity[r]!;
       } else {
         if( minRarity != null) {
           if(validRarity < minRarity) {
@@ -241,15 +240,15 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
       double unityProbability = 1.0;
       if(statsExtension.countByRarity[idMinRarity.id] == 1){
         unityProbability = 0.5;
-        info[idMinRarity] = statsExtension.countByRarity[idMinRarity.id] / 2;
+        info[idMinRarity] = statsExtension.countByRarity[idMinRarity]! / 2;
       } else {
-        info[idMinRarity] = statsExtension.countByRarity[idMinRarity.id]-1;
+        info[idMinRarity] = statsExtension.countByRarity[idMinRarity]!-1;
       }
       unityProbability = unityProbability / countEmpty.toDouble();
 
       // Fill invalid data
       findEmpty.forEach((r) {
-          info[r] = unityProbability * statsExtension.countByRarity[r.id];
+          info[r] = unityProbability * statsExtension.countByRarity[r]!;
       });
     }
 /*
@@ -269,11 +268,11 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
     int mean    = 0;
 
     for(Rarity r in raritiesSelected) {
-      int nbRarity = statsExtension.countByRarity[r.id];
+      int nbRarity = statsExtension.countByRarity[r] ?? 0;
       // Filter can be more than real data
       if( nbRarity > 0) {
-        double coutPerBooster = info[r]!
-            / widget.data.stats!.nbBoosters.toDouble();
+        assert(info[r]! > 0.0);
+        double coutPerBooster = info[r]! / widget.data.stats!.nbBoosters.toDouble();
         minimum = max(minimum, (nbRarity.toDouble() / coutPerBooster).ceil());
 
         double suite = 0.0;

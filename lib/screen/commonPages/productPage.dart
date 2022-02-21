@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/product.dart';
+import 'package:statitikcard/services/models/product.dart';
 
 enum ProductPageMode {
   SingleSelection,
@@ -68,12 +68,12 @@ class _ProductPageState extends State<ProductPage> {
         int idCategory = count;
         List<Widget> productCard = [];
 
-        for (Product prod in catProd) {
+        for (ProductRequested pr in catProd) {
           productFound = true;
 
-          String nameProduct = prod.name;
+          String nameProduct = pr.product.name;
           if(isMulti()) {
-            int countP = prod.countProduct();
+            int countP = pr.count;
             // Stop and don't show
             if(countP == 0)
               continue;
@@ -81,19 +81,19 @@ class _ProductPageState extends State<ProductPage> {
             nameProduct += ' (${countP.toString()})';
           }
 
-          bool productImage = prod.hasImages() && Environment.instance.showPressProductImages;
+          bool productImage = pr.product.hasImages() && Environment.instance.showPressProductImages;
           productCard.add(Card(
-              color: prod.color,
+              color: pr.color,
               child: TextButton(
                 style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      if(productImage) prod.image(),
+                      if(productImage) pr.product.image(),
                       if(productImage) Text(
                           nameProduct, textAlign: TextAlign.center,
                           softWrap: true,
-                          style: TextStyle(fontSize: ((prod.name.length > 15)
+                          style: TextStyle(fontSize: ((pr.product.name.length > 15)
                               ? 8
                               : 13)))
                       else
@@ -103,7 +103,7 @@ class _ProductPageState extends State<ProductPage> {
                     ]
                 ),
                 onPressed: () {
-                  widget.afterSelected(context, widget.language, prod, -1);
+                  widget.afterSelected(context, widget.language, pr, -1);
                 },
               )
           ));

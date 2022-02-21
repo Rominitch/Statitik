@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/Marker.dart';
-import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 class CustomButtonCheckController {
   List<ButtonCheck> _radios = [];
@@ -96,7 +96,7 @@ class _ButtonCheckState extends State<ButtonCheck> {
 }
 
 class MarkerButtonCheck extends ButtonCheck<CardMarker> {
-  Language l;
+  final Language l;
   MarkerButtonCheck(this.l, cardMarkers, value, {controller}) : super(cardMarkers, value, controller);
 
   @override
@@ -145,7 +145,7 @@ class SerieTypeButtonCheck extends ButtonCheck<SerieType> {
 }
 
 class CardSetButtonCheck extends ButtonCheck<CardSet> {
-  Language l;
+  final Language l;
   CardSetButtonCheck(this.l, seList, value, {controller}) : super(seList, value, controller);
 
   @override

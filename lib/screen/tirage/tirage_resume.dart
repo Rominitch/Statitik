@@ -3,10 +3,11 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/tirage/tirage_booster.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 class ResumePage extends StatefulWidget {
   final SessionDraw _activeSession;
@@ -18,6 +19,10 @@ class ResumePage extends StatefulWidget {
   ResumePage([activeSession]) :
     this._readOnly      = activeSession != null,
     this._activeSession = activeSession != null ? activeSession! : Environment.instance.currentDraw;
+
+  ResumePage.fromSave(SessionDraw session) :
+        this._readOnly      = false,
+        this._activeSession = session;
 }
 
 class _ResumePageState extends State<ResumePage> {
@@ -62,7 +67,7 @@ class _ResumePageState extends State<ResumePage> {
         //below you can get your result and update the view with setState
         //changing the value if you want, i just wanted know if i have to
         //update, and if is true, reload state
-        if (result) {
+        if (result == null || result) {
           setState(() {});
         }
       };

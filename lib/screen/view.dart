@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
+import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 Widget createLanguage(Language l, BuildContext context, Widget Function(BuildContext) press)
@@ -165,13 +166,14 @@ class _PokemonCardState extends State<PokemonCard> {
   @override
   Widget build(BuildContext context) {
     List<CodeDraw> cardValues = widget.boosterDraw.cardDrawing!.draw[widget.idCard];
-    var cardValue = cardValues[0];
     int nbCard = 0;
-    cardValues.forEach((card) { nbCard += cardValue.count(); });
+    cardValues.forEach((codeDraw) { nbCard += codeDraw.count(); });
     Function update = () {
       setState(() {});
       widget.refresh();
     };
+
+    var cardValue = cardValues[0];
 
     return Padding(
       padding: const EdgeInsets.all(2.0),
@@ -186,7 +188,7 @@ class _PokemonCardState extends State<PokemonCard> {
                   Text('${widget.boosterDraw.nameCard(widget.idCard)}')
               ]),
           style: TextButton.styleFrom(
-            backgroundColor: cardValue.color(),
+            backgroundColor: cardValue.color(widget.card),
             padding: const EdgeInsets.all(2.0)
           ),
           onLongPress: () {
@@ -195,7 +197,7 @@ class _PokemonCardState extends State<PokemonCard> {
               setState(() {
                 showDialog(
                     context: context,
-                    builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.idCard, update, false, widget.readOnly); }
+                    builder: (BuildContext context) { return CardSelector(widget.card, widget.boosterDraw, widget.idCard, update, false, widget.readOnly); }
                 );
                 widget.refresh();
               });
@@ -203,8 +205,8 @@ class _PokemonCardState extends State<PokemonCard> {
           },
           onPressed: widget.readOnly ? null : () {
             setState(() {
-              // WARNING: default press is always on first
-              widget.boosterDraw.toggleCard(widget.boosterDraw.cardDrawing!.draw[widget.idCard], widget.card.defaultMode());
+              // WARNING: default press is always on first set
+              widget.boosterDraw.toggleCard(widget.boosterDraw.cardDrawing!.draw[widget.idCard], 0);
               widget.refresh();
             });
           }
@@ -214,12 +216,12 @@ class _PokemonCardState extends State<PokemonCard> {
 }
 
 class EnergyButton extends StatefulWidget {
+  final PokemonCardExtension card;
   final BoosterDraw boosterDraw;
-  final Type type;
   final Function refresh;
   final bool readOnly;
 
-  EnergyButton({required this.type, required this.boosterDraw, required this.refresh, required this.readOnly});
+  EnergyButton(this.card, {required this.boosterDraw, required this.refresh, required this.readOnly});
 
   @override
   _EnergyButtonState createState() => _EnergyButtonState();
@@ -248,7 +250,8 @@ class _EnergyButtonState extends State<EnergyButton> {
       widget.refresh();
     };
 
-    CodeDraw code = widget.boosterDraw.energiesBin[widget.type.index];
+    Type type = widget.card.data.typeExtended!;
+    CodeDraw code = widget.boosterDraw.energiesBin[type.index];
     return Container(
         constraints: BoxConstraints(
           maxWidth: 55.0,
@@ -256,12 +259,12 @@ class _EnergyButtonState extends State<EnergyButton> {
         padding: EdgeInsets.all(2.0),
         child: TextButton(
           style: TextButton.styleFrom(
-            backgroundColor: code.color(),
+            backgroundColor: code.color(widget.card),
           ),
-          child: energyImage(widget.type),
+          child: energyImage(type),
           onPressed: () {
             setState(() {
-              widget.boosterDraw.toggleCard([code], Mode.Normal);
+              widget.boosterDraw.toggleCard([code], 0);
               widget.boosterDraw.onEnergyChanged.add(true);
             });
           },
@@ -269,7 +272,7 @@ class _EnergyButtonState extends State<EnergyButton> {
             setState(() {
               showDialog(
                   context: context,
-                  builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.type.index, update, true, widget.readOnly); }
+                  builder: (BuildContext context) { return CardSelector(widget.card, widget.boosterDraw, type.index, update, true, widget.readOnly); }
               ).whenComplete(()  {
                 setState(() {
                   widget.boosterDraw.onEnergyChanged.add(true);

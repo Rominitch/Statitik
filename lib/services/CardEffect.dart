@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 class DescriptionData {
-  MultiLanguageString     multiName;
+  final MultiLanguageString     multiName;
   List<DescriptionEffect> markers = [];
 
   DescriptionData.fromDb(this.multiName, int marks) {

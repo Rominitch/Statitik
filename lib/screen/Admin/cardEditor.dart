@@ -4,7 +4,7 @@ import 'package:sprintf/sprintf.dart';
 
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 class CardEditor extends StatefulWidget {

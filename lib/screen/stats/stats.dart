@@ -11,7 +11,7 @@ import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 enum StateStatsExtension {
   Cards,
@@ -34,9 +34,10 @@ class StatsConfiguration {
     sData.stats     = null;
     sData.cardStats.stats = CardStats();
 
+    var product = sData.pr != null ? sData.pr!.product : null;
     // Get data from DB
     Environment env = Environment.instance;
-    env.getStats(statsData.subExt!, sData.product, sData.category).then( (stats) {
+    env.getStats(statsData.subExt!, product, sData.category).then( (stats) {
       sData.stats = stats;
       // Compute Cards stats
       int idCard=0;
@@ -49,7 +50,7 @@ class StatsConfiguration {
 
       // Get user info after
       if(env.user != null) {
-        env.getStats(sData.subExt!, sData.product, sData.category, env.user!.idDB).then( (ustats) {
+        env.getStats(sData.subExt!, product, sData.category, env.user!.idDB).then( (ustats) {
           if(ustats.nbBoosters > 0) {
             sData.userStats = ustats;
             refresh();
@@ -90,7 +91,7 @@ class _StatsPageState extends State<StatsPage> {
     setState(() {
       // Set old filter
       widget.info.statsData.category = -1;
-      widget.info.statsData.product = null;
+      widget.info.statsData.pr = null;
       // Change selection
       widget.info.statsData.language = language;
       widget.info.statsData.subExt = subExt;

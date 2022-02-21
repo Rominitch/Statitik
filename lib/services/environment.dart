@@ -4,15 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
-import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/collection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/connection.dart';
+import 'package:statitikcard/services/models/product.dart';
 
 class StatitikException implements Exception {
     String msg;
@@ -77,6 +78,7 @@ class Environment
     bool showPressImages        = false;
     bool showPressProductImages = false;
     bool showTCGImages          = false;
+    bool isMaintenance          = false;
 
     // Cached data
     Collection collection = Collection();
@@ -105,6 +107,7 @@ class Environment
                         showPressImages        = (row[2] == 1);
                         showPressProductImages = (row[3] == 1);
                         showTCGImages          = (row[4] == 1);
+                        isMaintenance          = (row[5] == 1);
                     }
                 }).then( (result) {
                     isDBReady = result;
@@ -115,17 +118,26 @@ class Environment
                     if(!isDatabaseMatch) {
                         throw StatitikException('DB_1');
                     }
+
+                    // Load user
                     onInfoLoading.add('LOAD_0');
-                    credential.initialize().
-                    whenComplete( () async {
+                    credential.initialize().whenComplete(() {
+                        // Load database
                         onInfoLoading.add('LOAD_1');
-                        readStaticData().whenComplete(() async {
+                        readStaticData().whenComplete(() {
                             if (isLogged() && user!.admin) {
                                 printOutput("Admin is launched !");
                                 collection.adminReverse();
+                            } else {
+                                if(isMaintenance) {
+                                    throw StatitikException('DB_2');
+                                }
                             }
                             isInitialized = true;
                             onInitialize.add(isInitialized);
+                        }).catchError((error) {
+                            isInitialized = false;
+                            onServerError.add(error.msg);
                         });
                     });
                 }).catchError((error) {
@@ -416,10 +428,10 @@ class Environment
                         }
 
                         // Start session
-                        var p = Product(idDB: row[2], name: row[4], imageURL: row[5], count: 1, boosters: boosters, color: Colors.grey[600]!);
+                        var p = Product(idDB: row[2], name: row[4], imageURL: row[5], boosters: boosters);
                         var l = collection.languages[row[3]];
                         var session = SessionDraw(product: p, language: l);
-                        session.idProduit = row[0];
+                        session.idAchat = row[0];
 
                         // Read user data
                         var reqUserBoosters = await connection.query("SELECT `idSousExtension`, `anomalie`, `cartesBin`, `energieBin` "

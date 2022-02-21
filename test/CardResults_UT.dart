@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:statitikcard/services/CardEffect.dart';
-import 'package:statitikcard/services/Marker.dart';
-import 'package:statitikcard/services/Rarity.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
+import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 void main() {

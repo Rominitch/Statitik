@@ -4,9 +4,10 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 
 import 'Tools.dart';
 
@@ -21,7 +22,7 @@ class ExtensionDrawCards {
   ExtensionDrawCards.fromSubExtension(SubExtension subExtension) {
     var allCardsSE = subExtension.seCards.cards;
     draw = List<List<CodeDraw>>.generate(allCardsSE.length, (index) {
-      return List<CodeDraw>.generate(allCardsSE[index].length, (index) {return CodeDraw(); });
+      return List<CodeDraw>.generate(allCardsSE[index].length, (index) {return CodeDraw.fromSet(allCardsSE[index][0].sets.length); });
     });
   }
 
@@ -41,7 +42,7 @@ class ExtensionDrawCards {
       List<CodeDraw> cardCode = [];
       bytes.sublist(pointer, pointer+count).forEach(
         (code){
-          cardCode.add(CodeDraw.fromInt(code));
+          cardCode.add(CodeDraw.oldDecode(code));
         }
       );
       assert(cardCode.isNotEmpty);
@@ -65,9 +66,7 @@ class ExtensionDrawCards {
         if(!itCard.moveNext())
           throw StatitikException("ExtensionDrawCards - Draw Data corruption : more card than expected !");
         // Copy data
-        itCard.current.countNormal  = card.countNormal;
-        itCard.current.countReverse = card.countReverse;
-        itCard.current.countHalo    = card.countHalo;
+        itCard.current.copy(card);
 
         count += card.count();
       });
@@ -111,67 +110,76 @@ class ExtensionDrawCards {
 }
 
 class CodeDraw {
-  int countNormal;
-  int countReverse;
-  int countHalo;
+  List<int> countBySet;
 
-  CodeDraw([this.countNormal = 0, this.countReverse = 0, this.countHalo = 0]) {
-    assert(this.countNormal <= 7);
-    assert(this.countReverse <= 7);
-    assert(this.countHalo <= 7);
+  CodeDraw.fromSet(int nbSets) : countBySet = List<int>.filled(nbSets, 0);
+
+  CodeDraw.fromOld([countNormal = 0, countReverse = 0, countHalo = 0]) :
+    countBySet = List<int>.filled(2, 0)
+  {
+    countBySet[0] = countNormal + countHalo;
+    countBySet[1] = countReverse;
+
+    assert(countBySet[0] <= 7);
+    assert(countBySet[1] <= 7);
   }
 
-  CodeDraw.fromInt(int code) :
-    this.countNormal      = code & 0x07,
-    this.countReverse     = (code>>3) & 0x07,
-    this.countHalo        = (code>>6) & 0x07;
+  CodeDraw.oldDecode(int code) :
+        countBySet = List<int>.filled(2, 0)
+  {
+    countBySet[0] = code & 0x07 + (code>>6) & 0x07;
+    countBySet[1] = (code>>3) & 0x07;
+  }
 
-  int getCountFrom(Mode mode) {
-    List<int> byMode = [countNormal, countReverse, countHalo];
-    return byMode[mode.index];
+  void copy(CodeDraw other) {
+    countBySet = List<int>.from(other.countBySet);
+  }
+
+  void reset() {
+    countBySet = List<int>.filled(countBySet.length, 0);
+  }
+
+  int getCountFrom(int set) {
+    return countBySet[set];
   }
 
   int toInt() {
-    int code = countNormal
-        + (countReverse<<3)
-        + (countHalo   <<6);
-        //+ (countAlternative <<9);
+    int code = countBySet.first;
+    int mul = 3;
+    countBySet.skip(1).forEach((element) {
+      code += element << mul;
+      mul += 3;
+    });
     return code;
   }
   int count() {
-    return countNormal+countReverse+countHalo;
+    return countBySet.reduce((value, element) => value + element);
   }
 
   bool isEmpty() {
     return count()==0;
   }
 
-  Color color() {
-    return countHalo > 0
-        ? modeColors[Mode.Halo]
-        : (countReverse > 0
-        ?modeColors[Mode.Reverse]
-        : (countNormal > 0
-        ? modeColors[Mode.Normal]
-        : Colors.grey[900]));
+  Color color(PokemonCardExtension card) {
+    assert( countBySet.length == card.sets.length, "${countBySet.length} == ${card.sets.length}" );
+    var setInfo = card.sets.reversed.iterator;
+
+    for(var element in countBySet.reversed) {
+      setInfo.moveNext();
+      if(element > 0)
+        return setInfo.current.color;
+    }
+    return Colors.grey[900]!;
   }
 
-  void increase(Mode mode) {
-    if( mode == Mode.Normal)
-      countNormal = min(countNormal + 1, 7);
-    else if( mode == Mode.Reverse)
-      countReverse = min(countReverse + 1, 7);
-    else
-      countHalo = min(countHalo + 1, 7);
+  void increase(int set) {
+    assert(0 <= set && set < countBySet.length);
+    countBySet[set] = min(countBySet[set] + 1, 7);
   }
 
-  void decrease(Mode mode) {
-    if( mode == Mode.Normal)
-      countNormal = max(countNormal - 1, 0);
-    else if( mode == Mode.Reverse)
-      countReverse = max(countReverse - 1, 0);
-    else
-      countHalo = max(countHalo - 1, 0);
+  void decrease(int set) {
+    assert(0 <= set && set < countBySet.length);
+    countBySet[set] = max(countBySet[set] - 1, 0);
   }
 }
 
@@ -192,11 +200,14 @@ class BoosterDraw {
   BoosterDraw({this.creation, required this.id, required this.nbCards })
   {
     assert(this.nbCards > 0);
-    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(); });
     subExtension = creation;
-    if(hasSubExtension()) {
-      fillCard();
-    }
+    fillCard();
+    fillEnergies();
+  }
+  
+  void fillEnergies() {
+    if(hasSubExtension())
+      energiesBin = List<CodeDraw>.generate(subExtension!.seCards.energyCard.length, (index) { return CodeDraw.fromSet(subExtension!.seCards.energyCard[index].sets.length); });
   }
 
   void closeStream() {
@@ -219,7 +230,7 @@ class BoosterDraw {
     count    = 0;
     abnormal = false;
     cardDrawing  = null;
-    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(); });
+    fillEnergies();
   }
 
   void resetExtensions() {
@@ -229,7 +240,8 @@ class BoosterDraw {
   }
 
   void fillCard() {
-    cardDrawing = ExtensionDrawCards.fromSubExtension(subExtension!);
+    if(hasSubExtension())
+      cardDrawing = ExtensionDrawCards.fromSubExtension(subExtension!);
   }
 
   bool isFinished() {
@@ -253,54 +265,48 @@ class BoosterDraw {
   }
 
   /// Toggle first card (but reset other)
-  void toggleCard(List<CodeDraw> codes, Mode mode) {
+  void toggleCard(List<CodeDraw> codes, int set) {
     var code = codes[0];
     // Remove alternative state
-    codes.sublist(1).forEach((otherCode) {
+    codes.skip(1).forEach((otherCode) {
       count -= otherCode.count();
-      otherCode.countNormal      = 0;
-      otherCode.countReverse     = 0;
-      otherCode.countHalo        = 0;
+      otherCode.reset();
     });
 
     count -= code.count();
     if(code.isEmpty()) {
       if(canAdd()) {
-        code.countNormal      = mode==Mode.Normal      ? 1 : 0;
-        code.countReverse     = mode==Mode.Reverse     ? 1 : 0;
-        code.countHalo        = mode==Mode.Halo        ? 1 : 0;
+        code.reset();
+        code.increase(set);
       }
     } else {
-      code.countNormal      = 0;
-      code.countReverse     = 0;
-      code.countHalo        = 0;
+      code.reset();
     }
     count += code.count();
   }
 
-  void increase(CodeDraw code, Mode mode) {
+  void increase(CodeDraw code, int set) {
     if(canAdd()) {
       count -= code.count();
-      code.increase(mode);
+      code.increase(set);
       count += code.count();
     }
   }
 
-  void decrease(CodeDraw code, Mode mode) {
+  void decrease(CodeDraw code, int set) {
     if(count > 0) {
       count -= code.count();
-      code.decrease(mode);
+      code.decrease(set);
       count += code.count();
     }
   }
 
-  void setOtherRendering(CodeDraw code, Mode mode) {
+  void setOtherRendering(CodeDraw code, int set) {
     if(canAdd()) {
       count -= code.count();
 
-      code.countNormal      = mode==Mode.Normal      ? 1 : 0;
-      code.countReverse     = mode==Mode.Reverse     ? 1 : 0;
-      code.countHalo        = mode==Mode.Halo        ? 1 : 0;
+      code.reset();
+      code.increase(set);
 
       count += code.count();
     }
@@ -355,7 +361,9 @@ class BoosterDraw {
                 reverse += count;
             }
           }
-          reverse += element.countReverse;
+
+          if(element.countBySet.length > 1)
+            reverse += element.countBySet[1];
 
           idLocalCard += 1;
         });
@@ -376,13 +384,13 @@ class BoosterDraw {
 
     // Fill with full SubExtension data
     fillCard();
-    energiesBin = List<CodeDraw>.generate(energies.length, (index) { return CodeDraw(); });
+    fillEnergies();
 
     // Fill with saved data (always less data because zero are deleted)
     count = cardDrawing!.fillWith(edc);
     int id=0;
     newEnergiesBin.forEach((element) {
-      energiesBin[id] = CodeDraw.fromInt(element);
+      energiesBin[id] = CodeDraw.oldDecode(element);
       count += energiesBin[id].count();
       id += 1;
     });

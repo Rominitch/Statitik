@@ -1,25 +1,24 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/Marker.dart';
-import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 import 'Tools.dart';
 
 /// Pokemon region
 class Region {
-  MultiLanguageString _fullName;
-  MultiLanguageString _applyPokemonName;
+  final MultiLanguageString _fullName;
+  final MultiLanguageString _applyPokemonName;
 
-  Region(this._fullName, this._applyPokemonName);
+  const Region(this._fullName, this._applyPokemonName);
 
   String name(Language l) {
     return _fullName.name(l);
@@ -33,9 +32,9 @@ class Region {
 /// Special name to give (flying pikachu, ...)
 class Forme
 {
-  MultiLanguageString _applyPokemonName;
+  final MultiLanguageString _applyPokemonName;
 
-  Forme(this._applyPokemonName);
+  const Forme(this._applyPokemonName);
 
   String applyToPokemonName(Language l) {
     return _applyPokemonName.name(l);
@@ -103,9 +102,9 @@ class Pokemon {
 }
 
 class Illustrator {
-  String name;
+  final String name;
 
-  Illustrator(this.name);
+  const Illustrator(this.name);
 }
 
 class EnergyValue {
@@ -325,9 +324,11 @@ class PokemonCardExtension {
     return !isValid() || hasMultiSet();
   }
 
+  /*
   Mode defaultMode() {
     return data.design == Design.Holographic ? Mode.Halo : Mode.Normal;
   }
+   */
 
   bool isForReport() {
     return goodCard.contains(rarity);
@@ -443,7 +444,7 @@ class SubExtensionCards {
   }
 
   bool hasBoosterEnergy() {
-    return configuration & 1 == 1;
+    return configuration & 1 == 1 && energyCard.isNotEmpty;
   }
 
   bool hasAlternativeSet() {

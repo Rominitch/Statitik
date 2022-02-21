@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
@@ -27,6 +28,8 @@ class Credential
       if( prefs.getString('uid') != null ) {
         Environment.instance.login(CredentialMode.AutoLog, null, null);
       }
+
+      printOutput("User created");
     } catch(e) {
       Environment.instance.user = null;
     }

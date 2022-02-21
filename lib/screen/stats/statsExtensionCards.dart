@@ -4,7 +4,7 @@ import 'package:statitikcard/screen/Cartes/CardViewer.dart';
 
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
-import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
 
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/internationalization.dart';

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/services/environment.dart';
 
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 class ListSelector extends StatefulWidget {
   final String titleCode;

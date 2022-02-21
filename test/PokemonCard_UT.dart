@@ -3,11 +3,11 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/Marker.dart';
-import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 void main() {
@@ -66,9 +66,12 @@ void main() {
 
         subCards.forEach((code) {
           expect(itSS.current, isNot(null));
-          expect(code.countNormal,  itSS.current.countNormal);
-          expect(code.countHalo,    itSS.current.countHalo);
-          expect(code.countReverse, itSS.current.countReverse);
+
+          var setSS = itSS.current.countBySet.iterator;
+          code.countBySet.forEach((element) {
+            expect(element,  setSS.current);
+            setSS.moveNext();
+          });
           itSS.moveNext();
         });
         itS.moveNext();
@@ -77,7 +80,7 @@ void main() {
 
     List<ExtensionDrawCards> c =
     [
-      ExtensionDrawCards.from([[CodeDraw(1, 2, 3), CodeDraw(4, 5, 2), CodeDraw()], [CodeDraw(2, 4, 2)], [CodeDraw(1,0,0)]]),
+      ExtensionDrawCards.from([[CodeDraw.fromOld(1, 2, 3), CodeDraw.fromOld(4, 5, 2), CodeDraw.fromOld()], [CodeDraw.fromOld(2, 4, 2)], [CodeDraw.fromOld(1,0,0)]]),
       //ExtensionDrawCards.from(<List<CodeDraw>>[]) // Impossible
     ];
 
@@ -87,7 +90,7 @@ void main() {
     }
 
     // Simplify
-    var long = ExtensionDrawCards.from(c[0].draw + [[CodeDraw()], [CodeDraw()], [CodeDraw()], [CodeDraw()]]);
+    var long = ExtensionDrawCards.from(c[0].draw + [[CodeDraw.fromOld()], [CodeDraw.fromOld()], [CodeDraw.fromOld()], [CodeDraw.fromOld()]]);
     ExtensionDrawCards simplified = ExtensionDrawCards.fromBytes(long.toBytes());
 
     compare(c[0], simplified);
@@ -95,7 +98,7 @@ void main() {
 
   test('PokemonCardExtension', () {
     Map allSets = {
-      0: CardSet(MultiLanguageString(["set", "set", "set"])),
+      0: CardSet(MultiLanguageString(["set", "set", "set"]), Colors.green, "normal"),
     };
 
     Map raritySets = {

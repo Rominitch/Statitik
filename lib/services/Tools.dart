@@ -6,7 +6,7 @@ import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 import 'connection.dart';
 

@@ -5,7 +5,7 @@ import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 class NewProductBooster {
   SubExtension? ext;

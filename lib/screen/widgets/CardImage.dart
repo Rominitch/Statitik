@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:kana_kit/kana_kit.dart';
 
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 class CardImage extends StatefulWidget {

@@ -4,13 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:statitikcard/screen/stats/statView.dart';
 import 'package:statitikcard/screen/widgets/screenPrint.dart';
-import 'package:statitikcard/services/Rarity.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
-import 'package:statitikcard/services/product.dart';
+import 'package:statitikcard/services/models/product.dart';
 
 class UserReport extends StatefulWidget {
   final StatsData data;
@@ -37,7 +36,7 @@ class _UserReportState extends State<UserReport> {
     compute = true;
     finalData.stats    = widget.data.userStats;
     finalData.language = widget.data.language;
-    finalData.product  = widget.data.product;
+    finalData.pr  = widget.data.pr;
     finalData.category = widget.data.category;
     finalData.subExt   = widget.data.subExt;
 
@@ -103,15 +102,15 @@ class _UserReportState extends State<UserReport> {
       });
 
       products.clear();
-      if (finalData.product != null) {
-        products.add(ProductCard(finalData.product!, true));
+      if (finalData.pr != null) {
+        products.add(ProductCard(finalData.pr!, true));
         compute=false;
       } else { // All products or cat
         readProductsForUser(finalData.language!, finalData.subExt!, finalData.category).then((aps) {
           for (final ps in aps) {
-            for (Product p in ps) {
-              if( products.length < 5 && p.countProduct() > 0)
-                products.add(ProductCard(p, true));
+            for (ProductRequested pr in ps) {
+              if( products.length < 5 && pr.count > 0)
+                products.add(ProductCard(pr, true));
             }
           }
           setState(() {compute=false;});
