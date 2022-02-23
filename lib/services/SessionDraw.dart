@@ -32,14 +32,7 @@ class SessionDraw
         element.subExtension = Environment.instance.collection.subExtensions[subExtensionId];
         element.abnormal = parser.extractBool();
 
-        element.cardDrawing = ExtensionDrawCards.fromBytes(parser.extractBytesArray());
-
-        // Energies
-        element.energiesBin.clear();
-        var energyCodes = parser.extractBytesArray();
-        energyCodes.forEach((code) {
-          element.energiesBin.add(CodeDraw.fromCode(code));
-        });
+        element.cardDrawing = ExtensionDrawCards.fromBytes(element.subExtension!, parser.extractBytesArray());
       }
     });
   }
@@ -58,12 +51,6 @@ class SessionDraw
         bytes += ByteEncoder.encodeBool(element.abnormal);
         // List code
         bytes += ByteEncoder.encodeBytesArray(element.cardDrawing!.toBytes());
-        // Energies
-        List<int> energyCode = [];
-        for(CodeDraw c in element.energiesBin) {
-          energyCode.add(c.toInt());
-        }
-        bytes += ByteEncoder.encodeBytesArray(energyCode);
       } else {
         bytes += ByteEncoder.encodeInt16(0);
       }

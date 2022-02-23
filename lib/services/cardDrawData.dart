@@ -4,7 +4,6 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
@@ -12,43 +11,98 @@ import 'package:statitikcard/services/pokemonCard.dart';
 import 'Tools.dart';
 
 class ExtensionDrawCards {
-  List<List<CodeDraw>> draw = [];
+  late List<List<CodeDraw>> drawCards;
+  late List<CodeDraw>       drawEnergies;   ///< Energy inside booster.
 
-  static const int version = 3; // Warning: Limited to 256
-
-  ExtensionDrawCards();
-  ExtensionDrawCards.from(draw) : this.draw = draw;
+  static const int version = 4; // Warning: Limited to 256
 
   ExtensionDrawCards.fromSubExtension(SubExtension subExtension) {
     var allCardsSE = subExtension.seCards.cards;
-    draw = List<List<CodeDraw>>.generate(allCardsSE.length, (index) {
-      return List<CodeDraw>.generate(allCardsSE[index].length, (index) {return CodeDraw.fromSet(allCardsSE[index][0].sets.length); });
+    drawCards = List<List<CodeDraw>>.generate(allCardsSE.length, (index) {
+      var cardForNumber = allCardsSE[index];
+      return List<CodeDraw>.generate(cardForNumber.length, (subIndex) {
+        return CodeDraw.fromSet(cardForNumber[subIndex].sets.length);
+      });
+    });
+
+    var energiesCards = subExtension.seCards.energyCard;
+    drawEnergies = List<CodeDraw>.generate(energiesCards.length, (index) {
+      return CodeDraw.fromSet(energiesCards[index].sets.length);
     });
   }
 
-  ExtensionDrawCards.fromBytes(List<int> zipBytes) {
+  ExtensionDrawCards.fromBytes(SubExtension subExtension, List<int> zipBytes) {
+    this.drawCards    = [];
+    this.drawEnergies = [];
+
     int currentVersion = zipBytes[0];
-    if(currentVersion != version) {
+    if(currentVersion == 4) {
+      _fromBytesV4(subExtension, zipBytes);
+    } else if(currentVersion == 3) {
+      _fromBytesV3(subExtension, zipBytes);
+    } else {
       throw StatitikException("ExtensionDrawCards need migration !");
     }
+  }
 
+  void _fromBytesV3(SubExtension subExtension, List<int> zipBytes) {
     List<int> bytes = gzip.decode(zipBytes.sublist(1));
 
+    var cardsList = subExtension.seCards.cards.iterator;
     int pointer = 0;
     while(pointer < bytes.length) {
+      if(!cardsList.moveNext())
+        throw StatitikException("Unknown Cards");
       int count = bytes[pointer];
       pointer += 1;
 
       List<CodeDraw> cardCode = [];
+      var cardEx = cardsList.current.iterator;
       bytes.sublist(pointer, pointer+count).forEach(
         (code){
-          cardCode.add(CodeDraw.fromCode(code));
+          if(!cardEx.moveNext())
+            throw StatitikException("Unknown Card");
+          cardCode.add(CodeDraw.fromOldCode(cardEx.current.sets.length, code));
         }
       );
       assert(cardCode.isNotEmpty);
 
-      draw.add(cardCode);
+      drawCards.add(cardCode);
       pointer += count;
+    }
+  }
+
+  void _fromBytesV4(SubExtension subExtension, List<int> zipBytes) {
+    List<int> bytes = gzip.decode(zipBytes.sublist(1));
+    var parser = ByteParser(bytes);
+    var cardsList = subExtension.seCards.cards.iterator;
+
+    int nbCards = parser.extractInt16();
+    for(int id=0; id < nbCards; id +=1) {
+      if(!cardsList.moveNext())
+        throw StatitikException("Unknown Cards");
+
+      int count = parser.extractInt8();
+      List<CodeDraw> cardCode = [];
+      var cardEx = cardsList.current.iterator;
+      for(int idCard=0; idCard < count; idCard +=1) {
+        var code = parser.extractInt8();
+        if(!cardEx.moveNext())
+          throw StatitikException("Unknown Card");
+        cardCode.add(CodeDraw.fromSet(cardEx.current.sets.length, code));
+      }
+      assert(cardCode.isNotEmpty);
+      drawCards.add(cardCode);
+    }
+
+    // Extract Energy card
+    var energiesList = subExtension.seCards.energyCard.iterator;
+    int nbEnergiesCards = parser.extractInt16();
+    for(int id=0; id < nbEnergiesCards; id +=1) {
+      var code = parser.extractInt8();
+      if(!energiesList.moveNext())
+        throw StatitikException("Unknown Card");
+      drawEnergies.add(CodeDraw.fromSet(energiesList.current.sets.length, code));
     }
   }
 
@@ -56,11 +110,11 @@ class ExtensionDrawCards {
   int fillWith(ExtensionDrawCards savedData) {
     int count = 0;
 
-    var itCurrent = draw.iterator;
+    var itCurrent = drawCards.iterator;
 
-    savedData.draw.forEach((saveCards) {
+    savedData.drawCards.forEach((saveCards) {
       if(!itCurrent.moveNext())
-        throw StatitikException("ExtensionDrawCards - Draw Data corruption : more cards into Expansion than expected ${draw.length} < ${savedData.draw.length}!");
+        throw StatitikException("ExtensionDrawCards - Draw Data corruption : more cards into Expansion than expected ${drawCards.length} < ${savedData.drawCards.length}!");
       var itCard = itCurrent.current.iterator;
       saveCards.forEach((card) {
         if(!itCard.moveNext())
@@ -71,6 +125,16 @@ class ExtensionDrawCards {
         count += card.count();
       });
     });
+
+    var energyIt = drawEnergies.iterator;
+    savedData.drawEnergies.forEach((drawEnergy) {
+      if(!energyIt.moveNext())
+        throw StatitikException("ExtensionDrawCards - Draw Energy Data corruption : more cards into Expansion than expected ${drawEnergies.length} < ${savedData.drawEnergies.length}!");
+
+      energyIt.current.copy(drawEnergy);
+      count += drawEnergy.count();
+    });
+
     return count;
   }
 
@@ -78,7 +142,7 @@ class ExtensionDrawCards {
   List<int> toBytes() {
     // Clean code to minimal binary data
     List<List<int>> allCardsCodes = [];
-    draw.forEach((codeCards) {
+    drawCards.forEach((codeCards) {
       List<int> localCard = [];
       codeCards.forEach((card) { localCard.add(card.toInt()); });
       allCardsCodes.add(localCard);
@@ -93,14 +157,29 @@ class ExtensionDrawCards {
         break;
     }
     assert(allCardsCodes.isNotEmpty);
+    int validEnergy = drawEnergies.length;
+    drawEnergies.reversed.firstWhere((element) {
+      if(element.count() > 0)
+        return true;
+      else {
+        validEnergy -= 1;
+        return false;
+      }
+    });
 
     // Build binary data
-    List<int> bytes = [];
+    List<int> bytes = ByteEncoder.encodeInt16(allCardsCodes.length);
     allCardsCodes.forEach((cards) {
       bytes.add(cards.length);
       cards.forEach((code) { bytes.add(code);});
     });
+    // Make for energies
+    bytes += ByteEncoder.encodeInt16(validEnergy);
+    drawEnergies.sublist(0, validEnergy).forEach((element) {
+      bytes.add(element.toInt());
+    });
 
+    // Final data
     List<int> finalBytes = [version];
     finalBytes += gzip.encode(bytes);
 
@@ -112,7 +191,12 @@ class ExtensionDrawCards {
 class CodeDraw {
   List<int> countBySet;
 
-  CodeDraw.fromSet(int nbSets) : countBySet = List<int>.filled(nbSets, 0);
+  CodeDraw.fromSet(int nbSets, [int? code]) : countBySet = List<int>.filled(nbSets, 0)
+  {
+    if(code != null) {
+      setCode(code);
+    }
+  }
 
   CodeDraw.fromOld([countNormal = 0, countReverse = 0, countHalo = 0]) :
     countBySet = List<int>.filled(2, 0)
@@ -124,11 +208,23 @@ class CodeDraw {
     assert(countBySet[1] <= 7);
   }
 
-  CodeDraw.fromCode(int code) :
-        countBySet = List<int>.filled(2, 0)
+  CodeDraw.fromOldCode(int nbSets, int code) :
+        countBySet = List<int>.filled(nbSets, 0)
   {
     countBySet[0] = code & 0x07 + (code>>6) & 0x07;
-    countBySet[1] = (code>>3) & 0x07;
+    if(countBySet.length >= 2)
+      countBySet[1] = (code>>3) & 0x07;
+  }
+
+  void setCode(int code) {
+    assert(countBySet.isNotEmpty);
+
+    int mul = 0;
+    for(int i=0; i < countBySet.length; i +=1)
+    {
+      countBySet[i] = (code>>mul) & 0x07;
+      mul += 3;
+    }
   }
 
   void copy(CodeDraw other) {
@@ -161,7 +257,7 @@ class CodeDraw {
   }
 
   Color color(PokemonCardExtension card) {
-    assert( countBySet.length == card.sets.length, "${countBySet.length} == ${card.sets.length}" );
+    assert( countBySet.length == card.sets.length, "CodeDraw.Color: size count != card : ${countBySet.length} == ${card.sets.length}" );
     var setInfo = card.sets.reversed.iterator;
 
     for(var element in countBySet.reversed) {
@@ -188,7 +284,6 @@ class BoosterDraw {
   final SubExtension? creation;    ///< Keep product extension.
   final int nbCards;               ///< Number of cards inside booster
   ///
-  late List<CodeDraw>      energiesBin;   ///< Energy inside booster.
   late ExtensionDrawCards? cardDrawing;   ///< All card select by extension.
   late SubExtension?       subExtension;  ///< Current extensions.
   int count = 0;
@@ -197,19 +292,13 @@ class BoosterDraw {
   // Event
   final StreamController onEnergyChanged = new StreamController.broadcast();
 
-  BoosterDraw({this.creation, required this.id, required this.nbCards })
+  BoosterDraw({this.creation, required this.id, required this.nbCards})
   {
     assert(this.nbCards > 0);
     subExtension = creation;
     fillCard();
-    fillEnergies();
   }
   
-  void fillEnergies() {
-    if(hasSubExtension())
-      energiesBin = List<CodeDraw>.generate(subExtension!.seCards.energyCard.length, (index) { return CodeDraw.fromSet(subExtension!.seCards.energyCard[index].sets.length); });
-  }
-
   void closeStream() {
     onEnergyChanged.close();
   }
@@ -227,10 +316,9 @@ class BoosterDraw {
   }
 
   void resetBooster() {
-    count    = 0;
-    abnormal = false;
+    count        = 0;
+    abnormal     = false;
     cardDrawing  = null;
-    fillEnergies();
   }
 
   void resetExtensions() {
@@ -258,7 +346,7 @@ class BoosterDraw {
 
   int countEnergy() {
     int count=0;
-    for( CodeDraw c in energiesBin ){
+    for( CodeDraw c in cardDrawing!.drawEnergies ){
       count += c.count();
     }
     return count;
@@ -321,16 +409,8 @@ class BoosterDraw {
     fillCard();
   }
 
-  List<Object> buildQuery(int idAchat) {
-    List<int> energyCode = [];
-    for(CodeDraw c in energiesBin) {
-      energyCode.add(c.toInt());
-    }
-    while(energyCode.isNotEmpty && energyCode.last == 0) {
-      energyCode.removeLast();
-    }
-
-    return [idAchat, subExtension!.id, abnormal ? 1 : 0, Int8List.fromList(energyCode), Int8List.fromList(cardDrawing!.toBytes())];
+  List<Object?> buildQuery(int idAchat) {
+    return [idAchat, subExtension!.id, abnormal ? 1 : 0, null, Int8List.fromList(cardDrawing!.toBytes())];
   }
 
   Validator validationWorld(final Language language) {
@@ -340,7 +420,7 @@ class BoosterDraw {
     // Fr and US
     if(language.id == 1 || language.id == 2) {
       int count = 0;
-      energiesBin.forEach((element) {
+      cardDrawing!.drawEnergies.forEach((element) {
         count += element.count();
       });
       if (subExtension!.seCards.hasBoosterEnergy() && count != 1 && count != 2)
@@ -349,7 +429,7 @@ class BoosterDraw {
       int goodCard = 0;
       int reverse = 0;
       int id = 0;
-      cardDrawing!.draw.forEach((cards) {
+      cardDrawing!.drawCards.forEach((cards) {
         int idLocalCard = 0;
         cards.forEach((element) {
           if (subExtension!.seCards.cards.isNotEmpty) {
@@ -357,7 +437,7 @@ class BoosterDraw {
             if (count > 0) {
               if (subExtension!.seCards.cards[id][idLocalCard].isGoodCard())
                 goodCard += count;
-              if (otherThanReverse.contains(subExtension!.seCards.cards[id][idLocalCard].rarity))
+              if (Environment.instance.collection.otherThanReverse.contains(subExtension!.seCards.cards[id][idLocalCard].rarity))
                 reverse += count;
             }
           }
@@ -384,15 +464,16 @@ class BoosterDraw {
 
     // Fill with full SubExtension data
     fillCard();
-    fillEnergies();
 
     // Fill with saved data (always less data because zero are deleted)
     count = cardDrawing!.fillWith(edc);
+    /*
     int id=0;
     newEnergiesBin.forEach((element) {
-      energiesBin[id] = CodeDraw.fromCode(element);
+      energiesBin[id].setCode(element);
       count += energiesBin[id].count();
       id += 1;
     });
+    */
   }
 }

@@ -26,10 +26,10 @@ class _CardSelectorState extends State<CardSelector> {
     // Read code data
     CodeDraw code;
     if( widget.isEnergy  ) {
-      code = widget.boosterDraw.energiesBin[widget.id];
+      code = widget.boosterDraw.cardDrawing!.drawEnergies[widget.id];
     } else {
       // WARNING: always work on first (migration)
-      code = widget.boosterDraw.cardDrawing!.draw[widget.id][0];
+      code = widget.boosterDraw.cardDrawing!.drawCards[widget.id][0];
     }
 
     // Create for all set each widget

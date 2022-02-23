@@ -25,7 +25,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   List<Widget>  _cardEnergyInfo   = [];
   List<Widget>  _cardNoNumberInfo = [];
   bool _modify = false;
-  PokemonCardExtension data = PokemonCardExtension(PokemonCardData([], Level.Base, Type.Plante, CardMarkers.from([])), unknownRarity!);
+  PokemonCardExtension data = PokemonCardExtension(PokemonCardData([], Level.Base, Type.Plante, CardMarkers.from([])), Environment.instance.collection.unknownRarity!);
 
   void updateCardList(int listId) {
     if(listId == 1)

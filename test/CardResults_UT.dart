@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:statitikcard/services/CardEffect.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/models.dart';
@@ -19,7 +20,7 @@ void main() {
       1: Rarity.fromText(1, "C",       Colors.green),
       2: Rarity.fromText(2, "R",       Colors.green),
     };
-    unknownRarity = raritySets[0];
+    Environment.instance.collection.unknownRarity = raritySets[0];
 
     // Build card
     Pokemon title = Pokemon(CardTitleData(MultiLanguageString(["TestName", "TestName", "TestName"])));

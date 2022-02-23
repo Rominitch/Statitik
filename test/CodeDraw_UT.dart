@@ -10,7 +10,7 @@ void main() {
     for(CodeDraw code in c) {
       result.moveNext();
 
-      CodeDraw codeS = CodeDraw.fromCode(code.toInt());
+      CodeDraw codeS = CodeDraw.fromOldCode(2, code.toInt());
       expect(2, codeS.countBySet.length);
       expect(result.current[0], codeS.countBySet[0]);
       expect(result.current[1], codeS.countBySet[1]);

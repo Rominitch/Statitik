@@ -48,7 +48,15 @@ class ByteEncoder
     ];
   }
 
+  static List<int> encodeInt8(int value) {
+    assert(value < 256);
+    return <int>[
+      (value & 0xFF)
+    ];
+  }
+
   static List<int> encodeInt16(int value) {
+    assert(value < 65536);
     return <int>[
       (value & 0xFF00) >> 8,
       (value & 0xFF)
@@ -520,7 +528,7 @@ class StatsBooster {
   }
 
   void addBoosterDraw(ExtensionDrawCards edc, List<int> energy, int anomaly) {
-    if( edc.draw.length > subExt.seCards.cards.length)
+    if( edc.drawCards.length > subExt.seCards.cards.length)
       throw StatitikException('Corruption des données de tirages');
 
     anomaly += anomaly;
@@ -531,7 +539,7 @@ class StatsBooster {
       if(!energyCard.moveNext())
         break;
 
-      CodeDraw c = CodeDraw.fromCode(energy[energyI]);
+      CodeDraw c = CodeDraw.fromSet(energyCard.current.sets.length, energy[energyI]);
       countEnergy[energyI] += c.count();
       // Energy can be reversed
       int setId=0;
@@ -547,7 +555,7 @@ class StatsBooster {
     }
 
     int cardsId=0;
-    for(List<CodeDraw> cards in edc.draw) {
+    for(List<CodeDraw> cards in edc.drawCards) {
       int cardId=0;
       for(CodeDraw code in cards) {
         int nbCard = code.count();

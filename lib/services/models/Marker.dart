@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/models.dart';
 
 class CardMarker
@@ -81,12 +82,9 @@ class CardMarkers {
   }
 }
 
-Map<CardMarker, Widget?> cachedMarkers = {};
 Widget pokeMarker(Language l, CardMarker marker, {double? height=15.0}) {
-  if( cachedMarkers[marker] == null ) {
-    cachedMarkers[marker] = marker.icon(l, height: height);
+  if( Environment.instance.collection.cachedMarkers[marker] == null ) {
+    Environment.instance.collection.cachedMarkers[marker] = marker.icon(l, height: height);
   }
-  return cachedMarkers[marker]!;
+  return Environment.instance.collection.cachedMarkers[marker]!;
 }
-
-List<CardMarker> longMarkers = [];

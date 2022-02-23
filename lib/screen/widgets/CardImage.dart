@@ -101,15 +101,21 @@ class CardImage extends StatefulWidget {
   static List<String> computeImageLabel(SubExtension se, PokemonCardExtension card, int id) {
     if(Environment.instance.showTCGImages){
       if( se.extension.language.id == 1 )
-        return [
-           // Official image source
-           "https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/${se.seCode}/${se.seCode}_FR_${se.seCards.tcgImage(id)}.png",
-           // Fiable alternative source
-           "https://www.pokecardex.com/assets/images/sets_fr/${(se.seCode).toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"
-        ];
+        if(card.image.startsWith("https://"))
+          return [card.image];
+        else
+          return [
+             // Official image source
+             "https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/${se.seCode}/${se.seCode}_FR_${se.seCards.tcgImage(id)}.png",
+             // Fiable alternative source
+             "https://www.pokecardex.com/assets/images/sets_fr/${(se.seCode).toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"
+          ];
       else if( se.extension.language.id == 2 )
-        // Official image source
-        return ["https://assets.pokemon.com/assets/cms2/img/cards/web/${se.seCode}/${se.seCode}_EN_${se.seCards.tcgImage(id)}.png"];
+        if(card.image.startsWith("https://"))
+          return [card.image];
+        else
+          // Official image source
+          return ["https://assets.pokemon.com/assets/cms2/img/cards/web/${se.seCode}/${se.seCode}_EN_${se.seCards.tcgImage(id)}.png"];
       else if( se.extension.language.id == 3 ) {
         if(card.image.startsWith("https://"))
           return [card.image];

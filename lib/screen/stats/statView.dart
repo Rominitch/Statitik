@@ -54,7 +54,7 @@ class StatsView extends StatelessWidget {
 
     if( data.subExt!.seCards.isValid ) {
       data.stats!.countByRarity.forEach((rare, sum) {
-        if(rare != unknownRarity) {
+        if(rare != Environment.instance.collection.unknownRarity) {
           double luck = sum.toDouble() / data.stats!.nbBoosters;
           if(luck > 0)
           {
@@ -208,7 +208,7 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
     Map<Rarity, double> info = {};
     int     countZero = 0;
     int?    minRarity;
-    Rarity  idMinRarity = unknownRarity!;
+    Rarity  idMinRarity = Environment.instance.collection.unknownRarity!;
     List<Rarity> findEmpty = [];
     int countEmpty = 0;
 

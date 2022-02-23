@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/environment.dart';
 
 class Rarity {
   final int id;
@@ -26,27 +27,17 @@ class Rarity {
   }
 
   bool isValid() {
-    return this == unknownRarity!;
+    return this == Environment.instance.collection.unknownRarity!;
   }
 }
 
-Rarity? unknownRarity;
-
-// Generic list
-List<Rarity> orderedRarity    = [];
-List<Rarity> worldRarity      = [];
-List<Rarity> japanRarity      = [];
-List<Rarity> goodCard         = [];
-List<Rarity> otherThanReverse = [];
-
-Map<Rarity, List<Widget>?> cachedImageRarity = {};
 List<Widget> getImageRarity(Rarity rarity, {iconSize, fontSize=12.0, generate=false}) {
-  if(generate || cachedImageRarity[rarity] == null) {
+  if(generate || Environment.instance.collection.cachedImageRarity[rarity] == null) {
     List<Widget> rendering = rarity.icon(iconSize: iconSize, fontSize: fontSize);
     if(generate)
       return rendering;
     else
-      cachedImageRarity[rarity] = rendering;
+      Environment.instance.collection.cachedImageRarity[rarity] = rendering;
   }
-  return cachedImageRarity[rarity]!;
+  return Environment.instance.collection.cachedImageRarity[rarity]!;
 }

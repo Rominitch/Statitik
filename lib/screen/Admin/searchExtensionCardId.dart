@@ -15,6 +15,58 @@ class SearchExtensionsCardId extends StatelessWidget {
 
   const SearchExtensionsCardId(this.type, this.name, this.title, this.currentId, {Key? key}) : super(key: key);
 
+  void createWidgetCard(BuildContext context, PokemonCardExtension cardEx, SubExtension subExtension, int id,
+                        Set<PokemonCardData> cards, List<Widget> cardImageWidget, List<Widget> cardsWidgets) {
+    var cardData = cardEx.data;
+    if(type == cardData.type // Keep only same type
+        && (this.name == null || cardData.title.isEmpty || this.name == cardData.title[0].name) // If name, search similar
+    ) {
+      int? localId = Environment.instance.collection.rPokemonCards[cardData];
+      if(localId == null) {
+        printOutput("SearchExtensionsCardId: Impossible to find card: $id into ${subExtension.name}");
+      } else {
+        // Show card when name filter is enabled (otherwise too many card to show)
+        if(!cards.contains(cardData) && cardData.title.isNotEmpty && this.name == cardData.title[0].name) {
+          cards.add(cardData);
+          cardImageWidget.add(
+              Card(
+                color: (localId == currentId) ? Colors.red[500] : Colors.grey[500],
+                child: TextButton(
+                  style: TextButton.styleFrom(padding: EdgeInsets.all(2), alignment: Alignment.center),
+                  child: Row(
+                    children: [
+                      RotatedBox(quarterTurns:3, child: Text(localId.toString(), style: TextStyle(fontSize: 10))),
+                      Expanded(child: CardImage(subExtension, cardEx, id, height: 100)),
+                    ],
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context, localId);
+                  },
+                ),
+              )
+          );
+        }
+        cardsWidgets.add(
+            Card(
+              color: (localId == currentId) ? Colors.red[500] : Colors.grey[500],
+              child: TextButton(
+                child: Column(
+                  children: [
+                    Expanded(child: Text(subExtension.seCards.numberOfCard(id))),
+                    Text(localId.toString(), style: TextStyle(fontSize: 8)),
+                  ],
+                ),
+                onPressed: () {
+                  Navigator.pop(context, localId);
+                },
+              ),
+            )
+        );
+      }
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     // Refresh admin info
@@ -28,58 +80,25 @@ class SearchExtensionsCardId extends StatelessWidget {
       // Keep Japanese only
       if(subExtension.extension.language.id == 3 ) {
         List<Widget> cardsWidgets = [];
+        // Search all basic cards ...
         int id=0;
         subExtension.seCards.cards.forEach((List<PokemonCardExtension> allCards) {
-          var cardData = allCards[0].data;
-
-          if(type == cardData.type // Keep only same type
-            && (this.name == null || cardData.title.isEmpty || this.name == cardData.title[0].name) // If name, search similar
-            ) {
-            int? localId = Environment.instance.collection.rPokemonCards[cardData];
-            if(localId == null) {
-              printOutput("SearchExtensionsCardId: Impossible to find card: $id into ${subExtension.name}");
-            } else {
-              // Show card when name filter is enabled (otherwise too many card to show)
-              if(!cards.contains(cardData) && cardData.title.isNotEmpty && this.name == cardData.title[0].name) {
-                cards.add(cardData);
-                cardImageWidget.add(
-                    Card(
-                      color: (localId == currentId) ? Colors.red[500] : Colors.grey[500],
-                      child: TextButton(
-                        style: TextButton.styleFrom(padding: EdgeInsets.all(2), alignment: Alignment.center),
-                        child: Row(
-                          children: [
-                            RotatedBox(quarterTurns:3, child: Text(localId.toString(), style: TextStyle(fontSize: 10))),
-                            Expanded(child: CardImage(subExtension, allCards[0], id, height: 100)),
-                          ],
-                        ),
-                        onPressed: () {
-                          Navigator.pop(context, localId);
-                        },
-                      ),
-                    )
-                );
-              }
-              cardsWidgets.add(
-               Card(
-                 color: (localId == currentId) ? Colors.red[500] : Colors.grey[500],
-                 child: TextButton(
-                   child: Column(
-                     children: [
-                       Expanded(child: Text(subExtension.seCards.numberOfCard(id))),
-                       Text(localId.toString(), style: TextStyle(fontSize: 8)),
-                     ],
-                   ),
-                   onPressed: () {
-                     Navigator.pop(context, localId);
-                   },
-                 ),
-               )
-              );
-            }
-          }
+          createWidgetCard(context, allCards[0], subExtension, id, cards, cardImageWidget, cardsWidgets);
           id += 1;
         });
+        // ... and energy
+        id=0;
+        subExtension.seCards.energyCard.forEach((PokemonCardExtension allCards) {
+          createWidgetCard(context, allCards, subExtension, id, cards, cardImageWidget, cardsWidgets);
+          id += 1;
+        });
+        // ... and no number
+        id=0;
+        subExtension.seCards.noNumberedCard.forEach((PokemonCardExtension allCards) {
+          createWidgetCard(context, allCards, subExtension, id, cards, cardImageWidget, cardsWidgets);
+          id += 1;
+        });
+
         // Add card about expansion
         if(cardsWidgets.isNotEmpty) {
           expansionWidget.add(Card(

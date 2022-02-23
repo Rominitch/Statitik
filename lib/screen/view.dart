@@ -165,7 +165,7 @@ class _PokemonCardState extends State<PokemonCard> {
 
   @override
   Widget build(BuildContext context) {
-    List<CodeDraw> cardValues = widget.boosterDraw.cardDrawing!.draw[widget.idCard];
+    List<CodeDraw> cardValues = widget.boosterDraw.cardDrawing!.drawCards[widget.idCard];
     int nbCard = 0;
     cardValues.forEach((codeDraw) { nbCard += codeDraw.count(); });
     Function update = () {
@@ -206,7 +206,7 @@ class _PokemonCardState extends State<PokemonCard> {
           onPressed: widget.readOnly ? null : () {
             setState(() {
               // WARNING: default press is always on first set
-              widget.boosterDraw.toggleCard(widget.boosterDraw.cardDrawing!.draw[widget.idCard], 0);
+              widget.boosterDraw.toggleCard(widget.boosterDraw.cardDrawing!.drawCards[widget.idCard], 0);
               widget.refresh();
             });
           }
@@ -216,12 +216,13 @@ class _PokemonCardState extends State<PokemonCard> {
 }
 
 class EnergyButton extends StatefulWidget {
-  final PokemonCardExtension card;
-  final BoosterDraw boosterDraw;
+  final int                   idCard;   /// Position into SubExtension energy list
+  final PokemonCardExtension  card;
+  final BoosterDraw           boosterDraw;
   final Function refresh;
   final bool readOnly;
 
-  EnergyButton(this.card, {required this.boosterDraw, required this.refresh, required this.readOnly});
+  EnergyButton(this.card, this.idCard, {required this.boosterDraw, required this.refresh, required this.readOnly});
 
   @override
   _EnergyButtonState createState() => _EnergyButtonState();
@@ -243,6 +244,8 @@ class _EnergyButtonState extends State<EnergyButton> {
 
   @override
   Widget build(BuildContext context) {
+    assert(widget.boosterDraw.cardDrawing != null);
+
     Function update = () {
       setState(() {
         widget.boosterDraw.onEnergyChanged.add(true);
@@ -250,8 +253,9 @@ class _EnergyButtonState extends State<EnergyButton> {
       widget.refresh();
     };
 
-    Type type = widget.card.data.typeExtended!;
-    CodeDraw code = widget.boosterDraw.energiesBin[type.index];
+    assert(widget.idCard < widget.boosterDraw.cardDrawing!.drawEnergies.length);
+    CodeDraw code = widget.boosterDraw.cardDrawing!.drawEnergies[widget.idCard];
+
     return Container(
         constraints: BoxConstraints(
           maxWidth: 55.0,
@@ -261,7 +265,7 @@ class _EnergyButtonState extends State<EnergyButton> {
           style: TextButton.styleFrom(
             backgroundColor: code.color(widget.card),
           ),
-          child: energyImage(type),
+          child: getImageType(widget.card.data.typeExtended ?? Type.Unknown),
           onPressed: () {
             setState(() {
               widget.boosterDraw.toggleCard([code], 0);
@@ -272,7 +276,7 @@ class _EnergyButtonState extends State<EnergyButton> {
             setState(() {
               showDialog(
                   context: context,
-                  builder: (BuildContext context) { return CardSelector(widget.card, widget.boosterDraw, type.index, update, true, widget.readOnly); }
+                  builder: (BuildContext context) { return CardSelector(widget.card, widget.boosterDraw, widget.idCard, update, true, widget.readOnly); }
               ).whenComplete(()  {
                 setState(() {
                   widget.boosterDraw.onEnergyChanged.add(true);

@@ -180,7 +180,7 @@ class PokemonCardData {
 }
 
 class PokemonCardExtension {
-  late PokemonCardData  data;
+  PokemonCardData  data;
   Rarity           rarity;
   String           image = "";
   int              jpDBId = 0;
@@ -200,7 +200,7 @@ class PokemonCardExtension {
 
   PokemonCardExtension.fromBytesV3(ByteParser parser, Map collection, Map allSets, Map allRarities) :
     data   = collection[parser.extractInt16()],
-    rarity = unknownRarity!
+    rarity = Environment.instance.collection.unknownRarity!
   {
     try {
       rarity = allRarities[parser.extractInt8()];
@@ -213,7 +213,7 @@ class PokemonCardExtension {
 
   PokemonCardExtension.fromBytesV4(ByteParser parser, Map collection, Map allSets, Map allRarities) :
     data   = collection[parser.extractInt16()],
-    rarity = unknownRarity!
+    rarity = Environment.instance.collection.unknownRarity!
   {
     try {
       rarity = allRarities[parser.extractInt8()];
@@ -230,7 +230,7 @@ class PokemonCardExtension {
 
   PokemonCardExtension.fromBytesV5(ByteParser parser, Map collection, Map allSets, Map allRarities) :
     data   = collection[parser.extractInt16()],
-    rarity = unknownRarity!
+    rarity = Environment.instance.collection.unknownRarity!
   {
     try {
       rarity = allRarities[parser.extractInt8()];
@@ -246,7 +246,7 @@ class PokemonCardExtension {
 
   PokemonCardExtension.fromBytesV6(ByteParser parser, Map collection, Map allSets, Map allRarities) :
     data   = collection[parser.extractInt16()],
-    rarity = unknownRarity!
+    rarity = Environment.instance.collection.unknownRarity!
   {
     try {
       rarity = allRarities[parser.extractInt8()];
@@ -264,13 +264,13 @@ class PokemonCardExtension {
 
   PokemonCardExtension.fromBytes(ByteParser parser, Map collection, Map allSets, Map allRarities) :
     data   = collection[parser.extractInt16()],
-    rarity = unknownRarity!
+    rarity = Environment.instance.collection.unknownRarity!
   {
     try {
       rarity = allRarities[parser.extractInt8()];
     }
-    catch(e){
-
+    catch(e, callStack){
+      printOutput("Card info unknown: $e\n$callStack");
     }
 
     image     = parser.decodeString16();
@@ -306,7 +306,7 @@ class PokemonCardExtension {
   }
 
   bool isValid() {
-    return data.type!= Type.Unknown && rarity != unknownRarity;
+    return data.type!= Type.Unknown && rarity != Environment.instance.collection.unknownRarity;
   }
 
   List<Widget> imageRarity() {
@@ -331,7 +331,7 @@ class PokemonCardExtension {
    */
 
   bool isForReport() {
-    return goodCard.contains(rarity);
+    return Environment.instance.collection.goodCard.contains(rarity);
   }
 
   Widget? showImportantMarker(Language l, {double? height}) {
@@ -344,7 +344,7 @@ class PokemonCardExtension {
   }
 
   bool isGoodCard() {
-    return isValid() && goodCard.contains(rarity);
+    return isValid() && Environment.instance.collection.goodCard.contains(rarity);
   }
 }
 
@@ -406,7 +406,12 @@ class SubExtensionCards {
 
         // Extract card
         while(parser.canParse) {
-          listCards.add(extractCard(currentVersion, parser, cardCollection, allSets, rarities));
+          try {
+            var newCard = extractCard(currentVersion, parser, cardCollection, allSets, rarities);
+            listCards.add(newCard);
+          } catch (e, callStack) {
+            printOutput("OtherCard issue: Skip card\n$e\n$callStack");
+          }
         }
       } else
         throw StatitikException("Bad SubExtensionCards version : need migration !");
@@ -439,7 +444,7 @@ class SubExtensionCards {
     for (int i = 0; i < 300; i += 1) {
       cards.add([PokemonCardExtension(
           PokemonCardData.empty(),
-          unknownRarity!)]);
+          Environment.instance.collection.unknownRarity!)]);
     }
   }
 
@@ -493,10 +498,10 @@ class SubExtensionCards {
     return finalBytes;
   }
 
-  List<int> otherToBytes(List otherCards, Map collectionCards, Map allSets) {
+  List<int> otherToBytes(List otherCards, Map collectionCards, Map allSets, Map rarities) {
     List<int> cardBytes = [];
     otherCards.forEach((card) {
-      cardBytes += card.toBytes(collectionCards, allSets);
+      cardBytes += card.toBytes(collectionCards, allSets, rarities);
     });
 
     List<int> finalBytes = [version];

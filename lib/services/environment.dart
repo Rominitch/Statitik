@@ -232,7 +232,7 @@ class Environment
                 await connection.query(queryStr);
 
                 // Prepare data
-                List<List<Object>> draw = [];
+                List<List<Object?>> draw = [];
                 for(BoosterDraw booster in currentDraw!.boosterDraws) {
                     draw.add(booster.buildQuery(idAchat));
                 }
@@ -295,7 +295,7 @@ class Environment
                 for (var row in req) {
                     try {
                         var bytes = (row[0] as Blob).toBytes().toList();
-                        ExtensionDrawCards edc = ExtensionDrawCards.fromBytes(bytes);
+                        ExtensionDrawCards edc = ExtensionDrawCards.fromBytes(subExt, bytes);
 
                         stats.addBoosterDraw(edc, (row[1] as Blob).toBytes(), row[2]);
                     } catch(e) {
@@ -445,8 +445,9 @@ class Environment
                             }
                             booster = session.boosterDraws[id];
 
-                            var edc = ExtensionDrawCards.fromBytes((rowUserBooster[2] as Blob).toBytes());
-                            booster.fill(collection.subExtensions[rowUserBooster[0]], rowUserBooster[1]==1, edc, (rowUserBooster[3] as Blob).toBytes());
+                            var subEx = collection.subExtensions[rowUserBooster[0]];
+                            var edc = ExtensionDrawCards.fromBytes(subEx, (rowUserBooster[2] as Blob).toBytes());
+                            booster.fill(subEx, rowUserBooster[1]==1, edc, (rowUserBooster[3] as Blob).toBytes());
 
                             id += 1;
                         }

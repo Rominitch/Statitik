@@ -30,16 +30,18 @@ class _BoosterPageState extends State<BoosterPage> {
     // Build one time all widgets
     Function refresh = () => setState( () {} );
     widgets = [];
-    int id=0;
+    int idInBooster=0;
     for(var cards in widget.boosterDraw.subExtension!.seCards.cards) {
-      widgets.add( PokemonCard(card: cards[0], idCard: id, boosterDraw: widget.boosterDraw, refresh:refresh, readOnly: widget.readOnly) );
-      id += 1;
+      widgets.add( PokemonCard(card: cards[0], idCard: idInBooster, boosterDraw: widget.boosterDraw, refresh:refresh, readOnly: widget.readOnly) );
+      idInBooster += 1;
     }
 
     widgetEnergies = [];
+    idInBooster=0;
     widget.boosterDraw.subExtension!.seCards.energyCard.forEach((card) {
       widgetEnergies.add(EnergyButton(
-          card, boosterDraw: widget.boosterDraw, refresh: refresh, readOnly: widget.readOnly ));
+          card, idInBooster, boosterDraw: widget.boosterDraw, refresh: refresh, readOnly: widget.readOnly ));
+      idInBooster += 1;
     });
   }
 

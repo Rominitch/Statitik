@@ -27,8 +27,8 @@ class CardCreator extends StatefulWidget {
   final List                  listRarity;
   final String                title;
 
-  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, bool isWorldCard): editor=true, onAppendCard=null, listRarity = (isWorldCard ? worldRarity : japanRarity);
-  CardCreator.quick(this.activeLanguage,  this.se, this.card, this.idCard, this.onAppendCard, bool isWorldCard): editor=false, listRarity = (isWorldCard ? worldRarity : japanRarity), title="";
+  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, bool isWorldCard): editor=true, onAppendCard=null, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity);
+  CardCreator.quick(this.activeLanguage,  this.se, this.card, this.idCard, this.onAppendCard, bool isWorldCard): editor=false, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity), title="";
 
   @override
   _CardCreatorState createState() => _CardCreatorState();
@@ -126,8 +126,9 @@ class _CardCreatorState extends State<CardCreator> {
         typeCard.add(CustomRadio(value: element, controller: typeController, widget: getImageType(element)));
     });
 
+    rarity.clear();
     widget.listRarity.forEach((element) {
-      if( element != unknownRarity )
+      if( element != Environment.instance.collection.unknownRarity )
         rarity.add(CustomRadio(value: element, controller: rarityController,
             widget: Row(mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -154,10 +155,10 @@ class _CardCreatorState extends State<CardCreator> {
 
     if( widget.editor ) {
       Environment.instance.collection.markers.values.forEach((element) {
-        if (!longMarkers.contains(element))
+        if (!Environment.instance.collection.longMarkers.contains(element))
           marker.add(MarkerButtonCheck(widget.activeLanguage, widget.card.data.markers, element));
       });
-      longMarkers.forEach((element) {
+      Environment.instance.collection.longMarkers.forEach((element) {
         longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.activeLanguage, widget.card.data.markers, element)));
       });
       Environment.instance.collection.sets.values.forEach((element) {

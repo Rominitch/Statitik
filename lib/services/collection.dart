@@ -21,17 +21,16 @@ class CardIntoSubExtensions {
 
 class Collection
 {
-  bool migration = false;
-  Map languages = {};
-  Map sets = {};
-  Map extensions = {};
-  Map subExtensions = {};
+  Map languages       = {};
+  Map sets            = {};
+  Map extensions      = {};
+  Map subExtensions   = {};
   Map cardsExtensions = {};
   int category=0;
-  Map pokemons = {};
-  Map otherNames = {};
-  Map regions = {};
-  Map formes  = {};
+  Map pokemons     = {};
+  Map otherNames   = {};
+  Map regions      = {};
+  Map formes       = {};
   Map pokemonCards = {};
   Map illustrators = {};
   Map descriptions = {};
@@ -39,6 +38,26 @@ class Collection
   Map rarities     = {};
   Map markers      = {};
   Map products     = {};
+
+  // Rarity Information
+  static const int idUnknownRarity = 28;
+  static const int idEmptyRarity   = 29;
+  static const int RarityMaskWorldCard        = 1;
+  static const int RarityMaskAsianCard        = 2;
+  static const int RarityMaskOtherReverseCard = 4;
+  static const int RarityMaskGoodCard         = 8;
+  static const int RarityMaskRotateIcon       = 16;
+  Rarity? unknownRarity;
+  List<Rarity> orderedRarity    = [];
+  List<Rarity> worldRarity      = [];
+  List<Rarity> japanRarity      = [];
+  List<Rarity> goodCard         = [];
+  List<Rarity> otherThanReverse = [];
+  Map<Rarity, List<Widget>?> cachedImageRarity = {};
+
+  // Markers
+  Map<CardMarker, Widget?> cachedMarkers = {};
+  List<CardMarker>         longMarkers   = [];
 
   // Admin part
   Map rIllustrators    = {};
@@ -65,7 +84,33 @@ class Collection
     pokemonCards.clear();
     rarities.clear();
     markers.clear();
+    products.clear();
+    effects.clear();
+    otherNames.clear();
+    descriptions.clear();
     category=0;
+
+    unknownRarity = null;
+    orderedRarity.clear();
+    worldRarity.clear();
+    japanRarity.clear();
+    goodCard.clear();
+    otherThanReverse.clear();
+    cachedImageRarity.clear();
+
+    cachedMarkers.clear();
+    longMarkers.clear();
+
+    rIllustrators.clear();
+    rRegions.clear();
+    rPokemonCards.clear();
+    rFormes.clear();
+    rPokemon.clear();
+    rOther.clear();
+    rCardsExtensions.clear();
+    rSets.clear();
+    rRarities.clear();
+    rMarkers.clear();
   }
 
   List<Extension> getExtensions(Language language) {
@@ -137,7 +182,7 @@ class Collection
           // Build
           var rarity;
           if(row[1] != null) {
-            rarity = Rarity.fromIcon(row[0], getIcon(row[1]), row[2] ?? "", Color(row[6]), rotate: mask(row[4], 4));
+            rarity = Rarity.fromIcon(row[0], getIcon(row[1]), row[2] ?? "", Color(row[6]), rotate: mask(row[4], RarityMaskRotateIcon));
           }
           else if(row[2] != null)
             rarity = Rarity.fromText(row[0], row[2], Color(row[6]));
@@ -146,18 +191,18 @@ class Collection
           assert(rarity != null);
 
           // register into list
-          if(mask(row[4],1))
+          if(mask(row[4],RarityMaskAsianCard))
             japanRarity.add(rarity);
-          else
+          if(mask(row[4],RarityMaskWorldCard))
             worldRarity.add(rarity);
 
           // Order
           orderedRarity.add(rarity);
           // Good card
-          if(mask(row[4], 8))
+          if(mask(row[4], RarityMaskGoodCard))
             goodCard.add(rarity);
           // Other than  reverse
-          if(mask(row[4], 2))
+          if(mask(row[4], RarityMaskOtherReverseCard))
             otherThanReverse.add(rarity);
 
           // Save
@@ -167,7 +212,7 @@ class Collection
         }
       }
       assert(rarities.isNotEmpty);
-      unknownRarity = rarities[28];
+      unknownRarity = rarities[idUnknownRarity];
 
       var markersResult = await connection.query("SELECT * FROM `Markers`");
       for (var row in markersResult) {
@@ -357,8 +402,8 @@ class Collection
           cardsExtensions[row[0]] = (row[1] != null)
               ? SubExtensionCards.build((row[1] as Blob).toBytes().toList(), codeNaming, pokemonCards, sets, rarities, row[5], energyList, noNumberList)
               : SubExtensionCards.emptyDraw(codeNaming, row[5]);
-        } catch(e) {
-          printOutput("Bad SubExtensionCards: ${row[0]} $e");
+        } catch(e, callStack) {
+          printOutput("Bad SubExtensionCards: ${row[0]} $e\n$callStack");
           cardsExtensions[row[0]] = SubExtensionCards.emptyDraw([], 0);
         }
       }
@@ -526,8 +571,8 @@ class Collection
     await connection.queryMulti(query, [
       [
         Int8List.fromList(seCards.toBytes(rPokemonCards, rSets, rRarities)),
-        seCards.energyCard.isEmpty     ? null : Int8List.fromList(seCards.otherToBytes(seCards.energyCard,     rPokemonCards, rSets)),
-        seCards.noNumberedCard.isEmpty ? null : Int8List.fromList(seCards.otherToBytes(seCards.noNumberedCard, rPokemonCards, rSets))
+        seCards.energyCard.isEmpty     ? null : Int8List.fromList(seCards.otherToBytes(seCards.energyCard,     rPokemonCards, rSets, rRarities)),
+        seCards.noNumberedCard.isEmpty ? null : Int8List.fromList(seCards.otherToBytes(seCards.noNumberedCard, rPokemonCards, rSets, rRarities))
       ]]);
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
@@ -54,46 +55,99 @@ void main() {
   });
 
   test('ExtensionDrawCards', () {
-    var compare = (ExtensionDrawCards codeS, ExtensionDrawCards code) {
-      expect(codeS.draw.length, code.draw.length);
+    var l  = Language(id: 1, image: "FR");
+    var ex = Extension(0, "Ex", l);
+    var r  = Rarity.fromText(0, "0", Colors.green);
+    var defaultCard = PokemonCardData.empty();
+    var sets = [
+      CardSet(MultiLanguageString(["S0","S0","S0"]), Colors.green, "normal"),
+      CardSet(MultiLanguageString(["S1","S1","S1"]), Colors.blue, "normal"),
+    ];
+    var card = [
+      PokemonCardExtension(defaultCard, r),
+      PokemonCardExtension(defaultCard, r)
+    ];
+    card[0].sets.add(sets[0]);
+    card[0].sets.add(sets[1]);
+    card[1].sets.add(sets[0]);
 
-      var itS = codeS.draw.iterator;
-      itS.moveNext();
-      code.draw.forEach((subCards) {
+    var seCard = SubExtensionCards([[card[0], card[1]], [card[1]], [card[0]]], [], 0);
+    seCard.energyCard.add(card[0]);
+    seCard.energyCard.add(card[0]);
+    seCard.energyCard.add(card[1]);
+
+    var se = SubExtension(1, "Demo", "D", ex, DateTime.now(), seCard, SerieType.Normal, "D", 10 );
+
+    var compare = (ExtensionDrawCards codeS, ExtensionDrawCards code) {
+      expect(codeS.drawCards.length, code.drawCards.length);
+
+      var itS = codeS.drawCards.iterator;
+      code.drawCards.forEach((subCards) {
+        itS.moveNext();
+
         expect(itS.current, isNot(null));
         var itSS = itS.current.iterator;
-        itSS.moveNext();
-
         subCards.forEach((code) {
+          itSS.moveNext();
           expect(itSS.current, isNot(null));
 
           var setSS = itSS.current.countBySet.iterator;
           code.countBySet.forEach((element) {
-            expect(element,  setSS.current);
             setSS.moveNext();
+            expect(element,  setSS.current);
           });
-          itSS.moveNext();
         });
-        itS.moveNext();
       });
+
+      // Energy
+      {
+        expect(codeS.drawEnergies.length, code.drawEnergies.length);
+        var itRef = codeS.drawEnergies.iterator;
+        code.drawEnergies.forEach((cardCode) {
+          itRef.moveNext();
+          var setSS = itRef.current.countBySet.iterator;
+          cardCode.countBySet.forEach((element) {
+            setSS.moveNext();
+            expect(element,  setSS.current);
+          });
+        });
+      }
     };
 
-    List<ExtensionDrawCards> c =
-    [
-      ExtensionDrawCards.from([[CodeDraw.fromOld(1, 2, 3), CodeDraw.fromOld(4, 5, 2), CodeDraw.fromOld()], [CodeDraw.fromOld(2, 4, 2)], [CodeDraw.fromOld(1,0,0)]]),
-      //ExtensionDrawCards.from(<List<CodeDraw>>[]) // Impossible
-    ];
+    // Demo data
+    ExtensionDrawCards edc = ExtensionDrawCards.fromSubExtension(se);
+    edc.drawCards[0][0].countBySet[0] = 2;
+    edc.drawCards[0][0].countBySet[1] = 3;
+    edc.drawCards[0][1].countBySet[0] = 1;
+    edc.drawCards[2][0].countBySet[0] = 4;
+    edc.drawCards[2][0].countBySet[1] = 0;
 
-    for(ExtensionDrawCards code in c) {
-      ExtensionDrawCards codeS = ExtensionDrawCards.fromBytes(code.toBytes());
-      compare(codeS, code);
-    }
+    edc.drawEnergies[0].countBySet[0] = 3;
+    edc.drawEnergies[0].countBySet[1] = 2;
+    edc.drawEnergies[2].countBySet[0] = 1;
+
+    // From byte to byte
+    ExtensionDrawCards codeS = ExtensionDrawCards.fromBytes(se, edc.toBytes());
+    compare(codeS, edc);
 
     // Simplify
-    var long = ExtensionDrawCards.from(c[0].draw + [[CodeDraw.fromOld()], [CodeDraw.fromOld()], [CodeDraw.fromOld()], [CodeDraw.fromOld()]]);
-    ExtensionDrawCards simplified = ExtensionDrawCards.fromBytes(long.toBytes());
+    ExtensionDrawCards long = ExtensionDrawCards.fromSubExtension(se);
+    long.drawCards[0][0].countBySet[0] = 2;
+    long.drawCards[0][0].countBySet[1] = 3;
+    long.drawCards[0][1].countBySet[0] = 1;
 
-    compare(c[0], simplified);
+    long.drawEnergies[0].countBySet[0] = 3;
+    long.drawEnergies[0].countBySet[1] = 2;
+
+    ExtensionDrawCards simplified = ExtensionDrawCards.fromBytes(se, long.toBytes());
+
+    expect( long.drawCards[0][0].countBySet[0], simplified.drawCards[0][0].countBySet[0] );
+    expect( long.drawCards[0][0].countBySet[1], simplified.drawCards[0][0].countBySet[1] );
+    expect( long.drawCards[0][1].countBySet[0], simplified.drawCards[0][1].countBySet[0] );
+
+    expect( 1, simplified.drawEnergies.length );
+    expect( long.drawEnergies[0].countBySet[0], simplified.drawEnergies[0].countBySet[0] );
+    expect( long.drawEnergies[0].countBySet[1], simplified.drawEnergies[0].countBySet[1] );
   });
 
   test('PokemonCardExtension', () {
@@ -107,7 +161,7 @@ void main() {
       2: Rarity.fromText(2, "U",       Colors.green),
       3: Rarity.fromText(3, "R",       Colors.blue),
     };
-    unknownRarity = raritySets[0];
+    Environment.instance.collection.unknownRarity = raritySets[0];
 
     Map collection = {
       1: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Pika", "Pika", "Pika"]), 1, 25),)], Level.Base,   Type.Eau, CardMarkers()),

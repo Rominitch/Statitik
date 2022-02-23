@@ -79,10 +79,10 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
 
     // Build static card marker
     Environment.instance.collection.markers.values.forEach((element) {
-      if (!longMarkers.contains(element))
+      if (!Environment.instance.collection.longMarkers.contains(element))
         widgetMarkers.add(MarkerButtonCheck(widget.language, widget.result.filter, element, controller: refreshController));
     });
-    longMarkers.forEach((element) {
+    Environment.instance.collection.longMarkers.forEach((element) {
       longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.language, widget.result.filter, element, controller: refreshController)));
     });
 
@@ -91,7 +91,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
         typesWidget.add(TypeButtonCheck(widget.result.types, type, controller: refreshController));
     });
 
-    var rarities = widget.language.isWorld() ? worldRarity : japanRarity;
+    var rarities = widget.language.isWorld() ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity;
     rarities.forEach((rarity) {
       raritiesWidget.add(RarityButtonCheck(widget.result.rarities, rarity, controller: refreshController));
     });

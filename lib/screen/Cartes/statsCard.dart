@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/Cartes/CardViewer.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 
@@ -102,7 +103,7 @@ class _StatsCardState extends State<StatsCard> {
     }
 
     double count = s.nbCards().toDouble();
-    orderedRarity.forEach((rarity) {
+    Environment.instance.collection.orderedRarity.forEach((rarity) {
       var value = s.countRarity[rarity];
       if(value != null) {
         var r = value.toDouble();
