@@ -7,6 +7,7 @@ import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
@@ -29,7 +30,7 @@ class CardViewerBody extends StatelessWidget {
           Expanded(child: Text(se.seCards.titleOfCard(se.extension.language, id), style: Theme.of(context).textTheme.headline5)),
           getImageType(card.data.type),
           if(card.data.typeExtended != null) getImageType(card.data.typeExtended!),
-          if(card.rarity != Environment.instance.collection.unknownRarity)  Row(children: getImageRarity(card.rarity)),
+          if(card.rarity != Environment.instance.collection.unknownRarity)  Row(children: getImageRarity(card.rarity, se.extension.language)),
         ]
     );
   }
@@ -66,7 +67,7 @@ class CardViewerBody extends StatelessWidget {
         child: TextButton(
           onPressed: (){
             Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => CardViewer(result.se, result.position, result.se.seCards.cards[result.position][0])),
+              MaterialPageRoute(builder: (context) => CardViewer(result.se, result.position, result.card)),
             );
           },
           child: Column(
@@ -133,7 +134,7 @@ class CardViewerBody extends StatelessWidget {
                       progressColor: Colors.white,
                     )),
                   ]),
-                  if( card.data.resistance != null && card.data.resistance!.energy != Type.Unknown )
+                  if( card.data.resistance != null && card.data.resistance!.energy != TypeCard.Unknown )
                     Row(children: [
                       Container(width: labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B2'))),
                       Container(width: valueSpace, child: Text(card.data.resistance!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
@@ -141,7 +142,7 @@ class CardViewerBody extends StatelessWidget {
                       energyImage(card.data.resistance!.energy),
                       Expanded(child: SizedBox()),
                     ]),
-                  if( card.data.weakness != null && card.data.weakness!.energy != Type.Unknown )
+                  if( card.data.weakness != null && card.data.weakness!.energy != TypeCard.Unknown )
                     Row(children: [
                       Container(width: labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B3'))),
                       Container(width: valueSpace, child: Text(card.data.weakness!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
@@ -202,7 +203,7 @@ class EffectViewer extends StatelessWidget {
     if(effect.title != null) {
       List<Widget> attackType = [];
       effect.attack.forEach((type) {
-        if(type != Type.Unknown) {
+        if(type != TypeCard.Unknown) {
           attackType.add(energyImage(type));
         }
       });

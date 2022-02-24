@@ -8,6 +8,7 @@ import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 
 import 'package:statitikcard/services/models/models.dart';
 
@@ -108,13 +109,13 @@ class Illustrator {
 }
 
 class EnergyValue {
-  Type energy;
+  TypeCard energy;
   int  value;
 
   EnergyValue(this.energy, this.value);
 
   EnergyValue.fromBytes(bytes) :
-    energy = Type.values[bytes[0]],
+    energy = TypeCard.values[bytes[0]],
     value = (bytes[1] << 8) | bytes[2];
 
   List<int> toBytes() {
@@ -142,7 +143,7 @@ Widget icon(Design design) {
     case Design.ArcEnCiel:
       return Icon(Icons.looks);
     case Design.Gold:
-      return Icon(Icons.stars_rounded);
+      return Icon(Icons.stars_rounded, color: Colors.yellow.shade700);
     default:
       return Icon(Icons.help_outline);
   }
@@ -152,8 +153,8 @@ Widget icon(Design design) {
 class PokemonCardData {
   List<Pokemon>    title;
   Level            level;
-  Type             type;
-  Type?            typeExtended; //Double energy can exists but less than 20 card !
+  TypeCard         type;
+  TypeCard?        typeExtended; //Double energy can exists but less than 20 card !
   Illustrator?     illustrator;
   CardMarkers      markers;
   CardEffects      cardEffects = CardEffects();
@@ -176,7 +177,7 @@ class PokemonCardData {
     return name.join("&");
   }
 
-  PokemonCardData.empty() : title=[], level=Level.Base, type= Type.Unknown, markers=CardMarkers(), life=0, retreat=0;
+  PokemonCardData.empty() : title=[], level=Level.Base, type=TypeCard.Unknown, markers=CardMarkers(), life=0, retreat=0;
 }
 
 class PokemonCardExtension {
@@ -196,7 +197,25 @@ class PokemonCardExtension {
     return sets.length > 1;
   }
 
-  PokemonCardExtension(this.data, this.rarity, {this.image="", this.jpDBId=0, this.specialID="", this.isSecret=false});
+  PokemonCardExtension.empty(this.data, this.rarity, {this.image="", this.jpDBId=0, this.specialID="", this.isSecret=false});
+
+  PokemonCardExtension.creation(this.data, this.rarity, Map allSets, {this.image="", this.jpDBId=0, this.specialID="", this.isSecret=false}) {
+    computeDefaultSet(allSets);
+  }
+
+  void computeDefaultSet(Map allSets) {
+    if(Environment.instance.collection.japanRarity.contains(rarity)) {
+      sets.add(allSets[0]);
+    } else {
+      if( rarity.id < 6 )
+        sets.add(allSets[0]);
+      else
+        sets.add(allSets[1]);
+
+      if( rarity.id <= 6 )
+        sets.add(allSets[2]);
+    }
+  }
 
   PokemonCardExtension.fromBytesV3(ByteParser parser, Map collection, Map allSets, Map allRarities) :
     data   = collection[parser.extractInt16()],
@@ -208,7 +227,7 @@ class PokemonCardExtension {
     catch(e){
 
     }
-    sets.add(allSets[0]);
+    computeDefaultSet(allSets);
   }
 
   PokemonCardExtension.fromBytesV4(ByteParser parser, Map collection, Map allSets, Map allRarities) :
@@ -225,7 +244,7 @@ class PokemonCardExtension {
     int otherData = parser.extractInt8();
     assert(otherData == 0); //Not used
 
-    sets.add(allSets[0]);
+    computeDefaultSet(allSets);
   }
 
   PokemonCardExtension.fromBytesV5(ByteParser parser, Map collection, Map allSets, Map allRarities) :
@@ -241,7 +260,7 @@ class PokemonCardExtension {
     image  = parser.decodeString16();
     jpDBId = parser.extractInt32();
 
-    sets.add(allSets[0]);
+    computeDefaultSet(allSets);
   }
 
   PokemonCardExtension.fromBytesV6(ByteParser parser, Map collection, Map allSets, Map allRarities) :
@@ -259,7 +278,7 @@ class PokemonCardExtension {
     jpDBId    = parser.extractInt32();
     specialID = parser.decodeString16();
 
-    sets.add(allSets[0]);
+    computeDefaultSet(allSets);
   }
 
   PokemonCardExtension.fromBytes(ByteParser parser, Map collection, Map allSets, Map allRarities) :
@@ -306,11 +325,11 @@ class PokemonCardExtension {
   }
 
   bool isValid() {
-    return data.type!= Type.Unknown && rarity != Environment.instance.collection.unknownRarity;
+    return data.type!= TypeCard.Unknown && rarity != Environment.instance.collection.unknownRarity;
   }
 
-  List<Widget> imageRarity() {
-    return getImageRarity(rarity);
+  List<Widget> imageRarity(Language l) {
+    return getImageRarity(rarity, l);
   }
 
   Widget imageType({bool generate=false, double? sizeIcon}) {
@@ -439,12 +458,14 @@ class SubExtensionCards {
     noNumberedCard = extractOtherCards(noNumber, cardCollection, allSets, rarities);
   }
 
-  SubExtensionCards.emptyDraw(this.codeNaming, this.configuration) : cards = [], isValid=false {
+  SubExtensionCards.emptyDraw(this.codeNaming, this.configuration, Map allSets) : cards = [], isValid=false {
     // Build pre-publication: 300 card max
     for (int i = 0; i < 300; i += 1) {
-      cards.add([PokemonCardExtension(
-          PokemonCardData.empty(),
-          Environment.instance.collection.unknownRarity!)]);
+      var card = PokemonCardExtension.empty(PokemonCardData.empty(), Environment.instance.collection.unknownRarity!);
+      card.sets.add(allSets[0]);
+      card.sets.add(allSets[2]);
+
+      cards.add([card]);
     }
   }
 

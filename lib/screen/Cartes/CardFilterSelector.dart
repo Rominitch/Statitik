@@ -3,10 +3,9 @@ import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/SliderWithText.dart';
-import 'package:statitikcard/services/models/Marker.dart';
-import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
@@ -87,13 +86,13 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
     });
 
     orderedType.forEach((type) {
-      if( type != Type.Unknown )
+      if( type != TypeCard.Unknown )
         typesWidget.add(TypeButtonCheck(widget.result.types, type, controller: refreshController));
     });
 
     var rarities = widget.language.isWorld() ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity;
     rarities.forEach((rarity) {
-      raritiesWidget.add(RarityButtonCheck(widget.result.rarities, rarity, controller: refreshController));
+      raritiesWidget.add(RarityButtonCheck(widget.language, widget.result.rarities, rarity, controller: refreshController));
     });
 
     energies.forEach((element) {

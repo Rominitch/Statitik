@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 
 class BoosterPage extends StatefulWidget {

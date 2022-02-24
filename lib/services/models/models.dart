@@ -13,9 +13,8 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 import 'package:statitikcard/services/models/product.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';
-
-const double iconSize = 25.0;
 
 final Color greenValid = Colors.green[500]!;
 
@@ -216,34 +215,7 @@ String getLevelText(context, Level element) {
   return StatitikLocale.of(context).read(levelString[element.index]);
 }
 
-// Fr type / rarity -> NEVER CHANGED ORDER
-enum Type {
-  Plante,
-  Feu,
-  Eau,
-  Electrique,
-  Psy,
-  Combat,
-  Obscurite,
-  Metal,
-  Fee,
-  Dragon,
-  Incolore,
-  Objet,
-  Supporter,
-  Stade,
-  Energy,
-  Unknown,
-}
-const List<Type> orderedType = const[
-  Type.Unknown, Type.Plante, Type.Feu, Type.Eau, Type.Electrique, Type.Psy, Type.Combat, Type.Obscurite, Type.Metal, Type.Fee,
-  Type.Dragon, Type.Incolore, Type.Objet, Type.Supporter, Type.Stade, Type.Energy,
-];
 
-bool isPokemonCard(Type type) {
-  const List<Type> notPokemon = [Type.Objet, Type.Supporter, Type.Stade, Type.Energy];
-  return !notPokemon.contains(type);
-}
 
 /*
 enum Mode {
@@ -259,57 +231,6 @@ const Map modeColors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAcce
 const String emptyMode = '_';
 */
 
-const Map imageName = {
-  Type.Plante: 'plante',
-  Type.Feu: 'feu',
-  Type.Eau: 'eau',
-  Type.Electrique: 'electrique',
-  Type.Psy: 'psy',
-  Type.Combat: 'combat',
-  Type.Obscurite: 'obscure',
-  Type.Metal: 'metal',
-  Type.Incolore: 'incolore',
-  Type.Fee: 'fee',
-  Type.Dragon: 'dragon',
-};
-
-bool isPokemonType(type) {
-  return type != Type.Energy
-      && type != Type.Objet
-      && type != Type.Supporter
-      && type != Type.Stade;
-}
-
-const List<Type> energies = [Type.Plante,  Type.Feu,  Type.Eau,
-  Type.Electrique,  Type.Psy,  Type.Combat,  Type.Obscurite,
-  Type.Metal, Type.Fee,  Type.Dragon, Type.Incolore];
-
-const List<Color> energiesColors = [Colors.green, Colors.red, Colors.blue,
-  Colors.yellow, Color(0xFF8E24AA), Color(0xFFD84315), Color(0xFF311B92),
-  Color(0xFF7D7D7D),  Colors.pinkAccent, Colors.orange, Colors.white70,
-];
-
-const List<Color> generationColor = [
-  Colors.black, Colors.blue, Colors.red, Colors.green, Colors.brown,
-  Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal
-];
-
-List<Color> typeColors = energiesColors + [Color(0xFF1976D2), Color(0xFFC62828), Color(0xFFB9F6CA), Color(0xFFFFFF8D), Colors.black];
-
-List<Widget?> cachedEnergies = List.filled(energies.length, null);
-
-Widget energyImage(Type type) {
-  assert (type != Type.Unknown);
-  if(cachedEnergies[type.index] == null) {
-    if (imageName[type].isNotEmpty) {
-      cachedEnergies[type.index] = Image(
-        image: AssetImage('assets/energie/${imageName[type]}.png'),
-        width: iconSize,
-      );
-    }
-  }
-  return cachedEnergies[type.index]!;
-}
 
 enum DescriptionEffect {
   Unknown,          // 0
@@ -357,41 +278,6 @@ Widget getDescriptionEffectWidget(DescriptionEffect de, {size}) {
     default:
       return Icon(Icons.help_outline, size: size);
   }
-}
-
-List<Widget?> cachedImageType = List.filled(Type.values.length, null);
-
-Widget getImageType(Type type, {bool generate=false, double? sizeIcon})
-{
-  var iconWidget;
-  if(generate || cachedImageType[type.index] == null) {
-    switch(type) {
-      case Type.Objet:
-        iconWidget = Icon(Icons.build, color: Colors.blueAccent, size: sizeIcon);
-        break;
-      case Type.Stade:
-        iconWidget = Icon(Icons.landscape, color: Colors.green[700], size: sizeIcon);
-        break;
-      case Type.Supporter:
-        iconWidget = Icon(Icons.accessibility_new, color: Colors.red[900], size: sizeIcon);
-        break;
-      case Type.Energy:
-        iconWidget = Icon(Icons.battery_charging_full, size: sizeIcon);
-        break;
-      case Type.Unknown:
-        iconWidget = Icon(Icons.help_outline, size: sizeIcon);
-        break;
-      default:
-        iconWidget = energyImage(type);
-    }
-
-    if(generate)
-      return iconWidget;
-    else
-      cachedImageType[type.index] = iconWidget;
-
-  }
-  return cachedImageType[type.index]!;
 }
 
 class MultiLanguageString {
@@ -503,17 +389,16 @@ class StatsBooster {
   int totalCards = 0;
 
   // Cached
-  late List<int> countByType;
+  late List<int>        countByType;
   late Map<Rarity, int> countByRarity;
   late Map<CardSet,int> countBySet;
-
-  late List<int> countEnergy;
+  late List<int>        countEnergy;
 
   StatsBooster({required this.subExt}) {
     count         = List<List<int>>.generate(subExt.seCards.cards.length, (id) {
       return List<int>.filled(subExt.seCards.cards[id].length, 0);
     });
-    countByType   = List<int>.filled(Type.values.length, 0);
+    countByType   = List<int>.filled(TypeCard.values.length, 0);
     countByRarity = {};
     countBySet    = {};
     countEnergy   = List<int>.filled(subExt.seCards.energyCard.length, 0);
@@ -527,32 +412,38 @@ class StatsBooster {
     return false;
   }
 
-  void addBoosterDraw(ExtensionDrawCards edc, List<int> energy, int anomaly) {
+  void addBoosterDraw(ExtensionDrawCards edc, int anomaly) {
     if( edc.drawCards.length > subExt.seCards.cards.length)
       throw StatitikException('Corruption des données de tirages');
 
     anomaly += anomaly;
     nbBoosters += 1;
 
+    assert(countEnergy.length == subExt.seCards.energyCard.length);
+    assert(countEnergy.length >= edc.drawEnergies.length);
+
+    var idEnergy = 0;
     var energyCard = subExt.seCards.energyCard.iterator;
-    for(int energyI=0; energyI < energy.length; energyI +=1) {
-      if(!energyCard.moveNext())
-        break;
+    edc.drawEnergies.forEach((code) {
+      if(energyCard.moveNext()) {
+        var count = code.count();
+        countEnergy[idEnergy]                           += count;
+        countByType[energyCard.current.data.type.index] += count;
 
-      CodeDraw c = CodeDraw.fromSet(energyCard.current.sets.length, energy[energyI]);
-      countEnergy[energyI] += c.count();
-      // Energy can be reversed
-      int setId=0;
-      c.countBySet.forEach((element) {
-        var setCard = energyCard.current.sets[setId];
-        if(countBySet.containsKey(setCard))
-          countBySet[setCard] = countBySet[setCard]! + element;
-        else
-          countBySet[setCard] = element;
+        // Energy can be reversed
+        int setId=0;
+        code.countBySet.forEach((element) {
+          var setCard = energyCard.current.sets[setId];
+          if(countBySet.containsKey(setCard))
+            countBySet[setCard] = countBySet[setCard]! + element;
+          else
+            countBySet[setCard] = element;
 
-        setId += 1;
-      });
-    }
+          setId += 1;
+        });
+      }
+      idEnergy += 1;
+    });
 
     int cardsId=0;
     for(List<CodeDraw> cards in edc.drawCards) {
@@ -613,7 +504,7 @@ class StatsExtension {
   late int                countSecret;
 
   StatsExtension({required this.subExt}) {
-    countByType   = List<int>.filled(Type.values.length, 0);
+    countByType   = List<int>.filled(TypeCard.values.length, 0);
     countByRarity = {};
     rarities      = [];
     allSets       = [];
@@ -644,6 +535,14 @@ class StatsExtension {
           rarities.add(c.rarity);
       });
     });
+  }
+
+  int countAllCards() {
+    int count = 0;
+    countBySet.forEach((key, value) {
+      count += value;
+    });
+    return count;
   }
 }
 
@@ -680,7 +579,7 @@ class CardStats {
   Map<SubExtension, List<int>> countSubExtension = {};
   Map<CardMarker, int>         countMarker = {};
   Map<Rarity, int>             countRarity = {};
-  Map<Type, int>               countType   = {};
+  Map<TypeCard, int>           countType   = {};
 
   bool hasData() {
     return countSubExtension.isNotEmpty;
@@ -739,22 +638,22 @@ class CardResults {
   CardMarkers     filter = CardMarkers();
   Region?         filterRegion;
   CardStats?      stats;
-  List<Type>      types    = [];
+  List<TypeCard>  types    = [];
   List<Rarity>    rarities = [];
 
   MultiLanguageString? effectName;
 
   // Attack
-  Type?           attackType   = Type.Unknown;
+  TypeCard?       attackType   = TypeCard.Unknown;
   RangeValues     attackEnergy = defaultEnergyAttack;
   RangeValues     attackPower  = defaultAttack;
   List<DescriptionEffect> effects = [];
 
   // Pokémon card
   RangeValues     life           = defaultLife;
-  Type            weaknessType   = Type.Unknown;
+  TypeCard        weaknessType   = TypeCard.Unknown;
   RangeValues     weakness       = defaultWeakness;
-  Type            resistanceType = Type.Unknown;
+  TypeCard        resistanceType = TypeCard.Unknown;
   RangeValues     resistance     = defaultResistance;
 
   bool isSelected(PokemonCardExtension card){
@@ -786,21 +685,21 @@ class CardResults {
     if(select && life != defaultLife) {
       select = life.start.round() <= card.data.life && card.data.life <= life.end.round();
     }
-    if(select && (resistance != defaultResistance || resistanceType != Type.Unknown)) {
+    if(select && (resistance != defaultResistance || resistanceType != TypeCard.Unknown)) {
       select = card.data.resistance != null;
       if(select) {
         var res = card.data.resistance!;
-        if(resistanceType != Type.Unknown)
+        if(resistanceType != TypeCard.Unknown)
           select = res.energy == resistanceType;
         if(select && resistance != defaultResistance)
           select = resistance.start.round() <= res.value && res.value <= resistance.end.round();
       }
     }
-    if(select && (weakness != defaultWeakness || weaknessType != Type.Unknown)) {
+    if(select && (weakness != defaultWeakness || weaknessType != TypeCard.Unknown)) {
       select = card.data.weakness != null;
       if(select) {
         var weak = card.data.weakness!;
-        if(weaknessType != Type.Unknown)
+        if(weaknessType != TypeCard.Unknown)
           select = weak.energy == weaknessType;
         if(select && weakness != defaultWeakness)
           select = weakness.start.round() <= weak.value && weak.value <= weakness.end.round();
@@ -815,7 +714,7 @@ class CardResults {
         // Parse each effect to find filter item at least one time.
         //card.data.cardEffects.effects.forEach((effect) {
         for(var effect in card.data.cardEffects.effects) {
-          if(attackType != Type.Unknown)
+          if(attackType != TypeCard.Unknown)
             count[0].set(effect.attack.contains(attackType));
           if(attackEnergy != defaultEnergyAttack) {
             var attackCount = effect.attack.length;
@@ -890,12 +789,12 @@ class CardResults {
   }
 
   bool hasWeaknessFilter() {
-    return weaknessType != Type.Unknown
+    return weaknessType != TypeCard.Unknown
         || weakness != defaultWeakness;
   }
 
   bool hasResistanceFilter() {
-    return resistanceType != Type.Unknown
+    return resistanceType != TypeCard.Unknown
         || resistance != defaultResistance;
   }
 
@@ -907,21 +806,21 @@ class CardResults {
 
   void clearGeneralityFilter() {
     life           = defaultLife;
-    weaknessType   = Type.Unknown;
+    weaknessType   = TypeCard.Unknown;
     weakness       = defaultWeakness;
-    resistanceType = Type.Unknown;
+    resistanceType = TypeCard.Unknown;
     resistance     = defaultResistance;
   }
 
   bool hasAttackFilter() {
-    return attackType != Type.Unknown
+    return attackType != TypeCard.Unknown
         || attackEnergy != defaultEnergyAttack
         || attackPower != defaultAttack
         || effects.isNotEmpty;
   }
 
   void clearAttackFilter() {
-    attackType   = Type.Unknown;
+    attackType   = TypeCard.Unknown;
     attackEnergy  = defaultEnergyAttack;
     attackPower  = defaultAttack;
     effects.clear();

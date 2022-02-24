@@ -37,29 +37,29 @@ class StatsView extends StatelessWidget {
 
     double divider = data.subExt != null ? data.subExt!.cardPerBooster.toDouble() : 11.0;
     List<Widget> rarity = [];
-    {
-      int sum=0;
-      data.stats!.countEnergy.forEach((number) {sum += number; });
-      double luck = sum.toDouble() / data.stats!.nbBoosters;
-      if(luck > 0) {
-        double? userLuck;
-        if(data.userStats != null && data.userStats!.nbBoosters > 0) {
-          double userSum=0;
-          data.userStats!.countEnergy.forEach((number) {userSum += number.toDouble(); });
-          userLuck = (userSum / data.userStats!.nbBoosters);
-        }
-        rarity.add(buildLine([ Icon(Icons.battery_charging_full), ], sum, luck, Colors.yellowAccent, divider, userLuck));
-      }
-    }
-
+    List<Widget> sets   = [];
     if( data.subExt!.seCards.isValid ) {
+      {
+        int sum=0;
+        data.stats!.countEnergy.forEach((number) {sum += number; });
+        double luck = sum.toDouble() / data.stats!.nbBoosters;
+        if(luck > 0) {
+          double? userLuck;
+          if(data.userStats != null && data.userStats!.nbBoosters > 0) {
+            double userSum=0;
+            data.userStats!.countEnergy.forEach((number) {userSum += number.toDouble(); });
+            userLuck = (userSum / data.userStats!.nbBoosters);
+          }
+          rarity.add(buildLine([ Icon(Icons.battery_charging_full), ], sum, luck, Colors.yellowAccent, divider, userLuck));
+        }
+      }
       data.stats!.countByRarity.forEach((rare, sum) {
         if(rare != Environment.instance.collection.unknownRarity) {
           double luck = sum.toDouble() / data.stats!.nbBoosters;
           if(luck > 0)
           {
             double? userLuck = (data.userStats != null && data.userStats!.nbBoosters > 0) ? (sum.toDouble() / data.userStats!.nbBoosters) : null;
-            rarity.add( buildLine(getImageRarity(rare), sum, luck, rare.color, divider, userLuck) );
+            rarity.add( buildLine(getImageRarity(rare, data.language!), sum, luck, rare.color, divider, userLuck) );
           }
         }
       });
@@ -69,7 +69,7 @@ class StatsView extends StatelessWidget {
         if(luck > 0)
         {
           double? userLuck = (data.userStats != null && data.userStats!.nbBoosters > 0) ? (sum.toDouble() / data.userStats!.nbBoosters) : null;
-          rarity.add( buildLine([Image(image: AssetImage('assets/carte/${set.image}.png'), height: 30.0)], sum, luck, set.color, divider, userLuck) );
+          sets.add( buildLine([Image(image: AssetImage('assets/carte/${set.image}.png'), height: 30.0)], sum, luck, set.color, divider, userLuck) );
         }
       });
 
@@ -90,13 +90,20 @@ class StatsView extends StatelessWidget {
               ]),
               if(!options.print && options.showOption == OptionShowState.BoosterLuck) Text(sprintf(translator.read('S_B6'), [divider.toInt()])),
               if(!options.print && options.showOption == OptionShowState.BoosterLuck) SizedBox(height: 8.0,),
+              Text(translator.read('S_B21'), style: Theme.of(context).textTheme.headline6 ),
               ListView(
                 shrinkWrap: true,
                 primary: false,
                 children: rarity,
               ),
+              Text(translator.read('S_B20'), style: Theme.of(context).textTheme.headline6 ),
+              ListView(
+                shrinkWrap: true,
+                primary: false,
+                children: sets,
+              ),
               if(!options.print && energyData) Text(translator.read('S_B12'), style: Theme.of(context).textTheme.headline5 ),
-              if(!options.print && energyData) PieChartGeneric(allStats: data.stats!),
+              if(!options.print && energyData) PieChartEnergies(allStats: data.stats!),
             ]
         ),
       ),
@@ -238,17 +245,20 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
 
       // Remove one card for probability (or cut in two if only one)
       double unityProbability = 1.0;
-      if(statsExtension.countByRarity[idMinRarity.id] == 1){
+      if(statsExtension.countByRarity[idMinRarity]! <= 1){
         unityProbability = 0.5;
         info[idMinRarity] = statsExtension.countByRarity[idMinRarity]! / 2;
       } else {
         info[idMinRarity] = statsExtension.countByRarity[idMinRarity]!-1;
       }
+      assert(info[idMinRarity]! > 0.0);
       unityProbability = unityProbability / countEmpty.toDouble();
 
       // Fill invalid data
       findEmpty.forEach((r) {
-          info[r] = unityProbability * statsExtension.countByRarity[r]!;
+        var proba = unityProbability * statsExtension.countByRarity[r]!;
+        info[r] = proba;
+        assert(proba > 0.0);
       });
     }
 /*
@@ -260,6 +270,10 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
 
     assert(widget.data.stats!.totalCards.round() == count.round(), "${widget.data.stats!.totalCards.round()} == ${count.round()}");
 */
+    info.forEach((key, value) {
+      if(value == 0)
+        throw StatitikException("Control error");
+    });
     return info;
   }
 
@@ -271,7 +285,7 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
       int nbRarity = statsExtension.countByRarity[r] ?? 0;
       // Filter can be more than real data
       if( nbRarity > 0) {
-        assert(info[r]! > 0.0);
+        assert(info[r]! > 0.0, "Nb card exist but 0 ?");
         double coutPerBooster = info[r]! / widget.data.stats!.nbBoosters.toDouble();
         minimum = max(minimum, (nbRarity.toDouble() / coutPerBooster).ceil());
 

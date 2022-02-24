@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:statitikcard/services/CardEffect.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 
 void main() {
@@ -9,7 +10,7 @@ void main() {
     Language fr = Language(id: 1, image: "");
     Language en = Language(id: 2, image: "");
     Language jp = Language(id: 3, image: "");
-    Type t5 = Type.Psy;
+    TypeCard t5 = TypeCard.Psy;
 
     Map<int, DescriptionData> map =
     {

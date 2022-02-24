@@ -45,7 +45,7 @@ class _UserReportState extends State<UserReport> {
     bestCards.clear();
 
     if(finalData.stats != null) {
-
+      final Language l = finalData.subExt!.extension.language;
       // Just keep best card for report
       for (int idCardNumber = 0; idCardNumber < finalData.stats!.count.length; idCardNumber += 1) {
         for (int idCard = 0; idCard < finalData.stats!.count[idCardNumber].length; idCard += 1) {
@@ -62,8 +62,8 @@ class _UserReportState extends State<UserReport> {
             break;
 
           if(finalData.subExt!.seCards.cards.isNotEmpty) {
-            String realName = c.value.data.titleOfCard(finalData.subExt!.extension.language);
-            Widget? markerInfo = c.value.showImportantMarker(finalData.subExt!.extension.language, height: 15);
+            String realName = c.value.data.titleOfCard(l);
+            Widget? markerInfo = c.value.showImportantMarker(l, height: 15);
             bestCards.add(Card(
               color: Colors.grey[600],
               child: Padding(
@@ -75,7 +75,7 @@ class _UserReportState extends State<UserReport> {
                     [
                       Container(child: Text(finalData.subExt!.seCards.numberOfCard(c.key)), width: 40),
                       Container(child: Row(children: [c.value.imageType()] +
-                          c.value.imageRarity()), width: 80),
+                          c.value.imageRarity(l)), width: 80),
                       SizedBox(width: 6.0),
                       Flexible(child: Text(realName, style: TextStyle(fontSize: realName.length > 10 ? 10 : 13))),
                       if(markerInfo != null) markerInfo,
@@ -92,7 +92,7 @@ class _UserReportState extends State<UserReport> {
                   children:
                   [
                     Row(mainAxisAlignment: MainAxisAlignment.center,
-                        children: [c.value.imageType()] + c.value.imageRarity()),
+                        children: [c.value.imageType()] + c.value.imageRarity(l)),
                     SizedBox(height: 6.0),
                     Text(c.key.toString()),
                   ]),

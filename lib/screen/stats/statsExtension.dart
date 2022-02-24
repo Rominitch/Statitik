@@ -24,15 +24,46 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
     super.initState();
   }
 
+  Widget cardInfo(BuildContext context, String label, int count)
+  {
+    return Card(child: Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(count.toString()),
+          Text(StatitikLocale.of(context).read(label), style: Theme.of(context).textTheme.headline6, softWrap: true)
+        ]
+      ),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
+    List<Widget> infoCount = [];
+
+    List info = [
+     ['SE_B3', widget.stats.count.length-statsExtension.countSecret],
+     ['SE_B4', statsExtension.countSecret],
+     ['SE_B5', statsExtension.countAllCards()],
+    ];
+    info.forEach((element) {
+      infoCount.add(cardInfo(context, element[0], element[1]));
+    });
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(StatitikLocale.of(context).read('SE_B0'), style: Theme.of(context).textTheme.headline5),
-          Text(StatitikLocale.of(context).read('SE_B2')+' '+widget.stats.count.length.toString(), style: Theme.of(context).textTheme.bodyText2),
+          GridView.count(
+            crossAxisCount: 3,
+            children: infoCount,
+            primary: false,
+            shrinkWrap: true,
+            childAspectRatio: 1.8,
+          ),
           PieExtension(stats: statsExtension, visu: Visualize.Type),
           SizedBox(height: 10.0,),
           PieExtension(stats: statsExtension, visu: Visualize.Rarity),

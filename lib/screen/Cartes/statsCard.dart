@@ -8,6 +8,7 @@ import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 
 enum StatsVisualization
@@ -109,7 +110,7 @@ class _StatsCardState extends State<StatsCard> {
         var r = value.toDouble();
         rarityWidget.add( Row(
           children: [ Container(
-            child: Row( children: getImageRarity(rarity)), alignment: Alignment.centerLeft, width: _spaceBefore,),
+            child: Row( children: getImageRarity(rarity, widget.l)), alignment: Alignment.centerLeft, width: _spaceBefore,),
             Expanded(child: LinearPercentIndicator(
               lineHeight: 8.0,
               percent: ( r / count).clamp(0.0, 1.0),

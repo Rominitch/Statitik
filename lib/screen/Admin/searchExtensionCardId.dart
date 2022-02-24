@@ -4,11 +4,12 @@ import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 class SearchExtensionsCardId extends StatelessWidget {
-  final Type type;
+  final TypeCard type;
   final CardTitleData? name;
   final String title;
   final int currentId;

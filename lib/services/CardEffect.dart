@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 
 class DescriptionData {
@@ -119,7 +120,7 @@ class CardDescription {
       if(finalText.isNotEmpty) {
         if(itString.current.startsWith("E:")) {
           String energyCode = finalText.substring(2);
-          children.add(WidgetSpan(child: getImageType(Type.values[int.parse(energyCode)])));
+          children.add(WidgetSpan(child: getImageType(TypeCard.values[int.parse(energyCode)])));
         } else if(itString.current.startsWith("P:")) {
           String pokeCode = finalText.substring(2);
           PokemonInfo poke = pokemonCollection[int.parse(pokeCode)];
@@ -180,8 +181,8 @@ class CardEffect {
   int?              title;       /// Title of capacity if exist.
   CardDescription?  description; /// Description if exists.
 
-  int         power  = 0;   /// Zero = no attack.
-  List<Type>  attack = [];  /// Energy to attach for attack.
+  int             power  = 0;   /// Zero = no attack.
+  List<TypeCard>  attack = [];  /// Energy to attach for attack.
 
   CardEffect();
   CardEffect.fromBytes(ByteParser parser) {
@@ -197,8 +198,8 @@ class CardEffect {
 
     int nbAttack = parser.extractInt8();
     for(int i = 0; i < nbAttack; i +=1) {
-      var t = Type.values[parser.extractInt8()];
-      if(t != Type.Unknown)
+      var t = TypeCard.values[parser.extractInt8()];
+      if(t != TypeCard.Unknown)
         attack.add(t);
     }
   }

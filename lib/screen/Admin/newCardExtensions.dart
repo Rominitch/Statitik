@@ -5,9 +5,9 @@ import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/services/models/Marker.dart';
-import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
@@ -25,7 +25,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   List<Widget>  _cardEnergyInfo   = [];
   List<Widget>  _cardNoNumberInfo = [];
   bool _modify = false;
-  PokemonCardExtension data = PokemonCardExtension(PokemonCardData([], Level.Base, Type.Plante, CardMarkers.from([])), Environment.instance.collection.unknownRarity!);
+  PokemonCardExtension data = PokemonCardExtension.creation(PokemonCardData([], Level.Base, TypeCard.Plante, CardMarkers.from([])), Environment.instance.collection.unknownRarity!, Environment.instance.collection.sets);
 
   void updateCardList(int listId) {
     if(listId == 1)
@@ -47,8 +47,8 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
       }
 
       // Create new card
-      var newItem = PokemonCardExtension(PokemonCardData([], data.data.level, data.data.type, CardMarkers.from([])),
-          data.rarity);
+      var newItem = PokemonCardExtension.creation(PokemonCardData([], data.data.level, data.data.type, CardMarkers.from([])),
+          data.rarity, Environment.instance.collection.sets);
 
       // Added
       if(listId == 1) {
@@ -141,7 +141,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row( mainAxisAlignment: MainAxisAlignment.center,
-                  children: [card.imageType()]+card.imageRarity()),
+                  children: [card.imageType()]+card.imageRarity(_language!)),
               Row(mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(_se!.seCards.numberOfCard(localId)),

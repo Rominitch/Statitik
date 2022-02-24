@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import 'package:mysql1/mysql1.dart';
@@ -10,6 +11,7 @@ import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/collection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/connection.dart';
@@ -90,9 +92,9 @@ class Environment
     void initialize()
     {
         // General data control
-        assert(Type.values.length <= 255);
-        assert(Type.values.length       == orderedType.length);
-        assert(Type.values.length       == typeColors.length);
+        assert(TypeCard.values.length <= 255);
+        assert(TypeCard.values.length       == orderedType.length);
+        assert(TypeCard.values.length       == typeColors.length);
 
         if(!isInitialized) {
             // Sync event
@@ -124,8 +126,10 @@ class Environment
                     credential.initialize().whenComplete(() {
                         // Load database
                         onInfoLoading.add('LOAD_1');
-                        readStaticData().whenComplete(() {
+                        readStaticData().whenComplete(() async {
                             if (isLogged() && user!.admin) {
+                                await db.transactionR( collection.migration );
+
                                 printOutput("Admin is launched !");
                                 collection.adminReverse();
                             } else {
@@ -234,10 +238,10 @@ class Environment
                 // Prepare data
                 List<List<Object?>> draw = [];
                 for(BoosterDraw booster in currentDraw!.boosterDraws) {
-                    draw.add(booster.buildQuery(idAchat));
+                    draw.add(<Object?>[idAchat, booster.subExtension!.id, booster.abnormal ? 1 : 0, Int8List.fromList(booster.cardDrawing!.toBytes())]);
                 }
                 // Send data
-                await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, energieBin, cartesBin) VALUES (?, ?, ?, ?, ?);',
+                await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, cartesBin) VALUES (?, ?, ?, ?);',
                                             draw);
             });
         } catch( e ) {
@@ -271,20 +275,20 @@ class Environment
             await db.transactionR( (connection) async {
                 String query;
                 if(product != null) {
-                    query = 'SELECT `cartesBin`, `energieBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit` '
+                    query = 'SELECT `cartesBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit` '
                             'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
                             'AND `UtilisateurProduit`.`idProduit` = ${product.idDB} '
                             'AND `idSousExtension` = ${subExt.id} '
                             '$userReq;';
                 } else if(category > 0) {
-                    query = 'SELECT `cartesBin`, `energieBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit`, `Produit` '
+                    query = 'SELECT `cartesBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit`, `Produit` '
                         'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
                         'AND `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit` '
                         'AND `Produit`.`idCategorie` = $category '
                         'AND `idSousExtension` = ${subExt.id} '
                         '$userReq;';
                 } else {
-                    query = 'SELECT `cartesBin`, `energieBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit` '
+                    query = 'SELECT `cartesBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit` '
                             'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
                             'AND `idSousExtension` = ${subExt.id} '
                             '$userReq;';
@@ -297,7 +301,7 @@ class Environment
                         var bytes = (row[0] as Blob).toBytes().toList();
                         ExtensionDrawCards edc = ExtensionDrawCards.fromBytes(subExt, bytes);
 
-                        stats.addBoosterDraw(edc, (row[1] as Blob).toBytes(), row[2]);
+                        stats.addBoosterDraw(edc, row[1]);
                     } catch(e) {
                         printOutput("Stats extraction failure - SE=${subExt.id} : $e");
                     }
@@ -434,7 +438,7 @@ class Environment
                         session.idAchat = row[0];
 
                         // Read user data
-                        var reqUserBoosters = await connection.query("SELECT `idSousExtension`, `anomalie`, `cartesBin`, `energieBin` "
+                        var reqUserBoosters = await connection.query("SELECT `idSousExtension`, `anomalie`, `cartesBin` "
                             " FROM `TirageBooster`"
                             " WHERE `idAchat` = \'${row[0]}\'");
                         int id=0;
@@ -447,7 +451,7 @@ class Environment
 
                             var subEx = collection.subExtensions[rowUserBooster[0]];
                             var edc = ExtensionDrawCards.fromBytes(subEx, (rowUserBooster[2] as Blob).toBytes());
-                            booster.fill(subEx, rowUserBooster[1]==1, edc, (rowUserBooster[3] as Blob).toBytes());
+                            booster.fill(subEx, rowUserBooster[1]==1, edc);
 
                             id += 1;
                         }

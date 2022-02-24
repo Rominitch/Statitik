@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:kana_kit/kana_kit.dart';
 
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
@@ -104,27 +105,33 @@ class CardImage extends StatefulWidget {
         if(card.image.startsWith("https://"))
           return [card.image];
         else
-          return [
-             // Official image source
-             "https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/${se.seCode}/${se.seCode}_FR_${se.seCards.tcgImage(id)}.png",
-             // Fiable alternative source
-             "https://www.pokecardex.com/assets/images/sets_fr/${(se.seCode).toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"
-          ];
+          if( se.seCards.energyCard.contains(card) )
+            return ["https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/NRG/NRG_FR_${card.image}.png"];
+          else
+            return [
+               // Official image source
+               "https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/${se.seCode}/${se.seCode}_FR_${se.seCards.tcgImage(id)}.png",
+               // Fiable alternative source
+               "https://www.pokecardex.com/assets/images/sets_fr/${(se.seCode).toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"
+            ];
       else if( se.extension.language.id == 2 )
         if(card.image.startsWith("https://"))
           return [card.image];
         else
-          // Official image source
-          return ["https://assets.pokemon.com/assets/cms2/img/cards/web/${se.seCode}/${se.seCode}_EN_${se.seCards.tcgImage(id)}.png"];
+          if( se.seCards.energyCard.contains(card) )
+            return ["https://assets.pokemon.com/assets/cms2/img/cards/web/NRG/NRG_EN_${card.image}.png"];
+          else
+            // Official image source
+            return ["https://assets.pokemon.com/assets/cms2/img/cards/web/${se.seCode}/${se.seCode}_EN_${se.seCards.tcgImage(id)}.png"];
       else if( se.extension.language.id == 3 ) {
         if(card.image.startsWith("https://"))
           return [card.image];
         else {
           String romajiName = card.image.isEmpty ? computeJPPokemonName(se, card) : card.image;
           String codeType = "P";
-          if(card.data.type == Type.Supporter || card.data.type == Type.Stade || card.data.type == Type.Objet)
+          if(card.data.type == TypeCard.Supporter || card.data.type == TypeCard.Stade || card.data.type == TypeCard.Objet)
             codeType = "T";
-          else if(card.data.type == Type.Energy)
+          else if(card.data.type == TypeCard.Energy)
             codeType = "E";
           String codeImage = card.jpDBId.toString().padLeft(6, '0');
 

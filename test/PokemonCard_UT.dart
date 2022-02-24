@@ -7,6 +7,7 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
@@ -57,15 +58,15 @@ void main() {
   test('ExtensionDrawCards', () {
     var l  = Language(id: 1, image: "FR");
     var ex = Extension(0, "Ex", l);
-    var r  = Rarity.fromText(0, "0", Colors.green);
+    var r  = Rarity.fromText(0, MultiLanguageString(["S0","S0","S0"]), Colors.green);
     var defaultCard = PokemonCardData.empty();
     var sets = [
       CardSet(MultiLanguageString(["S0","S0","S0"]), Colors.green, "normal"),
       CardSet(MultiLanguageString(["S1","S1","S1"]), Colors.blue, "normal"),
     ];
     var card = [
-      PokemonCardExtension(defaultCard, r),
-      PokemonCardExtension(defaultCard, r)
+      PokemonCardExtension.empty(defaultCard, r),
+      PokemonCardExtension.empty(defaultCard, r)
     ];
     card[0].sets.add(sets[0]);
     card[0].sets.add(sets[1]);
@@ -156,17 +157,17 @@ void main() {
     };
 
     Map raritySets = {
-      0: Rarity.fromText(0, "Unknown", Colors.black),
-      1: Rarity.fromText(1, "C",       Colors.green),
-      2: Rarity.fromText(2, "U",       Colors.green),
-      3: Rarity.fromText(3, "R",       Colors.blue),
+      0: Rarity.fromText(0, MultiLanguageString(["Unknown","Unknown","Unknown"]), Colors.black),
+      1: Rarity.fromText(1, MultiLanguageString(["C","C","C"]),       Colors.green),
+      2: Rarity.fromText(2, MultiLanguageString(["U","U","U"]),       Colors.green),
+      3: Rarity.fromText(3, MultiLanguageString(["R","R","R"]),       Colors.blue),
     };
     Environment.instance.collection.unknownRarity = raritySets[0];
 
     Map collection = {
-      1: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Pika", "Pika", "Pika"]), 1, 25),)], Level.Base,   Type.Eau, CardMarkers()),
-      2: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Chu", "Chu", "Chu"]), 2, 25),)],    Level.Level1, Type.Electrique, CardMarkers()),
-      3: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Jp", "Jp", "Jp"]), 2, 25),)],       Level.Level2, Type.Electrique, CardMarkers()),
+      1: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Pika", "Pika", "Pika"]), 1, 25),)], Level.Base,   TypeCard.Eau, CardMarkers()),
+      2: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Chu", "Chu", "Chu"]), 2, 25),)],    Level.Level1, TypeCard.Electrique, CardMarkers()),
+      3: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Jp", "Jp", "Jp"]), 2, 25),)],       Level.Level2, TypeCard.Electrique, CardMarkers()),
     };
     Map rCollection = collection.map((k, v) => MapEntry(v, k));
     Map rAllSets    = allSets.map((k, v) => MapEntry(v, k));
@@ -174,9 +175,9 @@ void main() {
 
     List<PokemonCardExtension> c =
     [
-      PokemonCardExtension(collection[1], raritySets[1]),
-      PokemonCardExtension(collection[2], raritySets[2]),
-      PokemonCardExtension(collection[3], raritySets[0], image: "Image.png"),
+      PokemonCardExtension.empty(collection[1], raritySets[1]),
+      PokemonCardExtension.empty(collection[2], raritySets[2]),
+      PokemonCardExtension.empty(collection[3], raritySets[0], image: "Image.png"),
     ];
 
     for(PokemonCardExtension code in c) {
@@ -192,14 +193,14 @@ void main() {
     CardEffect effectEmpty          = CardEffect();
     CardEffect effectName           = CardEffect();
     effectName.title = 1;
-    effectName.attack = [Type.Electrique, Type.Electrique, Type.Incolore];
+    effectName.attack = [TypeCard.Electrique, TypeCard.Electrique, TypeCard.Incolore];
 
     CardEffect effectDescription    = CardEffect();
     effectDescription.description = CardDescription(2);
 
     CardEffect effectBoth           = CardEffect();
     effectName.title = 2;
-    effectName.attack = [Type.Electrique, Type.Electrique, Type.Incolore];
+    effectName.attack = [TypeCard.Electrique, TypeCard.Electrique, TypeCard.Incolore];
     effectName.description = CardDescription(3);
     effectName.description!.parameters.add(5);
 

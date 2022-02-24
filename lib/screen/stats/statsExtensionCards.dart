@@ -95,9 +95,9 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> {
             children: [
               SizedBox(height: 15,
                   child: Row( children: [
-                    cardData.imageType(generate: false, sizeIcon: 14.0),
+                    cardData.imageType(generate: true, sizeIcon: 14.0),
                     if(extendedType != null) extendedType,
-                  ] + getImageRarity(cardData.rarity, iconSize: 14.0, fontSize: 12.0, generate: true) + [
+                  ] + getImageRarity(cardData.rarity, widget.info.statsData.subExt!.extension.language, iconSize: 14.0, fontSize: 12.0, generate: true) + [
                     Expanded(child: Text( cardName, textAlign: TextAlign.right, style: TextStyle(fontSize: cardName.length > 3 ? 9.0: 12.0))),
                   ]
                   )

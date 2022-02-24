@@ -9,11 +9,11 @@ import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/EnergySlider.dart';
 import 'package:statitikcard/screen/widgets/ListSelector.dart';
 import 'package:statitikcard/screen/widgets/SliderWithText.dart';
-import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
@@ -67,7 +67,7 @@ class _CardCreatorState extends State<CardCreator> {
     widget.card.data.level = value;
   }
   void onTypeExtChanged(value) {
-    if(value == Type.Unknown)
+    if(value == TypeCard.Unknown)
       widget.card.data.typeExtended = null;
     else
       widget.card.data.typeExtended = value;
@@ -122,7 +122,7 @@ class _CardCreatorState extends State<CardCreator> {
       computeJPCardID();
     }
 
-    Type.values.forEach((element) {
+    TypeCard.values.forEach((element) {
         typeCard.add(CustomRadio(value: element, controller: typeController, widget: getImageType(element)));
     });
 
@@ -132,13 +132,13 @@ class _CardCreatorState extends State<CardCreator> {
         rarity.add(CustomRadio(value: element, controller: rarityController,
             widget: Row(mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: getImageRarity(element, fontSize: 8.0, generate: true))
+                children: getImageRarity(element, widget.activeLanguage, fontSize: 8.0, generate: true))
         )
         );
     });
 
     if( widget.editor ) {
-      typeExtCard.add(CustomRadio(value: Type.Unknown, controller: typeExtController, widget: getImageType(Type.Unknown)));
+      typeExtCard.add(CustomRadio(value: TypeCard.Unknown, controller: typeExtController, widget: getImageType(TypeCard.Unknown)));
       energies.forEach((element) {
         typeExtCard.add(CustomRadio(value: element, controller: typeExtController, widget: getImageType(element)));
       });
@@ -162,17 +162,17 @@ class _CardCreatorState extends State<CardCreator> {
         longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.activeLanguage, widget.card.data.markers, element)));
       });
       Environment.instance.collection.sets.values.forEach((element) {
-        setsWidget.add(Expanded(child: CardSetButtonCheck(widget.activeLanguage, widget.card.sets, element)));
+        setsWidget.add(CardSetButtonCheck(widget.activeLanguage, widget.card.sets, element));
       });
 
-      typeExtController.afterPress(widget.card.data.typeExtended != null ? widget.card.data.typeExtended! : Type.Unknown);
+      typeExtController.afterPress(widget.card.data.typeExtended != null ? widget.card.data.typeExtended! : TypeCard.Unknown);
     }
 
     if( widget.card.data.weakness == null ) {
-      widget.card.data.weakness = EnergyValue(Type.Unknown, 0);
+      widget.card.data.weakness = EnergyValue(TypeCard.Unknown, 0);
     }
     if( widget.card.data.resistance == null ) {
-      widget.card.data.resistance = EnergyValue(Type.Unknown, 0);
+      widget.card.data.resistance = EnergyValue(TypeCard.Unknown, 0);
     }
 
     // Set current value
@@ -265,7 +265,53 @@ class _CardCreatorState extends State<CardCreator> {
                  ? databaseCardId.toString()
                  : StatitikLocale.of(context).read('CA_B29');
 
-
+      List<Widget> cardInfo = [Row( children: designs)];
+      if(isPokemonType(widget.card.data.type)){
+        cardInfo += [
+          Row( children: level),
+          Row(children: [
+            Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B25'), style: TextStyle(fontSize: 12))),
+            Expanded(
+              child: SliderInfo( SliderInfoController(() {
+                return widget.card.data.life.toDouble();
+              },
+                      (double value){
+                    widget.card.data.life = value.round().toInt();
+                  }),
+                  minLife, maxLife,
+                  division: 40),
+            ),
+          ]),
+          // Retreat
+          Row(children: [
+            Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B26'), style: TextStyle(fontSize: 12))),
+            Expanded(
+              child: SliderInfo( SliderInfoController(() {
+                return widget.card.data.retreat.toDouble();
+              },
+                      (double value){
+                    widget.card.data.retreat = value.round().toInt();
+                  }),
+                  minRetreat, maxRetreat,
+                  division: 5),
+            ),
+          ]),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(StatitikLocale.of(context).read('CA_B28'), style: TextStyle(fontSize: 12)),
+              EnergySlider(widget.card.data.weakness!, 2, minWeakness, maxWeakness, division: 5)
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(StatitikLocale.of(context).read('CA_B27'), style: TextStyle(fontSize: 12)),
+              EnergySlider(widget.card.data.resistance!, 30, minResistance, maxResistance, division: 6)
+            ],
+          )
+        ];
+      }
 
       others = <Widget>[
         Padding(
@@ -322,64 +368,20 @@ class _CardCreatorState extends State<CardCreator> {
                   ]
                 )
             ),
-            if(isPokemonType(widget.card.data.type))
-              ExpansionPanelRadio(
-                canTapOnHeader: true,
-                headerBuilder: (context, isOpen) { return ListTile(
-                    title:Text(StatitikLocale.of(context).read('CA_B18'), style: TextStyle(fontSize: 12))); },
-                value: 1,
-                backgroundColor: Colors.blueGrey[800],
-                body: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Row( children: designs),
-                      Row( children: level),
-                      Row(children: [
-                        Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B25'), style: TextStyle(fontSize: 12))),
-                        Expanded(
-                          child: SliderInfo( SliderInfoController(() {
-                              return widget.card.data.life.toDouble();
-                            },
-                            (double value){
-                              widget.card.data.life = value.round().toInt();
-                            }),
-                            minLife, maxLife,
-                            division: 40),
-                        ),
-                      ]),
-                      // Retreat
-                      Row(children: [
-                        Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B26'), style: TextStyle(fontSize: 12))),
-                        Expanded(
-                          child: SliderInfo( SliderInfoController(() {
-                              return widget.card.data.retreat.toDouble();
-                            },
-                            (double value){
-                              widget.card.data.retreat = value.round().toInt();
-                            }),
-                            minRetreat, maxRetreat,
-                            division: 5),
-                        ),
-                      ]),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(StatitikLocale.of(context).read('CA_B28'), style: TextStyle(fontSize: 12)),
-                          EnergySlider(widget.card.data.weakness!, 2, minWeakness, maxWeakness, division: 5)
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(StatitikLocale.of(context).read('CA_B27'), style: TextStyle(fontSize: 12)),
-                          EnergySlider(widget.card.data.resistance!, 30, minResistance, maxResistance, division: 6)
-                        ],
-                      )
-                    ],
-                  ),
-                )
-            ),
+
+            ExpansionPanelRadio(
+              canTapOnHeader: true,
+              headerBuilder: (context, isOpen) { return ListTile(
+                  title:Text(StatitikLocale.of(context).read('CA_B18'), style: TextStyle(fontSize: 12))); },
+              value: 1,
+              backgroundColor: Colors.blueGrey[800],
+              body: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: cardInfo
+                ),
+              )
+          ),
           ExpansionPanelRadio(
             canTapOnHeader: true,
             headerBuilder: (context, isOpen) { return ListTile(
@@ -594,7 +596,7 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
               children: [
                 Flexible(child: Center(child: Text(
                   element.applyToPokemonName(widget.language),
-                  style: TextStyle(fontSize: 8),)))
+                  style: TextStyle(fontSize: 8), softWrap: true)))
               ])
       )
       );

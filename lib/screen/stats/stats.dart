@@ -72,10 +72,17 @@ class StatsPage extends StatefulWidget {
 
 class _StatsPageState extends State<StatsPage> {
   late CustomRadioController menuBarController = CustomRadioController(onChange: (value) { afterChangeMenu(value); });
-  PageController _pageController = PageController(keepPage: false);
+  late PageController _pageController;
 
   @override
   void initState() {
+    // Restore good page when return or select 0
+    var idPage = 0;
+    if(widget.info.statsData.subExt != null) {
+      idPage = widget.info.se.indexOf(widget.info.statsData.subExt!);
+    }
+    _pageController = PageController(initialPage: idPage, keepPage: false);
+
     menuBarController.currentValue = StateStatsExtension.Cards;
     super.initState();
   }

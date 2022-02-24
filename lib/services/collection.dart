@@ -8,6 +8,7 @@ import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 import 'package:statitikcard/services/models/product.dart';
@@ -15,8 +16,10 @@ import 'package:statitikcard/services/models/product.dart';
 class CardIntoSubExtensions {
   SubExtension se;
   int          position;
+  //List         listOfSe;
+  PokemonCardExtension card;
 
-  CardIntoSubExtensions(this.se, this.position);
+  CardIntoSubExtensions(this.se, this.position,/*this.listOfSe,*/ this.card);
 }
 
 class Collection
@@ -53,7 +56,7 @@ class Collection
   List<Rarity> japanRarity      = [];
   List<Rarity> goodCard         = [];
   List<Rarity> otherThanReverse = [];
-  Map<Rarity, List<Widget>?> cachedImageRarity = {};
+  Map<Language, Map<Rarity, List<Widget>?>> cachedImageRarity = {};
 
   // Markers
   Map<CardMarker, Widget?> cachedMarkers = {};
@@ -179,13 +182,23 @@ class Collection
       var rarityResult = await connection.query("SELECT * FROM `Rarete` ORDER BY `order` ASC");
       for (var row in rarityResult) {
         try {
+          var name;
+          if(row[2] != null) {
+            var allName = (row[2] as String).split(";");
+            if(allName.length == 3){
+              name = MultiLanguageString(allName);
+            } else {
+              name = MultiLanguageString([allName[0], allName[0], allName[0]]);
+            }
+          }
+
           // Build
           var rarity;
           if(row[1] != null) {
-            rarity = Rarity.fromIcon(row[0], getIcon(row[1]), row[2] ?? "", Color(row[6]), rotate: mask(row[4], RarityMaskRotateIcon));
+            rarity = Rarity.fromIcon(row[0], getIcon(row[1]), name, Color(row[6]), rotate: mask(row[4], RarityMaskRotateIcon));
           }
           else if(row[2] != null)
-            rarity = Rarity.fromText(row[0], row[2], Color(row[6]));
+            rarity = Rarity.fromText(row[0], name, Color(row[6]));
           else if(row[3] != null)
             rarity = Rarity.fromImage(row[0], row[3], Color(row[6]));
           assert(rarity != null);
@@ -342,7 +355,7 @@ class Collection
 
         var level      = Level.values[row[2]];
         var typeBytes  = (row[3] as Blob).toBytes().toList();
-        var type       = Type.values[typeBytes[0]];
+        var type       = TypeCard.values[typeBytes[0]];
         var life       = row[4] ?? 0;
         // Extract markers
         CardMarkers cardMarkers;
@@ -362,7 +375,7 @@ class Collection
         PokemonCardData p = PokemonCardData(namePokemons, level, type, cardMarkers, design, life, retreat, resistance, weakness);
         //Extract typeExtended (for double energy card)
         if(typeBytes.length > 1) {
-          p.typeExtended = Type.values[typeBytes[1]];
+          p.typeExtended = TypeCard.values[typeBytes[1]];
         }
         //Extract effects
         if( effects != null ) {
@@ -401,10 +414,10 @@ class Collection
 
           cardsExtensions[row[0]] = (row[1] != null)
               ? SubExtensionCards.build((row[1] as Blob).toBytes().toList(), codeNaming, pokemonCards, sets, rarities, row[5], energyList, noNumberList)
-              : SubExtensionCards.emptyDraw(codeNaming, row[5]);
+              : SubExtensionCards.emptyDraw(codeNaming, row[5], sets);
         } catch(e, callStack) {
           printOutput("Bad SubExtensionCards: ${row[0]} $e\n$callStack");
-          cardsExtensions[row[0]] = SubExtensionCards.emptyDraw([], 0);
+          cardsExtensions[row[0]] = SubExtensionCards.emptyDraw([], 0, sets);
         }
       }
       assert(cardsExtensions.isNotEmpty);
@@ -478,13 +491,13 @@ class Collection
     }
     var namedData = nameBytes.isNotEmpty ? Int8List.fromList(nameBytes) : null;
     var resistance;
-    if( card.resistance != null && card.resistance!.energy != Type.Unknown) {
+    if( card.resistance != null && card.resistance!.energy != TypeCard.Unknown) {
       resistance = Int8List.fromList(card.resistance!.toBytes());
     }
     var retreat = Int8List.fromList([card.retreat]);
 
     var weakness;
-    if( card.weakness != null && card.weakness!.energy != Type.Unknown) {
+    if( card.weakness != null && card.weakness!.energy != TypeCard.Unknown) {
       weakness = Int8List.fromList(card.weakness!.toBytes());
     }
     var effects;
@@ -583,9 +596,25 @@ class Collection
       subExtension.seCards.cards.forEach((cards) {
         cards.forEach((card) {
           if(card.data == searchCard) {
-            result.add(CardIntoSubExtensions(subExtension, id));
+            result.add(CardIntoSubExtensions(subExtension, id, card));
           }
         });
+        id += 1;
+      });
+
+      id=0;
+      subExtension.seCards.energyCard.forEach((card) {
+        if(card.data == searchCard) {
+          result.add(CardIntoSubExtensions(subExtension, id, card));
+        }
+        id += 1;
+      });
+
+      id=0;
+      subExtension.seCards.noNumberedCard.forEach((card) {
+        if(card.data == searchCard) {
+          result.add(CardIntoSubExtensions(subExtension, id, card));
+        }
         id += 1;
       });
     });
@@ -603,9 +632,25 @@ class Collection
           cards.forEach((card) {
             if(card.data == searchCard) {
               alreadyFind.add(subExtension.seCards);
-              result.add(CardIntoSubExtensions(subExtension, id));
+              result.add(CardIntoSubExtensions(subExtension, id, card));
             }
           });
+          id += 1;
+        });
+
+        id=0;
+        subExtension.seCards.energyCard.forEach((card) {
+          if(card.data == searchCard) {
+            result.add(CardIntoSubExtensions(subExtension, id, card));
+          }
+          id += 1;
+        });
+
+        id=0;
+        subExtension.seCards.noNumberedCard.forEach((card) {
+          if(card.data == searchCard) {
+            result.add(CardIntoSubExtensions(subExtension, id, card));
+          }
           id += 1;
         });
       }
@@ -620,7 +665,8 @@ class Collection
       var cardInfo = pokemonCards[cardID];
       // Parse all subExtension
       for(SubExtension se in subExtensions.values) {
-        // for each card
+
+        // Main card
         for(var seCard in se.seCards.cards) {
           // and possible alternative
           for(var seCardSub in seCard) {
@@ -635,6 +681,23 @@ class Collection
             break;
           }
         }
+
+        // Energies
+        for(var eCard in se.seCards.energyCard) {
+          if(eCard.data == cardInfo) {
+            find = true;
+            break;
+          }
+        }
+
+        // Other card
+        for(var eCard in se.seCards.noNumberedCard) {
+          if(eCard.data == cardInfo) {
+            find = true;
+            break;
+          }
+        }
+
         // Quit quickly
         if(find) {
           break;
@@ -691,5 +754,48 @@ class Collection
     rOther[newName] = nextId;
 
     return nextId;
+  }
+
+  Future<void> migration(connection) async {
+/*
+    //Insert HERE all requests
+    printOutput('Migration Start');
+    var reqUserBoosters = await connection.query("SELECT * FROM `TirageBooster`");
+    List<List<Object?>> allDataDraw = [];
+    for (var rowUserBooster in reqUserBoosters) {
+
+      SubExtension subEx = subExtensions[rowUserBooster[1]]!;
+      ExtensionDrawCards edc = ExtensionDrawCards.fromBytes(subEx, (rowUserBooster[4] as Blob).toBytes());
+      var energies = (rowUserBooster[3] as Blob).toBytes();
+
+      var refCount = 0;
+      var validCount = 0;
+      var de = edc.drawEnergies.iterator;
+      energies.forEach((code) {
+        refCount += code != 0 ? 1 :0;
+        if(de.moveNext()) {
+          try {
+            de.current.migrationEnergy(code);
+            validCount += de.current.count();
+          }
+          catch(e) {
+            printOutput("Missing energy set into SubExtension ${subEx.name}");
+            throw e;
+          }
+        } else {
+          if(code != 0)
+             assert(false, "Missing energy into SubExtension ${subEx.name}" );
+        }
+      });
+      assert( refCount == validCount );
+
+      allDataDraw.add(<Object?>[rowUserBooster[0], rowUserBooster[1], rowUserBooster[2], null, Int8List.fromList(edc.toBytes())]);
+    }
+
+
+    await connection.query("TRUNCATE `TirageBooster`");
+    await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, energieBin, cartesBin) VALUES (?, ?, ?, ?, ?);', allDataDraw);
+    printOutput('Migration Done !');
+*/
   }
 }

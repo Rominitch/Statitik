@@ -6,6 +6,7 @@ import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
@@ -157,7 +158,7 @@ class _PokemonCardState extends State<PokemonCard> {
     [
       if(widget.card.isValid())
         Row( mainAxisAlignment: MainAxisAlignment.center,
-            children: [widget.card.imageType()] + widget.card.imageRarity()),
+            children: [widget.card.imageType()] + widget.card.imageRarity(widget.boosterDraw.subExtension!.extension.language)),
       if(widget.card.isValid()) SizedBox(height: 6.0),
     ];
     super.initState();
@@ -265,7 +266,7 @@ class _EnergyButtonState extends State<EnergyButton> {
           style: TextButton.styleFrom(
             backgroundColor: code.color(widget.card),
           ),
-          child: getImageType(widget.card.data.typeExtended ?? Type.Unknown),
+          child: getImageType(widget.card.data.typeExtended ?? TypeCard.Unknown),
           onPressed: () {
             setState(() {
               widget.boosterDraw.toggleCard([code], 0);

@@ -5,6 +5,7 @@ import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 
 import 'package:statitikcard/services/models/models.dart';
 
@@ -105,7 +106,7 @@ class MarkerButtonCheck extends ButtonCheck<CardMarker> {
   }
 }
 
-class TypeButtonCheck extends ButtonCheck<Type> {
+class TypeButtonCheck extends ButtonCheck<TypeCard> {
   TypeButtonCheck(typesList, value, {controller}) : super(typesList, value, controller);
 
   @override
@@ -115,12 +116,13 @@ class TypeButtonCheck extends ButtonCheck<Type> {
 }
 
 class RarityButtonCheck extends ButtonCheck<Rarity> {
-  RarityButtonCheck(raritiesList, value, {controller}) : super(raritiesList, value, controller);
+  final Language l;
+  RarityButtonCheck(this.l, raritiesList, value, {controller}) : super(raritiesList, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.center,
-        children: getImageRarity(value, fontSize: 8.0, generate: true));
+        children: getImageRarity(value, l, fontSize: 8.0, generate: true));
   }
 }
 
