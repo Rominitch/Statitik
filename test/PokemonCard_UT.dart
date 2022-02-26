@@ -77,7 +77,7 @@ void main() {
     seCard.energyCard.add(card[0]);
     seCard.energyCard.add(card[1]);
 
-    var se = SubExtension(1, "Demo", "D", ex, DateTime.now(), seCard, SerieType.Normal, "D", 10 );
+    var se = SubExtension(1, "Demo", "D", ex, DateTime.now(), seCard, SerieType.Normal, ["D"], 10 );
 
     var compare = (ExtensionDrawCards codeS, ExtensionDrawCards code) {
       expect(codeS.drawCards.length, code.drawCards.length);

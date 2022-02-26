@@ -159,7 +159,7 @@ class _UserReportState extends State<UserReport> {
             if(!compute) IconButton(
                 icon: Icon(Icons.share_outlined),
                 onPressed: () {
-                  print.shareReport(context, finalData.subExt!.seCode);
+                  print.shareReport(context, finalData.subExt!.seCode[0]);
                 }
             ),
           ],

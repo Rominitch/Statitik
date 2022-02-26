@@ -101,19 +101,25 @@ class CardImage extends StatefulWidget {
 
   static List<String> computeImageLabel(SubExtension se, PokemonCardExtension card, int id) {
     if(Environment.instance.showTCGImages){
+      if(card.finalImage.isNotEmpty)
+        return [card.finalImage];
+
       if( se.extension.language.id == 1 )
         if(card.image.startsWith("https://"))
           return [card.image];
         else
           if( se.seCards.energyCard.contains(card) )
             return ["https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/NRG/NRG_FR_${card.image}.png"];
-          else
-            return [
-               // Official image source
-               "https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/${se.seCode}/${se.seCode}_FR_${se.seCards.tcgImage(id)}.png",
-               // Fiable alternative source
-               "https://www.pokecardex.com/assets/images/sets_fr/${(se.seCode).toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"
-            ];
+          else {
+            List<String> images = [];
+            se.seCode.forEach((seFolder) {
+              // Official image source
+              images.add("https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/$seFolder/${seFolder}_FR_${se.seCards.tcgImage(id)}.png");
+              images.add("https://www.pokecardex.com/assets/images/sets_fr/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg");
+              images.add("https://www.pokecardex.com/assets/images/sets/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg");
+            });
+            return images;
+          }
       else if( se.extension.language.id == 2 )
         if(card.image.startsWith("https://"))
           return [card.image];
@@ -135,12 +141,14 @@ class CardImage extends StatefulWidget {
             codeType = "E";
           String codeImage = card.jpDBId.toString().padLeft(6, '0');
 
-          return [
+          List<String> images = [];
+          se.seCode.forEach((seFolder) {
             // Official image source
-            "https://www.pokemon-card.com/assets/images/card_images/large/${se.seCode}/${codeImage}_${codeType}_$romajiName.jpg",
+            images.add("https://www.pokemon-card.com/assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_$romajiName.jpg");
             // Fiable alternative source
-            "https://www.pokecardex.com/assets/images/sets_jp/${se.seCode.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"
-          ];
+            images.add("https://www.pokecardex.com/assets/images/sets_jp/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg");
+          });
+          return images;
         }
       }
     }
@@ -172,9 +180,14 @@ class _CardImageState extends State<CardImage> {
 
   Widget buildCachedImage([bool admin=false]) {
     if(widget.cardImage.isNotEmpty) {
+      // Save current name (to avoid search in future)
+      widget.card.finalImage = widget.cardImage.first;
+
+      // Show image if possible
       return CachedNetworkImage(
         imageUrl: widget.cardImage.first,
         errorWidget: (context, url, error) {
+          widget.card.finalImage = "";
           if(admin && widget.se.extension.language.id == 3) {
             widget.card.jpDBId = 0;
           }
@@ -195,7 +208,7 @@ class _CardImageState extends State<CardImage> {
   Widget build(BuildContext context) {
     if(Environment.instance.user != null && Environment.instance.user!.admin)
       return Tooltip(
-        message: widget.cardImage.isNotEmpty ? widget.cardImage.first : "",
+        message: widget.card.finalImage.isNotEmpty ? widget.card.finalImage : widget.cardImage.join("\n"),
         child: buildCachedImage(true)
       );
     else

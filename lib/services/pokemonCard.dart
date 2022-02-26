@@ -188,6 +188,7 @@ class PokemonCardExtension {
   String           specialID = ""; /// For card without number or special (like energy, celebration card, ...)
   List<CardSet>    sets=[];
   bool             isSecret = false;
+  String           finalImage = ""; /// Cached to retrive final image when found
 
   String numberOfCard(int id) {
     return specialID.isNotEmpty ? specialID : (id + 1).toString();

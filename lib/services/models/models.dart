@@ -360,7 +360,7 @@ class SubExtension
   int               id;           ///< ID into database
   String            name;         ///< Name of extension (translate)
   String            icon;         ///< Path to extension's icon (on Statitik card folder)
-  String            seCode;       ///< Official Se code (use into web folder and other stuff)
+  List<String>      seCode;       ///< Official Se code + others (use into web folder and other stuff)
   DateTime          out;
   SubExtensionCards seCards;
   Extension         extension;
