@@ -62,7 +62,6 @@ class StatsConfiguration {
   }
 }
 
-
 class StatsPage extends StatefulWidget {
   final StatsConfiguration info = StatsConfiguration();
 

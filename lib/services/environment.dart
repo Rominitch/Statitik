@@ -71,7 +71,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.6.0';
+    final String version = '1.6.1';
 
     // State
     bool isInitialized          = false;
@@ -434,7 +434,7 @@ class Environment
                         // Start session
                         var p = Product(idDB: row[2], name: row[4], imageURL: row[5], boosters: boosters);
                         var l = collection.languages[row[3]];
-                        var session = SessionDraw(product: p, language: l);
+                        var session = SessionDraw(p, l, collection.subExtensions);
                         session.idAchat = row[0];
 
                         // Read user data

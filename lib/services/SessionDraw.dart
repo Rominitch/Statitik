@@ -15,26 +15,39 @@ class SessionDraw
   List<BoosterDraw> boosterDraws;
   Key               id; // Make unique file
 
-  SessionDraw({required this.product, required this.language}):
-        id = UniqueKey(),
-        boosterDraws = product.buildBoosterDraw();
+  SessionDraw(this.product, this.language, Map allSubExtensions):
+    id = UniqueKey(),
+    boosterDraws = product.buildBoosterDraw(allSubExtensions);
 
-  SessionDraw.fromFile(this.id, ByteParser parser) :
-    language = Environment.instance.collection.languages[parser.extractInt16()],
-    product  = Environment.instance.collection.products[parser.extractInt16()],
+  SessionDraw.fromFile(this.id, ByteParser parser, mapLanguages, mapProducts, mapSubExtensions) :
+    language = mapLanguages[parser.extractInt16()],
+    product  = mapProducts[parser.extractInt16()],
     boosterDraws = []
+    // Warning: idAchat is still undefined !
   {
     productAnomaly = parser.extractBool();
-    boosterDraws = product.buildBoosterDraw();
-    boosterDraws.forEach((element) {
+
+    // Add additional booster
+    int countBooster = parser.extractInt16();
+
+    // Fill booster draw
+    for(int idBooster=1; idBooster <= countBooster; idBooster +=1) {
+
+      int subExtCreationId = parser.extractInt16();
+      var subExt = subExtCreationId == 0 ? null : mapSubExtensions[subExtCreationId];
+      int nbCards = parser.extractInt8(); // Can change from db if not good !
+      // Create booster from scratch
+      var booster = new BoosterDraw(creation: subExt, id: idBooster, nbCards: nbCards);
+
       int subExtensionId = parser.extractInt16();
       if(subExtensionId != 0) {
-        element.subExtension = Environment.instance.collection.subExtensions[subExtensionId];
-        element.abnormal = parser.extractBool();
-
-        element.cardDrawing = ExtensionDrawCards.fromBytes(element.subExtension!, parser.extractBytesArray());
+        var se = mapSubExtensions[subExtensionId];
+        var abnormal = parser.extractBool();
+        var edc      = ExtensionDrawCards.fromBytes(se, parser.extractBytesArray());
+        booster.fill(se, abnormal, edc);
       }
-    });
+      boosterDraws.add(booster);
+    }
   }
 
   List<int> toBytes() {
@@ -45,14 +58,15 @@ class SessionDraw
 
     bytes += ByteEncoder.encodeInt16(boosterDraws.length);
     boosterDraws.forEach((element) {
-      if(element.subExtension == null) {
-        bytes += ByteEncoder.encodeInt16(element.subExtension!.id);
+      bytes += ByteEncoder.encodeInt16(element.creation != null ? element.creation!.id : 0);
+      bytes += ByteEncoder.encodeInt8(element.nbCards);
+      bytes += ByteEncoder.encodeInt16(element.subExtension == null ? 0 : element.subExtension!.id);
+
+      if(element.subExtension != null) {
         // abnormal
         bytes += ByteEncoder.encodeBool(element.abnormal);
         // List code
         bytes += ByteEncoder.encodeBytesArray(element.cardDrawing!.toBytes());
-      } else {
-        bytes += ByteEncoder.encodeInt16(0);
       }
     });
     return bytes;
@@ -84,10 +98,10 @@ class SessionDraw
     return boosterDraws.length > 1;
   }
 
-  void revertAnomaly()
+  void revertAnomaly(Map allSubExtensions)
   {
     //Brutal reset
-    boosterDraws = product.buildBoosterDraw();
+    boosterDraws = product.buildBoosterDraw(allSubExtensions);
     productAnomaly = false;
   }
 

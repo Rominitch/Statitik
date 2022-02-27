@@ -38,12 +38,12 @@ class Product
     return count;
   }
 
-  List<BoosterDraw> buildBoosterDraw() {
+  List<BoosterDraw> buildBoosterDraw(Map mapSubExtensions) {
     var list = <BoosterDraw>[];
     int id=1;
     boosters.forEach((key, value) {
       for( int i=0; i < value.nbBoosters; i+=1) {
-        SubExtension? se = Environment.instance.collection.subExtensions[key];
+        SubExtension? se = mapSubExtensions[key];
         list.add(new BoosterDraw(creation: se, id: id, nbCards: value.nbCardsPerBooster));
         id += 1;
       }

@@ -213,7 +213,7 @@ class _ResumePageState extends State<ResumePage> {
 
                       if(reset) {
                         setState(() {
-                          widget._activeSession.revertAnomaly();
+                          widget._activeSession.revertAnomaly(Environment.instance.collection.subExtensions);
                         });
                       }
                     } else { // Toggle

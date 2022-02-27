@@ -14,10 +14,10 @@ class UserDrawCollection {
 
   static Future<Directory> folder() async {
     final directory = await getApplicationDocumentsDirectory();
-    return Directory("${directory.path}/StatitikCard/save");
+    return Directory([directory.path,"StatitikCard","save"].join(Platform.pathSeparator));
   }
 
-  void readCollection() async {
+  Future<void> readCollection() async {
     collection.clear();
 
     Directory saveFolder = await folder();
@@ -39,13 +39,13 @@ class UserDrawFile {
 
   UserDrawFile(this.filePath);
 
-  Future<SessionDraw> read() async {
+  Future<SessionDraw> read(Map language, Map products, Map subExtensions) async {
     var file = File(filePath);
     var bytes = await file.readAsBytes();
     ByteParser parser = ByteParser(bytes);
     var version = parser.extractInt8();
     if(version == currentVersion) {
-      return SessionDraw.fromFile(ValueKey(file.uri.pathSegments.last), parser);
+      return SessionDraw.fromFile(ValueKey(file.uri.pathSegments.last), parser, language, products, subExtensions);
     }
     throw StatitikException("Unknown file");
   }
