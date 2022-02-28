@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
@@ -13,6 +12,7 @@ import 'package:statitikcard/screen/tutorial/drawTuto.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/UserDrawFile.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -26,6 +26,20 @@ class DrawHomePage extends StatefulWidget {
 
 class _DrawHomePageState extends State<DrawHomePage> {
   String? message;
+
+  late UserDrawCollection localCollection;
+
+  @override
+  void initState() {
+    localCollection = UserDrawCollection();
+    localCollection.readCollection().then((value) {
+      if(localCollection.collection.isNotEmpty) {
+        setState(() {});
+      }
+    });
+
+    super.initState();
+  }
 
   Widget administratorPanel() {
     return Card(
@@ -116,8 +130,9 @@ class _DrawHomePageState extends State<DrawHomePage> {
     );
   }
 
-  Widget createButton( List<Widget> info, Function onpress) {
+  Widget createButton( List<Widget> info, Function onpress, {color}) {
     return Card(
+      color: color,
       child: TextButton(
         child: Center(
             child: Row(
@@ -129,6 +144,158 @@ class _DrawHomePageState extends State<DrawHomePage> {
           onpress();
         }
       )
+    );
+  }
+
+  Widget drawPanel() {
+    var buttons = [
+      createButton([
+          Icon(Icons.add_box_outlined),
+          Flexible(
+            child: Text(StatitikLocale.of(context).read('DC_B1'),
+                style: Theme.of(context).textTheme.headline6,
+                softWrap: true, maxLines: 2),
+          ),
+        ], () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage, addMode: true)));
+        },
+        color: greenValid,
+      ),
+      createButton([
+          Icon(Icons.info_outline),
+          Text(StatitikLocale.of(context).read('DC_B10'),
+              style: Theme.of(context).textTheme.headline5
+          ),
+        ], () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => DrawTutorial()));
+        }
+      )
+    ];
+    return Card(
+      color: Colors.grey.shade900,
+      child: Padding(
+        padding: const EdgeInsets.all(6.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                drawImagePress(context, 'Snorlax_Pikachu_Pose', 60.0),
+                SizedBox(width: 15.0),
+                Text(StatitikLocale.of(context).read('DC_B14'),
+                    style: Theme.of(context).textTheme.headline4),
+                SizedBox(width: 15.0),
+                drawImagePress(context, 'Snorlax_Pikachu', 60.0),
+              ],
+            ),
+            SizedBox(height: 20),
+            GridView.count(
+              crossAxisCount: buttons.length,
+              children: buttons,
+              primary: false,
+              shrinkWrap: true,
+              childAspectRatio: 2.5,
+            ),
+            if(localCollection.collection.isNotEmpty)
+              Card( child:
+                TextButton(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.history),
+                      Text(StatitikLocale.of(context).read('DC_B19'), style: Theme.of(context).textTheme.headline5),
+                    ],
+                  ),
+                  onPressed: () {
+                  },
+                )
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget myProfilePanel() {
+    var buttons = [
+      createButton([
+        Column(
+          children: [
+            Text(StatitikLocale.of(context).read('DC_B16'),
+                style: Theme.of(context).textTheme.headline5),
+            Text(StatitikLocale.of(context).read('devSoon'),
+                style: TextStyle(fontSize: 10)),
+          ],
+        )
+      ],(){
+
+      }, color: Colors.black54),
+      createButton([
+        Column(
+          children: [
+            Text(StatitikLocale.of(context).read('DC_B17'),
+                style: Theme.of(context).textTheme.headline5),
+            Text(StatitikLocale.of(context).read('devSoon'),
+                style: TextStyle(fontSize: 10)),
+          ],
+        )
+      ],(){
+
+      }, color: Colors.black54),
+      createButton([
+        Column(
+          children: [
+            Text(StatitikLocale.of(context).read('DC_B18'),
+                style: Theme.of(context).textTheme.headline5),
+            Text(StatitikLocale.of(context).read('devSoon'),
+                style: TextStyle(fontSize: 10)),
+          ],
+        )
+      ],(){
+
+      }, color: Colors.black54),
+      createButton([
+        Text(StatitikLocale.of(context).read('DC_B11'), style: Theme.of(context).textTheme.headline5),
+      ], () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory()));
+      }),
+    ];
+
+    return Row(
+      children: [
+        Expanded(
+          child: Card(
+            color: Colors.grey.shade900,
+            child: Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      drawImagePress(context, 'CafeMix_Pikachu', 60.0),
+                      SizedBox(width: 15.0),
+                      Text(StatitikLocale.of(context).read('DC_B15'),
+                          style: Theme.of(context).textTheme.headline4),
+                      SizedBox(width: 15.0),
+                      drawImagePress(context, 'Piplup', 60.0),
+                    ],
+                  ),
+                  SizedBox(height: 20),
+                  GridView.count(
+                    crossAxisCount: 2,
+                    children: buttons,
+                    primary: false,
+                    shrinkWrap: true,
+                    childAspectRatio: 2.5,
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -157,155 +324,18 @@ class _DrawHomePageState extends State<DrawHomePage> {
             padding: const EdgeInsets.all(2.0),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Card(
-                        color: Colors.grey.shade900,
-                        child: Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          child: Column(
-                            children: [
-                              Center(
-                                child: Row(
-                                  children: [
-                                    Text(StatitikLocale.of(context).read('DC_B14'),
-                                      style: Theme.of(context).textTheme.headline6),
-                                    SizedBox(width: 15.0),
-                                    drawImagePress(context, 'Snorlax_Pikachu', 40.0),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(height: 20),
-                              Card( color: greenValid,
-                                child: TextButton(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.add_box_outlined),
-                                      Text(StatitikLocale.of(context).read('DC_B1'), softWrap: true, maxLines: 2),
-                                    ],
-                                  ),
-                                  onPressed: () {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage, addMode: true)));
-                                  }
-                                )
-                              ),
-                              Card( child:
-                                TextButton(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.info_outline),
-                                      Text(StatitikLocale.of(context).read('DC_B10') ),
-                                      SizedBox(width: 15.0),
-                                      drawImagePress(context, 'Snorlax_Pikachu_Pose', 40.0),
-                                    ],
-                                  ),
-                                  onPressed: () {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => DrawTutorial()));
-                                  },
-                                )
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 150,
-                      child: Card(
-                        color: Colors.grey.shade900,
-                        child: Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          //child:
-                        )
-                      )
+                drawPanel(),
+                myProfilePanel(),
+                Expanded(
+                  child: Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        drawImagePress(context, 'Zeraora', 300.0),
+                      ]
                     )
-                  ],
+                  )
                 ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Card(
-                        color: Colors.grey.shade900,
-                        child: Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Text(StatitikLocale.of(context).read('DC_B15'),
-                                    style: Theme.of(context).textTheme.headline6),
-                                  SizedBox(width: 15.0),
-                                  drawImagePress(context, 'Piplup', 40.0),
-                                ],
-                              ),
-                              SizedBox(height: 20),
-                              Text(StatitikLocale.of(context).read('devSoon'),
-                                  style: TextStyle(fontSize: 8)),
-                              createButton([
-                                Text(StatitikLocale.of(context).read('DC_B16'))
-                              ],(){
-
-                              }),
-                              createButton([
-                                Text(StatitikLocale.of(context).read('DC_B17'))
-                              ],(){
-
-                              }),
-                              createButton([
-                                Text(StatitikLocale.of(context).read('DC_B18'))
-                              ],(){
-
-                              }),
-                              createButton([
-                                drawImagePress(context, 'CafeMix_Pikachu', 40.0),
-                                SizedBox(width: 10.0),
-                                Icon(Icons.history),
-                                SizedBox(width: 4.0),
-                                Text(StatitikLocale.of(context).read('DC_B11') ),
-                              ], () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory()));
-                              }),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 150,
-                      child: Card(
-                          color: Colors.grey.shade900,
-                          child: Padding(
-                            padding: const EdgeInsets.all(6.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Center(child: drawImagePress(context, 'Zeraora', 100.0)),
-                                Row(
-                                  children: [
-                                    Icon(Icons.keyboard_arrow_left_rounded), Flexible(child: Text("Liste de vos cartes", softWrap: true)),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(Icons.keyboard_arrow_left_rounded), Flexible(child: Text("Liste de vos produits, sleeve", softWrap: true)),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(Icons.keyboard_arrow_left_rounded), Flexible(child: Text("Liste de vos cartes", softWrap: true)),
-                                  ],
-                                ),
-                              ]
-                            ),
-                          )
-                      ),
-                    )
-                  ],
-                ),
-                Spacer(),
                 Padding(padding: const EdgeInsets.all(6.0),
                   child: Column(
                     children: [

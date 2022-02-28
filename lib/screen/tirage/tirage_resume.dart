@@ -1,9 +1,14 @@
+import 'dart:io';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/tirage/tirage_booster.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
+import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/UserDrawFile.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -54,8 +59,9 @@ class _ResumePageState extends State<ResumePage> {
   Widget build(BuildContext context) {
     Function update = () { setState(() {}); };
     List<Widget> boosters = [];
+    bool atLeastOne  = false;
     bool allFinished = true;
-    bool sameExt = true;
+    bool sameExt     = true;
 
     for( var boosterDraw in widget._activeSession.boosterDraws) {
       Function fillBoosterInfo = (BuildContext context) async {
@@ -97,7 +103,9 @@ class _ResumePageState extends State<ResumePage> {
 
       boosters.add(createBoosterDrawTitle(widget._activeSession, boosterDraw, context, navigateAndDisplaySelection, update));
 
-      allFinished &= boosterDraw.isFinished();
+      var isFinished = boosterDraw.isFinished();
+      atLeastOne  |= isFinished;
+      allFinished &= isFinished;
       if( widget._activeSession.boosterDraws.first.subExtension != null && boosterDraw.subExtension != null)
         sameExt &= (widget._activeSession.boosterDraws.first.subExtension!.extension == boosterDraw.subExtension!.extension);
     }
@@ -130,47 +138,103 @@ class _ResumePageState extends State<ResumePage> {
     }
 
     List<Widget> actions = [];
-    if(allFinished && !widget._readOnly) {
-      actions.add(
-          Padding(
-            padding: const EdgeInsets.all(2.0),
-            child: TextButton(
-              style: TextButton.styleFrom( backgroundColor: button, ),
-              child: Text(StatitikLocale.of(context).read('send')),
-              onPressed: () {
-                EasyLoading.show();
-                Environment env = Environment.instance;
-                env.sendDraw().then((valid) {
-                  EasyLoading.dismiss();
-                  if( valid ) {
-                    showDialog(
+    if(!widget._readOnly) {
+      if(allFinished) {
+        actions.add(
+            Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: TextButton(
+                style: TextButton.styleFrom( backgroundColor: button, ),
+                child: Text(StatitikLocale.of(context).read('send')),
+                onPressed: () {
+                  EasyLoading.show();
+                  Environment env = Environment.instance;
+                  env.sendDraw().then((valid) {
+                    EasyLoading.dismiss();
+                    if( valid ) {
+                      showDialog(
+                          context: context,
+                          builder: (_) => new AlertDialog(
+                            title: new Text(StatitikLocale.of(context).read('TR_B1')),
+                            content: Text(StatitikLocale.of(context).read('TR_B2')),
+                          )
+                      ).then((value) {
+                        Navigator.popUntil(context, ModalRoute.withName('/'));
+                        // Clean data
+                        env.currentDraw!.closeStream();
+                        env.currentDraw = null;
+                      });
+                    } else {
+                      showDialog(
                         context: context,
                         builder: (_) => new AlertDialog(
-                          title: new Text(StatitikLocale.of(context).read('TR_B1')),
-                          content: Text(StatitikLocale.of(context).read('TR_B2')),
+                        title: new Text(StatitikLocale.of(context).read('error')),
+                        content: Text(StatitikLocale.of(context).read('TR_B3')),
                         )
-                    ).then((value) {
-                      Navigator.popUntil(context, ModalRoute.withName('/'));
-                      // Clean data
-                      env.currentDraw!.closeStream();
-                      env.currentDraw = null;
-                    });
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (_) => new AlertDialog(
-                      title: new Text(StatitikLocale.of(context).read('error')),
-                      content: Text(StatitikLocale.of(context).read('TR_B3')),
-                      )
-                    );
-                  }
-                }).onError((error, stackTrace) {
-                  EasyLoading.showError('Error');
-                });
-              },
-            ),
-          )
-      );
+                      );
+                    }
+                  }).onError((error, stackTrace) {
+                    EasyLoading.showError('Error');
+                  });
+                },
+              ),
+            )
+        );
+      }
+      else if(!widget._readOnly && atLeastOne) {
+          var errorFunction =  (error, stackTrace){
+          printOutput("Write file error:\n${stackTrace.toString()}");
+          EasyLoading.dismiss();
+          showDialog(
+              context: context,
+              builder: (_) =>
+              new AlertDialog(
+                title: new Text(
+                    StatitikLocale.of(context).read('error')),
+                content: Text(
+                    StatitikLocale.of(context).read('TR_B9')),
+              )
+          );
+        };
+
+        actions.add(
+            Card(
+              color: Colors.amber.shade600,
+              margin: const EdgeInsets.all(2.0),
+              child: TextButton(
+                child: Text(StatitikLocale.of(context).read('TR_B8')),
+                onPressed: () async {
+                  EasyLoading.show();
+                  Environment env = Environment.instance;
+
+                  // Create save folder
+                  UserDrawCollection.prepareCollectionFolder().then((collectionFolder) {
+                    String savedFile = [collectionFolder.path, "demo.bin"].join(Platform.pathSeparator);
+                    UserDrawFile udf = UserDrawFile(savedFile);
+                    udf.save(env.currentDraw!).then((value) {
+                      EasyLoading.dismiss();
+                      showDialog(
+                          context: context,
+                          builder: (_) =>
+                          new AlertDialog(
+                            title: new Text(
+                                StatitikLocale.of(context).read('TR_B11')),
+                            content: Text(
+                                StatitikLocale.of(context).read('TR_B10')),
+                          )
+                      ).then((value) {
+                        Navigator.popUntil(context, ModalRoute.withName('/'));
+                        // Clean data
+                        env.currentDraw!.closeStream();
+                        env.currentDraw = null;
+                      });
+                    }).onError(errorFunction);
+                  }).onError(errorFunction);
+                },
+              ),
+            )
+        );
+      }
     }
 
     return WillPopScope(

@@ -14,7 +14,7 @@ class UserDrawCollection {
 
   static Future<Directory> folder() async {
     final directory = await getApplicationDocumentsDirectory();
-    return Directory([directory.path,"StatitikCard","save"].join(Platform.pathSeparator));
+    return Directory([directory.path, "StatitikCardCollection"].join(Platform.pathSeparator));
   }
 
   Future<void> readCollection() async {
@@ -29,6 +29,15 @@ class UserDrawCollection {
         collection.add( UserDrawFile(element.path) );
       });
     }
+  }
+
+  static Future<Directory> prepareCollectionFolder() async {
+    Directory saveFolder = await folder();
+
+    if(!saveFolder.existsSync()) {
+      saveFolder.createSync();
+    }
+    return saveFolder;
   }
 }
 

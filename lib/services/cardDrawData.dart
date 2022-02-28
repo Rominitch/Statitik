@@ -161,7 +161,6 @@ class ExtensionDrawCards {
       else
         break;
     }
-    assert(allCardsCodes.isNotEmpty);
     int validEnergy = drawEnergies.length;
     if(drawEnergies.isNotEmpty) {
       for(var element in drawEnergies.reversed) {
