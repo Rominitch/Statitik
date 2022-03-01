@@ -32,11 +32,6 @@ class _DrawHomePageState extends State<DrawHomePage> {
   @override
   void initState() {
     localCollection = UserDrawCollection();
-    localCollection.readCollection().then((value) {
-      if(localCollection.collection.isNotEmpty) {
-        setState(() {});
-      }
-    });
 
     super.initState();
   }
@@ -311,6 +306,13 @@ class _DrawHomePageState extends State<DrawHomePage> {
           // Save to preferences (never shown)
           prefs.setBool('TutorialDraw', true);
         }
+      }).whenComplete(() {
+        // Search local collection
+        localCollection.readCollection().then((value) {
+          if(localCollection.collection.isNotEmpty) {
+            setState(() {});
+          }
+        });
       });
 
       return Scaffold(
@@ -412,5 +414,54 @@ class _DrawHomePageState extends State<DrawHomePage> {
     // Go to page
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => ResumePage()));
+  }
+
+  SimpleDialog showLocalDraw(BuildContext context) {
+    return SimpleDialog(
+      title: Text(StatitikLocale.of(context).read('warning')),
+      children: [
+        GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
+                childAspectRatio: 0.7),
+            itemBuilder: (context, id) {
+              return Card(
+                child: IconButton(onPressed: (){
+                  Navigator.pop(context, types[id]);
+                }, icon: getImageType(types[id])),
+              );
+            },
+        )],
+
+      /*
+
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: <Widget>[
+            Text(StatitikLocale.of(context).read('TR_B7')),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        Card(
+          color: Colors.red,
+          child: TextButton(
+            child: Text(StatitikLocale.of(context).read('yes')),
+            onPressed: () {
+              Navigator.of(context).pop(true);
+            },
+          ),
+        ),
+        Card(
+          child: TextButton(
+            child: Text(StatitikLocale.of(context).read('cancel')),
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+          ),
+        ),
+      ],
+       */
+    );
   }
 }

@@ -302,7 +302,7 @@ class _ResumePageState extends State<ResumePage> {
 
   AlertDialog showExit(BuildContext context) {
     return AlertDialog(
-      title: Text(StatitikLocale.of(context).read('warning')),
+      title: Text(StatitikLocale.of(context).read('DC_B20')),
       content: SingleChildScrollView(
         child: ListBody(
           children: <Widget>[
