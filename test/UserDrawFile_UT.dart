@@ -100,23 +100,22 @@ void main() {
     SessionDraw sd = SessionDraw(p, l, subExtensions);
     sd.boosterDraws[0].fill(se, true, edc);
 
-    var collection = UserDrawCollection();
-    await collection.readCollection();
-    if(collection.collection.isNotEmpty) {
-      collection.collection.forEach((element) {
+    var savedDraws = await UserDrawCollection.readSavedDraws();
+    if(savedDraws.isNotEmpty) {
+      savedDraws.forEach((element) {
         element.remove();
       });
-      await collection.readCollection();
+      await UserDrawCollection.readSavedDraws();
     }
-    expect(0, collection.collection.length, reason: "Start condition is not ready");
+    expect(0, savedDraws.length, reason: "Start condition is not ready");
 
     String savedFile = [(await UserDrawCollection.folder()).path, "demo.bin"].join(Platform.pathSeparator);
     UserDrawFile udf = UserDrawFile(savedFile);
     await udf.save(sd);
 
     // Check file exists
-    await collection.readCollection();
-    expect(1, collection.collection.length, reason: "File doesn't exist into collection folder");
+    savedDraws = await UserDrawCollection.readSavedDraws();
+    expect(1, savedDraws.length, reason: "File doesn't exist into collection folder");
 
     // Read file
     UserDrawFile readUdf = UserDrawFile(savedFile);
@@ -126,7 +125,7 @@ void main() {
 
     // Delete file
     udf.remove();
-    await collection.readCollection();
-    expect(0, collection.collection.length, reason: "File still exists into collection folder");
+    savedDraws = await UserDrawCollection.readSavedDraws();
+    expect(0, savedDraws.length, reason: "File still exists into collection folder");
   });
 }

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
@@ -14,23 +13,28 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/models.dart';
 
-class ResumePage extends StatefulWidget {
-  final SessionDraw _activeSession;
-  final bool        _readOnly;
+class PokeSpaceDrawResume extends StatefulWidget {
+  final SessionDraw   _activeSession;
+  final bool          _readOnly;
+  final UserDrawFile? _file;
 
   @override
-  _ResumePageState createState() => _ResumePageState();
+  _PokeSpaceDrawResumeState createState() => _PokeSpaceDrawResumeState();
 
-  ResumePage([activeSession]) :
+  PokeSpaceDrawResume([activeSession]) :
+    this._file = null,
     this._readOnly      = activeSession != null,
     this._activeSession = activeSession != null ? activeSession! : Environment.instance.currentDraw;
 
-  ResumePage.fromSave(SessionDraw session) :
+  PokeSpaceDrawResume.fromSave(SessionDraw session, this._file) :
         this._readOnly      = false,
-        this._activeSession = session;
+        this._activeSession = session
+  {
+    Environment.instance.currentDraw = session;
+  }
 }
 
-class _ResumePageState extends State<ResumePage> {
+class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
   @override
   void initState() {
     if( widget._activeSession.boosterDraws.length <= 0 )
@@ -159,6 +163,11 @@ class _ResumePageState extends State<ResumePage> {
                             content: Text(StatitikLocale.of(context).read('TR_B2')),
                           )
                       ).then((value) {
+                        // Clean from saved draw
+                        if(widget._file != null) {
+                          widget._file!.remove();
+                        }
+
                         Navigator.popUntil(context, ModalRoute.withName('/'));
                         // Clean data
                         env.currentDraw!.closeStream();
@@ -217,8 +226,7 @@ class _ResumePageState extends State<ResumePage> {
                           context: context,
                           builder: (_) =>
                           new AlertDialog(
-                            title: new Text(
-                                StatitikLocale.of(context).read('TR_B11')),
+                            title: new Text(StatitikLocale.of(context).read('TR_B11'), style: Theme.of(context).textTheme.headline4),
                             content: Text(
                                 StatitikLocale.of(context).read('TR_B10')),
                           )

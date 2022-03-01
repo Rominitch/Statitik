@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/screen/tirage/tirage_resume.dart';
+import 'package:statitikcard/screen/tirage/PokeSpaceDrawResume.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -41,7 +41,7 @@ class _DrawHistoryState extends State<DrawHistory> {
                       )
                     ]),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ResumePage(draw)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceDrawResume(draw)));
                 },
                 onLongPress: (widget.isAdmin) ? () {
                   setState(() {

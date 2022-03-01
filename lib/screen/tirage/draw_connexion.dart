@@ -7,7 +7,8 @@ import 'package:statitikcard/screen/Admin/newProduct.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/commonPages/productPage.dart';
 import 'package:statitikcard/screen/tirage/DrawHistory.dart';
-import 'package:statitikcard/screen/tirage/tirage_resume.dart';
+import 'package:statitikcard/screen/tirage/PokeSpaceSavedDraw.dart';
+import 'package:statitikcard/screen/tirage/PokeSpaceDrawResume.dart';
 import 'package:statitikcard/screen/tutorial/drawTuto.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
@@ -26,15 +27,7 @@ class DrawHomePage extends StatefulWidget {
 
 class _DrawHomePageState extends State<DrawHomePage> {
   String? message;
-
-  late UserDrawCollection localCollection;
-
-  @override
-  void initState() {
-    localCollection = UserDrawCollection();
-
-    super.initState();
-  }
+  List<UserDrawFile> userDraw = [];
 
   Widget administratorPanel() {
     return Card(
@@ -192,7 +185,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
               shrinkWrap: true,
               childAspectRatio: 2.5,
             ),
-            if(localCollection.collection.isNotEmpty)
+            if(userDraw.isNotEmpty)
               Card( child:
                 TextButton(
                   child: Row(
@@ -203,6 +196,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                     ],
                   ),
                   onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceSavedDraw(userDraw)));
                   },
                 )
               ),
@@ -308,10 +302,10 @@ class _DrawHomePageState extends State<DrawHomePage> {
         }
       }).whenComplete(() {
         // Search local collection
-        localCollection.readCollection().then((value) {
-          if(localCollection.collection.isNotEmpty) {
-            setState(() {});
-          }
+        UserDrawCollection.readSavedDraws().then((value) {
+          setState(() {
+            userDraw = value;
+          });
         });
       });
 
@@ -365,7 +359,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
       return Scaffold(
         appBar: AppBar(
           title: Center(
-            child: Text( StatitikLocale.of(context).read('DC_B4'), style: Theme.of(context).textTheme.headline3, ),
+            child: Text( StatitikLocale.of(context).read('DC_B4'), style: Theme.of(context).textTheme.headline3 ),
           ),
         ),
         body:SafeArea(
@@ -413,55 +407,9 @@ class _DrawHomePageState extends State<DrawHomePage> {
         SessionDraw(product!.product, language, Environment.instance.collection.subExtensions);
     // Go to page
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => ResumePage()));
-  }
-
-  SimpleDialog showLocalDraw(BuildContext context) {
-    return SimpleDialog(
-      title: Text(StatitikLocale.of(context).read('warning')),
-      children: [
-        GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
-                childAspectRatio: 0.7),
-            itemBuilder: (context, id) {
-              return Card(
-                child: IconButton(onPressed: (){
-                  Navigator.pop(context, types[id]);
-                }, icon: getImageType(types[id])),
-              );
-            },
-        )],
-
-      /*
-
-      content: SingleChildScrollView(
-        child: ListBody(
-          children: <Widget>[
-            Text(StatitikLocale.of(context).read('TR_B7')),
-          ],
-        ),
-      ),
-      actions: <Widget>[
-        Card(
-          color: Colors.red,
-          child: TextButton(
-            child: Text(StatitikLocale.of(context).read('yes')),
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-          ),
-        ),
-        Card(
-          child: TextButton(
-            child: Text(StatitikLocale.of(context).read('cancel')),
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-          ),
-        ),
-      ],
-       */
-    );
+        MaterialPageRoute(builder: (context) => PokeSpaceDrawResume())).then( (value)
+    {
+      setState(() {});
+    });
   }
 }

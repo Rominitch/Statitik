@@ -1,5 +1,3 @@
-
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,16 +7,13 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/models.dart';
 
 class UserDrawCollection {
-
-  List<UserDrawFile> collection = [];
-
   static Future<Directory> folder() async {
     final directory = await getApplicationDocumentsDirectory();
     return Directory([directory.path, "StatitikCardCollection"].join(Platform.pathSeparator));
   }
 
-  Future<void> readCollection() async {
-    collection.clear();
+  static Future<List<UserDrawFile>> readSavedDraws() async {
+    List<UserDrawFile> savedDraws = [];
 
     Directory saveFolder = await folder();
 
@@ -26,9 +21,10 @@ class UserDrawCollection {
       saveFolder.createSync();
     } else {
       saveFolder.listSync().forEach((element) {
-        collection.add( UserDrawFile(element.path) );
+        savedDraws.add( UserDrawFile(element.path) );
       });
     }
+    return savedDraws;
   }
 
   static Future<Directory> prepareCollectionFolder() async {
