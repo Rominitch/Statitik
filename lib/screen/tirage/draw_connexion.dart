@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sprintf/sprintf.dart';
-import 'package:statitikcard/screen/Admin/newCardExtensions.dart';
-import 'package:statitikcard/screen/Admin/newProduct.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/commonPages/productPage.dart';
@@ -17,6 +14,7 @@ import 'package:statitikcard/services/UserDrawFile.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/product.dart';
 
@@ -28,95 +26,6 @@ class DrawHomePage extends StatefulWidget {
 class _DrawHomePageState extends State<DrawHomePage> {
   String? message;
   List<UserDrawFile> userDraw = [];
-
-  Widget administratorPanel() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text(StatitikLocale.of(context).read('DC_B13')),
-            CircleAvatar(
-              backgroundColor: Colors.lightGreen,
-              radius: 20,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                icon: Icon(Icons.add_shopping_cart),
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => NewProductPage()));
-                },
-              ),
-            ),
-            CircleAvatar(
-              backgroundColor: Colors.deepOrange,
-              radius: 20,
-              child: IconButton(
-                padding: EdgeInsets.zero,
-                icon: Icon(Icons.post_add_outlined),
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => NewCardExtensions()));
-                },
-              ),
-            ),
-            CircleAvatar(
-                backgroundColor: Colors.blueAccent,
-                radius: 20,
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.remove_red_eye_rounded),
-                  color: Colors.white,
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory(true)));
-                  },
-                )),
-            CircleAvatar(
-                backgroundColor: Colors.blueAccent,
-                radius: 20,
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  icon: Icon(Icons.delete_forever),
-                  color: Colors.white,
-                  onPressed: () {
-                    var orphans = Environment.instance.collection.searchOrphanCard();
-                    showDialog(
-                        context: context,
-                        builder: (_) => new AlertDialog(
-                            title: new Text(StatitikLocale.of(context).read('warning')),
-                            content: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Text( sprintf(StatitikLocale.of(context).read('CA_B33'), [orphans.length]),
-                                      textAlign: TextAlign.justify),
-                                  if(orphans.isNotEmpty) Card(
-                                      color: Colors.red,
-                                      child: TextButton(
-                                          child: Text(StatitikLocale.of(context).read('yes')),
-                                          onPressed: () {
-                                            // Remove card
-                                            Environment.instance.removeOrphans(orphans).then((value) {
-                                              if(value) {
-                                                // Reload full database to have all real data
-                                                Environment.instance.restoreAdminData().then( (value){
-                                                  Navigator.pop(context);
-                                                });
-                                              }
-                                            });
-                                          }
-                                      )
-                                  )
-                                ]
-                            )
-                        )
-                    );
-                  },
-                )
-            ),
-          ]),
-      ),
-    );
-  }
 
   Widget createButton( List<Widget> info, Function onpress, {color}) {
     return Card(
@@ -345,8 +254,6 @@ class _DrawHomePageState extends State<DrawHomePage> {
                     ]
                   )
                 ),
-                if(Environment.instance.user!.admin)
-                  administratorPanel()
               ]
             ),
           ),
@@ -401,10 +308,10 @@ class _DrawHomePageState extends State<DrawHomePage> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.SingleSelection, language: language, subExt: subExt, afterSelected: afterSelectProduct) ));
   }
 
-  void afterSelectProduct(BuildContext context, Language language, ProductRequested? product, int categorie) {
+  void afterSelectProduct(BuildContext context, Language language, ProductRequested? product, ProductCategory? category) {
     // Build new session of draw
     Environment.instance.currentDraw =
-        SessionDraw(product!.product, language, Environment.instance.collection.subExtensions);
+        SessionDraw(product!.product, language);
     // Go to page
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => PokeSpaceDrawResume())).then( (value)

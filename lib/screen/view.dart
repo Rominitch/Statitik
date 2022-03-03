@@ -378,14 +378,6 @@ RichText textBullet(text) {
   );
 }
 
-String categoryName(BuildContext context, int id) {
-  try {
-    return (id == -1) ? StatitikLocale.of(context).read('S_B9') : StatitikLocale.of(context).read('CAT_$id');
-  } catch (e) {
-    return StatitikLocale.of(context).read('error');
-  }
-}
-
 List<Widget> createRegionsWidget(context, regionController, Language language) {
   List<Widget> regionsWidget = [];
 

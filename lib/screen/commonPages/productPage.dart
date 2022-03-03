@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/screen/view.dart';
+
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -15,7 +16,7 @@ enum ProductPageMode {
 class ProductPage extends StatefulWidget {
   final Language language;
   final SubExtension subExt;
-  final Function afterSelected;
+  final Function(BuildContext, Language, ProductRequested?, ProductCategory?) afterSelected;
   final ProductPageMode mode;
 
   ProductPage({ required this.mode, required this.language, required this.subExt, required this.afterSelected });
@@ -57,16 +58,14 @@ class _ProductPageState extends State<ProductPage> {
                     Icon(Icons.arrow_right_outlined)
                   ]),
                 onPressed: () {
-                  widget.afterSelected(context, widget.language, null, -1);
+                  widget.afterSelected(context, widget.language, null, null);
                 },
               ),
             ));
       }
 
       // For each product
-      int count = 1;
-      for (var catProd in products) {
-        int idCategory = count;
+      products.forEach((category, catProd) {
         List<Widget> productCard = [];
 
         for (ProductRequested pr in catProd) {
@@ -104,40 +103,33 @@ class _ProductPageState extends State<ProductPage> {
                     ]
                 ),
                 onPressed: () {
-                  widget.afterSelected(context, widget.language, pr, -1);
+                  widget.afterSelected(context, widget.language, pr, null);
                 },
               )
           ));
         }
 
         if (productCard.isNotEmpty) {
-          assert(1 <= idCategory && idCategory <= Environment.instance.collection.category);
           if(isMulti()) {
             widgetProd!.add(
                 Card(
                   child: TextButton(
                     child: Row(
                     children: [
-                      Text(categoryName(context, idCategory), style: Theme
-                      .of(context)
-                      .textTheme
-                      .headline5),
+                      Text(category.name.name(widget.language), style: Theme.of(context).textTheme.headline5),
                       Expanded(child: SizedBox(width: 10)),
                       Text(StatitikLocale.of(context).read('TP_B2'), style: TextStyle(fontSize: 9)),
                       Icon(Icons.arrow_right_outlined)
                     ]),
                     onPressed: () {
-                      widget.afterSelected(context, widget.language, null, idCategory);
+                      widget.afterSelected(context, widget.language, null, category);
                     },
                   ),
 
                 ));
           } else {
             widgetProd!.add(
-                Text(categoryName(context, idCategory), style: Theme
-                    .of(context)
-                    .textTheme
-                    .headline5));
+                Text(category.name.name(widget.language), style: Theme.of(context).textTheme.headline5));
           }
           widgetProd!.add(GridView.count(
             crossAxisCount: 3,
@@ -147,8 +139,7 @@ class _ProductPageState extends State<ProductPage> {
             shrinkWrap: true,
           ));
         }
-        count += 1;
-      }
+      });
 
       setState(() {});
     });

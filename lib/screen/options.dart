@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/NewsDialog.dart';
 import 'package:statitikcard/services/News.dart';
 import 'package:statitikcard/services/Tools.dart';
-import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -105,35 +103,6 @@ class _OptionsPageState extends State<OptionsPage> {
               children: [
                 Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline5)),
                 toolBarLanguage(),
-                if(Environment.instance.user!.admin)
-                  Row( children: [
-                    Text(StatitikLocale.of(context).read('O_B2')),
-                    Checkbox(value: useDebug,
-                      onChanged: (newValue) {
-                        useDebug = newValue!;
-                        EasyLoading.show();
-                        Environment.instance.restoreAdminData().then((value){
-                          setState(() {});
-                          EasyLoading.dismiss();
-                        });
-                      }
-                    ),
-                    Expanded(
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.grey, // background
-                        ),
-                        onPressed: () {
-                          EasyLoading.show();
-                          Environment.instance.restoreAdminData().then((value) {
-                            EasyLoading.dismiss();
-                          });
-                        },
-                        child: Text(StatitikLocale.of(context).read('O_B1'))
-                      ),
-                    ),
-                  ]
-                  ),
               ],
             ),
           )),

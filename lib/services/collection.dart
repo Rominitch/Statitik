@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
@@ -16,7 +18,6 @@ import 'package:statitikcard/services/models/product.dart';
 class CardIntoSubExtensions {
   SubExtension se;
   int          position;
-  //List         listOfSe;
   PokemonCardExtension card;
 
   CardIntoSubExtensions(this.se, this.position,/*this.listOfSe,*/ this.card);
@@ -29,18 +30,20 @@ class Collection
   Map extensions      = {};
   Map subExtensions   = {};
   Map cardsExtensions = {};
-  int category=0;
-  Map pokemons     = {};
-  Map otherNames   = {};
-  Map regions      = {};
-  Map formes       = {};
-  Map pokemonCards = {};
-  Map illustrators = {};
-  Map descriptions = {};
-  Map effects      = {};
-  Map rarities     = {};
-  Map markers      = {};
-  Map products     = {};
+  Map categories      = {};
+
+  Map pokemons        = {};
+  Map otherNames      = {};
+  Map regions         = {};
+  Map formes          = {};
+  Map pokemonCards    = {};
+  Map illustrators    = {};
+  Map descriptions    = {};
+  Map effects         = {};
+  Map rarities        = {};
+  Map markers         = {};
+  Map products        = {};
+  Map productSides   = {};
 
   // Rarity Information
   static const int idUnknownRarity = 28;
@@ -88,10 +91,11 @@ class Collection
     rarities.clear();
     markers.clear();
     products.clear();
+    productSides.clear();
     effects.clear();
     otherNames.clear();
     descriptions.clear();
-    category=0;
+    categories.clear();
 
     unknownRarity = null;
     orderedRarity.clear();
@@ -163,10 +167,19 @@ class Collection
 
   Future<void> readStaticData(connection) async
   {
+      DateTime start = DateTime.now();
+      DateTime end   = DateTime.now();
+      Function tick = (String label) {
+        end = DateTime.now();
+        printOutput("${label.padRight(20)} - Done in ${(end.difference(start).inMilliseconds).toString().padLeft(5)} ms");
+        start = end;
+      };
+
       var languagesReq = await connection.query("SELECT * FROM `Langue`");
       for (var row in languagesReq) {
         languages[row[0]] = Language(id: row[0], image: row[1]);
       }
+      tick("Langue");
       assert(languages.isNotEmpty);
 
       var setResult = await connection.query("SELECT * FROM `Set`");
@@ -177,6 +190,7 @@ class Collection
           printOutput("Bad Set: ${row[0]} $e");
         }
       }
+      tick("Sets");
       assert(sets.isNotEmpty);
 
       var rarityResult = await connection.query("SELECT * FROM `Rarete` ORDER BY `order` ASC");
@@ -224,6 +238,7 @@ class Collection
           printOutput("Bad Rarity: ${row[0]} $e");
         }
       }
+      tick("Rarities");
       assert(rarities.isNotEmpty);
       unknownRarity = rarities[idUnknownRarity];
 
@@ -240,6 +255,7 @@ class Collection
           printOutput("Bad Marker: ${row[0]} $e");
         }
       }
+      tick("Markers");
       assert(markers.isNotEmpty);
       assert(markers.length <= 40); // Game over : need to change data !!
 
@@ -251,6 +267,7 @@ class Collection
           printOutput("Bad Extension: ${row[0]} $e");
         }
       }
+      tick("Extensions");
       assert(extensions.isNotEmpty);
 
       int idPoke=1;
@@ -263,6 +280,7 @@ class Collection
           printOutput("Bad pokemon: ${row[0]} $e");
         }
       }
+      tick("Pokemon");
       assert(pokemons.isNotEmpty);
 
       var objSup = await connection.query("SELECT * FROM `DresseurObjet`");
@@ -273,6 +291,7 @@ class Collection
           printOutput("Bad Object: ${row[0]} $e");
         }
       }
+      tick("OtherNames");
       assert(otherNames.isNotEmpty);
 
       var regionRes = await connection.query("SELECT * FROM `Region`");
@@ -285,6 +304,7 @@ class Collection
           printOutput("Bad Region: ${row[0]} $e");
         }
       }
+      tick("Regions");
       assert(regions.isNotEmpty);
 
       var formeRes = await connection.query("SELECT * FROM `Forme`");
@@ -295,6 +315,7 @@ class Collection
           printOutput("Bad Forme: ${row[0]} $e");
         }
       }
+      tick("Formes");
       assert(formes.isNotEmpty);
 
       var illustratorRes = await connection.query("SELECT * FROM `Illustrateur`");
@@ -305,6 +326,7 @@ class Collection
           printOutput("Bad Illustrateur: ${row[0]} $e");
         }
       }
+      tick("Illustrators");
       assert(illustrators.isNotEmpty);
 
       var descriptionsRes = await connection.query("SELECT * FROM `Description`");
@@ -315,6 +337,7 @@ class Collection
           printOutput("Bad Description: ${row[0]} $e");
         }
       }
+      tick("Descriptions");
       assert(descriptions.isNotEmpty);
 
       var effectRes = await connection.query("SELECT * FROM `EffetsCarte`");
@@ -325,6 +348,7 @@ class Collection
           printOutput("Bad Description: ${row[0]} $e");
         }
       }
+      tick("Effects");
       assert(effects.isNotEmpty);
 
       // Read cards info
@@ -393,6 +417,7 @@ class Collection
         pokemonCards[row[0]] = p;
       }
 
+      Environment.instance.onInfoLoading.add('LOAD_3');
       var cardsExtensionRes = await connection.query("SELECT * FROM `CartesExtension`;");
       for(var row in cardsExtensionRes) {
         try {
@@ -420,6 +445,7 @@ class Collection
           cardsExtensions[row[0]] = SubExtensionCards.emptyDraw([], 0, sets);
         }
       }
+      tick("CardsExtensions");
       assert(cardsExtensions.isNotEmpty);
 
       var subExts = await connection.query("SELECT * FROM `SousExtension` ORDER BY `code` DESC");
@@ -431,32 +457,48 @@ class Collection
           printOutput("Bad SubExtension: ${row[0]} $e");
         }
       }
+      tick("SubExtensions");
       assert(subExtensions.isNotEmpty);
 
-      var catExts = await connection.query("SELECT COUNT(*) FROM `Categorie`;");
+      var catExts = await connection.query("SELECT * FROM `Categorie`;");
       for (var row in catExts) {
-        category = row[0];
+        categories[row[0]] = ProductCategory(row[0], MultiLanguageString([row[1], row[2], row[3]]), mask(row[4], 1));
       }
+      tick("Categories");
+      assert(categories.isNotEmpty);
 
-      // Read static data product
+      Environment.instance.onInfoLoading.add('LOAD_4');
+      
+      // Read static other product
+      var otherProductsRequest = await connection.query("SELECT * FROM `ProduitAnnexe`");
+      for (var row in otherProductsRequest) {
+        productSides[row[0]] = ProductSide(row[0], categories[row[3]], row[1], row[2]);
+      }
+      // Read static product
       var productRequest = await connection.query("SELECT * FROM `Produit`");
       for (var row in productRequest) {
         try {
-          Map<int, ProductBooster> boosters = {};
-          var reqBoosters = await connection.query("SELECT `idSousExtension`, `nombre`, `carte`"
-              " FROM `ProduitBooster`"
-              " WHERE `idProduit` = \'${row[0]}\'");
-          for (var rowBooster in reqBoosters) {
-            var idBooster = rowBooster[0] == null ? 0 : rowBooster[0];
-            boosters[idBooster] = ProductBooster(nbBoosters: rowBooster[1], nbCardsPerBooster: rowBooster[2]);
-          }
+          if(row[6] == null) {
+            List<ProductBooster> boosters = [];
+            var reqBoosters = await connection.query("SELECT `idSousExtension`, `nombre`, `carte`"
+                " FROM `ProduitBooster`"
+                " WHERE `idProduit` = \'${row[0]}\'");
+            for (var rowBooster in reqBoosters) {
+              boosters.add( ProductBooster(subExtensions[rowBooster[0]], rowBooster[1], rowBooster[2]) );
+            }
 
-          // Start session
-          products[row[0]] = Product(idDB: row[0], name: row[3], imageURL: row[4], boosters: boosters);
+            // Start session
+            products[row[0]] = Product(row[0], languages[row[1]], row[2], row[3], row[4], categories[row[5]], boosters);
+          } else {
+            // Start session
+            products[row[0]] = Product.fromBytes(row[0], languages[row[1]], row[2], row[3], row[4], categories[row[5]],
+                (row[6] as Blob).toBytes(), subExtensions, productSides, cardsExtensions);
+          }
         } catch(e) {
-          printOutput("Bad SubExtension: ${row[0]} $e");
+          printOutput("Bad Product: ${row[0]} $e");
         }
       }
+      tick("Products");
       assert(products.isNotEmpty);
   }
 
@@ -757,45 +799,33 @@ class Collection
   }
 
   Future<void> migration(connection) async {
-/*
     //Insert HERE all requests
     printOutput('Migration Start');
-    var reqUserBoosters = await connection.query("SELECT * FROM `TirageBooster`");
-    List<List<Object?>> allDataDraw = [];
-    for (var rowUserBooster in reqUserBoosters) {
-
-      SubExtension subEx = subExtensions[rowUserBooster[1]]!;
-      ExtensionDrawCards edc = ExtensionDrawCards.fromBytes(subEx, (rowUserBooster[4] as Blob).toBytes());
-      var energies = (rowUserBooster[3] as Blob).toBytes();
-
-      var refCount = 0;
-      var validCount = 0;
-      var de = edc.drawEnergies.iterator;
-      energies.forEach((code) {
-        refCount += code != 0 ? 1 :0;
-        if(de.moveNext()) {
-          try {
-            de.current.migrationEnergy(code);
-            validCount += de.current.count();
+    var productRequest = await connection.query("SELECT * FROM `Produit`");
+    for (var row in productRequest) {
+      try {
+        if(row[6] == null) {
+          List<ProductBooster> boosters = [];
+          var reqBoosters = await connection.query("SELECT `idSousExtension`, `nombre`, `carte`"
+              " FROM `ProduitBooster`"
+              " WHERE `idProduit` = \'${row[0]}\'");
+          for (var rowBooster in reqBoosters) {
+            boosters.add( ProductBooster(subExtensions[rowBooster[0]], rowBooster[1], rowBooster[2]) );
           }
-          catch(e) {
-            printOutput("Missing energy set into SubExtension ${subEx.name}");
-            throw e;
-          }
-        } else {
-          if(code != 0)
-             assert(false, "Missing energy into SubExtension ${subEx.name}" );
+
+          // Start session
+          Product p = Product(row[0], languages[row[1]], row[2], row[3], row[4], categories[row[5]], boosters);
+
+          String query = 'UPDATE `Produit` SET `contenu` = ?'
+              ' WHERE idProduit = ${row[0]};';
+          await connection.queryMulti(query,
+              [[ Int8List.fromList(p.toBytes(rCardsExtensions)) ]]
+          );
         }
-      });
-      assert( refCount == validCount );
-
-      allDataDraw.add(<Object?>[rowUserBooster[0], rowUserBooster[1], rowUserBooster[2], null, Int8List.fromList(edc.toBytes())]);
+      } catch(e) {
+        printOutput("Bad Product: ${row[0]} $e");
+      }
     }
-
-
-    await connection.query("TRUNCATE `TirageBooster`");
-    await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, energieBin, cartesBin) VALUES (?, ?, ?, ?, ?);', allDataDraw);
     printOutput('Migration Done !');
-*/
   }
 }

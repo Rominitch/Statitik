@@ -7,6 +7,7 @@ import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/UserDrawFile.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/product.dart';
@@ -56,6 +57,7 @@ void main() {
 
   test('UserDrawFile', () async {
     var l  = Language(id: 1, image: "FR");
+    var c  = ProductCategory(1, MultiLanguageString(["C","C", "C"]), true);
     var ex = Extension(0, "Ex", l);
     var r  = Rarity.fromText(0, MultiLanguageString(["S0","S0","S0"]), Colors.green);
     var defaultCard = PokemonCardData.empty();
@@ -78,9 +80,8 @@ void main() {
 
     var se = SubExtension(1, "Demo", "D", ex, DateTime.now(), seCard, SerieType.Normal, ["D"], 10 );
 
-    Map<int, ProductBooster> boosters = {};
-    boosters[se.id] = ProductBooster(nbBoosters: 1, nbCardsPerBooster: 3);
-    var p = Product(idDB: 1, name: "DemoProduct", imageURL: "None", boosters: boosters);
+    List<ProductBooster> boosters = [ProductBooster(se, 1, 3)];
+    var p = Product(1, l, "DemoProduct", "None", DateTime.now(), c, boosters);
 
     Map languages      = { l.id: l };
     Map products       = { p.idDB: p };
@@ -97,7 +98,7 @@ void main() {
     edc.drawEnergies[0].countBySet[1] = 2;
     edc.drawEnergies[2].countBySet[0] = 1;
 
-    SessionDraw sd = SessionDraw(p, l, subExtensions);
+    SessionDraw sd = SessionDraw(p, l);
     sd.boosterDraws[0].fill(se, true, edc);
 
     var savedDraws = await UserDrawCollection.readSavedDraws();

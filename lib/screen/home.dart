@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:statitikcard/screen/Admin/AdminPage.dart';
 
 import 'package:statitikcard/screen/Cartes/CardStatistic.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
@@ -31,6 +32,8 @@ class _HomeState extends State<Home> {
       StatsPage(),
       CardStatisticPage(),
       OptionsPage(),
+      if(Environment.instance.isAdministrator())
+        AdminPage(),
     ];
 
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
@@ -87,6 +90,11 @@ class _HomeState extends State<Home> {
               icon: Icon(Icons.settings),
               label: StatitikLocale.of(context).read('H_T2'),
             ),
+            if(Environment.instance.isAdministrator())
+              BottomNavigationBarItem(
+                icon: Icon(Icons.admin_panel_settings_outlined),
+                label: StatitikLocale.of(context).read('H_T4'),
+              ),
           ],
           currentIndex: _selectedIndex,
           selectedItemColor: Colors.amber[800],

@@ -58,7 +58,11 @@ class StatsView extends StatelessWidget {
           double luck = sum.toDouble() / data.stats!.nbBoosters;
           if(luck > 0)
           {
-            double? userLuck = (data.userStats != null && data.userStats!.nbBoosters > 0) ? (sum.toDouble() / data.userStats!.nbBoosters) : null;
+            double? userLuck;
+            if(data.userStats != null && data.userStats!.nbBoosters > 0) {
+              int userCount = data.userStats!.countByRarity[rare] ?? 0;
+              userLuck = userCount.toDouble() / data.userStats!.nbBoosters;
+            }
             rarity.add( buildLine(getImageRarity(rare, data.language!), sum, luck, rare.color, divider, userLuck) );
           }
         }
@@ -68,7 +72,11 @@ class StatsView extends StatelessWidget {
         double luck = sum.toDouble() / data.stats!.nbBoosters;
         if(luck > 0)
         {
-          double? userLuck = (data.userStats != null && data.userStats!.nbBoosters > 0) ? (sum.toDouble() / data.userStats!.nbBoosters) : null;
+          double? userLuck;
+          if(data.userStats != null && data.userStats!.nbBoosters > 0) {
+            int userCount = data.userStats!.countBySet[set] ?? 0;
+            userLuck = userCount.toDouble() / data.userStats!.nbBoosters;
+          }
           sets.add( buildLine([Image(image: AssetImage('assets/carte/${set.image}.png'), height: 30.0)], sum, luck, set.color, divider, userLuck) );
         }
       });

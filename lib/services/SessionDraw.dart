@@ -15,9 +15,9 @@ class SessionDraw
   List<BoosterDraw> boosterDraws;
   Key               id; // Make unique file
 
-  SessionDraw(this.product, this.language, Map allSubExtensions):
+  SessionDraw(this.product, this.language):
     id = UniqueKey(),
-    boosterDraws = product.buildBoosterDraw(allSubExtensions);
+    boosterDraws = product.buildBoosterDraw();
 
   SessionDraw.fromFile(this.id, ByteParser parser, mapLanguages, mapProducts, mapSubExtensions) :
     language = mapLanguages[parser.extractInt16()],
@@ -98,10 +98,10 @@ class SessionDraw
     return boosterDraws.length > 1;
   }
 
-  void revertAnomaly(Map allSubExtensions)
+  void revertAnomaly()
   {
     //Brutal reset
-    boosterDraws = product.buildBoosterDraw(allSubExtensions);
+    boosterDraws = product.buildBoosterDraw();
     productAnomaly = false;
   }
 

@@ -285,7 +285,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
 
                       if(reset) {
                         setState(() {
-                          widget._activeSession.revertAnomaly(Environment.instance.collection.subExtensions);
+                          widget._activeSession.revertAnomaly();
                         });
                       }
                     } else { // Toggle

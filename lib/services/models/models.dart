@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 
 import 'package:statitikcard/services/Tools.dart';
@@ -550,7 +551,7 @@ class StatsData {
   Language?         language;
   SubExtension?     subExt;
   ProductRequested? pr;
-  int               category = -1;
+  ProductCategory?  category;
   StatsBooster?     stats;
   StatsBooster?     userStats;
   CardResults       cardStats = CardResults();

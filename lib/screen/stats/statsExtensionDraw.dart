@@ -5,9 +5,9 @@ import 'package:statitikcard/screen/stats/statView.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/stats/statsOptionDialog.dart';
 import 'package:statitikcard/screen/stats/userReport.dart';
-import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/product.dart';
 
@@ -22,19 +22,12 @@ class StatsExtensionDraw extends StatefulWidget {
 
 class _StatsExtensionDrawState extends State<StatsExtensionDraw> {
 
-  void afterSelectProduct(BuildContext context, Language language, ProductRequested? product, int category) {
+  void afterSelectProduct(BuildContext context, Language language, ProductRequested? product, ProductCategory? category) {
     Navigator.pop(context);
     setState(() {
-      if(product != null) {
-        widget.info.statsData.pr  = product;
-        widget.info.statsData.category = -1;
-      } else if( category != -1 ) {
-        widget.info.statsData.pr  = null;
-        widget.info.statsData.category = category;
-      } else { // All products
-        widget.info.statsData.pr  = null;
-        widget.info.statsData.category = -1;
-      }
+      widget.info.statsData.pr       = product;
+      widget.info.statsData.category = category;
+
       widget.info.waitStats( () { setState(() {}); } );
     });
   }
@@ -44,7 +37,7 @@ class _StatsExtensionDrawState extends State<StatsExtensionDraw> {
     var sData = widget.info.statsData;
 
     final String productButton = sData.pr == null
-        ? categoryName(context, sData.category)
+        ? (sData.category != null ? sData.category!.name.name(sData.language!) : StatitikLocale.of(context).read('S_B9') )
         : sData.pr!.product.name;
 
     return Column(

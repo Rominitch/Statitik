@@ -11,6 +11,7 @@ import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/collection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 
 import 'package:statitikcard/services/models/models.dart';
@@ -24,7 +25,7 @@ class StatitikException implements Exception {
 
 class Database
 {
-    final String version = '2.9';
+    final String version = '3.0';
     final ConnectionSettings settings = createConnection();
 
     Future<bool> transactionR(Function queries) async
@@ -71,7 +72,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.6.1';
+    final String version = '1.7.0';
 
     // State
     bool isInitialized          = false;
@@ -129,8 +130,8 @@ class Environment
                         readStaticData().whenComplete(() async {
                             if (isLogged() && user!.admin) {
                                 await db.transactionR( collection.migration );
-
                                 printOutput("Admin is launched !");
+                                onInfoLoading.add('LOAD_2');
                                 collection.adminReverse();
                             } else {
                                 if(isMaintenance) {
@@ -265,7 +266,7 @@ class Environment
         }
     }
 
-    Future<StatsBooster> getStats(SubExtension subExt, Product? product, int category, [int? user]) async {
+    Future<StatsBooster> getStats(SubExtension subExt, Product? product, ProductCategory? category, [int? user]) async {
         StatsBooster stats = new StatsBooster(subExt: subExt);
         try {
             String userReq = '';
@@ -280,11 +281,11 @@ class Environment
                             'AND `UtilisateurProduit`.`idProduit` = ${product.idDB} '
                             'AND `idSousExtension` = ${subExt.id} '
                             '$userReq;';
-                } else if(category > 0) {
+                } else if(category != null) {
                     query = 'SELECT `cartesBin`, `TirageBooster`.`anomalie` FROM `TirageBooster`, `UtilisateurProduit`, `Produit` '
                         'WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat` '
                         'AND `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit` '
-                        'AND `Produit`.`idCategorie` = $category '
+                        'AND `Produit`.`idCategorie` = ${category.idDB} '
                         'AND `idSousExtension` = ${subExt.id} '
                         '$userReq;';
                 } else {
@@ -339,6 +340,10 @@ class Environment
 
     bool isLogged() {
         return user != null;
+    }
+
+    bool isAdministrator() {
+        return isLogged() && user!.admin;
     }
 
     void login(CredentialMode mode, context, Function(String?)? updateGUI) {
@@ -413,34 +418,24 @@ class Environment
                 String filteredUser = (showAll && user!.admin) ? '' : ' `UtilisateurProduit`.`idUtilisateur`= \'${user!.idDB}\' AND ';
 
                 await db.transactionR( (connection) async {
-                    String query = 'SELECT `idAchat`, `anomalie`, `Produit`.`idProduit`, `Produit`.`idLangue`, `Produit`.`nom`, `Produit`.`icone`'
-                        ' FROM `UtilisateurProduit`, `Produit`'
+                    String query = 'SELECT `idAchat`, `anomalie`, `idProduit`'
+                        ' FROM `UtilisateurProduit`'
                         ' WHERE $filteredUser'
-                        ' `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`'
                         ' ORDER BY `idAchat` DESC';
                     //printOutput(query);
 
                     var req = await connection.query(query);
                     for (var row in req) {
-                        Map<int, ProductBooster> boosters = {};
-                        var reqBoosters = await connection.query("SELECT `idSousExtension`, `nombre`, `carte`"
-                            " FROM `ProduitBooster`"
-                            " WHERE `idProduit` = \'${row[2]}\'");
-                        for (var rowBooster in reqBoosters) {
-                            var idBooster = rowBooster[0] == null ? 0 : rowBooster[0];
-                            boosters[idBooster] = ProductBooster(nbBoosters: rowBooster[1], nbCardsPerBooster: rowBooster[2]);
-                        }
-
                         // Start session
-                        var p = Product(idDB: row[2], name: row[4], imageURL: row[5], boosters: boosters);
-                        var l = collection.languages[row[3]];
-                        var session = SessionDraw(p, l, collection.subExtensions);
-                        session.idAchat = row[0];
+                        Product p = collection.products[row[2]]!;
+                        var session = SessionDraw(p, p.language!);
+                        session.idAchat        = row[0];
+                        session.productAnomaly = row[1] != 0;
 
                         // Read user data
                         var reqUserBoosters = await connection.query("SELECT `idSousExtension`, `anomalie`, `cartesBin` "
                             " FROM `TirageBooster`"
-                            " WHERE `idAchat` = \'${row[0]}\'");
+                            " WHERE `idAchat` = \'${session.idAchat}\'");
                         int id=0;
                         for (var rowUserBooster in reqUserBoosters) {
                             BoosterDraw booster;

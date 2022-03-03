@@ -96,8 +96,8 @@ class _StatsPageState extends State<StatsPage> {
     Navigator.popUntil(context, ModalRoute.withName('/'));
     setState(() {
       // Set old filter
-      widget.info.statsData.category = -1;
-      widget.info.statsData.pr = null;
+      widget.info.statsData.category = null;
+      widget.info.statsData.pr       = null;
       // Change selection
       widget.info.statsData.language = language;
       widget.info.statsData.subExt = subExt;
