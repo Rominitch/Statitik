@@ -103,14 +103,15 @@ class _UserReportState extends State<UserReport> {
 
       products.clear();
       if (finalData.pr != null) {
-        products.add(ProductCard(finalData.pr!, true));
+        products.add(ProductWidget(finalData.pr!, true));
         compute=false;
       } else { // All products or cat
-        readProductsForUser(finalData.language!, finalData.subExt!, finalData.category).then((aps) {
+        filterProducts(finalData.language!, finalData.subExt!, finalData.category,
+            onlyLocalUser: true, withUserCount: true, onlyWithUser: true).then((aps) {
           aps.forEach((key, ps) {
             for (ProductRequested pr in ps) {
               if( products.length < 5 && pr.count > 0)
-                products.add(ProductCard(pr, true));
+                products.add(ProductWidget(pr, true));
             }
           });
           setState(() {compute=false;});

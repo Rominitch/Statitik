@@ -127,6 +127,13 @@ class EnergyValue {
   }
 }
 
+enum AlternativeDesign {
+  Basic,
+  HolographicHorizontalLine,
+  HolographicVerticalLine,
+  HolographicStarDot,
+}
+
 enum Design {
   Basic,
   Holographic,
@@ -368,7 +375,6 @@ class PokemonCardExtension {
   }
 }
 
-
 class SubExtensionCards {
   List<List<PokemonCardExtension>> cards;           ///< Main Card of set (numbered)
   List<CodeNaming>                 codeNaming = [];
@@ -380,6 +386,10 @@ class SubExtensionCards {
   int                              configuration;
 
   SubExtensionCards(List<List<PokemonCardExtension>> cards, this.codeNaming, this.configuration) : this.cards = cards, this.isValid = cards.length > 0;
+
+  static const int _hasBoosterEnergy  = 1;
+  static const int _hasAlternativeSet = 2;
+  static const int _notInsideRandom   = 4;
 
   static const int version = 7;
 
@@ -471,11 +481,45 @@ class SubExtensionCards {
   }
 
   bool hasBoosterEnergy() {
-    return configuration & 1 == 1 && energyCard.isNotEmpty;
+    return mask(configuration, _hasBoosterEnergy) && energyCard.isNotEmpty;
   }
 
   bool hasAlternativeSet() {
-    return configuration & 2 == 2;
+    return mask(configuration, _hasAlternativeSet);
+  }
+
+  /// Booster of this extension can't be found any random product
+  bool notInsideRandom() {
+    return mask(configuration, _notInsideRandom);
+  }
+
+  List<int> computeIdCard(PokemonCardExtension card) {
+    int id=0;
+    for(var subCards in cards) {
+      int subId=0;
+      for(var subCard in subCards) {
+        if (subCard == card) {
+          return [0, id, subId];
+        }
+        subId +=1;
+      }
+      id += 1;
+    }
+    id=0;
+    for(var subCard in energyCard) {
+      if (subCard == card) {
+        return [1, id];
+      }
+      id += 1;
+    }
+    id=0;
+    for(var subCard in noNumberedCard) {
+      if (subCard == card) {
+        return [2, id];
+      }
+      id += 1;
+    }
+    return [];
   }
 
   String numberOfCard(int id) {

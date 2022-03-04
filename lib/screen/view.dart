@@ -198,7 +198,9 @@ class _PokemonCardState extends State<PokemonCard> {
               setState(() {
                 showDialog(
                     context: context,
-                    builder: (BuildContext context) { return CardSelector(widget.card, widget.boosterDraw, widget.idCard, update, false, widget.readOnly); }
+                    builder: (BuildContext context) {
+                      return CardSelector.fromDraw(widget.card, cardValue, widget.boosterDraw, refresh: update, readOnly: widget.readOnly);
+                    }
                 );
                 widget.refresh();
               });
@@ -277,7 +279,9 @@ class _EnergyButtonState extends State<EnergyButton> {
             setState(() {
               showDialog(
                   context: context,
-                  builder: (BuildContext context) { return CardSelector(widget.card, widget.boosterDraw, widget.idCard, update, true, widget.readOnly); }
+                  builder: (BuildContext context) {
+                    return CardSelector.fromDraw(widget.card, code, widget.boosterDraw, refresh: update, readOnly: widget.readOnly);
+                  }
               ).whenComplete(()  {
                 setState(() {
                   widget.boosterDraw.onEnergyChanged.add(true);

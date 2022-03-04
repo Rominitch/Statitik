@@ -16,9 +16,15 @@ class ProductSide
   int             idDB;
   ProductCategory category;
   String          name;
-  String          image;
+  String          imageURL;
+  DateTime        releaseDate;
 
-  ProductSide(this.idDB, this.category, this.name, this.image);
+  ProductSide(this.idDB, this.category, this.name, this.imageURL, this.releaseDate);
+
+  CachedNetworkImage image()
+  {
+    return drawCachedImage('sideProducts', imageURL, height: 70);
+  }
 }
 
 class ProductBooster
@@ -28,6 +34,60 @@ class ProductBooster
   int           nbCardsPerBooster;
 
   ProductBooster(this.subExtension, this.nbBoosters, this.nbCardsPerBooster);
+}
+
+class ProductCard {
+  SubExtension          subExtension;
+  late PokemonCardExtension  card;
+  AlternativeDesign     design;       /// Think more about it but keep space !
+  bool                  jumbo;
+  CodeDraw              counter;   /// Not limited to 7 !!
+
+  ProductCard(this.subExtension, this.card, this.design, this.jumbo, this.counter);
+
+  ProductCard.fromBytes(ByteParser parser, Map mapSubExtensions):
+    subExtension = mapSubExtensions[parser.extractInt16()],
+    design = AlternativeDesign.values[parser.extractInt8()],
+    jumbo = parser.extractBool(),
+    counter = CodeDraw.fromSet(1)
+  {
+    // Retrieve card
+    List<int> cardId = [parser.extractInt8(), parser.extractInt16()];
+    if(cardId[0] == 0)
+      cardId.add(parser.extractInt8());
+    card = subExtension.cardFromId(cardId);
+
+    // Restore counter
+    counter = CodeDraw.fromSet(this.card.sets.length);
+    var count = parser.extractInt8();
+    for(int id=0; id < count; id +=1){
+      if( id < card.sets.length)
+        counter.countBySet[id] = parser.extractInt8();
+    }
+  }
+
+  List<int> toBytes() {
+    assert(counter.countBySet.isNotEmpty);
+    List<int> bytes = [];
+    bytes += ByteEncoder.encodeInt16(subExtension.id);
+    bytes += ByteEncoder.encodeInt8(design.index);
+    bytes += ByteEncoder.encodeBool(jumbo);
+
+    // Encode card full Id
+    var id = subExtension.seCards.computeIdCard(card);
+    bytes += ByteEncoder.encodeInt8(id[0]);
+    bytes += ByteEncoder.encodeInt16(id[1]);
+    if(id.length > 2)
+      bytes += ByteEncoder.encodeInt8(id[2]);
+
+    // Encode counter
+    bytes += ByteEncoder.encodeInt8(counter.countBySet.length);
+    counter.countBySet.forEach((count) {
+      assert(count <= 255);
+      bytes += ByteEncoder.encodeInt8(count);
+    });
+    return bytes;
+  }
 }
 
 class Product
@@ -40,8 +100,8 @@ class Product
   ProductCategory?         category;
   DateTime                 outDate;
   // New
-  Map<ProductSide, int>         sideProducts = {};
-  Map<PokemonCardExtension, int>  otherCards    = {};
+  Map<ProductSide, int>    sideProducts = {};
+  List<ProductCard>        otherCards   = [];
   static const int version = 1;
 
   Product.empty():
@@ -54,7 +114,7 @@ class Product
   Product(this.idDB, this.language, this.name, this.imageURL, this.outDate, this.category, this.boosters);
 
   Product.fromBytes(this.idDB, this.language, this.name, this.imageURL, this.outDate, this.category,
-                    List<int> data, Map subExtension, Map productSides, Map pokemonExt):
+                    List<int> data, Map mapSubExtensions, Map productSides):
     this.boosters = []
   {
     if(data[0] != version)
@@ -68,8 +128,11 @@ class Product
     var nbBoosters = parser.extractInt8();
     for(int id=0; id < nbBoosters; id +=1){
       var idSe = parser.extractInt16();
-      boosters.add(ProductBooster(idSe == 0 ? null : subExtension[idSe]!, parser.extractInt8(), parser.extractInt8()));
+      var pb = ProductBooster(idSe == 0 ? null : mapSubExtensions[idSe]!, parser.extractInt8(), parser.extractInt8());
+      //printOutput("$name: ${pb.subExtension != null ? pb.subExtension!.name : "No se"}");
+      boosters.add(pb);
     }
+    assert(boosters.isNotEmpty);
 
     // Read other products
     var nbSideProducts = parser.extractInt8();
@@ -81,12 +144,11 @@ class Product
     // Read other cards
     var nbOtherCards = parser.extractInt8();
     for(int id=0; id < nbOtherCards; id +=1){
-      var idCard = parser.extractInt32();
-      otherCards[pokemonExt[idCard]] = parser.extractInt8();
+      otherCards.add(ProductCard.fromBytes(parser, mapSubExtensions));
     }
   }
 
-  List<int> toBytes(Map rPokemonExt) {
+  List<int> toBytes() {
     List<int> bytes = [];
 
     // Save boosters
@@ -94,7 +156,9 @@ class Product
     bytes += ByteEncoder.encodeInt8(boosters.length);
     boosters.forEach((booster) {
       bytes += ByteEncoder.encodeInt16(booster.subExtension != null ? booster.subExtension!.id : 0);
+      assert(booster.nbBoosters <= 255);
       bytes += ByteEncoder.encodeInt8(booster.nbBoosters);
+      assert(booster.nbCardsPerBooster <= 255);
       bytes += ByteEncoder.encodeInt8(booster.nbCardsPerBooster);
     });
 
@@ -110,10 +174,8 @@ class Product
     // Save other cards
     assert(otherCards.length <= 255);
     bytes += ByteEncoder.encodeInt8(otherCards.length);
-    otherCards.forEach((card, count) {
-      assert(count <= 255);
-      bytes += ByteEncoder.encodeInt32(rPokemonExt[card]);
-      bytes += ByteEncoder.encodeInt8(count);
+    otherCards.forEach((card) {
+      bytes += card.toBytes();
     });
 
     // Save final data
@@ -145,7 +207,7 @@ class Product
     int id=1;
     boosters.forEach((value) {
       for( int i=0; i < value.nbBoosters; i+=1) {
-        list.add(new BoosterDraw(creation: value.subExtension!, id: id, nbCards: value.nbCardsPerBooster));
+        list.add(new BoosterDraw(creation: value.subExtension, id: id, nbCards: value.nbCardsPerBooster));
         id += 1;
       }
     });
@@ -167,153 +229,121 @@ class ProductRequested
   ProductRequested(this.product, this.color, this.count);
 }
 
-class ProductQuery {
-  static Future<void> fillProd(Map produits, exts, color) async {
-    for (var row in exts) {
-      var product = Environment.instance.collection.products[row[0]];
-      // Get category
-      var cat = product.category;
-      // Search already existing
-      Iterable searching = produits[cat]!.where( (ProductRequested item) {return item.product == product;});
-      if(searching.isEmpty) {
-        produits[cat]!.add(ProductRequested(product, color, row[1]));
+bool filter(Product product, Language l, SubExtension se, ProductCategory? category, Map userExtension, {bool onlyShowRandom=false}) {
+  bool keep = product.language == l;
+  // Filter language
+  if( keep && category != null ) {
+    keep = product.category == category;
+  }
+  // Keep user product only
+  if( keep && userExtension.isNotEmpty ) {
+    keep = userExtension.containsKey(product);
+  }
+
+  // Filter subextension
+  if( keep ) {
+    for(var booster in product.boosters) {
+      if(!onlyShowRandom) {
+        // Keep product of extension
+        keep = booster.subExtension == se;
+        if(keep)
+          break;
+      } else {
+        if(se.seCards.notInsideRandom()) {
+          keep = false;
+        } else {
+          if(userExtension.isNotEmpty) {
+            // Search if user contains specific
+            for (var subEx in userExtension[product]) {
+              keep = se == subEx;
+              if (keep) {
+                break;
+              }
+            }
+            if (keep)
+              break;
+          } else {
+            // Search product with random
+            for (var booster in product.boosters) {
+              keep = booster.subExtension == null;
+              if (keep)
+                break;
+            }
+            // Keep product if after extension
+            if (keep)
+              keep = (product.outDate.compareTo(se.out) >= 0);
+          }
+        }
       }
     }
   }
+  return keep;
 }
 
-/*
-Future<Map> readProducts(Language l, SubExtension se, ProductCategory? categorie, SubExtension? containsSe, {bool showAll=true}) async
+Future<Map> filterProducts(Language l, SubExtension se, ProductCategory? category, {bool showAll=true, bool withUserCount=false, bool onlyWithUser=false, bool onlyLocalUser=false}) async
 {
-  Map<Category, List<ProductRequested>> products = {};//.generate(Environment.instance.collection.categories.length, (index) { return []; });
+  printOutput("Filter: ${l.image} ${se.name} showRandom=$showAll computeUserCount=$withUserCount keepUserProduct=$onlyWithUser localUser=$onlyLocalUser");
+
+  // Count all products
+  Map<Product, int>                userCounts    = {};
+  Map<Product, List<SubExtension>> userExtension = {};
+  await Environment.instance.db.transactionR( (connection) async {
+    if(withUserCount) {
+      String query = "SELECT `idProduit`, COUNT(`idProduit`) as count"
+          " FROM `UtilisateurProduit` "
+          " GROUP BY `UtilisateurProduit`.`idProduit`;";
+      var exts = await connection.query(query);
+      for(var row in exts) {
+        userCounts[Environment.instance.collection.products[row[0]]!] = row[1];
+      }
+    }
+
+    if(onlyWithUser) {
+      String query = "SELECT DISTINCT `idProduit`, `idSousExtension`"
+      " FROM `UtilisateurProduit`, `TirageBooster`"
+      " WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat`";
+      if(onlyLocalUser)
+        query += " AND `UtilisateurProduit`.`idUtilisateur` = ${Environment.instance.user!.idDB};";
+
+      var exts = await connection.query(query);
+      for(var row in exts) {
+        var p = Environment.instance.collection.products[row[0]]!;
+        if( !userExtension.containsKey(p))
+          userExtension[p] = [];
+
+        userExtension[p]!.add( Environment.instance.collection.subExtensions[row[1]]! );
+      }
+    }
+  });
+
+  // Internal filter
+  Map<ProductCategory, List<ProductRequested>> products = {};//.generate(Environment.instance.collection.categories.length, (index) { return []; });
   Environment.instance.collection.categories.forEach((key, category) { products[category] = [];});
 
+  // Product of current extension
   Environment.instance.collection.products.values.forEach((product) {
-    bool keep = product.language == l;
-    // Filter language
-    if( keep && categorie != null ) {
-      keep = product.category == categorie;
-    }
-    // Filter subextension
-    if( keep && containsSe != null ) {
-      keep = product.boosters.containsKey(containsSe.id);
-    }
-
     // Add to list
-    if(keep) {
-      products[product.category]!.add(product);
+    if(filter(product, l, se, category, userExtension)) {
+      products[product.category]!.add(ProductRequested(product, Colors.grey.shade600, userCounts[product] ?? 0));
     }
   });
-
-  return products;
-}
-*/
-
-Future<Map> readProducts(Language l, SubExtension se, int? idCategorie, SubExtension? containsSe, {bool showAll=true}) async
-{
-  Map<ProductCategory, List<ProductRequested>> produits = {};
-  Environment.instance.collection.categories.forEach((key, category) {
-    produits[category] = [];
-  });
-
-  String subQueryCount = '''(SELECT COUNT(*) FROM `Produit` as P, `UtilisateurProduit`
-WHERE `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit` 
-AND P.`idProduit` = `Produit`.`idProduit`) as count ''';
-
-  String filter = '';
-  if(idCategorie != null) {
-    filter = ' AND `Produit`.`idCategorie` = $idCategorie';
-  }
-
-  await Environment.instance.db.transactionR( (connection) async {
-    String query = "SELECT `Produit`.`idProduit`, $subQueryCount FROM `Produit`, `ProduitBooster` "
-        " WHERE `Produit`.`idLangue` = ${l.id}"
-        " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
-        " AND `ProduitBooster`.`idSousExtension` = ${se.id} $filter"
-        " GROUP BY `Produit`.`idProduit`"
-        " ORDER BY `Produit`.`nom` ASC";
-
-    //printOutput(query);
-    var exts = await connection.query(query);
-    await ProductQuery.fillProd(produits, exts, Colors.grey[600]);
-
-    if(showAll) {
-      String tableSE = "";
-      String filterSE = " AND `Produit`.`sortie` >= ${se.outDate()}";
-      if( containsSe != null ) {
-        tableSE  = ", `TirageBooster`, `UtilisateurProduit`";
-        filterSE =
-            " AND `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`"
-            " AND `TirageBooster`.`idAchat` = `UtilisateurProduit`.`idAchat` "
-            " AND `TirageBooster`.`idSousExtension` = ${containsSe.id}";
+  if(showAll) {
+    // Product of with random booster
+    Environment.instance.collection.products.values.forEach((product) {
+      // Add to list
+      if(filter(product, l, se, category, userExtension, onlyShowRandom: true)) {
+        // Search product inside list
+        bool find = false;
+        for(var p in products[product.category]!) {
+          find = (p.product == product);
+          if(find)
+            break;
+        }
+        // Add if missing
+        if(!find)
+          products[product.category]!.add(ProductRequested(product, Colors.deepOrange.shade700, userCounts[product] ?? 0));
       }
-
-      // Select random booster products
-      query ="SELECT `Produit`.`idProduit`, $subQueryCount FROM `Produit`, `ProduitBooster` $tableSE"
-          " WHERE `Produit`.`idLangue` = ${l.id}"
-          " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
-          " AND `ProduitBooster`.`idSousExtension` IS NULL"
-          " $filter"
-          " $filterSE"
-          " GROUP BY `Produit`.`idProduit`"
-          " ORDER BY `Produit`.`sortie` DESC, `Produit`.`nom` ASC";
-
-      printOutput(query);
-      exts = await connection.query(query);
-      await ProductQuery.fillProd(produits, exts, Colors.deepOrange[700]);
-    }
-  });
-  return produits;
-}
-
-Future<Map> readProductsForUser(Language l, SubExtension se, ProductCategory? category) async
-{
-  assert(Environment.instance.user != null);
-  Map<ProductCategory, List<ProductRequested>> produits = {};
-  Environment.instance.collection.categories.values.forEach((c) {
-    produits[c] = [];
-  });
-
-  String subQueryCount = '''(SELECT COUNT(*) FROM `Produit` as P, `UtilisateurProduit`
-WHERE `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`
-AND P.`idProduit` = `Produit`.`idProduit`
-AND `UtilisateurProduit`.`idUtilisateur` = ${Environment.instance.user!.idDB}) as count ''';
-
-  String filter = '';
-  if(category != null)
-    filter = ' AND `Produit`.`idCategorie` = ${category.idDB}';
-
-  await Environment.instance.db.transactionR( (connection) async {
-    String query = "SELECT `Produit`.`idProduit`, $subQueryCount FROM `Produit`, `ProduitBooster` "
-        " WHERE `Produit`.`idLangue` = ${l.id}"
-        " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
-        " AND `ProduitBooster`.`idSousExtension` = ${se.id} $filter"
-        " GROUP BY `Produit`.`idProduit`"
-        " ORDER BY `Produit`.`nom` ASC";
-
-    //printOutput(query);
-
-    var exts = await connection.query(query);
-    await ProductQuery.fillProd(produits, exts, Colors.grey[600]);
-
-    String tableSE  = ", `TirageBooster`, `UtilisateurProduit`";
-    String filterSE =
-    " AND `UtilisateurProduit`.`idProduit` = `Produit`.`idProduit`"
-        " AND `TirageBooster`.`idAchat` = `UtilisateurProduit`.`idAchat` "
-        " AND `TirageBooster`.`idSousExtension` = ${se.id}";
-
-    query ="SELECT `Produit`.`idProduit`, $subQueryCount FROM `Produit`, `ProduitBooster` $tableSE"
-        " WHERE `Produit`.`idLangue` = ${l.id}"
-        " AND `Produit`.`idProduit` = `ProduitBooster`.`idProduit`"
-        " AND `ProduitBooster`.`idSousExtension` IS NULL"
-        " $filter $filterSE"
-        " GROUP BY `Produit`.`idProduit`"
-        " ORDER BY `Produit`.`sortie` DESC, `Produit`.`nom` ASC";
-
-    //printOutput(query);
-
-    exts = await connection.query(query);
-    await ProductQuery.fillProd(produits, exts, Colors.deepOrange[700]);
-  });
-  return produits;
+    });
+  }
+  return products;
 }

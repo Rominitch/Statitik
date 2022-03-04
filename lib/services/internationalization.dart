@@ -335,6 +335,12 @@ Images and illustrations used are the property of their respective authors.
       'SCB_B6':    'All cards',
       'SCB_B7':    'All cards without secrets',
       'SCB_B8':    'Missing rarity stats',
+      'ADMIN_B0':  'Add product',
+      'ADMIN_B1':  'Edit product',
+      'ADMIN_B2':  'Edit Serie',
+      'ADMIN_B3':  'Inspection',
+      'ADMIN_B4':  'Clean',
+      'SPS_T0':    'Select product',
     },
     'fr': {
       'H_T0': 'PokéSpace',
@@ -664,6 +670,12 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'SCB_B6':    'Toutes les cartes',
       'SCB_B7':    'Toutes les cartes sauf les secrets',
       'SCB_B8':    'Les statistiques sur des raretés sont manquantes',
+      'ADMIN_B0':  'Ajout de produit',
+      'ADMIN_B1':  'Edit de produit',
+      'ADMIN_B2':  'Edition de série',
+      'ADMIN_B3':  'Inspection',
+      'ADMIN_B4':  'Nettoyer',
+      'SPS_T0':    'Selection de produit',
     },
   };
 

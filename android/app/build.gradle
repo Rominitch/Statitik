@@ -60,6 +60,9 @@ android {
     }
     buildTypes {
         debug {
+            minifyEnabled false
+            debuggable true
+
             signingConfig signingConfigs.debug
             ndk {
                 debugSymbolLevel 'FULL'

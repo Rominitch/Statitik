@@ -220,23 +220,7 @@ class CodeDraw {
     if(countBySet.length >= 2)
       countBySet[1] = (code>>3) & 0x07;
   }
-/*
-  void migrationEnergy(int code) {
-    assert(countBySet.isNotEmpty);
 
-    int mul = 0;
-    for(int i=0; i < countBySet.length; i +=1)
-    {
-      countBySet[i] = (code>>mul) & 0x07;
-      mul += 3;
-    }
-    // Merge
-    while(code>>mul != 0) {
-      countBySet[0] = (code>>mul) & 0x07;
-      mul += 3;
-    }
-  }
-*/
   void setCode(int code) {
     assert(countBySet.isNotEmpty);
 

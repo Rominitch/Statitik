@@ -2,17 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 class CardSelector extends StatefulWidget {
+  final SubExtension         subExtension;
   final PokemonCardExtension card;
-  final BoosterDraw boosterDraw;
-  final int      id;
-  final Function refresh;
-  final bool     isEnergy;
+  final CodeDraw             counter;
+
+  final BoosterDraw? boosterDraw;
+  //final int      id;
+  final Function? refresh;
+  //final bool     isEnergy;
   final bool     readOnly;
 
-  CardSelector(this.card, this.boosterDraw, this.id, this.refresh, this.isEnergy, this.readOnly);
+  CardSelector.fromDraw(this.card, this.counter, boosterDraw, {this.refresh, this.readOnly=false}):
+    this.boosterDraw  = boosterDraw,
+    this.subExtension = boosterDraw.creation!;
+
+  CardSelector(this.subExtension, this.card, this.counter, {this.boosterDraw, this.refresh, this.readOnly=false});
 
   @override
   _CardSelectorState createState() => _CardSelectorState();
@@ -24,6 +32,7 @@ class _CardSelectorState extends State<CardSelector> {
   @override
   void initState() {
     // Read code data
+/*
     CodeDraw code;
     if( widget.isEnergy  ) {
       code = widget.boosterDraw.cardDrawing!.drawEnergies[widget.id];
@@ -31,45 +40,18 @@ class _CardSelectorState extends State<CardSelector> {
       // WARNING: always work on first (migration)
       code = widget.boosterDraw.cardDrawing!.drawCards[widget.id][0];
     }
-
+*/
     // Create for all set each widget
     int idSet=0;
     cardModes.clear();
     widget.card.sets.forEach((set) {
-      cardModes.add(IconCard(widget.boosterDraw, set, idSet, code, refresh: widget.refresh, readOnly: widget.readOnly));
+      if(widget.boosterDraw != null) {
+        cardModes.add(IconCard.fromDraw(widget.boosterDraw!, widget.subExtension, set, idSet, widget.counter, refresh: widget.refresh, readOnly: widget.readOnly));
+      } else {
+        cardModes.add(IconCard(widget.subExtension, set, idSet, widget.counter, refresh: widget.refresh, readOnly: widget.readOnly));
+      }
       idSet += 1;
     });
-
-    /*
-    if( widget.isEnergy  ) {
-      CodeDraw code = widget.boosterDraw.energiesBin[widget.id];
-      cardModes =
-      [
-        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
-        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
-      ];
-    } else {
-      // WARNING: always work on first (migration)
-      var seCard = widget.boosterDraw.subExtension!.seCards;
-      var card = seCard.cards[widget.id][0];
-      bool forceEnable = widget.boosterDraw.abnormal || card.rarity == unknownRarity;
-
-      CodeDraw code = widget.boosterDraw.cardDrawing!.draw[widget.id][0];
-      if(widget.boosterDraw.subExtension!.extension.language.isJapanese())
-        cardModes =
-        [
-          IconCard(boosterDraw: widget.boosterDraw, code: code, refresh: widget.refresh, readOnly: widget.readOnly),
-          if( forceEnable || (seCard.hasAlternativeSet() && card.hasMultiSet())) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
-        ];
-      else
-        cardModes =
-        [
-          if( forceEnable || card.data.design != Design.Holographic) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
-          if( forceEnable || card.hasMultiSet())                     IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
-          if( forceEnable || card.data.design == Design.Holographic) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Halo, refresh: widget.refresh, readOnly: widget.readOnly),
-        ];
-    }
-*/
     super.initState();
   }
 
@@ -87,14 +69,21 @@ class _CardSelectorState extends State<CardSelector> {
 }
 
 class IconCard extends StatefulWidget {
-  final CardSet set;
-  final BoosterDraw boosterDraw;
-  final CodeDraw code;
-  final Function refresh;
-  final int setId;
-  final bool readOnly;
 
-  IconCard(this.boosterDraw, this.set, this.setId, this.code, {required this.refresh, required this.readOnly});
+  final BoosterDraw? boosterDraw;
+  final SubExtension  subExtension;
+  final CardSet       set;
+
+  final int           setId;
+  final CodeDraw      code;
+
+  final Function?     refresh;
+  final bool          readOnly;
+
+  IconCard(this.subExtension, this.set, this.setId, this.code, {required this.refresh, required this.readOnly}) :
+    this.boosterDraw = null;
+
+  IconCard.fromDraw(this.boosterDraw, this.subExtension, this.set, this.setId, this.code, {required this.refresh, required this.readOnly});
 
   @override
   _IconCardState createState() => _IconCardState();
@@ -117,13 +106,18 @@ class _IconCardState extends State<IconCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [Image(image: AssetImage('assets/carte/${widget.set.image}.png'), width: 75.0),
                         SizedBox(height: 6.0),
-                        Text(widget.set.names.name(widget.boosterDraw.subExtension!.extension.language)),
+                        Text(widget.set.names.name(widget.subExtension.extension.language)),
                       ]),
                   style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
                   onPressed: widget.readOnly ? null : () {
-                    widget.boosterDraw.setOtherRendering(widget.code, widget.setId);
+                    if(widget.boosterDraw != null)
+                      widget.boosterDraw!.setOtherRendering(widget.code, widget.setId);
+                    else
+                      widget.code.countBySet[widget.setId] += 1;
+
                     Navigator.of(context).pop();
-                    widget.refresh();
+                    if(widget.refresh!=null)
+                      widget.refresh!();
                   },
                 ),
               ),
@@ -133,9 +127,13 @@ class _IconCardState extends State<IconCard> {
                   ElevatedButton(
                       onPressed: widget.readOnly ? null : () {
                         setState(() {
-                          widget.boosterDraw.increase(widget.code, widget.setId);
+                          if(widget.boosterDraw != null)
+                            widget.boosterDraw!.increase(widget.code, widget.setId);
+                          else if(widget.code.countBySet[widget.setId] < 256)
+                            widget.code.countBySet[widget.setId] += 1;
                         });
-                        widget.refresh();
+                        if(widget.refresh!=null)
+                          widget.refresh!();
                       },
                       style: ElevatedButton.styleFrom(
                         primary: background, // background
@@ -150,9 +148,13 @@ class _IconCardState extends State<IconCard> {
                   ElevatedButton(
                       onPressed: widget.readOnly ? null : () {
                         setState(() {
-                          widget.boosterDraw.decrease(widget.code, widget.setId);
+                          if(widget.boosterDraw != null)
+                            widget.boosterDraw!.decrease(widget.code, widget.setId);
+                          else if(widget.code.countBySet[widget.setId] > 0)
+                            widget.code.countBySet[widget.setId] -= 1;
                         });
-                        widget.refresh();
+                        if(widget.refresh!=null)
+                          widget.refresh!();
                       },
                       style: ElevatedButton.styleFrom(
                         primary: background, // background

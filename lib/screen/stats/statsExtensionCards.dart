@@ -85,7 +85,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> {
   }
 
   Widget createCardWidget(int id, PokemonCardExtension cardData, String cardName, StatsPerCard? statsOfCard, int listId) {
-    Widget? extendedType = cardData.imageTypeExtended(generate: false, sizeIcon: 14.0);
+    Widget? extendedType = cardData.imageTypeExtended(generate: true, sizeIcon: 14.0);
     return Card(
       margin: EdgeInsets.all(2.0),
       child: TextButton(

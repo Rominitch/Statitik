@@ -184,10 +184,14 @@ class Environment
 
     Future<void> restoreAdminData() async {
         // Reload full database to have all real data
-        Environment.instance.startDB=false;
-        Environment.instance.db = Database();
-        await Environment.instance.readStaticData();
-        Environment.instance.collection.adminReverse();
+        startDB=false;
+        db = Database();
+        // Read static
+        await readStaticData();
+        // Migrate if needed
+        await db.transactionR( collection.migration );
+        // Finalize data
+        collection.adminReverse();
     }
 
     Future<void> registerUser(String uid) async {

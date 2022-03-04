@@ -6,7 +6,7 @@ import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/environment.dart';
 
 class LanguagePage extends StatefulWidget {
-  final Function afterSelected;
+  final Function(BuildContext, Language, SubExtension) afterSelected;
   final bool addMode;
 
   LanguagePage({required this.afterSelected, required this.addMode});

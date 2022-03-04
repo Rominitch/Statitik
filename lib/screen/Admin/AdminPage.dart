@@ -4,10 +4,15 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/Admin/newCardExtensions.dart';
 import 'package:statitikcard/screen/Admin/newProduct.dart';
+import 'package:statitikcard/screen/commonPages/languagePage.dart';
+import 'package:statitikcard/screen/commonPages/productPage.dart';
 import 'package:statitikcard/screen/tirage/DrawHistory.dart';
 import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/ProductCategory.dart';
+import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/product.dart';
 
 class AdminPage extends StatefulWidget {
   const AdminPage({Key? key}) : super(key: key);
@@ -17,8 +22,6 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
-  List<Widget> buttons = [];
-
   void cleanOrphan() {
     var orphans = Environment.instance.collection.searchOrphanCard();
     showDialog(
@@ -53,36 +56,54 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  Widget createButton(IconData icon, Color colorBox, Function() action) {
+  void goToProductPage(BuildContext context, Language language, SubExtension subExt) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.AllSelection, language: language, subExt: subExt, afterSelected: afterSelectProduct) ));
+  }
+
+  void afterSelectProduct(BuildContext context, Language language, ProductRequested? product, ProductCategory? category) {
+    // Go to page
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => NewProductPage(product!.product))).then( (value)
+    {
+      setState(() {});
+    });
+  }
+
+  Widget createButton(String codeText, IconData icon, Color colorBox, Function() action) {
     return Card(
       color: colorBox,
-      child: IconButton(
-        padding: EdgeInsets.zero,
-        icon: Icon(icon),
-        color: Colors.white,
+      child: TextButton(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Icon(icon,
+              color: Colors.white,
+              size: 50,
+            ),
+            Text(StatitikLocale.of(context).read(codeText)),
+          ],
+        ),
         onPressed: action,
       ),
     );
   }
 
   @override
-  void initState() {
-    super.initState();
-
-    buttons.add(createButton(Icons.add_shopping_cart, Colors.lightGreen, () {
+  Widget build(BuildContext context) {
+    List<Widget> buttons = [];
+    buttons.add(createButton('ADMIN_B0', Icons.add_shopping_cart, Colors.lightGreen, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => NewProductPage()));
     }));
-    buttons.add(createButton(Icons.post_add_outlined, Colors.deepOrange, () {
+    buttons.add(createButton('ADMIN_B1', Icons.shopping_cart_outlined, Colors.green.shade700, () {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage, addMode: true)));
+    }));
+    buttons.add(createButton('ADMIN_B2', Icons.post_add_outlined, Colors.deepOrange, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => NewCardExtensions()));
     }));
-    buttons.add(createButton(Icons.remove_red_eye_rounded, Colors.blueAccent, () {
+    buttons.add(createButton('ADMIN_B3', Icons.remove_red_eye_rounded, Colors.blueAccent, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory(true)));
     }));
-    buttons.add(createButton(Icons.delete_forever, Colors.blueAccent, cleanOrphan));
-  }
-
-  @override
-  Widget build(BuildContext context) {
+    buttons.add(createButton('ADMIN_B4', Icons.delete_forever, Colors.orangeAccent, cleanOrphan));
     return Scaffold(
         appBar: AppBar(
           title: Center(child: Text( StatitikLocale.of(context).read('H_T4'), style: Theme.of(context).textTheme.headline3 )),

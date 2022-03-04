@@ -50,7 +50,7 @@ class _StatsExtensionDrawState extends State<StatsExtensionDraw> {
                 child: Card( child: TextButton(
                   child: Text(productButton, softWrap: true, style: TextStyle(fontSize: (productButton.length > 20) ? 10 : 14),),
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.MultiSelection, language: widget.info.statsData.language!, subExt: widget.info.statsData.subExt!, afterSelected: afterSelectProduct) ));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.UserSelection, language: widget.info.statsData.language!, subExt: widget.info.statsData.subExt!, afterSelected: afterSelectProduct) ));
                   },
                 ))
             ),

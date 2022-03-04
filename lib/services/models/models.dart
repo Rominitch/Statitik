@@ -379,6 +379,24 @@ class SubExtension
   String outDate() {
     return DateFormat('yyyyMMdd').format(out);
   }
+
+  PokemonCardExtension cardFromId(List<int> cardId) {
+    assert(cardId.length >= 2);
+    switch(cardId[0]){
+      case 0: {
+        assert(cardId.length == 3);
+        return seCards.cards[cardId[1]][cardId[2]];
+      }
+      case 1: {
+        return seCards.energyCard[cardId[1]];
+      }
+      case 2: {
+        return seCards.noNumberedCard[cardId[1]];
+      }
+      default:
+        throw StatitikException("Unknown list");
+    }
+  }
 }
 
 class StatsBooster {

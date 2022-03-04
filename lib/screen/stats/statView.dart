@@ -145,11 +145,11 @@ class StatsView extends StatelessWidget {
   }
 }
 
-class ProductCard extends StatelessWidget {
+class ProductWidget extends StatelessWidget {
   final ProductRequested  pr;
   final bool              showCount;
 
-  ProductCard(this.pr, this.showCount);
+  ProductWidget(this.pr, this.showCount);
 
   @override
   Widget build(BuildContext context) {

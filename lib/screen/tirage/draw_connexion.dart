@@ -305,7 +305,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
   }
 
   void goToProductPage(BuildContext context, Language language, SubExtension subExt) {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.SingleSelection, language: language, subExt: subExt, afterSelected: afterSelectProduct) ));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.AllSelection, language: language, subExt: subExt, afterSelected: afterSelectProduct) ));
   }
 
   void afterSelectProduct(BuildContext context, Language language, ProductRequested? product, ProductCategory? category) {

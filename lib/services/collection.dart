@@ -417,7 +417,8 @@ class Collection
         pokemonCards[row[0]] = p;
       }
 
-      Environment.instance.onInfoLoading.add('LOAD_3');
+      if(!Environment.instance.onInfoLoading.isClosed)
+        Environment.instance.onInfoLoading.add('LOAD_3');
       var cardsExtensionRes = await connection.query("SELECT * FROM `CartesExtension`;");
       for(var row in cardsExtensionRes) {
         try {
@@ -467,33 +468,26 @@ class Collection
       tick("Categories");
       assert(categories.isNotEmpty);
 
-      Environment.instance.onInfoLoading.add('LOAD_4');
+      if(!Environment.instance.onInfoLoading.isClosed)
+        Environment.instance.onInfoLoading.add('LOAD_4');
       
       // Read static other product
       var otherProductsRequest = await connection.query("SELECT * FROM `ProduitAnnexe`");
       for (var row in otherProductsRequest) {
-        productSides[row[0]] = ProductSide(row[0], categories[row[3]], row[1], row[2]);
+        productSides[row[0]] = ProductSide(row[0], categories[row[3]], row[1], row[2], row[4]);
       }
+      tick("ProductSides");
+      assert(productSides.isNotEmpty);
+
       // Read static product
       var productRequest = await connection.query("SELECT * FROM `Produit`");
       for (var row in productRequest) {
         try {
-          if(row[6] == null) {
-            List<ProductBooster> boosters = [];
-            var reqBoosters = await connection.query("SELECT `idSousExtension`, `nombre`, `carte`"
-                " FROM `ProduitBooster`"
-                " WHERE `idProduit` = \'${row[0]}\'");
-            for (var rowBooster in reqBoosters) {
-              boosters.add( ProductBooster(subExtensions[rowBooster[0]], rowBooster[1], rowBooster[2]) );
-            }
+          assert(row[6] != null);
 
-            // Start session
-            products[row[0]] = Product(row[0], languages[row[1]], row[2], row[3], row[4], categories[row[5]], boosters);
-          } else {
-            // Start session
-            products[row[0]] = Product.fromBytes(row[0], languages[row[1]], row[2], row[3], row[4], categories[row[5]],
-                (row[6] as Blob).toBytes(), subExtensions, productSides, cardsExtensions);
-          }
+          // Start session
+          products[row[0]] = Product.fromBytes(row[0], languages[row[1]], row[2], row[3], row[4], categories[row[5]],
+              (row[6] as Blob).toBytes(), subExtensions, productSides);
         } catch(e) {
           printOutput("Bad Product: ${row[0]} $e");
         }
@@ -799,33 +793,10 @@ class Collection
   }
 
   Future<void> migration(connection) async {
+    //printOutput('Migration Start');
+
     //Insert HERE all requests
-    printOutput('Migration Start');
-    var productRequest = await connection.query("SELECT * FROM `Produit`");
-    for (var row in productRequest) {
-      try {
-        if(row[6] == null) {
-          List<ProductBooster> boosters = [];
-          var reqBoosters = await connection.query("SELECT `idSousExtension`, `nombre`, `carte`"
-              " FROM `ProduitBooster`"
-              " WHERE `idProduit` = \'${row[0]}\'");
-          for (var rowBooster in reqBoosters) {
-            boosters.add( ProductBooster(subExtensions[rowBooster[0]], rowBooster[1], rowBooster[2]) );
-          }
 
-          // Start session
-          Product p = Product(row[0], languages[row[1]], row[2], row[3], row[4], categories[row[5]], boosters);
-
-          String query = 'UPDATE `Produit` SET `contenu` = ?'
-              ' WHERE idProduit = ${row[0]};';
-          await connection.queryMulti(query,
-              [[ Int8List.fromList(p.toBytes(rCardsExtensions)) ]]
-          );
-        }
-      } catch(e) {
-        printOutput("Bad Product: ${row[0]} $e");
-      }
-    }
-    printOutput('Migration Done !');
+    //printOutput('Migration Done !');
   }
 }

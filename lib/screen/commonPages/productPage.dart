@@ -9,8 +9,8 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/product.dart';
 
 enum ProductPageMode {
-  SingleSelection,
-  MultiSelection,
+  AllSelection,
+  UserSelection,
 }
 
 class ProductPage extends StatefulWidget {
@@ -29,8 +29,8 @@ class _ProductPageState extends State<ProductPage> {
   List<Widget>? widgetProd;
   bool productFound = false;
 
-  bool isMulti() {
-    return (widget.mode == ProductPageMode.MultiSelection);
+  bool userSelection() {
+    return (widget.mode == ProductPageMode.UserSelection);
   }
 
   void setupProducts(BuildContext context) {
@@ -38,30 +38,30 @@ class _ProductPageState extends State<ProductPage> {
       widgetProd!.clear();
     }
 
-    readProducts(widget.language, widget.subExt, null, isMulti() ? widget.subExt : null ).then((products) {
+    filterProducts(widget.language, widget.subExt, null, withUserCount: userSelection(), onlyWithUser: userSelection() ).then((products) {
       widgetProd = [];
       productFound = false;
 
       // All products
-      if( isMulti() ) {
+      if( userSelection() ) {
         widgetProd!.add(
-            Card(
-              child: TextButton(child: Row(
-                  children: [
-                    Text(StatitikLocale.of(context).read('S_B9'), style: Theme
-                        .of(context)
-                        .textTheme
-                        .headline5),
-                    Expanded(child: SizedBox(width: 10)),
-                    Text(StatitikLocale.of(context).read('TP_B2'),
-                        style: TextStyle(fontSize: 9)),
-                    Icon(Icons.arrow_right_outlined)
-                  ]),
-                onPressed: () {
-                  widget.afterSelected(context, widget.language, null, null);
-                },
-              ),
-            ));
+          Card(
+            child: TextButton(child: Row(
+                children: [
+                  Text(StatitikLocale.of(context).read('S_B9'), style: Theme
+                      .of(context)
+                      .textTheme
+                      .headline5),
+                  Expanded(child: SizedBox(width: 10)),
+                  Text(StatitikLocale.of(context).read('TP_B2'),
+                      style: TextStyle(fontSize: 9)),
+                  Icon(Icons.arrow_right_outlined)
+                ]),
+              onPressed: () {
+                widget.afterSelected(context, widget.language, null, null);
+              },
+            ),
+          ));
       }
 
       // For each product
@@ -72,7 +72,7 @@ class _ProductPageState extends State<ProductPage> {
           productFound = true;
 
           String nameProduct = pr.product.name;
-          if(isMulti()) {
+          if(userSelection()) {
             int countP = pr.count;
             // Stop and don't show
             if(countP == 0)
@@ -110,7 +110,7 @@ class _ProductPageState extends State<ProductPage> {
         }
 
         if (productCard.isNotEmpty) {
-          if(isMulti()) {
+          if(userSelection()) {
             widgetProd!.add(
                 Card(
                   child: TextButton(
