@@ -206,7 +206,7 @@ class _CardImageState extends State<CardImage> {
   }
   @override
   Widget build(BuildContext context) {
-    if(Environment.instance.user != null && Environment.instance.user!.admin)
+    if(Environment.instance.isAdministrator())
       return Tooltip(
         message: widget.card.finalImage.isNotEmpty ? widget.card.finalImage : widget.cardImage.join("\n"),
         child: buildCachedImage(true)

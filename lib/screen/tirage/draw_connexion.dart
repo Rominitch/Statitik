@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/commonPages/productPage.dart';
 import 'package:statitikcard/screen/tirage/DrawHistory.dart';
+import 'package:statitikcard/screen/tirage/PokeSpaceMyCards.dart';
 import 'package:statitikcard/screen/tirage/PokeSpaceSavedDraw.dart';
 import 'package:statitikcard/screen/tirage/PokeSpaceDrawResume.dart';
 import 'package:statitikcard/screen/tutorial/drawTuto.dart';
@@ -120,15 +121,14 @@ class _DrawHomePageState extends State<DrawHomePage> {
       createButton([
         Column(
           children: [
-            Text(StatitikLocale.of(context).read('DC_B16'),
-                style: Theme.of(context).textTheme.headline5),
-            Text(StatitikLocale.of(context).read('devSoon'),
-                style: TextStyle(fontSize: 10)),
+            Text(StatitikLocale.of(context).read('DC_B16'), style: Theme.of(context).textTheme.headline5),
+            Text(StatitikLocale.of(context).read('devBeta'),style: TextStyle(fontSize: 10)),
           ],
         )
-      ],(){
-
-      }, color: Colors.black54),
+        ],(){
+        if(Environment.instance.isLogged())
+          Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyCards()));
+      }),
       createButton([
         Column(
           children: [

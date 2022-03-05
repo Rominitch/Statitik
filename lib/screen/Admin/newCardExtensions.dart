@@ -250,6 +250,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     if( !_modify ) {
       Navigator.of(context).pop(true);
     } else {
+      _se!.computeStats();
       var exit = await showDialog(
           context: context,
           barrierDismissible: false, // user must tap button!
@@ -286,6 +287,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
           child: Text(StatitikLocale.of(context).read('NCE_B1')),
           onPressed: () {
             EasyLoading.show();
+            _se!.computeStats();
             // Send database info
             Environment.instance.sendCardInfo(_se!)
               .onError((error, stackTrace) {

@@ -22,6 +22,24 @@ class AdminPage extends StatefulWidget {
 }
 
 class _AdminPageState extends State<AdminPage> {
+  bool demanded = false;
+
+  @override
+  void initState() {
+    Environment.instance.db.transactionR( (connection) async {
+        String query = "SELECT `idDemande` FROM Demande;";
+        var exts = await connection.query(query);
+        for(var _ in exts) {
+          demanded = true;
+        }
+      }
+    ).then((value){
+      setState(() {});
+    });
+
+    super.initState();
+  }
+
   void cleanOrphan() {
     var orphans = Environment.instance.collection.searchOrphanCard();
     showDialog(
@@ -113,6 +131,19 @@ class _AdminPageState extends State<AdminPage> {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
+                if(demanded)
+                  Card(
+                    color: Colors.red.shade900,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Icon(Icons.warning_amber_rounded),
+                          Text(StatitikLocale.of(context).read('ADMIN_B5'), style: Theme.of(context).textTheme.headline5)
+                        ]
+                      )
+                    )
+                  ),
                 Card(child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row( children: [

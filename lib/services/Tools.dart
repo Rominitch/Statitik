@@ -15,7 +15,7 @@ CachedNetworkImage drawCachedImage(folder, image, {double? width, double? height
   return CachedNetworkImage(
     imageUrl: '$adresseHTTPS/StatitikCard/$folder/$image.png',
     errorWidget: (context, url, error) {
-      if(Environment.instance.user != null && Environment.instance.user!.admin) {
+      if(Environment.instance.isAdministrator()) {
         return Tooltip(
             message: '$adresseHTTPS\r\n$image\r\n$url\r\n$error\r\n',
             child: alternativeRendering ?? Icon(Icons.help_outline));

@@ -209,6 +209,8 @@ class _StatsPageState extends State<StatsPage> {
             buildExplain(context, "Growl",   "S_TOOL_T1", "S_TOOL_B1"),
             buildExplain(context, "Voltorb", "S_TOOL_T2", "S_TOOL_B2"),
             buildExplain(context, "news",    "S_TOOL_T3", "S_TOOL_B3"),
+            if(Environment.instance.isAdministrator())
+              buildExplain(context, "Voltorb",    "", ""),
           ]
         )
       ]

@@ -116,7 +116,7 @@ class _NewProductPageState extends State<NewProductPage> {
           String query;
           List myData = <Object?>[];
           if(widget.editProduct == null) {
-            var req = await connection.query('SELECT count(idProduit) FROM `Produit`;');
+            var req = await connection.query('SELECT MAX(idProduit) FROM `Produit`;');
             for (var row in req) {
               product.idDB = row[0] + 1;
             }

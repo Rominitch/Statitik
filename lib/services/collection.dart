@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/TimeReport.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/ProductCategory.dart';
@@ -167,19 +168,13 @@ class Collection
 
   Future<void> readStaticData(connection) async
   {
-      DateTime start = DateTime.now();
-      DateTime end   = DateTime.now();
-      Function tick = (String label) {
-        end = DateTime.now();
-        printOutput("${label.padRight(20)} - Done in ${(end.difference(start).inMilliseconds).toString().padLeft(5)} ms");
-        start = end;
-      };
+      var time = TimeReport();
 
       var languagesReq = await connection.query("SELECT * FROM `Langue`");
       for (var row in languagesReq) {
         languages[row[0]] = Language(id: row[0], image: row[1]);
       }
-      tick("Langue");
+      time.tick("Langue");
       assert(languages.isNotEmpty);
 
       var setResult = await connection.query("SELECT * FROM `Set`");
@@ -190,7 +185,7 @@ class Collection
           printOutput("Bad Set: ${row[0]} $e");
         }
       }
-      tick("Sets");
+      time.tick("Sets");
       assert(sets.isNotEmpty);
 
       var rarityResult = await connection.query("SELECT * FROM `Rarete` ORDER BY `order` ASC");
@@ -238,7 +233,7 @@ class Collection
           printOutput("Bad Rarity: ${row[0]} $e");
         }
       }
-      tick("Rarities");
+      time.tick("Rarities");
       assert(rarities.isNotEmpty);
       unknownRarity = rarities[idUnknownRarity];
 
@@ -255,7 +250,7 @@ class Collection
           printOutput("Bad Marker: ${row[0]} $e");
         }
       }
-      tick("Markers");
+      time.tick("Markers");
       assert(markers.isNotEmpty);
       assert(markers.length <= 40); // Game over : need to change data !!
 
@@ -267,7 +262,7 @@ class Collection
           printOutput("Bad Extension: ${row[0]} $e");
         }
       }
-      tick("Extensions");
+      time.tick("Extensions");
       assert(extensions.isNotEmpty);
 
       int idPoke=1;
@@ -280,7 +275,7 @@ class Collection
           printOutput("Bad pokemon: ${row[0]} $e");
         }
       }
-      tick("Pokemon");
+      time.tick("Pokemon");
       assert(pokemons.isNotEmpty);
 
       var objSup = await connection.query("SELECT * FROM `DresseurObjet`");
@@ -291,7 +286,7 @@ class Collection
           printOutput("Bad Object: ${row[0]} $e");
         }
       }
-      tick("OtherNames");
+      time.tick("OtherNames");
       assert(otherNames.isNotEmpty);
 
       var regionRes = await connection.query("SELECT * FROM `Region`");
@@ -304,7 +299,7 @@ class Collection
           printOutput("Bad Region: ${row[0]} $e");
         }
       }
-      tick("Regions");
+      time.tick("Regions");
       assert(regions.isNotEmpty);
 
       var formeRes = await connection.query("SELECT * FROM `Forme`");
@@ -315,7 +310,7 @@ class Collection
           printOutput("Bad Forme: ${row[0]} $e");
         }
       }
-      tick("Formes");
+      time.tick("Formes");
       assert(formes.isNotEmpty);
 
       var illustratorRes = await connection.query("SELECT * FROM `Illustrateur`");
@@ -326,7 +321,7 @@ class Collection
           printOutput("Bad Illustrateur: ${row[0]} $e");
         }
       }
-      tick("Illustrators");
+      time.tick("Illustrators");
       assert(illustrators.isNotEmpty);
 
       var descriptionsRes = await connection.query("SELECT * FROM `Description`");
@@ -337,7 +332,7 @@ class Collection
           printOutput("Bad Description: ${row[0]} $e");
         }
       }
-      tick("Descriptions");
+      time.tick("Descriptions");
       assert(descriptions.isNotEmpty);
 
       var effectRes = await connection.query("SELECT * FROM `EffetsCarte`");
@@ -348,7 +343,7 @@ class Collection
           printOutput("Bad Description: ${row[0]} $e");
         }
       }
-      tick("Effects");
+      time.tick("Effects");
       assert(effects.isNotEmpty);
 
       // Read cards info
@@ -446,7 +441,7 @@ class Collection
           cardsExtensions[row[0]] = SubExtensionCards.emptyDraw([], 0, sets);
         }
       }
-      tick("CardsExtensions");
+      time.tick("CardsExtensions");
       assert(cardsExtensions.isNotEmpty);
 
       var subExts = await connection.query("SELECT * FROM `SousExtension` ORDER BY `code` DESC");
@@ -458,14 +453,14 @@ class Collection
           printOutput("Bad SubExtension: ${row[0]} $e");
         }
       }
-      tick("SubExtensions");
+      time.tick("SubExtensions");
       assert(subExtensions.isNotEmpty);
 
       var catExts = await connection.query("SELECT * FROM `Categorie`;");
       for (var row in catExts) {
         categories[row[0]] = ProductCategory(row[0], MultiLanguageString([row[1], row[2], row[3]]), mask(row[4], 1));
       }
-      tick("Categories");
+      time.tick("Categories");
       assert(categories.isNotEmpty);
 
       if(!Environment.instance.onInfoLoading.isClosed)
@@ -476,7 +471,7 @@ class Collection
       for (var row in otherProductsRequest) {
         productSides[row[0]] = ProductSide(row[0], categories[row[3]], row[1], row[2], row[4]);
       }
-      tick("ProductSides");
+      time.tick("ProductSides");
       assert(productSides.isNotEmpty);
 
       // Read static product
@@ -492,7 +487,7 @@ class Collection
           printOutput("Bad Product: ${row[0]} $e");
         }
       }
-      tick("Products");
+      time.tick("Products");
       assert(products.isNotEmpty);
   }
 

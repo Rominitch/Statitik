@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/PokeSpace.dart';
 import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 
@@ -147,11 +148,12 @@ class ByteParser
 }
 
 class UserPoke {
-  int idDB;
-  late String uid;
-  bool admin = false;
+  int       idDB;
+  String    uid       = "";
+  bool      admin     = false;
+  PokeSpace pokeSpace = PokeSpace();
 
-  UserPoke({required this.idDB});
+  UserPoke(this.idDB);
 }
 
 class Language
@@ -358,17 +360,25 @@ class PokemonInfo extends CardTitleData
 
 class SubExtension
 {
-  int               id;           ///< ID into database
-  String            name;         ///< Name of extension (translate)
-  String            icon;         ///< Path to extension's icon (on Statitik card folder)
-  List<String>      seCode;       ///< Official Se code + others (use into web folder and other stuff)
-  DateTime          out;
-  SubExtensionCards seCards;
-  Extension         extension;
-  SerieType         type;
-  int               cardPerBooster;
+  int                 id;           ///< ID into database
+  String              name;         ///< Name of extension (translate)
+  String              icon;         ///< Path to extension's icon (on Statitik card folder)
+  List<String>        seCode;       ///< Official Se code + others (use into web folder and other stuff)
+  DateTime            out;
+  SubExtensionCards   seCards;
+  Extension           extension;
+  SerieType           type;
+  int                 cardPerBooster;
+  late StatsExtension stats;
 
-  SubExtension(this.id, this.name, this.icon, this.extension, this.out, this.seCards, this.type, this.seCode, this.cardPerBooster);
+  SubExtension(this.id, this.name, this.icon, this.extension, this.out, this.seCards, this.type, this.seCode, this.cardPerBooster)
+  {
+    computeStats();
+  }
+
+  void computeStats() {
+    stats = StatsExtension(subExt: this);
+  }
 
   /// Show Extension image
   Widget image({double? wSize, double? hSize}) {

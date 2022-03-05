@@ -221,6 +221,22 @@ class CodeDraw {
       countBySet[1] = (code>>3) & 0x07;
   }
 
+  CodeDraw.fromBytes(ByteParser parser) :
+    countBySet = List<int>.filled(parser.extractInt8(), 0)
+  {
+    for(int id=0; id < countBySet.length; id+=1) {
+      countBySet[id] = parser.extractInt8();
+    }
+  }
+
+  List<int> toBytes() {
+    List<int> bytes = ByteEncoder.encodeInt8(countBySet.length);
+    countBySet.forEach((code) {
+      bytes += ByteEncoder.encodeInt8(code);
+    });
+    return bytes;
+  }
+
   void setCode(int code) {
     assert(countBySet.isNotEmpty);
 
@@ -282,6 +298,15 @@ class CodeDraw {
   void decrease(int set) {
     assert(0 <= set && set < countBySet.length);
     countBySet[set] = max(countBySet[set] - 1, 0);
+  }
+
+  void add(CodeDraw cardCode, [int mulFactor=1]) {
+    var it = cardCode.countBySet.iterator;
+    for(int id=0; id < countBySet.length; id += 1){
+      if(it.moveNext()) {
+        countBySet[id] += it.current * mulFactor;
+      }
+    }
   }
 }
 
@@ -451,6 +476,11 @@ class BoosterDraw {
         });
         id += 1;
       });
+      cardDrawing!.drawEnergies.forEach((element) {
+        if(element.countBySet.length > 1)
+          reverse += element.countBySet[1];
+      });
+
       if (subExtension!.seCards.hasAlternativeSet() && reverse != 1 && reverse != 2)
         return Validator.ErrorReverse;
       if (goodCard > 3)

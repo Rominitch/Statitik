@@ -6,11 +6,13 @@ import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
+import 'package:statitikcard/services/TimeReport.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/collection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/PokeSpace.dart';
 import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 
@@ -128,7 +130,7 @@ class Environment
                         // Load database
                         onInfoLoading.add('LOAD_1');
                         readStaticData().whenComplete(() async {
-                            if (isLogged() && user!.admin) {
+                            if (isAdministrator()) {
                                 await db.transactionR( collection.migration );
                                 printOutput("Admin is launched !");
                                 onInfoLoading.add('LOAD_2');
@@ -138,8 +140,11 @@ class Environment
                                     throw StatitikException('DB_2');
                                 }
                             }
-                            isInitialized = true;
-                            onInitialize.add(isInitialized);
+                            onInfoLoading.add('LOAD_5');
+                            readPokeSpace().whenComplete( () async {
+                                isInitialized = true;
+                                onInitialize.add(isInitialized);
+                            });
                         }).catchError((error) {
                             isInitialized = false;
                             onServerError.add(error.msg);
@@ -196,30 +201,77 @@ class Environment
 
     Future<void> registerUser(String uid) async {
         if (user == null) {
+            var time = TimeReport();
             await db.transactionR( (connection) async {
-                // Check user data exists into database
-                int idNewID=-1;
-                var reqCountUser = await connection.query(
-                    'SELECT MAX(`idUtilisateur`) FROM `Utilisateur`;');
-                for (var row in reqCountUser) {
-                    idNewID = row[0] + 1;
-                }
-
                 String query = 'SELECT `idUtilisateur`, `ban`, `su` FROM `Utilisateur` WHERE `identifiant` = \'$uid\';';
                 var reqUser = await connection.query(query);
                 if( reqUser.length == 1 ) {
                     for (var row in reqUser) {
                         if(row[1] != 0)
                             throw StatitikException("Utilisateur banni pour non respect des règles.");
-                        user = UserPoke(idDB: row[0]);
+                        user = UserPoke(row[0]);
                         user!.admin = row[2] == 1 ? true : false;
                     }
                 } else {
+                    // Check user data exists into database
+                    int idNewID=-1;
+                    var reqCountUser = await connection.query(
+                        'SELECT MAX(`idUtilisateur`) FROM `Utilisateur`;');
+                    for (var row in reqCountUser) {
+                        idNewID = row[0] + 1;
+                    }
+
                     await connection.query('INSERT INTO `Utilisateur` (idUtilisateur, identifiant, ban) VALUES ($idNewID, \'$uid\', 0);');
-                    user = UserPoke(idDB: idNewID);
+                    user = UserPoke(idNewID);
                 }
                 user!.uid = uid;
             });
+            time.tick("My User");
+        }
+    }
+
+    Future<void> readPokeSpace() async {
+        if (user != null) {
+            var time = TimeReport();
+            await db.transactionR( (connection) async {
+                String query = 'SELECT `pokeSpace` FROM `Utilisateur` WHERE `idUtilisateur` = \'${user!.idDB}\';';
+                var reqUser = await connection.query(query);
+                assert( reqUser.length == 1 );
+
+                for (var row in reqUser) {
+                    if(row[0] != null)
+                        user!.pokeSpace = PokeSpace.fromBytes((row[0] as Blob).toBytes(),
+                            collection.subExtensions,
+                            collection.products, collection.productSides);
+                    else {
+                        // Retrieve from draw (do one time)
+                        String query = 'SELECT `idSousExtension`, `cartesBin`'
+                            ' FROM `TirageBooster`, `UtilisateurProduit`'
+                            ' WHERE `idUtilisateur` = \'${user!.idDB}\''
+                            ' AND `TirageBooster`.`idAchat` = `UtilisateurProduit`.`idAchat`;';
+                        var reqUser = await connection.query(query);
+                        for (var row in reqUser) {
+                            var subExt = collection.subExtensions[row[0]]!;
+                            var bytes = (row[1] as Blob).toBytes().toList();
+                            ExtensionDrawCards edc = ExtensionDrawCards.fromBytes(subExt, bytes);
+
+                            user!.pokeSpace.add(subExt, edc);
+                        }
+
+                        // Added product
+                        String queryProd = 'SELECT `idProduit`'
+                            ' FROM `UtilisateurProduit`'
+                            ' WHERE `idUtilisateur` = \'${user!.idDB}\';';
+                        var reqProdUser = await connection.query(queryProd);
+                        for (var row in reqProdUser) {
+                            user!.pokeSpace.insertProduct(collection.products[row[0]]!, UserProductCounter.fromOpened());
+                        }
+                        // Finally compute all stats
+                        user!.pokeSpace.computeStats();
+                    }
+                }
+            });
+            time.tick("My PokeSpace");
         }
     }
 
@@ -419,7 +471,7 @@ class Environment
         List<SessionDraw> myBooster = [];
         if( isLogged() ) {
             try {
-                String filteredUser = (showAll && user!.admin) ? '' : ' `UtilisateurProduit`.`idUtilisateur`= \'${user!.idDB}\' AND ';
+                String filteredUser = (showAll && isAdministrator()) ? '' : ' `UtilisateurProduit`.`idUtilisateur`= \'${user!.idDB}\' AND ';
 
                 await db.transactionR( (connection) async {
                     String query = 'SELECT `idAchat`, `anomalie`, `idProduit`'
@@ -465,7 +517,7 @@ class Environment
     }
 
     Future<bool> sendCardInfo(SubExtension se) async {
-        if( isLogged() && user!.admin) {
+        if( isAdministrator() ) {
             try {
                 return db.transactionR( (connection) async {
                     await collection.saveDatabaseSEC(se.seCards, connection);
@@ -478,7 +530,7 @@ class Environment
     }
 
     Future<bool> removeOrphans(cardId) async {
-        if( isLogged() && user!.admin) {
+        if( isAdministrator() ) {
             try {
                 return await db.transactionR( (connection) async {
                     await collection.removeListCards(cardId, connection);
@@ -491,7 +543,7 @@ class Environment
     }
 
     Future<bool> removeUserProduct(draw) async {
-        if( isLogged() && user!.admin) {
+        if( isAdministrator() ) {
             try {
                 return await db.transactionR( (connection) async {
                     await collection.removeUserProduct(draw, connection);
@@ -505,7 +557,7 @@ class Environment
 
     Future<int?> addNewDresseurObjectName(String name, int language) async {
         int? id;
-        if( isLogged() && user!.admin) {
+        if( isAdministrator() ) {
 
             try {
                 await db.transactionR( (connection) async {
