@@ -12,6 +12,7 @@ import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/collection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/NewCardsReport.dart';
 import 'package:statitikcard/services/models/PokeSpace.dart';
 import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
@@ -74,7 +75,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.7.0';
+    final String version = '1.7.2';
 
     // State
     bool isInitialized          = false;
@@ -275,12 +276,20 @@ class Environment
         }
     }
 
-    Future<bool> sendDraw() async {
-        if( !isLogged() )
-            return false;
+    Future<void> sendPokeSpace(connection) {
+        return connection.queryMulti('UPDATE `Utilisateur` SET `pokeSpace` = ?'
+            ' WHERE `idUtilisateur` = \'${user!.idDB}\';',
+            [[Int8List.fromList(user!.pokeSpace.toBytes())]]);
+    }
 
+    Future sendDraw([bool registerPokeSpace=true]) async {
+        if( !isLogged() )
+            return null;
         try {
-            return await db.transactionR( (connection) async {
+            var report = NewCardsReport();
+
+            await db.transactionR( (connection) async {
+                var time = TimeReport();
                 // Get new ID
                 int idAchat = 1;
                 var req = await connection.query('SELECT MAX(idAchat) FROM `UtilisateurProduit`;');
@@ -300,11 +309,20 @@ class Environment
                 // Send data
                 await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, cartesBin) VALUES (?, ?, ?, ?);',
                                             draw);
+
+                time.tick("Register draw");
+                // Update PokeSpace and save into db
+                if(registerPokeSpace) {
+                    report = user!.pokeSpace.insertSessionDraw(currentDraw!);
+                    await sendPokeSpace(connection);
+                    time.tick("Save PokeSpace");
+                }
             });
+            return report;
         } catch( e ) {
             printOutput("Database error $e");
         }
-        return false;
+        return null;
     }
 
     Future<void> removeUser() async {
@@ -471,14 +489,14 @@ class Environment
         List<SessionDraw> myBooster = [];
         if( isLogged() ) {
             try {
-                String filteredUser = (showAll && isAdministrator()) ? '' : ' `UtilisateurProduit`.`idUtilisateur`= \'${user!.idDB}\' AND ';
+                String filteredUser = (showAll && isAdministrator()) ? '' : ' WHERE `UtilisateurProduit`.`idUtilisateur`= \'${user!.idDB}\'';
 
                 await db.transactionR( (connection) async {
                     String query = 'SELECT `idAchat`, `anomalie`, `idProduit`'
                         ' FROM `UtilisateurProduit`'
-                        ' WHERE $filteredUser'
+                        ' $filteredUser'
                         ' ORDER BY `idAchat` DESC';
-                    //printOutput(query);
+                    printOutput(query);
 
                     var req = await connection.query(query);
                     for (var row in req) {

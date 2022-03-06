@@ -70,11 +70,12 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> {
     });
 
     var myCards = mySpace.getBy(langueController.currentValue);
+    var orderedSubExt = myCards.keys.toList(growable: false);
+    orderedSubExt.sort((a, b) => b.out.compareTo(a.out));
 
     return Scaffold(
       appBar: AppBar(
         title: Text(StatitikLocale.of(context).read('DC_B16'), style: Theme.of(context).textTheme.headline3),
-        /*
         actions: [
           FloatingActionButton(
             //label: Text(StatitikLocale.of(context).read('PSMC_B0')),
@@ -98,7 +99,6 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> {
             },
           ),
         ],
-        */
       ),
       body: SafeArea(
         child: Padding(
@@ -110,7 +110,6 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    /*
                     Row(
                       children: [
                         Spacer(),
@@ -120,7 +119,6 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> {
                         SizedBox(width: 15.0),
                       ]
                     ),
-                    */
                     SizedBox(height: 40),
                     drawNothing(context, 'PSMC_B3')
                   ]
@@ -131,11 +129,11 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> {
               children: [
                 Row(children: languages),
                 ListView.builder(
-                  itemCount: myCards.length,
+                  itemCount: orderedSubExt.length,
                   primary: false,
                   shrinkWrap: true,
                   itemBuilder: (BuildContext context, int id) {
-                    var subExtension = myCards.keys.elementAt(id);
+                    var subExtension = orderedSubExt[id];
                     var counter      = myCards[subExtension]!;
                     List<Widget> global = [
                       buildLine(StatitikLocale.of(context).read('PSMC_B1'), Colors.lightGreen.shade900, counter.statsCards.countOfficial, subExtension.seCards.cards.length-subExtension.stats.countSecret),

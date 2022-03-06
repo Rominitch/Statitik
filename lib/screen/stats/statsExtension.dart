@@ -16,14 +16,6 @@ class StatsExtensionsPage extends StatefulWidget {
 }
 
 class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
-  late StatsExtension statsExtension;
-
-  @override
-  void initState() {
-    statsExtension = StatsExtension(subExt: widget.stats.subExt);
-    super.initState();
-  }
-
   Widget cardInfo(BuildContext context, String label, int count)
   {
     return Card(child: Padding(
@@ -40,6 +32,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
 
   @override
   Widget build(BuildContext context) {
+    var statsExtension = widget.stats.subExt.stats;
     List<Widget> infoCount = [];
 
     List info = [

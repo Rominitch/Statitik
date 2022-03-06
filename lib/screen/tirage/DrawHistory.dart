@@ -15,7 +15,7 @@ class DrawHistory extends StatefulWidget {
 
 class _DrawHistoryState extends State<DrawHistory> {
   List<SessionDraw> myDraw   = [];
-  List<Widget>? myDrawWidgets;
+  List<Widget>?     myDrawWidgets;
 
   void buildWidget() {
     Environment.instance.getMyDraw(widget.isAdmin).then((dynamic value) {
@@ -46,27 +46,27 @@ class _DrawHistoryState extends State<DrawHistory> {
                 onLongPress: (widget.isAdmin) ? () {
                   setState(() {
                     showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return SimpleDialog(
-                              contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                              children: [
-                                Card(
-                                    color: Colors.red,
-                                    child: TextButton(
-                                      child: Text(StatitikLocale.of(context).read('delete')),
-                                      onPressed: () {
-                                        Environment.instance.removeUserProduct(draw).then((value){
-                                          Navigator.of(context).pop();
-                                          setState(() {
-                                            buildWidget();
-                                          });
-                                        });
-                                      },
-                                    )),
-                              ]
-                          );
-                        }
+                      context: context,
+                      builder: (BuildContext context) {
+                        return SimpleDialog(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                          children: [
+                            Card(
+                              color: Colors.red,
+                              child: TextButton(
+                                child: Text(StatitikLocale.of(context).read('delete')),
+                                onPressed: () {
+                                  Environment.instance.removeUserProduct(draw).then((value){
+                                    Navigator.of(context).pop();
+                                    setState(() {
+                                      buildWidget();
+                                    });
+                                  });
+                                },
+                              )),
+                          ]
+                        );
+                      }
                     );
                   });
                 } : () {},
@@ -97,7 +97,7 @@ class _DrawHistoryState extends State<DrawHistory> {
                 ListView(
                   children: myDrawWidgets!,
                 ) :
-                Text(StatitikLocale.of(context).read('DH_B0'), style: Theme.of(context).textTheme.headline3)
+                drawNothing(context, 'DH_B0')
               ): drawLoading(context)
         )
       )

@@ -300,13 +300,21 @@ class CodeDraw {
     countBySet[set] = max(countBySet[set] - 1, 0);
   }
 
-  void add(CodeDraw cardCode, [int mulFactor=1]) {
+  CodeDraw? add(CodeDraw cardCode, [int mulFactor=1]) {
+    bool newResult=false;
+    var newCard = CodeDraw.fromSet(countBySet.length);
     var it = cardCode.countBySet.iterator;
     for(int id=0; id < countBySet.length; id += 1){
       if(it.moveNext()) {
-        countBySet[id] += it.current * mulFactor;
+        if(it.current > 0) {
+          newResult |= countBySet[id] == 0;
+          if(newResult)
+            newCard.countBySet[id] = 1;
+          countBySet[id] += it.current * mulFactor;
+        }
       }
     }
+    return newResult ? newCard: null;
   }
 }
 

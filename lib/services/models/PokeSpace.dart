@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/models/NewCardsReport.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/product.dart';
@@ -97,23 +99,22 @@ class UserCardCounter
       }
     }
 
-    countCards = parser.extractInt16();
-    for(var idCards = 0; idCards < countCards; idCards += 1) {
+    var countECards = parser.extractInt16();
+    for(var idCards = 0; idCards < countECards; idCards += 1) {
       var code = CodeDraw.fromBytes(parser);
       // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
       if(idCards < energies.length )
         energies[idCards] = code;
     }
 
-    countCards = parser.extractInt16();
-    for(var idCards = 0; idCards < countCards; idCards += 1) {
+    var countNCards = parser.extractInt16();
+    for(var idCards = 0; idCards < countNCards; idCards += 1) {
       var code = CodeDraw.fromBytes(parser);
       // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
       if(idCards < noNumbers.length )
         noNumbers[idCards] = code;
     }
-
-    computeStats();
+    //computeStats();
   }
 
   void computeStats() {
@@ -130,60 +131,70 @@ class UserCardCounter
       });
     });
 
-    bytes += ByteEncoder.encodeInt16(cards.length);
+    bytes += ByteEncoder.encodeInt16(energies.length);
     energies.forEach((code) {
       bytes += code.toBytes();
     });
 
-    bytes += ByteEncoder.encodeInt16(cards.length);
+    bytes += ByteEncoder.encodeInt16(noNumbers.length);
     noNumbers.forEach((code) {
       bytes += code.toBytes();
     });
     return bytes;
   }
 
-  void add(ExtensionDrawCards edc) {
+  void add(ExtensionDrawCards edc, [NewCardsReport? report]) {
+    int idCard = 0;
     var subCard = cards.iterator;
     edc.drawCards.forEach((element) {
       if(subCard.moveNext()) {
-        addList(element, subCard.current);
+        addList(subExtension, element, subCard.current, [0, idCard], report);
+        idCard += 1;
       }
     });
 
-    addList(edc.drawEnergies, energies);
+    addList(subExtension, edc.drawEnergies, energies, [1], report);
   }
 
-  void addList(List<CodeDraw> from, List<CodeDraw> to) {
+  void addList(SubExtension se, List<CodeDraw> from, List<CodeDraw> to, List<int> listId, [NewCardsReport? report]) {
+    int idCard = 0;
     var dstCode = to.iterator;
     from.forEach((cardCode) {
       if(dstCode.moveNext()) {
-        dstCode.current.add(cardCode);
+        var code = dstCode.current.add(cardCode);
+        if(code != null && report!= null) {
+          report.add(se, NewCardReport(listId + [idCard], code));
+        }
+        idCard +=1;
       }
     });
   }
 
-  void addProductCard(ProductCard productCard, [int mulFactor=1]) {
+  NewCardReport? addProductCard(ProductCard productCard, [int mulFactor=1]) {
     assert(productCard.subExtension == subExtension);
+    CodeDraw? report;
     var idCards = subExtension.seCards.computeIdCard(productCard.card);
     switch(idCards[0]) {
       case 0:
         assert(idCards.length == 3);
         if(idCards[1] < cards.length && idCards[2] < cards[idCards[1]].length)
-          cards[idCards[1]][idCards[2]].add(productCard.counter, mulFactor);
+          report = cards[idCards[1]][idCards[2]].add(productCard.counter, mulFactor);
       break;
       case 1:
         assert(idCards.length == 2);
         if(idCards[1] < energies.length)
-          energies[idCards[1]].add(productCard.counter, mulFactor);
+          report = energies[idCards[1]].add(productCard.counter, mulFactor);
       break;
       case 2:
         assert(idCards.length == 2);
         if(idCards[1] < noNumbers.length)
-          noNumbers[idCards[1]].add(productCard.counter, mulFactor);
+          report = noNumbers[idCards[1]].add(productCard.counter, mulFactor);
       break;
       default:
         throw StatitikException("Unknown List");
     }
+
+    return (report != null) ? NewCardReport(idCards, report) : null;
   }
 }
 
@@ -244,7 +255,9 @@ class PokeSpace
 
     int nbSubExtensions = parser.extractInt16();
     for(var id=0; id < nbSubExtensions; id +=1) {
-      var subExtension = subExtensions[parser.extractInt16()]!;
+      int idSE = parser.extractInt16();
+      assert(subExtensions[idSE] != null, "Impossible to find SE: $idSE");
+      var subExtension = subExtensions[idSE]!;
       insertSubExtension(subExtension);
       myCards[subExtension]!.fill(parser);
     }
@@ -271,6 +284,7 @@ class PokeSpace
 
     bytes += ByteEncoder.encodeInt16(myCards.length);
     myCards.forEach((subExt, counter) {
+      assert(subExt.id > 0);
       bytes += ByteEncoder.encodeInt16(subExt.id);
       bytes += counter.toBytes();
     });
@@ -301,7 +315,7 @@ class PokeSpace
     }
   }
 
-  void insertProduct(Product product, UserProductCounter counter) {
+  void insertProduct(Product product, UserProductCounter counter, [NewCardsReport? report]) {
     // Added new product
     if( myProducts.containsKey(product) ) {
       myProducts[product]!.cumulate(counter);
@@ -318,7 +332,10 @@ class PokeSpace
       // Cards
       product.otherCards.forEach((productCard) {
         insertSubExtension(productCard.subExtension);
-        myCards[productCard.subExtension]!.addProductCard(productCard, counter.opened);
+        var result = myCards[productCard.subExtension]!.addProductCard(productCard, counter.opened);
+        if(result != null && report!=null) {
+          report.add(productCard.subExtension, result);
+        }
       });
 
       outOfDate |= product.otherCards.isNotEmpty;
@@ -350,5 +367,24 @@ class PokeSpace
       return Map.from(myCards)..removeWhere((subExt, v) => subExt.extension.language != currentValue );
     else
       return {};
+  }
+
+  NewCardsReport insertSessionDraw(SessionDraw draw) {
+    var myNewCard = NewCardsReport();
+
+    draw.boosterDraws.forEach((booster) {
+      if(booster.cardDrawing != null) {
+        insertSubExtension(booster.subExtension!);
+        myCards[booster.subExtension!]!.add(booster.cardDrawing!, myNewCard);
+      }
+    });
+
+    // Add new product
+    insertProduct(draw.product, UserProductCounter.fromOpened(), myNewCard);
+
+    // Refresh state
+    computeStats();
+
+    return myNewCard;
   }
 }

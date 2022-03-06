@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:statitikcard/screen/commonPages/UserNewCardsDraw.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/tirage/tirage_booster.dart';
 import 'package:statitikcard/screen/view.dart';
@@ -153,14 +155,42 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                 onPressed: () {
                   EasyLoading.show();
                   Environment env = Environment.instance;
-                  env.sendDraw().then((valid) {
+                  env.sendDraw().then((report) {
+                    assert(env.user != null);
+                    assert(env.currentDraw != null);
+
                     EasyLoading.dismiss();
-                    if( valid ) {
+                    if( report != null ) {
+                      // Show registration report
                       showDialog(
                           context: context,
+                          barrierDismissible: false,
                           builder: (_) => new AlertDialog(
-                            title: new Text(StatitikLocale.of(context).read('TR_B1')),
-                            content: Text(StatitikLocale.of(context).read('TR_B2')),
+                            title: Center(child: Text(StatitikLocale.of(context).read('TR_B1'), style: Theme.of(context).textTheme.headline4)),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(StatitikLocale.of(context).read('TR_B2')),
+                                SizedBox(height: 10),
+                                Card(
+                                  color: Colors.green,
+                                  child: TextButton(
+                                    child: Text(StatitikLocale.of(context).read('TR_B12')),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  )
+                                ),
+                                SizedBox(height: 30),
+                                Text(StatitikLocale.of(context).read( report.result.isNotEmpty ? 'TR_B14': 'TR_B13')),
+                                SizedBox(height: 10),
+                                if(report.result.isNotEmpty)
+                                  Container(
+                                      width: 2 * MediaQuery.of(context).size.width / 3,
+                                      height: MediaQuery.of(context).size.height / 2,
+                                    child: UserNewCardDraw(report)),
+                              ]
+                            )
                           )
                       ).then((value) {
                         // Clean from saved draw
@@ -183,7 +213,8 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                       );
                     }
                   }).onError((error, stackTrace) {
-                    EasyLoading.showError('Error');
+                    EasyLoading.showError(StatitikLocale.of(context).read('error'));
+                    printOutput("$error\n${stackTrace.toString()}");
                   });
                 },
               ),
@@ -206,6 +237,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
           );
         };
 
+        // Save to file action
         actions.add(
             Card(
               color: Colors.amber.shade600,

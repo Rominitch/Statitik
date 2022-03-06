@@ -377,7 +377,7 @@ class SubExtension
   }
 
   void computeStats() {
-    stats = StatsExtension(subExt: this);
+    stats = StatsExtension.from(this);
   }
 
   /// Show Extension image
@@ -402,6 +402,27 @@ class SubExtension
       }
       case 2: {
         return seCards.noNumberedCard[cardId[1]];
+      }
+      default:
+        throw StatitikException("Unknown list");
+    }
+  }
+
+  Widget cardInfo(List<int> cardId) {
+    assert(cardId.length >= 2);
+    var card = cardFromId(cardId);
+
+    switch(cardId[0]){
+      case 0: {
+        assert(cardId.length == 3);
+        var label = seCards.numberOfCard(cardId[1]);
+        return Text(label, style: TextStyle(fontSize: label.length > 3 ? 10 : 12));
+      }
+      case 1: {
+        return card.imageTypeExtended() ?? card.imageType();
+      }
+      case 2: {
+        return Text(card.numberOfCard(cardId[1]));
       }
       default:
         throw StatitikException("Unknown list");
@@ -532,7 +553,7 @@ class StatsExtension {
   late Map<CardSet, int>  countBySet;
   late int                countSecret;
 
-  StatsExtension({required this.subExt}) {
+  StatsExtension.from(this.subExt) {
     countByType   = List<int>.filled(TypeCard.values.length, 0);
     countByRarity = {};
     rarities      = [];

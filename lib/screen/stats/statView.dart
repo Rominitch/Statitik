@@ -198,22 +198,14 @@ class ProbaResult {
 }
 
 class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
-  //Map<CardSet, ProbaResult> setProba = {};
   ProbaResult full = ProbaResult(0,0);
   bool approximated = false;
 
   @override
   void initState() {
-    var statsExtension = StatsExtension(subExt: widget.data.subExt!);
+    var statsExtension = widget.data.subExt!.stats;
 
     Map<Rarity, double> info = computeProbabilities(statsExtension, statsExtension.rarities);
-/*
-    statsExtension.allSets.forEach((set) {
-      setProba[set] = computeCompletion(statsExtension, statsExtension.rarities, info);
-    });
-
- */
-
     full = computeCompletion(statsExtension, statsExtension.rarities, info);
 
     super.initState();
