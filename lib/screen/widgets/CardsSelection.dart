@@ -32,13 +32,15 @@ class _CardsSelectionState extends State<CardsSelection> {
     createCards();
   }
   
-  Widget createCardButton(PokemonCardExtension card, int idCard) {
+  Widget createCardButton(PokemonCardExtension card, List<int> cardId) {
     return Card(
+      margin: EdgeInsets.all(3.0),
       child: TextButton(
         child: Column(
           children: [
             card.imageType(),
-            Text(widget.subExtension.seCards.numberOfCard(idCard)),
+            SizedBox(height: 5),
+            widget.subExtension.cardInfo(cardId),
           ],
         ),
         onPressed: (){
@@ -54,14 +56,14 @@ class _CardsSelectionState extends State<CardsSelection> {
     widgets = [];
     int idInBooster=0;
     for(var cards in widget.subExtension.seCards.cards) {
-      widgets.add( createCardButton(cards[0], idInBooster) );
+      widgets.add( createCardButton(cards[0], [0, idInBooster, 0]) );
       idInBooster += 1;
     }
 
     widgetEnergies = [];
     idInBooster=0;
     widget.subExtension.seCards.energyCard.forEach((card) {
-      widgetEnergies.add( createCardButton(card, idInBooster) );
+      widgetEnergies.add( createCardButton(card, [1, idInBooster]) );
       idInBooster += 1;
     });
   }
@@ -70,25 +72,35 @@ class _CardsSelectionState extends State<CardsSelection> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: widget.subExtension.image(hSize: iconSize),
+        title: Row(
+          children: [
+            widget.subExtension.extension.language.barIcon(),
+            SizedBox(width: 5),
+            widget.subExtension.image(hSize: iconSize),
+            SizedBox(width: 5),
+            Text(widget.subExtension.name, softWrap: true),
+          ]
+        )
       ),
       body:
       ListView(
         children: [
-          GridView.count(
-            crossAxisCount: 5,
-            children: widgetEnergies,
-            primary: false,
-            shrinkWrap: true,
-          ),
-          GridView.count(
-            crossAxisCount: 5,
-            shrinkWrap: true,
-            scrollDirection: Axis.vertical,
-            primary: false,
-            childAspectRatio: 1.15,
-            children: widgets,
-          ),
+          if(widgetEnergies.isNotEmpty)
+            GridView.count(
+              crossAxisCount: 5,
+              children: widgetEnergies,
+              primary: false,
+              shrinkWrap: true,
+            ),
+          if(widgets.isNotEmpty)
+            GridView.count(
+              crossAxisCount: 5,
+              shrinkWrap: true,
+              scrollDirection: Axis.vertical,
+              primary: false,
+              childAspectRatio: 1.15,
+              children: widgets,
+            ),
         ],
       ),
     );

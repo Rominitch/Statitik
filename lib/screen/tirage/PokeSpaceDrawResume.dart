@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/screen/commonPages/UserNewCardsDraw.dart';
@@ -325,6 +324,20 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                     }
                 },
               ),
+              if(widget._activeSession.randomProductCard.isNotEmpty)
+                GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 5, crossAxisSpacing: 2, mainAxisSpacing: 2),
+                  padding: const EdgeInsets.all(2.0),
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  primary: false,
+                  itemBuilder: (BuildContext context, int index) {
+                    var productCard = widget._activeSession.randomProductCard.keys.elementAt(index);
+                    var code        = widget._activeSession.randomProductCard[productCard]!;
+                    return Card();
+                  }
+                ),
               GridView.count(
                     crossAxisCount: 5,
                     padding: const EdgeInsets.all(2.0),

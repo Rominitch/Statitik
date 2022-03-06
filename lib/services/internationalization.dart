@@ -352,6 +352,8 @@ Images and illustrations used are the property of their respective authors.
       'PSMC_B2':   'Secret cards',
       'PSMC_B3':   'You haven\'t got cards !',
       'PSMC_B4':   'Add cards manually',
+      'CS_B0':     'Jumbo',
+      'CS_B1':     'Random',
     },
     'fr': {
       'H_T0': 'PokéSpace',
@@ -698,6 +700,8 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'PSMC_B2':   'Cartes secrètes',
       'PSMC_B3':   'Vous ne possèdez aucune carte !',
       'PSMC_B4':   'Ajouter des cartes manuellement',
+      'CS_B0':     'Jumbo',
+      'CS_B1':     'Aléatoire',
     },
   };
 

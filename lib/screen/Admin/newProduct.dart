@@ -166,7 +166,7 @@ class _NewProductPageState extends State<NewProductPage> {
           child: Center( child: Icon(Icons.add_shopping_cart) ),
           onPressed: () {
             // Go to product selector
-            Navigator.push(context, MaterialPageRoute(builder: (context) => SideProductSelection(widget.activeLanguage))).then((value) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => SideProductSelection(product.language!))).then((value) {
               if(value != null) {
                 // Added only new product and refresh
                 if( !product.sideProducts.containsKey(value) ) {
@@ -197,7 +197,7 @@ class _NewProductPageState extends State<NewProductPage> {
             child: Center( child: Icon(Icons.add_photo_alternate_outlined) ),
             onPressed: () {
               // Go to product selector
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: widget.activeLanguage,
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: product.language!,
                   afterSelected: (BuildContext context, Language language, SubExtension subExtension) {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => CardsSelection(language, subExtension)));
                   }, addMode: false))).then((value) {
@@ -206,7 +206,7 @@ class _NewProductPageState extends State<NewProductPage> {
                   setState(() {
                     var counter = CodeDraw.fromSet(value.card.sets.length);
                     counter.countBySet[0] = 1;
-                    product.otherCards.add(ProductCard(value.subExtension, value.card, AlternativeDesign.Basic, false, counter) );
+                    product.otherCards.add(ProductCard(value.subExtension, value.card, AlternativeDesign.Basic, false, false, counter) );
                   });
                 }
               });
@@ -243,7 +243,7 @@ class _NewProductPageState extends State<NewProductPage> {
           product.language!.barIcon(),
           Expanded(child: Card(child: Padding(
             padding: const EdgeInsets.all(4.0),
-            child: Text(product.category!.name.name(widget.activeLanguage)),
+            child: Text(product.category!.name.name(product.language!)),
           ))),
         ]),
         TextFormField(
@@ -477,7 +477,7 @@ class _OtherCardCountState extends State<OtherCardCount> {
             showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return CardSelector(widget.info.subExtension, widget.info.card, widget.info.counter);
+                  return CardSelector.fromProductCard(widget.info.subExtension, widget.info);
                 }
             ).then((value) {
               setState(() {

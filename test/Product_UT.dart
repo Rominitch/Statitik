@@ -72,7 +72,7 @@ void main() {
     p.sideProducts[sideProduct[2]] = 5;
     var code = CodeDraw.fromSet(2);
     code.countBySet[0] = 1;
-    p.otherCards.add(ProductCard(se, cards[1], AlternativeDesign.Basic, false, code));
+    p.otherCards.add(ProductCard(se, cards[1], AlternativeDesign.Basic, false, false, code));
 
     var newP = Product.fromBytes(idP, prodL, name, img, date, cat,
         p.toBytes(), subExts, sideProduct);

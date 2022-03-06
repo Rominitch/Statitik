@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 class CardSelector extends StatefulWidget {
@@ -10,17 +12,21 @@ class CardSelector extends StatefulWidget {
   final PokemonCardExtension card;
   final CodeDraw             counter;
 
+  final ProductCard?         productCard;
+
   final BoosterDraw? boosterDraw;
-  //final int      id;
   final Function? refresh;
-  //final bool     isEnergy;
   final bool     readOnly;
 
   CardSelector.fromDraw(this.card, this.counter, boosterDraw, {this.refresh, this.readOnly=false}):
     this.boosterDraw  = boosterDraw,
-    this.subExtension = boosterDraw.creation!;
+    this.subExtension = boosterDraw.creation!,
+    this.productCard = null;
 
-  CardSelector(this.subExtension, this.card, this.counter, {this.boosterDraw, this.refresh, this.readOnly=false});
+  CardSelector.fromProductCard(this.subExtension, productCard, {this.boosterDraw, this.refresh, this.readOnly=false}):
+    this.productCard = productCard,
+    this.card        = productCard.card,
+    this.counter     = productCard.counter;
 
   @override
   _CardSelectorState createState() => _CardSelectorState();
@@ -31,16 +37,6 @@ class _CardSelectorState extends State<CardSelector> {
 
   @override
   void initState() {
-    // Read code data
-/*
-    CodeDraw code;
-    if( widget.isEnergy  ) {
-      code = widget.boosterDraw.cardDrawing!.drawEnergies[widget.id];
-    } else {
-      // WARNING: always work on first (migration)
-      code = widget.boosterDraw.cardDrawing!.drawCards[widget.id][0];
-    }
-*/
     // Create for all set each widget
     int idSet=0;
     cardModes.clear();
@@ -52,18 +48,57 @@ class _CardSelectorState extends State<CardSelector> {
       }
       idSet += 1;
     });
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-        title: Text(StatitikLocale.of(context).read('V_B4')),
-        children: [Column(
+      title: Text(StatitikLocale.of(context).read('V_B4')),
+      children: [
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: cardModes
+        ),
+        if(widget.productCard != null)
+          Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: cardModes
-        ),]
+            children: [
+              Row(
+                children:[
+                  Expanded(
+                    child: Card(
+                      color: widget.productCard!.jumbo ? Colors.green : Colors.grey,
+                      child: TextButton(
+                        child: Text(StatitikLocale.of(context).read('CS_B0'), style: Theme.of(context).textTheme.headline5),
+                        onPressed: () {
+                          setState(() {
+                            widget.productCard!.jumbo = !widget.productCard!.jumbo;
+                          });
+                        },
+                      )
+                    ),
+                  ),
+                  Expanded(
+                    child: Card(
+                      color: widget.productCard!.isRandom ? Colors.green : Colors.grey,
+                      child: TextButton(
+                        child: Text(StatitikLocale.of(context).read('CS_B1'), style: Theme.of(context).textTheme.headline5),
+                        onPressed: () {
+                          setState(() {
+                            widget.productCard!.isRandom = !widget.productCard!.isRandom;
+                          });
+                        },
+                      )
+                    ),
+                  )
+                ]
+              )
+            ]
+          )
+      ]
     );
   }
 }

@@ -13,11 +13,16 @@ class SessionDraw
   Product           product;
   bool              productAnomaly=false;
   List<BoosterDraw> boosterDraws;
+  Map<ProductCard, CodeDraw> randomProductCard = {};
+
   Key               id; // Make unique file
 
   SessionDraw(this.product, this.language):
     id = UniqueKey(),
-    boosterDraws = product.buildBoosterDraw();
+    boosterDraws = product.buildBoosterDraw()
+  {
+    fillProductCard();
+  }
 
   SessionDraw.fromFile(this.id, ByteParser parser, mapLanguages, mapProducts, mapSubExtensions) :
     language = mapLanguages[parser.extractInt16()],
@@ -70,6 +75,16 @@ class SessionDraw
       }
     });
     return bytes;
+  }
+
+  void fillProductCard() {
+    randomProductCard.clear();
+
+    product.otherCards.forEach((productCard) {
+      if(productCard.isRandom) {
+        randomProductCard[productCard] = CodeDraw.fromSet(productCard.card.sets.length);
+      }
+    });
   }
 
   void closeStream() {

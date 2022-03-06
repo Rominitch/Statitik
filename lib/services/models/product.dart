@@ -41,16 +41,25 @@ class ProductCard {
   late PokemonCardExtension  card;
   AlternativeDesign     design;       /// Think more about it but keep space !
   bool                  jumbo;
+  bool                  isRandom;
   CodeDraw              counter;   /// Not limited to 7 !!
 
-  ProductCard(this.subExtension, this.card, this.design, this.jumbo, this.counter);
+  static const int _jumboMask  = 1;
+  static const int _randomMask = 2;
+
+  ProductCard(this.subExtension, this.card, this.design, this.jumbo, this.isRandom, this.counter);
 
   ProductCard.fromBytes(ByteParser parser, Map mapSubExtensions):
     subExtension = mapSubExtensions[parser.extractInt16()],
-    design = AlternativeDesign.values[parser.extractInt8()],
-    jumbo = parser.extractBool(),
-    counter = CodeDraw.fromSet(1)
+    design    = AlternativeDesign.values[parser.extractInt8()],
+    jumbo     = false,
+    isRandom  = false,
+    counter   = CodeDraw.fromSet(1)
   {
+    var code = parser.extractInt8();
+    jumbo     = mask(code, _jumboMask);
+    isRandom  = mask(code, _randomMask);
+
     // Retrieve card
     List<int> cardId = [parser.extractInt8(), parser.extractInt16()];
     if(cardId[0] == 0)
@@ -71,7 +80,8 @@ class ProductCard {
     List<int> bytes = [];
     bytes += ByteEncoder.encodeInt16(subExtension.id);
     bytes += ByteEncoder.encodeInt8(design.index);
-    bytes += ByteEncoder.encodeBool(jumbo);
+    int code = (jumbo ? _jumboMask : 0) | (isRandom ? _randomMask : 0);
+    bytes += ByteEncoder.encodeInt8(code);
 
     // Encode card full Id
     var id = subExtension.seCards.computeIdCard(card);
