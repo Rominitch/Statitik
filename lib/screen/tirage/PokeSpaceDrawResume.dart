@@ -60,6 +60,12 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
     return true;
   }
 
+  void refresh() {
+    setState(() {
+
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Function update = () { setState(() {}); };
@@ -141,6 +147,11 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
         break;
       }
     }
+
+    List<Widget> randomCards = [];
+    widget._activeSession.randomProductCard.keys.forEach((productCard) {
+      randomCards.add(PokemonProductCard(productCard, widget._activeSession, readOnly: widget._readOnly, refresh: refresh ));
+    });
 
     List<Widget> actions = [];
     if(!widget._readOnly) {
@@ -325,18 +336,28 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                 },
               ),
               if(widget._activeSession.randomProductCard.isNotEmpty)
-                GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 5, crossAxisSpacing: 2, mainAxisSpacing: 2),
-                  padding: const EdgeInsets.all(2.0),
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  primary: false,
-                  itemBuilder: (BuildContext context, int index) {
-                    var productCard = widget._activeSession.randomProductCard.keys.elementAt(index);
-                    var code        = widget._activeSession.randomProductCard[productCard]!;
-                    return Card();
-                  }
+                Card(
+                  child: /*GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 4, crossAxisSpacing: 2, mainAxisSpacing: 2,
+                      childAspectRatio: 1.2),
+                    padding: const EdgeInsets.all(2.0),
+                    shrinkWrap: true,
+                    primary: false,
+                    itemCount: widget._activeSession.randomProductCard.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      var productCard = widget._activeSession.randomProductCard.keys.elementAt(index);
+                      return PokemonProductCard(productCard, widget._activeSession, readOnly: widget._readOnly, refresh: () { setState(() {}); } );
+                    }
+                  ),*/
+                  GridView.count(
+                    crossAxisCount: 4,
+                    childAspectRatio: 1.2,
+                    padding: const EdgeInsets.all(2.0),
+                    shrinkWrap: true,
+                    primary: false,
+                    children: randomCards,
+                  ),
                 ),
               GridView.count(
                     crossAxisCount: 5,

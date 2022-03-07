@@ -8,6 +8,7 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 Widget createLanguage(Language l, BuildContext context, Widget Function(BuildContext) press)
@@ -212,6 +213,92 @@ class _PokemonCardState extends State<PokemonCard> {
               widget.boosterDraw.toggleCard(widget.boosterDraw.cardDrawing!.drawCards[widget.idCard], 0);
               widget.refresh();
             });
+          }
+      ),
+    );
+  }
+}
+
+class PokemonProductCard extends StatefulWidget {
+  final ProductCard     productCard;
+  final SessionDraw     session;
+  final Function        refresh;
+  final bool            readOnly;
+
+  PokemonProductCard(this.productCard, this.session,  {required this.refresh, required this.readOnly});
+
+  @override
+  _PokemonProductCardState createState() => _PokemonProductCardState();
+}
+
+class _PokemonProductCardState extends State<PokemonProductCard> {
+  late List<Widget> icons;
+
+  @override
+  void initState() {
+    icons =
+    [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          widget.productCard.subExtension.image(wSize: 30, hSize: 30),
+          if(widget.productCard.card.isValid())
+            Row( mainAxisAlignment: MainAxisAlignment.center,
+                children: [widget.productCard.card.imageType()] + widget.productCard.card.imageRarity(widget.productCard.subExtension.extension.language)),
+        ]
+      ),
+      if(widget.productCard.card.isValid()) SizedBox(height: 6.0),
+    ];
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var code = widget.session.randomProductCard[widget.productCard]!;
+    int nbCard = code.count();
+    Function update = () {
+      setState(() {});
+      widget.refresh();
+    };
+
+    var cardId = widget.productCard.subExtension.seCards.computeIdCard(widget.productCard.card);
+
+    return Padding(
+      padding: const EdgeInsets.all(2.0),
+      child: TextButton(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: icons+[
+                widget.productCard.subExtension.cardInfo(cardId),
+                if( nbCard > 1)
+                  Text(' ($nbCard)')
+              ]),
+          style: TextButton.styleFrom(
+              backgroundColor: code.color(widget.productCard.card),
+              padding: const EdgeInsets.all(2.0)
+          ),
+          onLongPress: () {
+            setState(() {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return CardSelector.fromProductCard(widget.productCard.subExtension, widget.productCard, refresh: update, readOnly: widget.readOnly);
+                  }
+              );
+              widget.refresh();
+            });
+          },
+          onPressed: () {
+            if(!widget.readOnly) {
+              // WARNING: default press is always on first set
+              if(code.count() == 0)
+                code.increase(0);
+              else {
+                code.reset();
+              }
+              update();
+            }
           }
       ),
     );

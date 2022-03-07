@@ -7,6 +7,12 @@ import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
+abstract class GenericCardSelector {
+  void increase();
+  void decrease();
+}
+
+
 class CardSelector extends StatefulWidget {
   final SubExtension         subExtension;
   final PokemonCardExtension card;
@@ -17,13 +23,15 @@ class CardSelector extends StatefulWidget {
   final BoosterDraw? boosterDraw;
   final Function? refresh;
   final bool     readOnly;
+  final bool     showAdvanced;
 
   CardSelector.fromDraw(this.card, this.counter, boosterDraw, {this.refresh, this.readOnly=false}):
     this.boosterDraw  = boosterDraw,
     this.subExtension = boosterDraw.creation!,
-    this.productCard = null;
+    this.productCard  = null,
+    this.showAdvanced = false;
 
-  CardSelector.fromProductCard(this.subExtension, productCard, {this.boosterDraw, this.refresh, this.readOnly=false}):
+  CardSelector.fromProductCard(this.subExtension, productCard, {this.boosterDraw, this.refresh, this.readOnly=false, this.showAdvanced=false}):
     this.productCard = productCard,
     this.card        = productCard.card,
     this.counter     = productCard.counter;
@@ -62,7 +70,7 @@ class _CardSelectorState extends State<CardSelector> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: cardModes
         ),
-        if(widget.productCard != null)
+        if(widget.productCard != null && widget.showAdvanced)
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [

@@ -477,7 +477,7 @@ class _OtherCardCountState extends State<OtherCardCount> {
             showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return CardSelector.fromProductCard(widget.info.subExtension, widget.info);
+                  return CardSelector.fromProductCard(widget.info.subExtension, widget.info, showAdvanced: true);
                 }
             ).then((value) {
               setState(() {
