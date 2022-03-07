@@ -4,9 +4,11 @@ import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/models/BytesCoder.dart';
+import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/NewCardsReport.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
-import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/product.dart';
 
 class StatsCardUser {

@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
 import 'package:path_provider/path_provider.dart';
-import 'package:statitikcard/services/SessionDraw.dart';
+
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/SessionDraw.dart';
+import 'package:statitikcard/services/models/BytesCoder.dart';
 
 class UserDrawCollection {
   static Future<Directory> folder() async {

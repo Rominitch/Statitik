@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/ProductCategory.dart';
-import 'package:statitikcard/services/models/models.dart';
 
 class SideProductSelection extends StatefulWidget {
   final Language activeLanguage;

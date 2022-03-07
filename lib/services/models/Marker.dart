@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/BytesCoder.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/MultiLanguageString.dart';
 
 class CardMarker
 {

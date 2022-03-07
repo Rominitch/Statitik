@@ -1,4 +1,4 @@
-import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/MultiLanguageString.dart';
 
 class ProductCategory {
   int                 idDB;

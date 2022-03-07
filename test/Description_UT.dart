@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:statitikcard/services/CardEffect.dart';
+import 'package:statitikcard/services/models/CardTitleData.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/MultiLanguageString.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/models/models.dart';
 
 void main() {
   test('CardDescription.decrypted', () {

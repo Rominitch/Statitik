@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
@@ -6,6 +7,9 @@ import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/ProductDraw.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/product.dart';
@@ -138,13 +142,16 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
 }
 
 class PokemonCard extends StatefulWidget {
+  final GenericCardSelector  selector;
+  /*
   final int                  idCard;
   final PokemonCardExtension card;
   final BoosterDraw          boosterDraw;
+  */
   final Function             refresh;
   final bool                 readOnly;
 
-  PokemonCard({required this.idCard, required this.card, required this.boosterDraw, required this.refresh, required this.readOnly});
+  PokemonCard(this.selector, {  required this.refresh, required this.readOnly});
 
   @override
   _PokemonCardState createState() => _PokemonCardState();
@@ -155,52 +162,43 @@ class _PokemonCardState extends State<PokemonCard> {
 
   @override
   void initState() {
+    var card = widget.selector.cardExtension();
     icons =
     [
-      if(widget.card.isValid())
+      if(card.isValid())
         Row( mainAxisAlignment: MainAxisAlignment.center,
-            children: [widget.card.imageType()] + widget.card.imageRarity(widget.boosterDraw.subExtension!.extension.language)),
-      if(widget.card.isValid()) SizedBox(height: 6.0),
+            children: [card.imageType()] + card.imageRarity(widget.selector.subExtension().extension.language)),
+      if(card.isValid()) SizedBox(height: 6.0),
     ];
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    List<CodeDraw> cardValues = widget.boosterDraw.cardDrawing!.drawCards[widget.idCard];
-    int nbCard = 0;
-    cardValues.forEach((codeDraw) { nbCard += codeDraw.count(); });
+    CodeDraw cardValue = widget.selector.codeDraw();
+    var cardEx = widget.selector.cardExtension();
+
     Function update = () {
       setState(() {});
       widget.refresh();
     };
 
-    var cardValue = cardValues[0];
-
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: TextButton(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: icons+[
-                if( nbCard > 1)
-                  Text('${widget.boosterDraw.nameCard(widget.idCard)} ($nbCard)')
-                else
-                  Text('${widget.boosterDraw.nameCard(widget.idCard)}')
-              ]),
+          child: widget.selector.cardWidget(),
           style: TextButton.styleFrom(
-            backgroundColor: cardValue.color(widget.card),
+            backgroundColor: cardValue.color(cardEx),
             padding: const EdgeInsets.all(2.0)
           ),
           onLongPress: () {
             // Show more info if many rendering of more cards
-            if( widget.card.hasAnotherRendering() || cardValues.length > 1 ) {
+            if( cardEx.hasAnotherRendering() ) {
               setState(() {
                 showDialog(
                     context: context,
                     builder: (BuildContext context) {
-                      return CardSelector.fromDraw(widget.card, cardValue, widget.boosterDraw, refresh: update, readOnly: widget.readOnly);
+                      return CardSelector(widget.selector, refresh: update, readOnly: widget.readOnly);
                     }
                 );
                 widget.refresh();
@@ -210,7 +208,8 @@ class _PokemonCardState extends State<PokemonCard> {
           onPressed: widget.readOnly ? null : () {
             setState(() {
               // WARNING: default press is always on first set
-              widget.boosterDraw.toggleCard(widget.boosterDraw.cardDrawing!.drawCards[widget.idCard], 0);
+              widget.selector.toggle();
+
               widget.refresh();
             });
           }
@@ -218,14 +217,14 @@ class _PokemonCardState extends State<PokemonCard> {
     );
   }
 }
-
+/*
 class PokemonProductCard extends StatefulWidget {
   final ProductCard     productCard;
-  final SessionDraw     session;
+  final ProductDraw     draw;
   final Function        refresh;
   final bool            readOnly;
 
-  PokemonProductCard(this.productCard, this.session,  {required this.refresh, required this.readOnly});
+  PokemonProductCard(this.productCard, this.draw,  {required this.refresh, required this.readOnly});
 
   @override
   _PokemonProductCardState createState() => _PokemonProductCardState();
@@ -254,7 +253,7 @@ class _PokemonProductCardState extends State<PokemonProductCard> {
 
   @override
   Widget build(BuildContext context) {
-    var code = widget.session.randomProductCard[widget.productCard]!;
+    var code = widget.draw.randomProductCard[widget.productCard]!;
     int nbCard = code.count();
     Function update = () {
       setState(() {});
@@ -283,6 +282,7 @@ class _PokemonProductCardState extends State<PokemonProductCard> {
               showDialog(
                   context: context,
                   builder: (BuildContext context) {
+                    var  =
                     return CardSelector.fromProductCard(widget.productCard.subExtension, widget.productCard, refresh: update, readOnly: widget.readOnly);
                   }
               );
@@ -304,6 +304,7 @@ class _PokemonProductCardState extends State<PokemonProductCard> {
     );
   }
 }
+*/
 
 class EnergyButton extends StatefulWidget {
   final int                   idCard;   /// Position into SubExtension energy list
@@ -367,7 +368,8 @@ class _EnergyButtonState extends State<EnergyButton> {
               showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    return CardSelector.fromDraw(widget.card, code, widget.boosterDraw, refresh: update, readOnly: widget.readOnly);
+                    var selector = CardSelectorBoosterDraw(widget.boosterDraw, widget.card, code);
+                    return CardSelector(selector, refresh: update, readOnly: widget.readOnly);
                   }
               ).whenComplete(()  {
                 setState(() {

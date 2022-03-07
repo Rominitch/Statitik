@@ -7,7 +7,10 @@ import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/models/BytesCoder.dart';
+import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/ProductCategory.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
@@ -112,7 +115,8 @@ class Product
   // New
   Map<ProductSide, int>    sideProducts = {};
   List<ProductCard>        otherCards   = [];
-  static const int version = 1;
+  int                      nbRandomPerProduct = 0;
+  static const int version = 2;
 
   Product.empty():
     this.idDB     =-1,
@@ -127,7 +131,8 @@ class Product
                     List<int> data, Map mapSubExtensions, Map productSides):
     this.boosters = []
   {
-    if(data[0] != version)
+    int currentVersion = data[0];
+    if(!(currentVersion <= version))
       throw StatitikException("Unknown Product version: ${data[0]}");
 
     // Is Zip ?
@@ -155,6 +160,10 @@ class Product
     var nbOtherCards = parser.extractInt8();
     for(int id=0; id < nbOtherCards; id +=1){
       otherCards.add(ProductCard.fromBytes(parser, mapSubExtensions));
+    }
+
+    if(currentVersion == 2) {
+      nbRandomPerProduct = parser.extractInt8();
     }
   }
 
@@ -187,6 +196,9 @@ class Product
     otherCards.forEach((card) {
       bytes += card.toBytes();
     });
+    
+    assert(nbRandomPerProduct <= 255);
+    bytes += ByteEncoder.encodeInt8(nbRandomPerProduct);
 
     // Save final data
     assert(version <= 255);

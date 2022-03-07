@@ -11,6 +11,10 @@ import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/Extension.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/SerieType.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/models.dart';
 
 enum StateStatsExtension {

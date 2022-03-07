@@ -7,6 +7,8 @@ import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
@@ -55,7 +57,7 @@ class _CardStatisticPageState extends State<CardStatisticPage> {
     assert(langueController.currentValue != null);
 
     Environment.instance.collection.getExtensions(langueController.currentValue).forEach((ext) {
-      Environment.instance.collection.getSubExtensions(ext).forEach((SubExtension subExt) {
+      Environment.instance.collection.getSubExtensions(ext).forEach((subExt) {
         if( subExt.seCards.isValid ) {
           int id=0;
           subExt.seCards.cards.forEach((List<PokemonCardExtension> cards) {

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/BytesCoder.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/ProductDraw.dart';
 import 'package:statitikcard/services/models/product.dart';
 
 class SessionDraw
@@ -13,21 +15,22 @@ class SessionDraw
   Product           product;
   bool              productAnomaly=false;
   List<BoosterDraw> boosterDraws;
-  Map<ProductCard, CodeDraw> randomProductCard = {};
+  ProductDraw       productDraw;      /// Draw Info about product (all randomize cards)
 
   Key               id; // Make unique file
 
-  SessionDraw(this.product, this.language):
-    id = UniqueKey(),
-    boosterDraws = product.buildBoosterDraw()
-  {
-    fillProductCard();
-  }
+  SessionDraw(product, this.language):
+    this.id = UniqueKey(),
+    this.product = product,
+    this.boosterDraws = product.buildBoosterDraw(),
+    this.productDraw = ProductDraw(product)
+  {}
 
   SessionDraw.fromFile(this.id, ByteParser parser, mapLanguages, mapProducts, mapSubExtensions) :
     language = mapLanguages[parser.extractInt16()],
     product  = mapProducts[parser.extractInt16()],
-    boosterDraws = []
+    boosterDraws = [],
+    productDraw = ProductDraw.empty()
     // Warning: idAchat is still undefined !
   {
     productAnomaly = parser.extractBool();
@@ -75,16 +78,6 @@ class SessionDraw
       }
     });
     return bytes;
-  }
-
-  void fillProductCard() {
-    randomProductCard.clear();
-
-    product.otherCards.forEach((productCard) {
-      if(productCard.isRandom) {
-        randomProductCard[productCard] = CodeDraw.fromSet(productCard.card.sets.length);
-      }
-    });
   }
 
   void closeStream() {

@@ -8,7 +8,8 @@ import 'package:statitikcard/services/CardEffect.dart';
 
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/MultiLanguageString.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 

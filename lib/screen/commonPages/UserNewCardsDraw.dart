@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:statitikcard/services/models/NewCardsReport.dart';
-import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 
 class UserNewCardDraw extends StatelessWidget {
   final NewCardsReport report;

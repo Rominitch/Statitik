@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
-import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
+import 'package:statitikcard/services/Tools.dart';
 
 class PokeSpaceMyCards extends StatefulWidget {
   const PokeSpaceMyCards({Key? key}) : super(key: key);

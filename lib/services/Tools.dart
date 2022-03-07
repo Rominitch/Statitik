@@ -1,12 +1,16 @@
 import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:intl/intl.dart';
+
 import 'package:sprintf/sprintf.dart';
+
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 
 import 'connection.dart';
 

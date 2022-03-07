@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/models/CardTitleData.dart';
 import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/MultiLanguageString.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';

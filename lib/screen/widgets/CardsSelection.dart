@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 
 import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
 class CardSelectionData {

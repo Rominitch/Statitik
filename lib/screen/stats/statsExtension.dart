@@ -57,9 +57,9 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
             shrinkWrap: true,
             childAspectRatio: 1.8,
           ),
-          PieExtension(stats: statsExtension, visu: Visualize.Type),
+          PieExtension(widget.stats.subExt, Visualize.Type),
           SizedBox(height: 10.0,),
-          PieExtension(stats: statsExtension, visu: Visualize.Rarity),
+          PieExtension(widget.stats.subExt, Visualize.Rarity),
           if (widget.data.cardStats.hasStats() && widget.data.cardStats.stats!.hasData()) StatsCard(widget.data.language!, widget.data.cardStats, showByRarity: false, showBySubEx: false, showTitle: false, showByType: false),
         ]
       ),

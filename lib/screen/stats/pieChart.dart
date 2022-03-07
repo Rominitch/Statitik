@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 
@@ -72,10 +73,10 @@ enum Visualize {
 }
 
 class PieExtension extends StatefulWidget {
-  final StatsExtension stats;
+  final SubExtension subExtension;
   final Visualize visu;
 
-  PieExtension({required this.stats, required this.visu});
+  PieExtension(this.subExtension, this.visu);
 
   @override
   _PieExtensionState createState() => _PieExtensionState();
@@ -95,12 +96,12 @@ class _PieExtensionState extends State<PieExtension> {
     sections.clear();
 
     bool odd=false;
-    final double ratio = 100.0 / widget.stats.subExt.seCards.cards.length;
+    final double ratio = 100.0 / widget.subExtension.seCards.cards.length;
     if( widget.visu == Visualize.Type) {
       for(var type in TypeCard.values) {
         final isTouched = type.index == touchedIndex;
         final double radius = isTouched ? 130 : 100;
-        int count = widget.stats.countByType[type.index];
+        int count = widget.subExtension.stats.countByType[type.index];
         if (count > 0) {
           var percent = count * ratio;
           sections.add(PieChartSectionData(
@@ -120,11 +121,11 @@ class _PieExtensionState extends State<PieExtension> {
     } else {
       final smallValue = 3.5;
       bool oldSmall = false;
-      widget.stats.rarities.forEach( (rarity) {
+      widget.subExtension.stats.rarities.forEach( (rarity) {
         var isSmall = false;
         final isTouched = rarity.id == touchedIndex;
         final double radius = isTouched ? 110 : 90;
-        int count = widget.stats.countByRarity[rarity] ?? 0;
+        int count = widget.subExtension.stats.countByRarity[rarity] ?? 0;
         if (count > 0) {
           var percent = count * ratio;
           isSmall = percent < smallValue;
@@ -136,7 +137,7 @@ class _PieExtensionState extends State<PieExtension> {
             radius: radius,
             titlePositionPercentageOffset: odd ? 0.75 : 0.5,
             titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
-            badgeWidget: Row( mainAxisSize: MainAxisSize.min,  children: getImageRarity(rarity, widget.stats.subExt.extension.language), ),
+            badgeWidget: Row( mainAxisSize: MainAxisSize.min,  children: getImageRarity(rarity, widget.subExtension.extension.language), ),
             badgePositionPercentageOffset: isSmall ? (oldSmall ? 1.35 : 1.15) : 1.2,
           )
           );

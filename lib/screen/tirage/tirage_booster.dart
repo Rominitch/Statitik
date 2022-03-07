@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/screen/widgets/CardSelector.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
+
 
 class BoosterPage extends StatefulWidget {
   final BoosterDraw boosterDraw;
@@ -33,7 +37,8 @@ class _BoosterPageState extends State<BoosterPage> {
     widgets = [];
     int idInBooster=0;
     for(var cards in widget.boosterDraw.subExtension!.seCards.cards) {
-      widgets.add( PokemonCard(card: cards[0], idCard: idInBooster, boosterDraw: widget.boosterDraw, refresh:refresh, readOnly: widget.readOnly) );
+      var selector = CardSelectorBoosterDraw(widget.boosterDraw, cards[0], widget.boosterDraw.cardDrawing!.drawCards[idInBooster][0]);
+      widgets.add( PokemonCard(selector, refresh:refresh, readOnly: widget.readOnly) );
       idInBooster += 1;
     }
 

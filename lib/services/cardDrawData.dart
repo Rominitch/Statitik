@@ -4,6 +4,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/models/BytesCoder.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/pokemonCard.dart';
 
@@ -400,6 +403,19 @@ class BoosterDraw {
       otherCode.reset();
     });
 
+    count -= code.count();
+    if(code.isEmpty()) {
+      if(canAdd()) {
+        code.reset();
+        code.increase(set);
+      }
+    } else {
+      code.reset();
+    }
+    count += code.count();
+  }
+
+  void toggle(CodeDraw code, int set) {
     count -= code.count();
     if(code.isEmpty()) {
       if(canAdd()) {

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
-import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 
 class NewCardReport {
   List<int>   idCard;

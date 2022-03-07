@@ -6,12 +6,15 @@ import 'package:statitikcard/screen/commonPages/UserNewCardsDraw.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/tirage/tirage_booster.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/screen/widgets/CardSelector.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/UserDrawFile.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/models.dart';
 
 class PokeSpaceDrawResume extends StatefulWidget {
@@ -147,11 +150,6 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
         break;
       }
     }
-
-    List<Widget> randomCards = [];
-    widget._activeSession.randomProductCard.keys.forEach((productCard) {
-      randomCards.add(PokemonProductCard(productCard, widget._activeSession, readOnly: widget._readOnly, refresh: refresh ));
-    });
 
     List<Widget> actions = [];
     if(!widget._readOnly) {
@@ -335,28 +333,21 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                     }
                 },
               ),
-              if(widget._activeSession.randomProductCard.isNotEmpty)
+              if(widget._activeSession.productDraw.randomProductCard.isNotEmpty)
                 Card(
-                  child: /*GridView.builder(
+                  child: GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 4, crossAxisSpacing: 2, mainAxisSpacing: 2,
                       childAspectRatio: 1.2),
                     padding: const EdgeInsets.all(2.0),
                     shrinkWrap: true,
                     primary: false,
-                    itemCount: widget._activeSession.randomProductCard.length,
+                    itemCount: widget._activeSession.productDraw.randomProductCard.length,
                     itemBuilder: (BuildContext context, int index) {
-                      var productCard = widget._activeSession.randomProductCard.keys.elementAt(index);
-                      return PokemonProductCard(productCard, widget._activeSession, readOnly: widget._readOnly, refresh: () { setState(() {}); } );
+                      var productCard = widget._activeSession.productDraw.randomProductCard.keys.elementAt(index);
+                      var selector = CardSelectorProductDraw(widget._activeSession.productDraw, productCard);
+                      return PokemonCard(selector, readOnly: widget._readOnly, refresh: () { setState(() {}); } );
                     }
-                  ),*/
-                  GridView.count(
-                    crossAxisCount: 4,
-                    childAspectRatio: 1.2,
-                    padding: const EdgeInsets.all(2.0),
-                    shrinkWrap: true,
-                    primary: false,
-                    children: randomCards,
                   ),
                 ),
               GridView.count(

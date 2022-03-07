@@ -1,13 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/models/Marker.dart';
-import 'package:statitikcard/services/models/Rarity.dart';
-import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/TypeCard.dart';
 
+import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/SerieType.dart';
 import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 
 class CustomButtonCheckController {
   List<ButtonCheck> _radios = [];

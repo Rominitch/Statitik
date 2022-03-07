@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/view.dart';
-import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 
 class LanguagePage extends StatefulWidget {
   final Function(BuildContext, Language, SubExtension) afterSelected;

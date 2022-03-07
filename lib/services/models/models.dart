@@ -1,21 +1,22 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/models/Marker.dart';
-import 'package:statitikcard/services/models/PokeSpace.dart';
-import 'package:statitikcard/services/models/ProductCategory.dart';
-import 'package:statitikcard/services/models/Rarity.dart';
-
-import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/models/CardTitleData.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/MultiLanguageString.dart';
+import 'package:statitikcard/services/models/PokeSpace.dart';
 import 'package:statitikcard/services/models/product.dart';
+import 'package:statitikcard/services/models/ProductCategory.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/pokemonCard.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';
 
 final Color greenValid = Colors.green[500]!;
@@ -38,115 +39,6 @@ const int maxResistance = 60;
 const int minWeakness = 0;
 const int maxWeakness = 5;
 
-class ByteEncoder
-{
-  static List<int> encodeInt32(int value) {
-    return <int>[
-      (value & 0xFF000000) >> 24,
-      (value & 0xFF0000) >> 16,
-      (value & 0xFF00) >> 8,
-      (value & 0xFF)
-    ];
-  }
-
-  static List<int> encodeInt8(int value) {
-    assert(value < 256);
-    return <int>[
-      (value & 0xFF)
-    ];
-  }
-
-  static List<int> encodeInt16(int value) {
-    assert(value < 65536);
-    return <int>[
-      (value & 0xFF00) >> 8,
-      (value & 0xFF)
-    ];
-  }
-
-  static List<int> encodeString16(List<int> stringInfo) {
-    assert(stringInfo.length * 2 <= 255);
-    var imageCode = <int>[
-      stringInfo.length * 2, // Not more than 256
-    ];
-    stringInfo.forEach((element) {
-      assert(element < 65536);
-      imageCode += ByteEncoder.encodeInt16(element);
-    });
-    assert(imageCode[0] == imageCode.length-1);
-    return imageCode;
-  }
-
-  static List<int> encodeBytesArray(List<int> byteArray) {
-    assert(byteArray.length < 65536);
-    return encodeInt16(byteArray.length) + byteArray;
-  }
-
-  static List<int> encodeBool(bool value) {
-    return <int>[value ? 1 : 0];
-  }
-}
-
-class ByteParser
-{
-  List<int> byteArray;
-  Iterator<int>  it;
-  late bool canParse;
-
-  ByteParser(this.byteArray) : it = byteArray.iterator {
-    canParse = it.moveNext();
-  }
-
-  String decodeString16() {
-    List<int> charCodes = [];
-    int length = extractInt8();
-    assert(length % 2 == 0);
-    for(int i = 0; i < length/2; i +=1) {
-      charCodes.add(extractInt16());
-    }
-    return String.fromCharCodes(charCodes);
-  }
-
-  int extractInt32() {
-    int v = it.current << 24;
-    canParse = it.moveNext();
-    v |= it.current << 16;
-    canParse = it.moveNext();
-    v |= it.current << 8;
-    canParse = it.moveNext();
-    v |= it.current;
-    canParse = it.moveNext();
-    return v;
-  }
-  int extractInt16() {
-    int v = it.current << 8;
-    canParse = it.moveNext();
-    v |= it.current;
-    canParse = it.moveNext();
-    return v;
-  }
-  int extractInt8() {
-    int v = it.current;
-    canParse = it.moveNext();
-    return v;
-  }
-
-  bool extractBool() {
-    int v = it.current;
-    canParse = it.moveNext();
-    return v != 0;
-  }
-
-  List<int> extractBytesArray() {
-    int nbItems = extractInt16();
-    List<int> extract = [];
-    for(int i = 0 ; i < nbItems; i +=1) {
-      extract.add(extractInt8());
-    }
-    return extract;
-  }
-}
-
 class UserPoke {
   int       idDB;
   String    uid       = "";
@@ -156,49 +48,6 @@ class UserPoke {
   UserPoke(this.idDB);
 }
 
-class Language
-{
-  int id;
-  String image;
-
-  Language({required this.id, required this.image});
-
-  AssetImage create()
-  {
-    return AssetImage('assets/langue/$image.png');
-  }
-
-  Image barIcon() {
-    return Image(
-    image: create(),
-    height: AppBar().preferredSize.height * 0.4,
-    );
-  }
-
-  bool isWorld() {
-    return id != 3;
-  }
-
-  bool isJapanese() {
-    return id == 3;
-  }
-}
-
-class Extension
-{
-  int      id;
-  String   name;
-  Language language;
-
-  Extension(this.id, this.name, this.language);
-}
-
-enum SerieType {
-  Normal,
-  Promo,
-  Deck,
-}
-const List<String> seTypeString = ['SE_TYPE_0', 'SE_TYPE_1', 'SE_TYPE_2'];
 
 enum Validator {
   Valid,
@@ -280,153 +129,6 @@ Widget getDescriptionEffectWidget(DescriptionEffect de, {size}) {
       return Icon(StatitikFont.font_11_confusion, size: size);
     default:
       return Icon(Icons.help_outline, size: size);
-  }
-}
-
-class MultiLanguageString {
-  List<String> _names;
-
-  MultiLanguageString(this._names){
-    assert(_names.length == 3, "MultiLanguageString Error: $_names");
-  }
-
-  String defaultName([separator='\n']) {
-    return _names.join(separator);
-  }
-
-  String name(Language l) {
-    assert(0 <= l.id-1 && l.id-1 < _names.length);
-    return _names[l.id-1];
-  }
-
-  bool search(Language? l, String searchPart) {
-    if(l != null) {
-      return name(l).toLowerCase().contains(searchPart.toLowerCase());
-    } else {
-      for( var name in _names) {
-        if( name.toLowerCase().contains(searchPart.toLowerCase()))
-          return true;
-      }
-      return false;
-    }
-  }
-}
-
-class CardTitleData
-{
-  MultiLanguageString _names;
-
-  CardTitleData(this._names);
-
-  String fullname(Language l) {
-    return _names.name(l);
-  }
-
-  String defaultName([separator='\n']) {
-    return _names.defaultName(separator);
-  }
-
-  String name(Language l) {
-    return _names.name(l);
-  }
-
-  bool isPokemon() {
-    return false;
-  }
-
-  bool search(Language? l, String searchPart) {
-    return _names.search(l, searchPart);
-  }
-}
-
-class PokemonInfo extends CardTitleData
-{
-  int         generation;
-  int         idPokedex;
-
-  PokemonInfo(MultiLanguageString names, this.generation, this.idPokedex) :
-  super(names);
-
-  @override
-  String fullname(Language l) {
-    return name(l) + " - n°" + idPokedex.toString();
-  }
-
-  @override
-  bool isPokemon() {
-    return true;
-  }
-}
-
-class SubExtension
-{
-  int                 id;           ///< ID into database
-  String              name;         ///< Name of extension (translate)
-  String              icon;         ///< Path to extension's icon (on Statitik card folder)
-  List<String>        seCode;       ///< Official Se code + others (use into web folder and other stuff)
-  DateTime            out;
-  SubExtensionCards   seCards;
-  Extension           extension;
-  SerieType           type;
-  int                 cardPerBooster;
-  late StatsExtension stats;
-
-  SubExtension(this.id, this.name, this.icon, this.extension, this.out, this.seCards, this.type, this.seCode, this.cardPerBooster)
-  {
-    computeStats();
-  }
-
-  void computeStats() {
-    stats = StatsExtension.from(this);
-  }
-
-  /// Show Extension image
-  Widget image({double? wSize, double? hSize}) {
-    return drawCachedImage('extensions', icon, width: wSize, height: hSize);
-  }
-
-  /// Get formated release date of product
-  String outDate() {
-    return DateFormat('yyyyMMdd').format(out);
-  }
-
-  PokemonCardExtension cardFromId(List<int> cardId) {
-    assert(cardId.length >= 2);
-    switch(cardId[0]){
-      case 0: {
-        assert(cardId.length == 3);
-        return seCards.cards[cardId[1]][cardId[2]];
-      }
-      case 1: {
-        return seCards.energyCard[cardId[1]];
-      }
-      case 2: {
-        return seCards.noNumberedCard[cardId[1]];
-      }
-      default:
-        throw StatitikException("Unknown list");
-    }
-  }
-
-  Widget cardInfo(List<int> cardId) {
-    assert(cardId.length >= 2);
-    var card = cardFromId(cardId);
-
-    switch(cardId[0]){
-      case 0: {
-        assert(cardId.length == 3);
-        var label = seCards.numberOfCard(cardId[1]);
-        return Text(label, style: TextStyle(fontSize: label.length > 3 ? 10 : 12));
-      }
-      case 1: {
-        return card.imageTypeExtended() ?? card.imageType();
-      }
-      case 2: {
-        return Text(card.numberOfCard(cardId[1]));
-      }
-      default:
-        throw StatitikException("Unknown list");
-    }
   }
 }
 
@@ -539,60 +241,6 @@ class StatsBooster {
       }
       cardsId += 1;
     }
-  }
-}
-
-class StatsExtension {
-  final SubExtension      subExt;
-
-  late List<Rarity>       rarities;
-  late List<CardSet>      allSets;
-
-  late List<int>          countByType;
-  late Map<Rarity, int>   countByRarity;
-  late Map<CardSet, int>  countBySet;
-  late int                countSecret;
-
-  StatsExtension.from(this.subExt) {
-    countByType   = List<int>.filled(TypeCard.values.length, 0);
-    countByRarity = {};
-    rarities      = [];
-    allSets       = [];
-    countBySet    = {};
-    countSecret   = 0;
-
-    subExt.seCards.cards.forEach((cards) {
-      cards.forEach((c) {
-        c.sets.forEach((element) {
-          if(!allSets.contains(element)) {
-            allSets.add(element);
-            countBySet[element] = 1;
-          } else {
-            countBySet[element] = countBySet[element]! + 1;
-          }
-        });
-
-        if(c.isSecret)
-          countSecret += 1;
-
-        countByType[c.data.type.index] += 1;
-        if(countByRarity.containsKey(c.rarity))
-          countByRarity[c.rarity] = countByRarity[c.rarity]! + 1;
-        else
-          countByRarity[c.rarity] = 1;
-
-        if(!rarities.contains(c.rarity))
-          rarities.add(c.rarity);
-      });
-    });
-  }
-
-  int countAllCards() {
-    int count = 0;
-    countBySet.forEach((key, value) {
-      count += value;
-    });
-    return count;
   }
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/models/models.dart';
+
+import 'package:statitikcard/services/models/MultiLanguageString.dart';
 
 class CardSet {
   final MultiLanguageString names;
