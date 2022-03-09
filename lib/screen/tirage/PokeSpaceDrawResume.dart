@@ -2,11 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+
 import 'package:statitikcard/screen/commonPages/UserNewCardsDraw.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
-import 'package:statitikcard/screen/tirage/tirage_booster.dart';
+import 'package:statitikcard/screen/tirage/PokeSpaceDrawBooster.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
+import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorProductDraw.dart';
+import 'package:statitikcard/screen/widgets/PokemonCard.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/UserDrawFile.dart';
@@ -122,6 +125,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
       allFinished &= isFinished;
       if( widget._activeSession.boosterDraws.first.subExtension != null && boosterDraw.subExtension != null)
         sameExt &= (widget._activeSession.boosterDraws.first.subExtension!.extension == boosterDraw.subExtension!.extension);
+      allFinished &= widget._activeSession.productDraw.count == widget._activeSession.product.nbRandomPerProduct;
     }
 
     // Add booster button
@@ -335,28 +339,50 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
               ),
               if(widget._activeSession.productDraw.randomProductCard.isNotEmpty)
                 Card(
-                  child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4, crossAxisSpacing: 2, mainAxisSpacing: 2,
-                      childAspectRatio: 1.2),
-                    padding: const EdgeInsets.all(2.0),
-                    shrinkWrap: true,
-                    primary: false,
-                    itemCount: widget._activeSession.productDraw.randomProductCard.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      var productCard = widget._activeSession.productDraw.randomProductCard.keys.elementAt(index);
-                      var selector = CardSelectorProductDraw(widget._activeSession.productDraw, productCard);
-                      return PokemonCard(selector, readOnly: widget._readOnly, refresh: () { setState(() {}); } );
-                    }
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(6.0, 6.0, 12.0, 3.0),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Text(StatitikLocale.of(context).read('TR_B15'), style: Theme.of(context).textTheme.headline6),
+                            Expanded(
+                              child: Text("${widget._activeSession.productDraw.count} / ${widget._activeSession.product.nbRandomPerProduct}",
+                                textAlign: TextAlign.right,
+                                style: Theme.of(context).textTheme.headline6?.copyWith(
+                                  color: widget._activeSession.product.nbRandomPerProduct == widget._activeSession.productDraw.count ? Colors.green : Colors.red,
+                                  )
+                              ),
+                            ),
+                          ]
+                        ),
+                      ),
+                      GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4, crossAxisSpacing: 2, mainAxisSpacing: 2,
+                          childAspectRatio: 1.2),
+                        padding: const EdgeInsets.all(2.0),
+                        shrinkWrap: true,
+                        primary: false,
+                        itemCount: widget._activeSession.productDraw.randomProductCard.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          var productCard = widget._activeSession.productDraw.randomProductCard.keys.elementAt(index);
+                          var selector = CardSelectorProductDraw(widget._activeSession.productDraw, productCard);
+                          return PokemonCard(selector, readOnly: widget._readOnly, refresh: () { setState(() {}); } );
+                        }
+                      ),
+                    ],
                   ),
                 ),
               GridView.count(
-                    crossAxisCount: 5,
-                    padding: const EdgeInsets.all(2.0),
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    primary: false,
-                    children: boosters,
+                crossAxisCount: 5,
+                padding: const EdgeInsets.all(2.0),
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                primary: false,
+                children: boosters,
               ),
             ],
         ),

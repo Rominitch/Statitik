@@ -66,8 +66,8 @@ class _PokeSpaceSavedDrawState extends State<PokeSpaceSavedDraw> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               sd.language.barIcon(),
-                              SizedBox(width:15),
-                              Text(sd.product.name, softWrap: true)
+                              SizedBox(width:5),
+                              Text(sd.product.name, softWrap: true, style: TextStyle(fontSize: sd.product.name.length > 12 ? 10 : 12))
                             ]
                           )
                         ],

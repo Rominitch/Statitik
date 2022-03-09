@@ -8,6 +8,7 @@ import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/commonPages/sideProductSelection.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
 import 'package:statitikcard/screen/widgets/CardsSelection.dart';
+import 'package:statitikcard/screen/widgets/PokemonCard.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -17,7 +18,7 @@ import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/product.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 class NewProductPage extends StatefulWidget {
   final Language activeLanguage;
@@ -188,7 +189,8 @@ class _NewProductPageState extends State<NewProductPage> {
     List<Widget>  cardsWidget = [];
     cardsWidget.clear();
     product.otherCards.forEach((otherCard) {
-      cardsWidget.add(OtherCardCount(product, otherCard, (){ setState(() {}); }));
+      var selector = CardSelectorProductCard(otherCard);
+      cardsWidget.add(PokemonCard(selector, refresh: (){ setState(() {}); }, readOnly: false));
     });
     //
     cardsWidget.add(
@@ -283,6 +285,15 @@ class _NewProductPageState extends State<NewProductPage> {
           children: sideProductWidget,
           primary: false,
           shrinkWrap: true,
+        ),
+        SpinBox(
+          value: widget.editProduct!.nbRandomPerProduct.toDouble(),
+          min: 0,
+          max: 5,
+          decoration: InputDecoration(labelText: 'Nombre de cartes aléatoires'),
+          onChanged: (value) {
+            widget.editProduct!.nbRandomPerProduct = value.toInt();
+          },
         ),
         GridView.count(
           crossAxisCount: 3,
@@ -437,6 +448,7 @@ class _SideProductCountState extends State<SideProductCount> {
   }
 }
 
+/*
 class OtherCardCount extends StatefulWidget {
   final Product     product;
   final ProductCard info;
@@ -494,5 +506,6 @@ class _OtherCardCountState extends State<OtherCardCount> {
     );
   }
 }
+*/
 
 

@@ -17,7 +17,7 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 class CardCreator extends StatefulWidget {
   final Language              activeLanguage;
@@ -25,12 +25,16 @@ class CardCreator extends StatefulWidget {
   final SubExtension          se;
   final PokemonCardExtension  card;
   final int                   idCard;
-  final Function(int listId, int?)?       onAppendCard;
+  final Function(int listId, int?)?   onAppendCard;
+  final Function(int listId)?         onChangeList;
   final List                  listRarity;
   final String                title;
 
-  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, bool isWorldCard): editor=true, onAppendCard=null, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity);
-  CardCreator.quick(this.activeLanguage,  this.se, this.card, this.idCard, this.onAppendCard, bool isWorldCard): editor=false, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity), title="";
+  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, bool isWorldCard):
+        editor=true, onAppendCard=null, onChangeList=null, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity);
+
+  CardCreator.quick(this.activeLanguage, this.se, this.card, this.idCard, this.onAppendCard, bool isWorldCard, {this.onChangeList}):
+        editor=false, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity), title="";
 
   @override
   _CardCreatorState createState() => _CardCreatorState();
@@ -59,7 +63,7 @@ class _CardCreatorState extends State<CardCreator> {
   bool         _auto    = false;
 
   void onChangeList(value) {
-
+    widget.onChangeList!(value);
   }
 
   void onTypeChanged(value) {

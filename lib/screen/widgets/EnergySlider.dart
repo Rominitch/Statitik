@@ -4,7 +4,7 @@ import 'package:statitikcard/screen/widgets/EnergyButton.dart';
 import 'package:statitikcard/screen/widgets/SliderWithText.dart';
 
 import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 class EnergySlider extends StatefulWidget {
   final EnergyValue energyValue;

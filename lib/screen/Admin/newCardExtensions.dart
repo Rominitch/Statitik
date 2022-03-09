@@ -11,7 +11,7 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 class NewCardExtensions extends StatefulWidget {
   const NewCardExtensions({Key? key}) : super(key: key);
@@ -28,6 +28,13 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   List<Widget>  _cardNoNumberInfo = [];
   bool _modify = false;
   PokemonCardExtension data = PokemonCardExtension.creation(PokemonCardData([], Level.Base, TypeCard.Plante, CardMarkers.from([])), Environment.instance.collection.unknownRarity!, Environment.instance.collection.sets);
+  int idList = 0;
+
+  void onChangeList(int newIdList) {
+   setState(() {
+     idList = newIdList;
+   });
+  }
 
   void updateCardList(int listId) {
     if(listId == 1)
@@ -327,22 +334,22 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                 },
               )
             ),
-            if(_se != null) CardCreator.quick(_language!, _se!, data, 0, onAddCard, _language!.isWorld()),
-            if(_se != null && _se!.seCards.cards.isNotEmpty) GridView.count(
+            if(_se != null) CardCreator.quick(_language!, _se!, data, 0, onAddCard, _language!.isWorld(), onChangeList: onChangeList),
+            if(_se != null && _se!.seCards.cards.isNotEmpty && idList == 0) GridView.count(
                 primary: false,
                 children: _cardInfo,
                 shrinkWrap: true,
                 childAspectRatio: 1.3,
                 crossAxisCount: 5,
             ),
-            if(_se != null && _se!.seCards.energyCard.isNotEmpty) GridView.count(
+            if(_se != null && _se!.seCards.energyCard.isNotEmpty && idList == 1) GridView.count(
               primary: false,
               children: _cardEnergyInfo,
               shrinkWrap: true,
               childAspectRatio: 1.3,
               crossAxisCount: 5,
             ),
-            if(_se != null && _se!.seCards.noNumberedCard.isNotEmpty) GridView.count(
+            if(_se != null && _se!.seCards.noNumberedCard.isNotEmpty && idList == 2) GridView.count(
               primary: false,
               children: _cardNoNumberInfo,
               shrinkWrap: true,

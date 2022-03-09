@@ -10,7 +10,7 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 class CardViewerBody extends StatelessWidget {
   final SubExtension se;

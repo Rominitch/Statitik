@@ -1,26 +1,52 @@
+import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/models/BytesCoder.dart';
 import 'package:statitikcard/services/models/product.dart';
 
 /// All information about product draw (randomize card)
 class ProductDraw {
-  Product? product;
+  SessionDraw? session;
   int count = 0;
   Map<ProductCard, CodeDraw> randomProductCard = {};
 
   ProductDraw.empty();
 
-  ProductDraw(this.product) {
+  ProductDraw(this.session, [ByteParser? parser]) {
     randomProductCard.clear();
-    product!.otherCards.forEach((productCard) {
+    session!.product.otherCards.forEach((productCard) {
       if(productCard.isRandom) {
         randomProductCard[productCard] = CodeDraw.fromSet(productCard.card.sets.length);
       }
     });
+
+    if(parser != null) {
+      var itRandom = randomProductCard.entries.iterator;
+      var nbCard = parser.extractInt8();
+      for(int id=0; id < nbCard; id +=1) {
+        if(itRandom.moveNext()) {
+          var code = parser.extractInt8();
+          itRandom.current.value.setCode(code);
+          count += itRandom.current.value.count();
+        }
+      }
+      assert(count <= session!.product.nbRandomPerProduct || session!.productAnomaly);
+    }
+  }
+
+  List<int> toBytes() {
+    List<int> bytes = [];
+
+    bytes += ByteEncoder.encodeInt8(randomProductCard.length);
+    randomProductCard.forEach((key, value) {
+      bytes += ByteEncoder.encodeInt8(value.toInt()); // Save 7 card per sets
+    });
+
+    return bytes;
   }
 
   bool canAdd() {
-    assert(product != null);
-    return count < product!.nbRandomPerProduct;
+    assert(session != null);
+    return count < session!.product.nbRandomPerProduct || session!.productAnomaly;
   }
 
   void increase(ProductCard card, int idSet) {
@@ -33,11 +59,9 @@ class ProductDraw {
   }
 
   void decrease(ProductCard card, int idSet) {
-    if(canAdd()) {
-      if(randomProductCard[card]!.countBySet[idSet] > 0) {
-        randomProductCard[card]!.countBySet[idSet] -= 1;
-        count -= 1;
-      }
+    if(randomProductCard[card]!.countBySet[idSet] > 0) {
+      randomProductCard[card]!.countBySet[idSet] -= 1;
+      count -= 1;
     }
   }
 
@@ -49,9 +73,11 @@ class ProductDraw {
 
   void toggle(ProductCard card, int idSet) {
     var nb = randomProductCard[card]!.count();
-    if(nb == 0)
+    if(nb == 0) {
       increase(card, idSet);
-    else
+    } else {
+      count -= nb;
       randomProductCard[card]!.reset();
+    }
   }
 }

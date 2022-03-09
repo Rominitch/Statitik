@@ -10,7 +10,7 @@ import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/SerieType.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/product.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 void main() {
   void parseDualArray<T>(List<T> main, List<T> other, Function(T mElement, T oElement) parser) {

@@ -11,8 +11,7 @@ import 'package:statitikcard/services/models/BytesCoder.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
-import 'package:statitikcard/services/models/models.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 class ProductSide
 {
@@ -45,7 +44,7 @@ class ProductCard {
   AlternativeDesign     design;       /// Think more about it but keep space !
   bool                  jumbo;
   bool                  isRandom;
-  CodeDraw              counter;   /// Not limited to 7 !!
+  CodeDraw              counter;   /// Counter inside BY PRODUCT ONLY: Not limited to 7 !!
 
   static const int _jumboMask  = 1;
   static const int _randomMask = 2;

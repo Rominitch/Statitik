@@ -40,9 +40,9 @@ class UserDrawCollection {
 }
 
 class UserDrawFile {
-  final String    filePath;
+  final String filePath;
 
-  static const int currentVersion = 1;
+  static const int currentVersion = 2;
 
   UserDrawFile(this.filePath);
 
@@ -51,8 +51,8 @@ class UserDrawFile {
     var bytes = await file.readAsBytes();
     ByteParser parser = ByteParser(bytes);
     var version = parser.extractInt8();
-    if(version == currentVersion) {
-      return SessionDraw.fromFile(ValueKey(file.uri.pathSegments.last), parser, language, products, subExtensions);
+    if(version <= currentVersion) {
+      return SessionDraw.fromFile(ValueKey(file.uri.pathSegments.last), version, parser, language, products, subExtensions);
     }
     throw StatitikException("Unknown file");
   }

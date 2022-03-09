@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/Tools.dart';
 
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -15,18 +16,19 @@ class SessionDraw
   Product           product;
   bool              productAnomaly=false;
   List<BoosterDraw> boosterDraws;
-  ProductDraw       productDraw;      /// Draw Info about product (all randomize cards)
+  late ProductDraw  productDraw;      /// Draw Info about product (all randomize cards)
 
   Key               id; // Make unique file
 
-  SessionDraw(product, this.language):
+  SessionDraw(Product product, this.language):
     this.id = UniqueKey(),
     this.product = product,
-    this.boosterDraws = product.buildBoosterDraw(),
-    this.productDraw = ProductDraw(product)
-  {}
+    this.boosterDraws = product.buildBoosterDraw()
+  {
+    this.productDraw = ProductDraw(this);
+  }
 
-  SessionDraw.fromFile(this.id, ByteParser parser, mapLanguages, mapProducts, mapSubExtensions) :
+  SessionDraw.fromFile(this.id, int version, ByteParser parser, mapLanguages, mapProducts, mapSubExtensions) :
     language = mapLanguages[parser.extractInt16()],
     product  = mapProducts[parser.extractInt16()],
     boosterDraws = [],
@@ -56,6 +58,9 @@ class SessionDraw
       }
       boosterDraws.add(booster);
     }
+
+    if(version == 2)
+      productDraw = ProductDraw(this, parser);
   }
 
   List<int> toBytes() {
@@ -77,6 +82,10 @@ class SessionDraw
         bytes += ByteEncoder.encodeBytesArray(element.cardDrawing!.toBytes());
       }
     });
+
+    bytes += productDraw.toBytes();
+    
+    printOutput("Session Draw encoding: ${bytes.length} bytes");
     return bytes;
   }
 

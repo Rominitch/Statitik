@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -158,6 +159,29 @@ class UserCardCounter
     addList(subExtension, edc.drawEnergies, energies, [1], report);
   }
 
+  void addRandomCard(ProductCard card, CodeDraw counter, [NewCardsReport? report]) {
+    var idCard = card.subExtension.seCards.computeIdCard(card.card);
+    assert(idCard.isNotEmpty);
+
+    var code;
+    switch(idCard[0]) {
+      case 0:
+        code = cards[idCard[1]][idCard[2]].add(counter);
+        break;
+      case 1:
+        code = energies[idCard[1]].add(counter);
+        break;
+      case 2:
+        code = noNumbers[idCard[1]].add(counter);
+        break;
+      default:
+        throw StatitikException("Missing list !");
+    }
+    if(code != null && report!= null) {
+      report.add(card.subExtension, NewCardReport(idCard, code));
+    }
+  }
+
   void addList(SubExtension se, List<CodeDraw> from, List<CodeDraw> to, List<int> listId, [NewCardsReport? report]) {
     int idCard = 0;
     var dstCode = to.iterator;
@@ -174,29 +198,33 @@ class UserCardCounter
 
   NewCardReport? addProductCard(ProductCard productCard, [int mulFactor=1]) {
     assert(productCard.subExtension == subExtension);
-    CodeDraw? report;
-    var idCards = subExtension.seCards.computeIdCard(productCard.card);
-    switch(idCards[0]) {
-      case 0:
-        assert(idCards.length == 3);
-        if(idCards[1] < cards.length && idCards[2] < cards[idCards[1]].length)
-          report = cards[idCards[1]][idCards[2]].add(productCard.counter, mulFactor);
-      break;
-      case 1:
-        assert(idCards.length == 2);
-        if(idCards[1] < energies.length)
-          report = energies[idCards[1]].add(productCard.counter, mulFactor);
-      break;
-      case 2:
-        assert(idCards.length == 2);
-        if(idCards[1] < noNumbers.length)
-          report = noNumbers[idCards[1]].add(productCard.counter, mulFactor);
-      break;
-      default:
-        throw StatitikException("Unknown List");
+    if( !productCard.isRandom ) {
+      CodeDraw? report;
+      var idCards = subExtension.seCards.computeIdCard(productCard.card);
+      switch(idCards[0]) {
+        case 0:
+          assert(idCards.length == 3);
+          if (idCards[1] < cards.length &&
+              idCards[2] < cards[idCards[1]].length)
+            report = cards[idCards[1]][idCards[2]].add(
+                productCard.counter, mulFactor);
+          break;
+        case 1:
+          assert(idCards.length == 2);
+          if (idCards[1] < energies.length)
+            report = energies[idCards[1]].add(productCard.counter, mulFactor);
+          break;
+        case 2:
+          assert(idCards.length == 2);
+          if (idCards[1] < noNumbers.length)
+            report = noNumbers[idCards[1]].add(productCard.counter, mulFactor);
+          break;
+        default:
+          throw StatitikException("Unknown List");
+      }
+      return (report != null) ? NewCardReport(idCards, report) : null;
     }
-
-    return (report != null) ? NewCardReport(idCards, report) : null;
+    return null;
   }
 }
 
@@ -234,6 +262,21 @@ class PokeSpace
   static const int version = 1;
 
   PokeSpace();
+
+  CodeDraw cardCounter(SubExtension subEx, PokemonCardExtension card) {
+    var idCard = subEx.seCards.computeIdCard(card);
+    var info = myCards[subEx]!;
+    switch(idCard[0]) {
+      case 0:
+        return info.cards[idCard[1]][idCard[2]];
+      case 1:
+        return info.energies[idCard[1]];
+      case 2:
+        return info.noNumbers[idCard[1]];
+      default:
+        throw StatitikException("Unknown list !");
+    }
+  }
 
   List<Language> myLanguagesCard() {
     List<Language> languages = [];
@@ -383,6 +426,14 @@ class PokeSpace
 
     // Add new product
     insertProduct(draw.product, UserProductCounter.fromOpened(), myNewCard);
+
+    // Add random product draw
+    draw.productDraw.randomProductCard.forEach((productDraw, counter) {
+      if(counter.count() > 0) {
+        insertSubExtension(productDraw.subExtension);
+        myCards[productDraw.subExtension]!.addRandomCard(productDraw, counter, myNewCard);
+      }
+    });
 
     // Refresh state
     computeStats();

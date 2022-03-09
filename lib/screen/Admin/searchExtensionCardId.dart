@@ -7,7 +7,7 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/CardTitleData.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 class SearchExtensionsCardId extends StatelessWidget {
   final TypeCard type;

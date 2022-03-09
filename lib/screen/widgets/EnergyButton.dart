@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 abstract class EnergyButtonController {
   void setValue(TypeCard type);

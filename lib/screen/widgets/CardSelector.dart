@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 
 import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/PokeSpace.dart';
 import 'package:statitikcard/services/models/ProductDraw.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/product.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 abstract class GenericCardSelector {
 
@@ -22,6 +25,7 @@ abstract class GenericCardSelector {
 
   Widget? advancedWidget(BuildContext context, Function refresh);
 
+  Color backgroundColor();
   Widget cardWidget();
 
   void toggle();
@@ -82,30 +86,43 @@ class CardSelectorBoosterDraw extends GenericCardSelector {
   }
 
   @override
+  Color backgroundColor() {
+    return counter.color(card);
+  }
+
+  @override
   Widget cardWidget() {
-    List<int> idCard = subExtension().seCards.computeIdCard(card);
     int nbCard = codeDraw().count();
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children:
-      [
-        if(card.isValid())
-          Row( mainAxisAlignment: MainAxisAlignment.center,
-              children: [card.imageType()] + card.imageRarity(subExtension().extension.language)),
-        if(card.isValid()) SizedBox(height: 6.0),
-        if( nbCard > 1)
-          Text('${boosterDraw.nameCard(idCard[1])} ($nbCard)')
-        else
-          Text('${boosterDraw.nameCard(idCard[1])}')
-      ]);
+    switch(idCard[0]) {
+      case 0: return Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children:
+          [
+            if(card.isValid())
+              Row( mainAxisAlignment: MainAxisAlignment.center,
+                  children: [card.imageType()] + card.imageRarity(subExtension().extension.language)),
+            if(card.isValid()) SizedBox(height: 6.0),
+            if( nbCard > 1)
+              Text('${boosterDraw.nameCard(idCard[1])} ($nbCard)')
+            else
+              Text('${boosterDraw.nameCard(idCard[1])}')
+          ]
+        );
+      case 1 : return getImageType(card.data.typeExtended ?? TypeCard.Unknown);
+      default:
+        throw StatitikException("No visual for this card");
+    }
   }
 }
 
 class CardSelectorProductCard extends GenericCardSelector {
   final ProductCard card;
+  late List<int> idCard;
 
-  CardSelectorProductCard(this.card): super();
+  CardSelectorProductCard(this.card): super() {
+    idCard = subExtension().seCards.computeIdCard(card.card);
+  }
 
   @override
   CodeDraw codeDraw(){
@@ -181,25 +198,30 @@ class CardSelectorProductCard extends GenericCardSelector {
   }
 
   @override
+  Color backgroundColor() {
+    return Colors.deepOrange.shade300;
+  }
+
+  @override
   Widget cardWidget() {
-    var cardEx = cardExtension();
-    List<int> idCard = subExtension().seCards.computeIdCard(cardEx);
-    int nbCard = codeDraw().count();
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children:
-      [
-        if(cardEx.isValid())
-          Row( mainAxisAlignment: MainAxisAlignment.center,
-              children: [cardEx.imageType()] + cardEx.imageRarity(subExtension().extension.language)),
-        if(cardEx.isValid()) SizedBox(height: 6.0),
-        Row(children: [
-          subExtension().cardInfo(idCard),
-          if( nbCard > 1)
-            Text(' ($nbCard)')
-        ])
-      ]
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              subExtension().image(hSize: 30),
+              card.card.imageType(),
+            ]
+        ),
+        Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(subExtension().seCards.numberOfCard(idCard[1])),
+              card.isRandom ? Text("R") : Text(card.counter.countBySet.join(" | "))
+            ]
+        ),
+      ],
     );
   }
 
@@ -212,82 +234,14 @@ class CardSelectorProductCard extends GenericCardSelector {
   }
 }
 
-class CardSelectorProductDraw extends CardSelectorProductCard {
-  final ProductDraw draw;
-
-  CardSelectorProductDraw(this.draw, card, {showAdvanced=false}): super(card);
-
-  @override
-  CodeDraw codeDraw(){
-    return draw.randomProductCard[card]!;
-  }
-
-  @override
-  SubExtension subExtension() {
-    return card.subExtension;
-  }
-
-  @override
-  PokemonCardExtension cardExtension() {
-    return card.card;
-  }
-
-  @override
-  void increase(int idSet)
-  {
-    draw.increase(card, idSet);
-  }
-
-  @override
-  void decrease(int idSet)
-  {
-    draw.decrease(card, idSet);
-  }
-
-  @override
-  void setOnly(int idSet)
-  {
-    draw.setOnly(card, idSet);
-  }
-
-  @override
-  Widget? advancedWidget(BuildContext context, Function refresh) {
-    return null;
-  }
-
-  @override
-  void toggle() {
-    draw.toggle(card, 0);
-  }
-}
-
-
 class CardSelector extends StatefulWidget {
   final GenericCardSelector cardSelector;
-  /*
-  final PokemonCardExtension card;
-  final CodeDraw             counter;
 
-  final ProductCard?         productCard;
-
-  final BoosterDraw? boosterDraw;
-   */
   final Function? refresh;
   final bool     readOnly;
 
   CardSelector(this.cardSelector, {this.refresh, this.readOnly=false});
-  /*
-  CardSelector.fromDraw(this.card, this.counter, boosterDraw, {this.refresh, this.readOnly=false}):
-    this.boosterDraw  = boosterDraw,
-    this.subExtension = boosterDraw.creation!,
-    this.productCard  = null,
-    this.showAdvanced = false;
 
-  CardSelector.fromProductCard(this.subExtension, productCard, {this.boosterDraw, this.refresh, this.readOnly=false, this.showAdvanced=false}):
-    this.productCard = productCard,
-    this.card        = productCard.card,
-    this.counter     = productCard.counter;
-*/
   @override
   _CardSelectorState createState() => _CardSelectorState();
 }
@@ -302,13 +256,6 @@ class _CardSelectorState extends State<CardSelector> {
     cardModes.clear();
     widget.cardSelector.cardExtension().sets.forEach((set) {
       cardModes.add(IconCard(widget.cardSelector, idSet, set, refresh: widget.refresh, readOnly: widget.readOnly));
-      /*
-      if(widget.boosterDraw != null) {
-        cardModes.add(IconCard.fromDraw(widget.boosterDraw!, widget.subExtension, set, idSet, widget.counter, refresh: widget.refresh, readOnly: widget.readOnly));
-      } else {
-        cardModes.add(IconCard(cardSelector, set, idSet, widget.counter, refresh: widget.refresh, readOnly: widget.readOnly));
-      }
-      */
       idSet += 1;
     });
 
@@ -337,24 +284,11 @@ class IconCard extends StatefulWidget {
   final int           setId;
   final CardSet       set;
 
-/*
-  final BoosterDraw? boosterDraw;
-  final SubExtension  subExtension;
-  final CardSet       set;
-
-  final int           setId;
-  final CodeDraw      code;
-*/
   final Function?     refresh;
   final bool          readOnly;
 
   IconCard(this.cardSelector, this.setId, this.set, {required this.refresh, required this.readOnly});
-  /*
-  IconCard(this.subExtension, this.set, this.setId, this.code, {required this.refresh, required this.readOnly}) :
-    this.boosterDraw = null;
 
-  IconCard.fromDraw(this.boosterDraw, this.subExtension, this.set, this.setId, this.code, {required this.refresh, required this.readOnly});
-*/
   @override
   _IconCardState createState() => _IconCardState();
 }
@@ -395,12 +329,6 @@ class _IconCardState extends State<IconCard> {
                       onPressed: widget.readOnly ? null : () {
                         setState(() {
                           widget.cardSelector.increase(widget.setId);
-                          /*
-                          if(widget.boosterDraw != null)
-                            widget.boosterDraw!.increase(widget.code, widget.setId);
-                          else if(widget.code.countBySet[widget.setId] < 256)
-                            widget.code.countBySet[widget.setId] += 1;
-                          */
                         });
                         if(widget.refresh!=null)
                           widget.refresh!();

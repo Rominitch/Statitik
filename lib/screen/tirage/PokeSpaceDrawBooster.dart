@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
+import 'package:statitikcard/screen/widgets/PokemonCard.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Language.dart';
@@ -45,8 +46,8 @@ class _BoosterPageState extends State<BoosterPage> {
     widgetEnergies = [];
     idInBooster=0;
     widget.boosterDraw.subExtension!.seCards.energyCard.forEach((card) {
-      widgetEnergies.add(EnergyButton(
-          card, idInBooster, boosterDraw: widget.boosterDraw, refresh: refresh, readOnly: widget.readOnly ));
+      var selector = CardSelectorBoosterDraw(widget.boosterDraw, card, widget.boosterDraw.cardDrawing!.drawEnergies[idInBooster]);
+      widgetEnergies.add( PokemonCard(selector, refresh:refresh, readOnly: widget.readOnly) );
       idInBooster += 1;
     });
   }
@@ -111,14 +112,12 @@ class _BoosterPageState extends State<BoosterPage> {
          ListView(
             children: [
               if(widget.boosterDraw.subExtension!.seCards.hasBoosterEnergy())
-                Container(
-                  height: 60.0,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    primary: false,
-                    children: widgetEnergies,
-
-                  ),
+                GridView.count(
+                  crossAxisCount: 7,
+                  primary: false,
+                  shrinkWrap: true,
+                  childAspectRatio: 1.2,
+                  children: widgetEnergies,
                 ),
               CheckboxListTile(
                 title: Text(StatitikLocale.of(context).read('TB_B0')),

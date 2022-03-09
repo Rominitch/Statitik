@@ -8,7 +8,7 @@ import 'package:statitikcard/services/models/Rarity.dart';
 
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 class StatsExtensionCards extends StatefulWidget {
   final StatsConfiguration info;

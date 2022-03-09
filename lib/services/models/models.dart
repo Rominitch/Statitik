@@ -16,7 +16,7 @@ import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';
 
 final Color greenValid = Colors.green[500]!;

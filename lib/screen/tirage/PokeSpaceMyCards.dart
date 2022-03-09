@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
+import 'package:statitikcard/screen/tirage/PokeSpaceCardExplorer.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -27,7 +28,14 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> {
   }
 
   void goToCardSelector(SubExtension subExtension) {
+    var mySpace = Environment.instance.user!.pokeSpace;
 
+    Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceCardExplorer(subExtension, mySpace))).then(
+      (value) {
+        setState(() {
+          mySpace.computeStats();
+        });
+      });
   }
 
   Widget buildLine(String name, Color color, int myCard, int maxCard, [double size = 10.0]) {
@@ -46,7 +54,6 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> {
             progressColor: color,
             backgroundColor: Colors.black,
             center: new Text("$myCard / $maxCard", style: TextStyle(
-                //fontFamily: Theme.of(context).textTheme.headline1!.fontFamily,
                 fontWeight: FontWeight.bold,
                 fontSize: size-2.0)),
           ),

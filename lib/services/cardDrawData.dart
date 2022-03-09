@@ -8,7 +8,7 @@ import 'package:statitikcard/services/models/BytesCoder.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/models.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 import 'Tools.dart';
 
