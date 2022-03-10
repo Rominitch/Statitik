@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/screen/widgets/CardImage.dart';
 
+import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
@@ -12,12 +12,17 @@ class CardSelectorPokeSpace extends GenericCardSelector {
   final SubExtension         subExt;
   final PokeSpace            pokeSpace;
   final PokemonCardExtension card;
+  final List<int>            idCard;
   final CodeDraw             code;
 
-  CardSelectorPokeSpace(subExt, pokeSpace, card):
-        this.subExt = subExt, this.pokeSpace = pokeSpace, this.card = card,
-        this.code = pokeSpace.cardCounter(subExt, card),
-        super();
+  static const int limitSet = 255;
+
+  CardSelectorPokeSpace(SubExtension subExt, PokeSpace pokeSpace, List<int> idCard):
+    this.subExt = subExt, this.pokeSpace = pokeSpace,
+    this.card   = subExt.cardFromId(idCard),
+    this.idCard = idCard,
+    this.code   = pokeSpace.cardCounter(subExt, idCard),
+    super();
 
   @override
   CodeDraw codeDraw(){
@@ -35,22 +40,19 @@ class CardSelectorPokeSpace extends GenericCardSelector {
   }
 
   @override
-  void increase(int idSet)
-  {
-    code.increase(idSet);
+  void increase(int idSet) {
+    code.increase(idSet, limitSet);
   }
 
   @override
-  void decrease(int idSet)
-  {
+  void decrease(int idSet) {
     code.decrease(idSet);
   }
 
   @override
-  void setOnly(int idSet)
-  {
+  void setOnly(int idSet) {
     code.reset();
-    code.increase(idSet);
+    code.increase(idSet, limitSet);
   }
 
   @override
@@ -61,20 +63,46 @@ class CardSelectorPokeSpace extends GenericCardSelector {
   @override
   void toggle() {
     if(code.count() == 0)
-      code.increase(0);
+      code.increase(0, limitSet);
     else
       code.reset();
   }
 
   @override
   Color backgroundColor() {
-    return code.count() > 0 ? code.color(card) : Colors.grey;
+    return code.count() > 0 ? Colors.grey : Colors.grey.shade800;
   }
 
   @override
   Widget cardWidget() {
-    var idCard   = subExt.seCards.computeIdCard(card);
     var cardName = subExt.seCards.numberOfCard(idCard[1]);
+
+    int count = code.count();
+    List<Widget> countBySet = [];
+    if(count > 0) {
+      var itCount = code.countBySet.iterator;
+      card.sets.forEach((set) {
+        if(itCount.moveNext()) {
+          countBySet.add(
+            Expanded(
+              child: Card(
+                color: set.color,
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: Row(
+                    children: [
+                      set.imageWidget(height: 20.0),
+                      SizedBox(width: 5),
+                      Text("${itCount.current}")
+                    ]
+                  ),
+                )
+              ),
+            )
+          );
+        }
+      });
+    }
 
     Widget? extendedType = card.imageTypeExtended(generate: true, sizeIcon: 14.0);
     return Column(
@@ -90,8 +118,13 @@ class CardSelectorPokeSpace extends GenericCardSelector {
             ]
             )
         ),
-        SizedBox(height:5),
-        Expanded(child: CardImage(subExt, card, idCard[1], height: 150, language: subExt.extension.language)),
+        SizedBox(height:3),
+        Expanded(child: genericCardWidget(subExt, idCard, height: 150, language: subExt.extension.language)),
+        if(count > 0)
+          SizedBox(height:3),
+        if(count > 0)
+          Row(
+            children: countBySet),
       ],
     );
   }

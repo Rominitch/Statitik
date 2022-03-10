@@ -121,12 +121,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
   Widget myProfilePanel() {
     var buttons = [
       createButton([
-        Column(
-          children: [
-            Text(StatitikLocale.of(context).read('DC_B16'), style: Theme.of(context).textTheme.headline5),
-            Text(StatitikLocale.of(context).read('devBeta'),style: TextStyle(fontSize: 10)),
-          ],
-        )
+        Text(StatitikLocale.of(context).read('DC_B16'), style: Theme.of(context).textTheme.headline5)
         ],(){
         if(Environment.instance.isLogged())
           Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyCards()));

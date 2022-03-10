@@ -130,7 +130,6 @@ class _StatsPageState extends State<StatsPage> {
         Expanded(child: CustomRadio(value: StateStatsExtension.GlobalStats, controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_1')))),
         if(widget.info.statsData.subExt != null && widget.info.statsData.subExt!.type == SerieType.Normal)
           Expanded(child: CustomRadio(value: StateStatsExtension.Draw,      controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_2')))),
-        //Expanded(child: CustomRadio(value: StateStatsExtension.Product,      controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_3')))),
     ]);
   }
 
@@ -167,7 +166,7 @@ class _StatsPageState extends State<StatsPage> {
       Card(
         margin: EdgeInsets.all(2.0),
         color: Colors.grey.shade800,
-        child: Container(height:145,
+        child: Container(height:160,
           padding: const EdgeInsets.all(6.0),
           child: Column(children: [
             drawImagePress(context, image, 40.0),

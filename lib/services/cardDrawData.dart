@@ -293,9 +293,9 @@ class CodeDraw {
     return Colors.grey[900]!;
   }
 
-  void increase(int set) {
+  void increase(int set, int limit) {
     assert(0 <= set && set < countBySet.length);
-    countBySet[set] = min(countBySet[set] + 1, 7);
+    countBySet[set] = min(countBySet[set] + 1, limit);
   }
 
   void decrease(int set) {
@@ -333,6 +333,8 @@ class BoosterDraw {
 
   // Event
   final StreamController onEnergyChanged = new StreamController.broadcast();
+
+  static const int _limitSet = 7;
 
   BoosterDraw({this.creation, required this.id, required this.nbCards})
   {
@@ -395,7 +397,7 @@ class BoosterDraw {
   }
 
   /// Toggle first card (but reset other)
-  void toggleCard(List<CodeDraw> codes, int set) {
+  void toggleCard(List<CodeDraw> codes, int set, int limit) {
     var code = codes[0];
     // Remove alternative state
     codes.skip(1).forEach((otherCode) {
@@ -407,7 +409,7 @@ class BoosterDraw {
     if(code.isEmpty()) {
       if(canAdd()) {
         code.reset();
-        code.increase(set);
+        code.increase(set, limit);
       }
     } else {
       code.reset();
@@ -420,7 +422,7 @@ class BoosterDraw {
     if(code.isEmpty()) {
       if(canAdd()) {
         code.reset();
-        code.increase(set);
+        code.increase(set, _limitSet);
       }
     } else {
       code.reset();
@@ -431,7 +433,7 @@ class BoosterDraw {
   void increase(CodeDraw code, int set) {
     if(canAdd()) {
       count -= code.count();
-      code.increase(set);
+      code.increase(set, _limitSet);
       count += code.count();
     }
   }
@@ -449,7 +451,7 @@ class BoosterDraw {
       count -= code.count();
 
       code.reset();
-      code.increase(set);
+      code.increase(set, _limitSet);
 
       count += code.count();
     }

@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -263,9 +262,8 @@ class PokeSpace
 
   PokeSpace();
 
-  CodeDraw cardCounter(SubExtension subEx, PokemonCardExtension card) {
-    var idCard = subEx.seCards.computeIdCard(card);
-    var info = myCards[subEx]!;
+  CodeDraw cardCounter(SubExtension subExtension, List<int> idCard) {
+    var info = myCards[subExtension]!;
     switch(idCard[0]) {
       case 0:
         return info.cards[idCard[1]][idCard[2]];

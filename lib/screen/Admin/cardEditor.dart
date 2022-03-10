@@ -9,43 +9,42 @@ import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
 
 class CardEditor extends StatefulWidget {
-  final int                  id;
+  final List<int>            id;
   final int                  idAlternative = 0;
   final SubExtension         se;
   final PokemonCardExtension card;
   final bool                 isWorldCard;
-  final int                  listId;
 
-  CardEditor(this.card, this.isWorldCard, this.se, this.id, this.listId);
+  CardEditor(this.card, this.isWorldCard, this.se, this.id);
 
   dynamic listOfCard() {
-    if( listId == 1)
+    if( id[0] == 1)
       return se.seCards.energyCard;
-    else if( listId == 2)
+    else if( id[0] == 2)
       return se.seCards.noNumberedCard;
     else
       return se.seCards.cards;
   }
 
   String titleCard() {
+    var cardId = id[1];
     var l = Language(id: 1, image: "");
-    if( listId == 0 )
+    if( id[0] == 0 )
       return sprintf("%s %s",
-          [ se.seCards.numberOfCard(id),
-            se.seCards.titleOfCard(l, id, idAlternative)
+          [ se.seCards.numberOfCard(cardId),
+            se.seCards.titleOfCard(l, cardId, idAlternative)
           ]);
     else {
-      List<PokemonCardExtension> currentCards = listOfCard();
       return sprintf("%s %s",
-          [ currentCards[id].numberOfCard(id),
-            currentCards[id].data.titleOfCard(l)
+          [ card.numberOfCard(cardId),
+            card.data.titleOfCard(l)
           ]);
     }
   }
 
   PokemonCardExtension nextCard(int nextId) {
     var cardInfo = listOfCard()[nextId];
-    return listId == 0 ? cardInfo[0] : cardInfo;
+    return id[0] == 0 ? cardInfo[0] : cardInfo;
   }
 
   @override
@@ -57,6 +56,7 @@ class _CardEditorState extends State<CardEditor> {
   Widget build(BuildContext context) {
     String title = widget.titleCard();
 
+    int nextCardId = widget.id[1]+1;
     return Scaffold(
         appBar: AppBar(
           title: Container(
@@ -67,15 +67,16 @@ class _CardEditorState extends State<CardEditor> {
             ),
           ),
           actions: [
-            if(widget.id+1 < widget.listOfCard().length)
+            if(nextCardId < widget.listOfCard().length)
               Card(
                   color: Colors.grey[800],
                   child: TextButton(
                     child: Text(StatitikLocale.of(context).read('NCE_B6')),
                     onPressed: (){
-                      int nextId = widget.id+1;
+                      var nextId = List<int>.from(widget.id, growable: false);
+                      nextId[1] = nextCardId;
                       Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => CardEditor(widget.nextCard(nextId), widget.isWorldCard, widget.se, nextId, widget.listId)),
+                        MaterialPageRoute(builder: (context) => CardEditor(widget.nextCard(nextId[1]), widget.isWorldCard, widget.se, nextId)),
                       );
                     },
                   )

@@ -3,10 +3,12 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinbox/material.dart';
+
 import 'package:intl/intl.dart';
+
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/commonPages/sideProductSelection.dart';
-import 'package:statitikcard/screen/widgets/CardSelector.dart';
+import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorProductCard.dart';
 import 'package:statitikcard/screen/widgets/CardsSelection.dart';
 import 'package:statitikcard/screen/widgets/PokemonCard.dart';
 import 'package:statitikcard/services/Tools.dart';
@@ -287,12 +289,12 @@ class _NewProductPageState extends State<NewProductPage> {
           shrinkWrap: true,
         ),
         SpinBox(
-          value: widget.editProduct!.nbRandomPerProduct.toDouble(),
+          value: product.nbRandomPerProduct.toDouble(),
           min: 0,
           max: 5,
           decoration: InputDecoration(labelText: 'Nombre de cartes aléatoires'),
           onChanged: (value) {
-            widget.editProduct!.nbRandomPerProduct = value.toInt();
+            product.nbRandomPerProduct = value.toInt();
           },
         ),
         GridView.count(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -10,19 +11,26 @@ import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
 
+
+Widget genericCardWidget(SubExtension se, List<int> idCard, {double height=400, Language? language}) {
+  return Environment.instance.storeImageLocaly
+      ? PokeCardStoredLocally(se, idCard, CardImage.computeImageURI(se, idCard), height: height, language: language)
+      : CardImage(se, se.cardFromId(idCard), idCard, height: height, language: language);
+}
+
 class CardImage extends StatefulWidget {
-  final List<String> cardImage;
+  final List<Uri> cardImage;
   final double height;
   final SubExtension se;
   final PokemonCardExtension card;
-  final int idCard;
+  final List<int> idCard;
   final Language? language;
 
   CardImage(SubExtension se, PokemonCardExtension card, this.idCard, {this.height=400, this.language}) :
-    cardImage = computeImageLabel(se, card, idCard), this.card = card, this.se = se;
+    cardImage = computeImageLabel(se, card, idCard[1]), this.card = card, this.se = se;
 
   static String convertRomaji(String name) {
-    const Map<String, String> convertions = {
+    const Map<String, String> conversions = {
       "FYI":  "FI",
       "RY":   "RI",
       "TCH":  "CCH",
@@ -68,7 +76,7 @@ class CardImage extends StatefulWidget {
       val = val.toUpperCase();
 
       // Finish by clean converter
-      convertions.forEach((key, value) {
+      conversions.forEach((key, value) {
         val = val.replaceAll(key, value);
       });
     } catch(e) {
@@ -87,52 +95,51 @@ class CardImage extends StatefulWidget {
           romajiName += element.name.name(se.extension.language).toUpperCase();
         return element.toTitle;
       });
-      //if( card.data.markers.markers.contains(ECardMarker.V) )           { romajiName += "V"; }
-      //else if( card.data.markers.markers.contains(ECardMarker.VMAX) )   { romajiName += "VMAX"; }
-      //else if( card.data.markers.markers.contains(ECardMarker.VUNION) ) { romajiName += "VUNION"; }
-      //else if( card.data.markers.markers.contains(ECardMarker.VSTAR)  ) { romajiName += "VSTAR"; }
-      //else if( card.data.markers.markers.contains(ECardMarker.GX)  )    { romajiName += "GX"; }
-      //else if( card.data.markers.markers.contains(ECardMarker.EX)  )    { romajiName += "EX"; }
-
     } catch(e) {
 
     }
     return romajiName;
   }
 
-  static List<String> computeImageLabel(SubExtension se, PokemonCardExtension card, int id) {
+  static List<Uri> computeImageURI(SubExtension se, List<int> card) {
+    return computeImageLabel(se, se.cardFromId(card), card[1]);
+  }
+
+  static List<Uri> computeImageLabel(SubExtension se, PokemonCardExtension card, int id) {
     if(Environment.instance.showTCGImages){
       if(card.finalImage.isNotEmpty)
-        return [card.finalImage];
+        return [Uri.parse(card.finalImage)];
 
       if( se.extension.language.id == 1 )
         if(card.image.startsWith("https://"))
-          return [card.image];
+          return [Uri.parse(card.image)];
         else
-          if( se.seCards.energyCard.contains(card) )
-            return ["https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/NRG/NRG_FR_${card.image}.png"];
-          else {
-            List<String> images = [];
-            se.seCode.forEach((seFolder) {
-              // Official image source
-              images.add("https://assets.pokemon.com/assets/cms2-fr-fr/img/cards/web/$seFolder/${seFolder}_FR_${se.seCards.tcgImage(id)}.png");
-              images.add("https://www.pokecardex.com/assets/images/sets_fr/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg");
-              images.add("https://www.pokecardex.com/assets/images/sets/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg");
-            });
-            return images;
-          }
+        if( se.seCards.energyCard.contains(card) )
+          return [Uri.https("assets.pokemon.com", "assets/cms2-fr-fr/img/cards/web/NRG/NRG_FR_${card.image}.png")];
+        else {
+          List<Uri> images = [];
+          se.seCode.forEach((seFolder) {
+            // Official image source
+            images += [
+              Uri.https("assets.pokemon.com", "assets/cms2-fr-fr/img/cards/web/$seFolder/${seFolder}_FR_${se.seCards.tcgImage(id)}.png"),
+              Uri.https("www.pokecardex.com", "assets/images/sets_fr/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"),
+              Uri.https("www.pokecardex.com", "assets/images/sets/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"),
+            ];
+          });
+          return images;
+        }
       else if( se.extension.language.id == 2 )
         if(card.image.startsWith("https://"))
-          return [card.image];
+          return [Uri.parse(card.image)];
         else
-          if( se.seCards.energyCard.contains(card) )
-            return ["https://assets.pokemon.com/assets/cms2/img/cards/web/NRG/NRG_EN_${card.image}.png"];
-          else
-            // Official image source
-            return ["https://assets.pokemon.com/assets/cms2/img/cards/web/${se.seCode}/${se.seCode}_EN_${se.seCards.tcgImage(id)}.png"];
+        if( se.seCards.energyCard.contains(card) )
+          return [Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/NRG/NRG_EN_${card.image}.png")];
+        else
+          // Official image source
+          return [Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/${se.seCode}/${se.seCode}_EN_${se.seCards.tcgImage(id)}.png")];
       else if( se.extension.language.id == 3 ) {
         if(card.image.startsWith("https://"))
-          return [card.image];
+          return [Uri.parse(card.image)];
         else {
           String romajiName = card.image.isEmpty ? computeJPPokemonName(se, card) : card.image;
           String codeType = "P";
@@ -142,18 +149,18 @@ class CardImage extends StatefulWidget {
             codeType = "E";
           String codeImage = card.jpDBId.toString().padLeft(6, '0');
 
-          List<String> images = [];
+          List<Uri> images = [];
           se.seCode.forEach((seFolder) {
             // Official image source
-            images.add("https://www.pokemon-card.com/assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_$romajiName.jpg");
+            images.add(Uri.https("www.pokemon-card.com", "assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_$romajiName.jpg"));
             // Fiable alternative source
-            images.add("https://www.pokecardex.com/assets/images/sets_jp/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg");
+            images.add(Uri.https("www.pokecardex.com", "assets/images/sets_jp/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"));
           });
           return images;
         }
       }
     }
-    return [""];
+    return [Uri()];
   }
 
   @override
@@ -182,11 +189,11 @@ class _CardImageState extends State<CardImage> {
   Widget buildCachedImage([bool admin=false]) {
     if(widget.cardImage.isNotEmpty) {
       // Save current name (to avoid search in future)
-      widget.card.finalImage = widget.cardImage.first;
+      widget.card.finalImage = widget.cardImage.first.toString();
 
       // Show image if possible
       return CachedNetworkImage(
-        imageUrl: widget.cardImage.first,
+        imageUrl: widget.cardImage.first.toString(),
         errorWidget: (context, url, error) {
           widget.card.finalImage = "";
           if(admin && widget.se.extension.language.id == 3) {
@@ -201,7 +208,7 @@ class _CardImageState extends State<CardImage> {
       );
     } else {
       return widget.language != null
-          ? Center(child: Text(widget.se.seCards.titleOfCard(widget.language!, widget.idCard)))
+          ? Center(child: Text(widget.se.seCards.readTitleOfCard(widget.language!, widget.idCard)))
           : Icon(Icons.help_outline);
     }
   }
@@ -214,5 +221,68 @@ class _CardImageState extends State<CardImage> {
       );
     else
       return buildCachedImage();
+  }
+}
+
+class PokeCardStoredLocally extends StatefulWidget {
+  final List<Uri> cardImage;
+  final double height;
+
+  final SubExtension se;
+  final List<int> idCard;
+  final Language? language;
+
+  const PokeCardStoredLocally(this.se, this.idCard, this.cardImage, {this.height=400, this.language});
+
+  @override
+  State<PokeCardStoredLocally> createState() => _PokeCardStoredLocallyState();
+}
+
+class _PokeCardStoredLocallyState extends State<PokeCardStoredLocally> {
+  bool loading = true;
+  File? image;
+  bool close=false;
+
+  @override
+  void dispose() {
+    close = true;
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if( image == null ) {
+      //printOutput("Start show Image");
+      Environment.instance.storage.imageFromPath(["images", "card", widget.se.extension.language.image, widget.se.seCode.first],
+          "${widget.idCard.join("_")}", widget.cardImage).then((finalImage) {
+        if(finalImage != null) {
+          image = finalImage;
+          //printOutput("File read: ${widget.idCard} = ${image!.path.toString()}");
+        }
+        if(!close) {
+          setState(() {
+            loading = false;
+          });
+        }
+      }).whenComplete(() {
+        if(!close) {
+          setState(() {});
+        }
+      }).onError((error, stackTrace) {
+        if(!close) {
+          setState(() {
+            loading = false;
+          });
+        }
+      });
+    }
+
+    return loading
+      ? CircularProgressIndicator(color: Colors.orange[300])
+      : ((image != null)
+        ? Image.file(image!) :
+        ( widget.language != null
+          ? Center(child: Text(widget.se.seCards.readTitleOfCard(widget.language!, widget.idCard)))
+          : Icon(Icons.help_outline)));
   }
 }

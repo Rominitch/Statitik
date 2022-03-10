@@ -142,6 +142,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
 
     int localId     = id;
     int localListId = listId;
+    var idCard = localListId != 0 ? [localListId, localId] : [localListId, localId,0];
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: TextButton(
@@ -198,7 +199,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CardEditor(card, _language!.isWorld(), _se!, localId, localListId)),
+            MaterialPageRoute(builder: (context) => CardEditor(card, _language!.isWorld(), _se!, idCard)),
           ).then((value) {
             setState(() {
               updateCardList(localListId);
@@ -334,7 +335,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                 },
               )
             ),
-            if(_se != null) CardCreator.quick(_language!, _se!, data, 0, onAddCard, _language!.isWorld(), onChangeList: onChangeList),
+            if(_se != null) CardCreator.quick(_language!, _se!, data, [0, 0, 0], onAddCard, _language!.isWorld(), onChangeList: onChangeList),
             if(_se != null && _se!.seCards.cards.isNotEmpty && idList == 0) GridView.count(
                 primary: false,
                 children: _cardInfo,

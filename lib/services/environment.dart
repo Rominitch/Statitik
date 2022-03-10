@@ -14,6 +14,7 @@ import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/collection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/ImageStorage.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/NewCardsReport.dart';
 import 'package:statitikcard/services/models/PokeSpace.dart';
@@ -79,7 +80,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.7.2';
+    final String version = '1.7.3';
 
     // State
     bool isInitialized          = false;
@@ -90,12 +91,16 @@ class Environment
     bool showTCGImages          = false;
     bool isMaintenance          = false;
 
+    bool storeImageLocaly       = false;
+
     // Cached data
     Collection collection = Collection();
 
     // Current draw
     UserPoke? user;
     SessionDraw? currentDraw;
+
+    ImageStorage storage = ImageStorage();
 
     void initialize()
     {
@@ -146,9 +151,14 @@ class Environment
                                 }
                             }
                             onInfoLoading.add('LOAD_5');
-                            readPokeSpace().whenComplete( () async {
-                                isInitialized = true;
-                                onInitialize.add(isInitialized);
+                            (readPokeSpace()).whenComplete( () async {
+
+                                SharedPreferences.getInstance().then((prefs) {
+                                    storeImageLocaly = prefs.getBool("storeImageLocaly") ?? false;
+                                }).whenComplete(() {
+                                    isInitialized = true;
+                                    onInitialize.add(isInitialized);
+                                });
                             });
                         }).catchError((error) {
                             isInitialized = false;
@@ -202,6 +212,8 @@ class Environment
         await db.transactionR( collection.migration );
         // Finalize data
         collection.adminReverse();
+        // Change poke space
+        await readPokeSpace();
     }
 
     Future<void> registerUser(String uid) async {

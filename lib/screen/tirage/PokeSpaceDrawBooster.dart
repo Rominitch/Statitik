@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/screen/view.dart';
-import 'package:statitikcard/screen/widgets/CardSelector.dart';
+import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorBoosterDraw.dart';
 import 'package:statitikcard/screen/widgets/PokemonCard.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -65,7 +65,7 @@ class _BoosterPageState extends State<BoosterPage> {
           break;
         case Validator.ErrorReverse:
           buttonColor = Colors.deepOrange;
-          buttonLabel = Row(children:[Icon(Icons.warning_amber_outlined), Image(image: AssetImage('assets/carte/reverse.png'), height: 30.0)]);
+          buttonLabel = Row(children:[Icon(Icons.warning_amber_outlined), Image(image: AssetImage('assets/carte/set_parallel.png'), height: 30.0)]);
           break;
         case Validator.ErrorTooManyGood:
           buttonColor = Colors.deepOrange;

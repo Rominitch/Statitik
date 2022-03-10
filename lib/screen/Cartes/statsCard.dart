@@ -73,7 +73,7 @@ class _StatsCardState extends State<StatsCard> {
                   onPressed: (){
                     var card = item.key.seCards.cards[idCard][0];
                     Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => CardViewer(item.key, idCard, card)),
+                      MaterialPageRoute(builder: (context) => CardViewer(item.key, [0, idCard, 0], card)),
                     );
                   },
                 )

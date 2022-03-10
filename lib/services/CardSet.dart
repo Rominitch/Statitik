@@ -8,4 +8,9 @@ class CardSet {
   final String              image;
 
   const CardSet(this.names, this.color, this.image);
+
+  Widget imageWidget({double? width, double? height}){
+    return Image(image: AssetImage('assets/carte/$image.png'), width: width, height: height);
+  }
+
 }

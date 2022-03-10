@@ -7,7 +7,6 @@ import 'package:statitikcard/screen/commonPages/UserNewCardsDraw.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/tirage/PokeSpaceDrawBooster.dart';
 import 'package:statitikcard/screen/view.dart';
-import 'package:statitikcard/screen/widgets/CardSelector.dart';
 import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorProductDraw.dart';
 import 'package:statitikcard/screen/widgets/PokemonCard.dart';
 import 'package:statitikcard/services/SessionDraw.dart';
@@ -295,8 +294,8 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
       appBar: AppBar(
         title: Text(widget._activeSession.product.name, style: TextStyle(fontSize: 15)),
         actions: actions,
-        leading: new IconButton(
-          icon: new Icon(Icons.arrow_back),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
           onPressed: () {
             backAction(context);
           },

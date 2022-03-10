@@ -549,6 +549,19 @@ class SubExtensionCards {
     : "";
   }
 
+  String readTitleOfCard(Language l, List<int> idCard) {
+    assert(idCard.isNotEmpty);
+    switch(idCard[0]) {
+      case 0:
+        return cards[idCard[1]][idCard[2]].data.titleOfCard(l);
+      case 1:
+        return energyCard[idCard[1]].data.titleOfCard(l);
+      case 2:
+        return noNumberedCard[idCard[1]].data.titleOfCard(l);
+    }
+    return "";
+  }
+
   List<int> toBytes(Map collectionCards, Map allSets, Map rarities) {
     List<int> cardBytes = [];
     cards.forEach((cardById) {

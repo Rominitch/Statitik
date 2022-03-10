@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/NewsDialog.dart';
@@ -103,8 +105,31 @@ class _OptionsPageState extends State<OptionsPage> {
               children: [
                 Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline5)),
                 toolBarLanguage(),
-              ],
-            ),
+                Row( children: [
+                  Checkbox(value: Environment.instance.storeImageLocaly,
+                    onChanged: (newValue) {
+                      Environment.instance.storeImageLocaly = newValue!;
+                      EasyLoading.show();
+
+                      SharedPreferences.getInstance().then((prefs) {
+                        prefs.setBool("storeImageLocaly",
+                            Environment.instance.storeImageLocaly);
+                      }).whenComplete(() {
+                        Environment.instance.storage.clean().then((value) {
+                          setState(() {});
+                          EasyLoading.dismiss();
+                        });
+                      });
+                    }
+                    ),
+                    Column(children: [
+                      Text(StatitikLocale.of(context).read('O_B10'), softWrap: true),
+                      Text(StatitikLocale.of(context).read('O_B11'), softWrap: true, style: TextStyle(fontSize: 10))
+                    ])
+                  ],
+                ),
+              ]
+            )
           )),
           Expanded(child: Center(child: drawImagePress(context, "PikaOption", 200.0))),
           Row(

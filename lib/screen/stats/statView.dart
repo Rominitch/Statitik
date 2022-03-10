@@ -78,7 +78,7 @@ class StatsView extends StatelessWidget {
             int userCount = data.userStats!.countBySet[set] ?? 0;
             userLuck = userCount.toDouble() / data.userStats!.nbBoosters;
           }
-          sets.add( buildLine([Image(image: AssetImage('assets/carte/${set.image}.png'), height: 30.0)], sum, luck, set.color, divider, userLuck) );
+          sets.add( buildLine([set.imageWidget(height: 30.0)], sum, luck, set.color, divider, userLuck) );
         }
       });
 

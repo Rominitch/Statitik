@@ -8,29 +8,38 @@ import 'package:intl/intl.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/screen/widgets/ImageStoredLocally.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 
 import 'connection.dart';
 
-
-CachedNetworkImage drawCachedImage(folder, image, {double? width, double? height, alternativeRendering}){
-  return CachedNetworkImage(
-    imageUrl: '$adresseHTTPS/StatitikCard/$folder/$image.png',
-    errorWidget: (context, url, error) {
-      if(Environment.instance.isAdministrator()) {
-        return Tooltip(
-            message: '$adresseHTTPS\r\n$image\r\n$url\r\n$error\r\n',
-            child: alternativeRendering ?? Icon(Icons.help_outline));
-      } else {
-        return alternativeRendering ?? Icon(Icons.help_outline);
-      }
-    },
-    placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
-    width: width,
-    height: height,
-  );
+Widget drawCachedImage(folder, image, {double? width, double? height, alternativeRendering}){
+  if(Environment.instance.storeImageLocaly) {
+    return ImageStoredLocally(["images", folder], '$image.png',
+      Uri.parse('$adresseHTTPS/StatitikCard/$folder/$image.png'),
+      width: width,
+      height: height,
+      alternativeRendering : alternativeRendering
+    );
+  } else {
+    return CachedNetworkImage(
+      imageUrl: '$adresseHTTPS/StatitikCard/$folder/$image.png',
+      errorWidget: (context, url, error) {
+        if(Environment.instance.isAdministrator()) {
+          return Tooltip(
+              message: '$adresseHTTPS\r\n$image\r\n$url\r\n$error\r\n',
+              child: alternativeRendering ?? Icon(Icons.help_outline));
+        } else {
+          return alternativeRendering ?? Icon(Icons.help_outline);
+        }
+      },
+      placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
+      width: width,
+      height: height,
+    );
+  }
 }
 
 Widget drawOut(BuildContext context, SubExtension se) {

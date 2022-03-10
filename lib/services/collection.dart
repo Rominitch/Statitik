@@ -26,8 +26,8 @@ import 'package:statitikcard/services/TimeReport.dart';
 import 'package:statitikcard/services/Tools.dart';
 
 class CardIntoSubExtensions {
-  SubExtension se;
-  int          position;
+  SubExtension         se;
+  List<int>            position;
   PokemonCardExtension card;
 
   CardIntoSubExtensions(this.se, this.position,/*this.listOfSe,*/ this.card);
@@ -634,10 +634,12 @@ class Collection
     subExtensions.values.forEach((subExtension) {
       int id=0;
       subExtension.seCards.cards.forEach((cards) {
+        int subId=0;
         cards.forEach((card) {
           if(card.data == searchCard) {
-            result.add(CardIntoSubExtensions(subExtension, id, card));
+            result.add(CardIntoSubExtensions(subExtension, [0, id, subId], card));
           }
+          subId += 1;
         });
         id += 1;
       });
@@ -645,7 +647,7 @@ class Collection
       id=0;
       subExtension.seCards.energyCard.forEach((card) {
         if(card.data == searchCard) {
-          result.add(CardIntoSubExtensions(subExtension, id, card));
+          result.add(CardIntoSubExtensions(subExtension, [1, id], card));
         }
         id += 1;
       });
@@ -653,7 +655,7 @@ class Collection
       id=0;
       subExtension.seCards.noNumberedCard.forEach((card) {
         if(card.data == searchCard) {
-          result.add(CardIntoSubExtensions(subExtension, id, card));
+          result.add(CardIntoSubExtensions(subExtension, [2, id], card));
         }
         id += 1;
       });
@@ -669,11 +671,13 @@ class Collection
       if( !alreadyFind.contains(subExtension.seCards) ) {
         int id=0;
         subExtension.seCards.cards.forEach((cards) {
+          int subId=0;
           cards.forEach((card) {
             if(card.data == searchCard) {
               alreadyFind.add(subExtension.seCards);
-              result.add(CardIntoSubExtensions(subExtension, id, card));
+              result.add(CardIntoSubExtensions(subExtension, [0, id, subId], card));
             }
+            subId += 1;
           });
           id += 1;
         });
@@ -681,7 +685,7 @@ class Collection
         id=0;
         subExtension.seCards.energyCard.forEach((card) {
           if(card.data == searchCard) {
-            result.add(CardIntoSubExtensions(subExtension, id, card));
+            result.add(CardIntoSubExtensions(subExtension, [1, id], card));
           }
           id += 1;
         });
@@ -689,7 +693,7 @@ class Collection
         id=0;
         subExtension.seCards.noNumberedCard.forEach((card) {
           if(card.data == searchCard) {
-            result.add(CardIntoSubExtensions(subExtension, id, card));
+            result.add(CardIntoSubExtensions(subExtension, [2, id], card));
           }
           id += 1;
         });

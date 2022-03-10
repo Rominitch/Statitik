@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
-
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/cardDrawData.dart';
@@ -23,7 +21,7 @@ class ProductSide
 
   ProductSide(this.idDB, this.category, this.name, this.imageURL, this.releaseDate);
 
-  CachedNetworkImage image()
+  Widget image()
   {
     return drawCachedImage('sideProducts', imageURL, height: 70);
   }
@@ -212,7 +210,7 @@ class Product
     return imageURL.isNotEmpty;
   }
 
-  CachedNetworkImage image()
+  Widget image()
   {
     return drawCachedImage('products', imageURL, height: 70);
   }

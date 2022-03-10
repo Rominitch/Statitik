@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
@@ -18,7 +19,6 @@ class PokeSpaceMyCards extends StatefulWidget {
 }
 
 class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> {
-
   late CustomRadioController langueController = CustomRadioController(onChange: (Language value) { onLanguageChanged(value); });
 
   static const double ratioGrid = 4.5;
@@ -33,7 +33,18 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceCardExplorer(subExtension, mySpace))).then(
       (value) {
         setState(() {
-          mySpace.computeStats();
+          if(value!) {
+            mySpace.computeStats();
+            EasyLoading.show();
+            Environment.instance.db.transactionR((connection) async {
+              await Environment.instance.sendPokeSpace(connection);
+            }).then((value) {
+              EasyLoading.dismiss();
+            }).onError((error, stackTrace) {
+              EasyLoading.showError(StatitikLocale.of(context).read('error'));
+              printOutput("$error\n${stackTrace.toString()}");
+            });
+          }
         });
       });
   }

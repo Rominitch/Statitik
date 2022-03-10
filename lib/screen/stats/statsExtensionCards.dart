@@ -30,17 +30,24 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> {
   late double ratio;
   late double uniform;
   List showState = [true, true, true];
+  bool _isClosed = false;
 
   @override
   void initState() {
     showState[1] = widget.info.statsData.subExt!.seCards.energyCard.isNotEmpty;
     showState[2] = widget.info.statsData.subExt!.seCards.noNumberedCard.isNotEmpty;
     computeStats().then((value) {
-      setState(() {
-
-      });
+      if(!_isClosed) {
+        setState(() {});
+      }
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _isClosed = true;
+    super.dispose();
   }
 
   Future<void> computeStats() async {
@@ -84,7 +91,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> {
     );
   }
 
-  Widget createCardWidget(int id, PokemonCardExtension cardData, String cardName, StatsPerCard? statsOfCard, int listId) {
+  Widget createCardWidget(List<int> id, PokemonCardExtension cardData, String cardName, StatsPerCard? statsOfCard, int listId) {
     Widget? extendedType = cardData.imageTypeExtended(generate: true, sizeIcon: 14.0);
     return Card(
       margin: EdgeInsets.all(2.0),
@@ -103,14 +110,14 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> {
                   )
               ),
               SizedBox(height:5),
-              Expanded(child: CardImage(widget.info.statsData.subExt!, cardData, id, height: 150, language: widget.info.statsData.language!,)),
+              Expanded(child: genericCardWidget(widget.info.statsData.subExt!, id, height: 150, language: widget.info.statsData.language!,)),
               if(statsOfCard != null)
                 textStats(statsOfCard)
             ],
           ),
           onPressed: (){
             Navigator.push(context,
-              MaterialPageRoute(builder: (context) => CardSEViewer(widget.info.statsData.subExt!, id, listId)),
+              MaterialPageRoute(builder: (context) => CardSEViewer(widget.info.statsData.subExt!, id)),
             );
           }
       ),
@@ -163,7 +170,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> {
               var statsOfCard = id < statsPerCard.length ? statsPerCard[id] : null;
               final cardName = widget.info.statsData.subExt!.seCards.numberOfCard(id);
 
-              return createCardWidget(id, cardData, cardName, statsOfCard, 0);
+              return createCardWidget([0, id, 0], cardData, cardName, statsOfCard, 0);
             },
           ),
           if(showState[1])
@@ -179,7 +186,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> {
                 var cardData = widget.info.statsData.subExt!.seCards.energyCard[id];
                 final cardName = cardData.numberOfCard(id);
 
-                return createCardWidget(id, cardData, cardName, null, 1);
+                return createCardWidget([1, id], cardData, cardName, null, 1);
               },
             ),
           if(showState[2])
@@ -195,7 +202,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> {
                 var cardData = widget.info.statsData.subExt!.seCards.noNumberedCard[id];
                 final cardName = cardData.numberOfCard(id);
 
-                return createCardWidget(id, cardData, cardName, null, 2);
+                return createCardWidget([2, id], cardData, cardName, null, 2);
               },
             ),
         ],

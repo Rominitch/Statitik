@@ -5,10 +5,11 @@ class PokemonCard extends StatefulWidget {
   final GenericCardSelector  selector;
 
   final Function             refresh;
+  final Function?            afterOpenSelector;
   final bool                 readOnly;
   final bool                 singlePress;   // Access to menu with single press
 
-  PokemonCard(this.selector, {  required this.refresh, required this.readOnly, this.singlePress=false});
+  PokemonCard(this.selector, { required this.refresh, required this.readOnly, this.singlePress=false, this.afterOpenSelector});
 
   @override
   _PokemonCardState createState() => _PokemonCardState();
@@ -37,13 +38,14 @@ class _PokemonCardState extends State<PokemonCard> {
 
   void showSelectorDialog() {
     // Show more info if many rendering of more cards
-    setState(() {
-      showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return CardSelector(widget.selector, refresh: update, readOnly: widget.readOnly);
-          }
-      );
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CardSelector(widget.selector, refresh: update, readOnly: widget.readOnly);
+        }
+    ).then((value) {
+      if(widget.afterOpenSelector != null)
+        widget.afterOpenSelector!();
       widget.refresh();
     });
   }
