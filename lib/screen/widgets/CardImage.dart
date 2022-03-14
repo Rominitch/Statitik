@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:kana_kit/kana_kit.dart';
+import 'package:statitikcard/screen/widgets/ImageStoredLocally.dart';
 
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/Language.dart';
@@ -12,10 +12,18 @@ import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
 
 
-Widget genericCardWidget(SubExtension se, List<int> idCard, {double height=400, Language? language}) {
-  return Environment.instance.storeImageLocaly
-      ? PokeCardStoredLocally(se, idCard, CardImage.computeImageURI(se, idCard), height: height, language: language)
-      : CardImage(se, se.cardFromId(idCard), idCard, height: height, language: language);
+Widget genericCardWidget(SubExtension se, List<int> idCard, {double height=400, Language? language, bool reloader=false}) {
+  if( Environment.instance.storeImageLocaly ) {
+    Widget? alternative;
+    if( language != null ) {
+      alternative = Center(child: Text(se.seCards.readTitleOfCard(language, idCard)));
+    }
+    return ImageStoredLocally(["images", "card", se.extension.language.image, se.seCode.first],
+      "${idCard.join("_")}", CardImage.computeImageURI(se, idCard), height: height, alternativeRendering: alternative, reloader: reloader);
+
+  } else {
+    return CardImage(se, se.cardFromId(idCard), idCard, height: height, language: language);
+  }
 }
 
 class CardImage extends StatefulWidget {
@@ -221,68 +229,5 @@ class _CardImageState extends State<CardImage> {
       );
     else
       return buildCachedImage();
-  }
-}
-
-class PokeCardStoredLocally extends StatefulWidget {
-  final List<Uri> cardImage;
-  final double height;
-
-  final SubExtension se;
-  final List<int> idCard;
-  final Language? language;
-
-  const PokeCardStoredLocally(this.se, this.idCard, this.cardImage, {this.height=400, this.language});
-
-  @override
-  State<PokeCardStoredLocally> createState() => _PokeCardStoredLocallyState();
-}
-
-class _PokeCardStoredLocallyState extends State<PokeCardStoredLocally> {
-  bool loading = true;
-  File? image;
-  bool close=false;
-
-  @override
-  void dispose() {
-    close = true;
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if( image == null ) {
-      //printOutput("Start show Image");
-      Environment.instance.storage.imageFromPath(["images", "card", widget.se.extension.language.image, widget.se.seCode.first],
-          "${widget.idCard.join("_")}", widget.cardImage).then((finalImage) {
-        if(finalImage != null) {
-          image = finalImage;
-          //printOutput("File read: ${widget.idCard} = ${image!.path.toString()}");
-        }
-        if(!close) {
-          setState(() {
-            loading = false;
-          });
-        }
-      }).whenComplete(() {
-        if(!close) {
-          setState(() {});
-        }
-      }).onError((error, stackTrace) {
-        if(!close) {
-          setState(() {
-            loading = false;
-          });
-        }
-      });
-    }
-
-    return loading
-      ? CircularProgressIndicator(color: Colors.orange[300])
-      : ((image != null)
-        ? Image.file(image!) :
-        ( widget.language != null
-          ? Center(child: Text(widget.se.seCards.readTitleOfCard(widget.language!, widget.idCard)))
-          : Icon(Icons.help_outline)));
   }
 }

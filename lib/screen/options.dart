@@ -1,6 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:sprintf/sprintf.dart';
+
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/NewsDialog.dart';
@@ -18,6 +25,31 @@ class OptionsPage extends StatefulWidget {
 class _OptionsPageState extends State<OptionsPage> {
   String? message;
   late CustomRadioController langueController = CustomRadioController(onChange: (value) { refreshLocale(value); });
+
+  StreamController sizeControler = StreamController();
+  double? moSize;
+
+  @override
+  void initState() {
+    sizeControler.stream.listen((event) async {
+      int size = await Environment.instance.storage.storageSize();
+      moSize = size.toDouble() / 1024.0 / 1024.0;
+      if(!sizeControler.isClosed) {
+        setState(() {});
+      }
+    });
+
+    sizeControler.add(0);
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    sizeControler.close();
+
+    super.dispose();
+  }
 
   void refreshLocale(String language) {
     setState((){
@@ -122,10 +154,14 @@ class _OptionsPageState extends State<OptionsPage> {
                       });
                     }
                     ),
-                    Column(children: [
-                      Text(StatitikLocale.of(context).read('O_B10'), softWrap: true),
-                      Text(StatitikLocale.of(context).read('O_B11'), softWrap: true, style: TextStyle(fontSize: 10))
-                    ])
+                    Column(
+                      children: [
+                        Text(StatitikLocale.of(context).read('O_B10'), softWrap: true),
+                        Text(StatitikLocale.of(context).read('O_B11'), softWrap: true, textAlign: TextAlign.left, style: TextStyle(fontSize: 10)),
+                        if(Environment.instance.storeImageLocaly)
+                          (moSize != null) ? Text(sprintf(StatitikLocale.of(context).read('O_B12'), [moSize]), textAlign: TextAlign.left, style: TextStyle(fontSize: 10)) : CircularProgressIndicator(color: Colors.orange[300]),
+                        Text(StatitikLocale.of(context).read('devBeta'), softWrap: true, textAlign: TextAlign.left, style: TextStyle(fontSize: 10)),
+                    ]),
                   ],
                 ),
               ]

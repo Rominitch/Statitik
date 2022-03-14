@@ -18,7 +18,7 @@ import 'connection.dart';
 Widget drawCachedImage(folder, image, {double? width, double? height, alternativeRendering}){
   if(Environment.instance.storeImageLocaly) {
     return ImageStoredLocally(["images", folder], '$image.png',
-      Uri.parse('$adresseHTTPS/StatitikCard/$folder/$image.png'),
+      [Uri.parse('$adresseHTTPS/StatitikCard/$folder/$image.png')],
       width: width,
       height: height,
       alternativeRendering : alternativeRendering

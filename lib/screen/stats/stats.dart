@@ -270,7 +270,7 @@ class _StatsPageState extends State<StatsPage> {
                     StatsExtensionWidget(widget.info)
                   ],
                 )
-            );
+              );
           }
         )
     );

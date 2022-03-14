@@ -192,7 +192,7 @@ class _NewProductPageState extends State<NewProductPage> {
     cardsWidget.clear();
     product.otherCards.forEach((otherCard) {
       var selector = CardSelectorProductCard(otherCard);
-      cardsWidget.add(PokemonCard(selector, refresh: (){ setState(() {}); }, readOnly: false));
+      cardsWidget.add(PokemonCard(selector, refresh: (){ setState(() {}); }, readOnly: false, singlePress: true));
     });
     //
     cardsWidget.add(
@@ -449,65 +449,5 @@ class _SideProductCountState extends State<SideProductCount> {
     );
   }
 }
-
-/*
-class OtherCardCount extends StatefulWidget {
-  final Product     product;
-  final ProductCard info;
-  final Function    refresh;
-
-  const OtherCardCount(this.product, this.info, this.refresh, {Key? key}) : super(key: key);
-
-  @override
-  State<OtherCardCount> createState() => _OtherCardCountState();
-}
-
-class _OtherCardCountState extends State<OtherCardCount> {
-  @override
-  Widget build(BuildContext context) {
-    var idCard = widget.info.subExtension.seCards.computeIdCard(widget.info.card);
-    return Card(
-        color: Colors.deepOrange.shade300,
-        child: TextButton(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  widget.info.subExtension.image(hSize: 30),
-                  widget.info.card.imageType(),
-                ]
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text(widget.info.subExtension.seCards.numberOfCard(idCard[1])),
-                  Text(widget.info.counter.countBySet.join(" | "))
-                ]
-              ),
-            ],
-          ),
-          onPressed: () {
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  var selector = CardSelectorProductCard(widget.info);
-                  return CardSelector(selector);
-                }
-            ).then((value) {
-              setState(() {
-                if(widget.info.counter.count() == 0) {
-                  widget.product.otherCards.remove(widget.info);
-                  widget.refresh();
-                }
-              });
-            });
-          }
-        )
-    );
-  }
-}
-*/
 
 

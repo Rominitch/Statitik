@@ -74,8 +74,8 @@ class CardViewerBody extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              result.se.image(wSize: 30.0, hSize: 30.0),
-              Text(result.se.seCards.numberOfCard(result.position[1]), textAlign: TextAlign.center, softWrap: true)
+              result.se.image(wSize: 25.0, hSize: 25.0),
+              Text(result.se.seCards.numberOfCard(result.position[1]), style: TextStyle(fontSize: 11), textAlign: TextAlign.center, softWrap: true)
             ]
           )
         )
@@ -95,7 +95,7 @@ class CardViewerBody extends StatelessWidget {
               scrollDirection: Axis.horizontal,
             ),
           ),
-          genericCardWidget(se, idCard),
+          genericCardWidget(se, idCard, reloader: true),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -173,7 +173,8 @@ class CardViewerBody extends StatelessWidget {
                 children: <Widget>[
                   Text(StatitikLocale.of(context).read('CAVIEW_B6'), style: Theme.of(context).textTheme.headline5),
                   GridView.count(
-                    crossAxisCount: 5,
+                    crossAxisCount: 4,
+                    childAspectRatio: 1.2,
                     shrinkWrap: true,
                     scrollDirection: Axis.vertical,
                     primary: false,
