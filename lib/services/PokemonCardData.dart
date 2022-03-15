@@ -414,6 +414,17 @@ class SubExtensionCards {
     return (idCard+1).toString();
   }
 
+  int countNbLists() {
+    int count = 0;
+    if(cards.isNotEmpty)
+      count += 1;
+    if(energyCard.isNotEmpty)
+      count += 1;
+    if(noNumberedCard.isNotEmpty)
+      count += 1;
+    return count;
+  }
+
   PokemonCardExtension extractCard(int currentVersion, parser, Map cardCollection, Map allSets, Map rarities) {
     if(currentVersion == 7)
       return PokemonCardExtension.fromBytes(parser, cardCollection, allSets, rarities);

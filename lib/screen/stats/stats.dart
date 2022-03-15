@@ -263,14 +263,7 @@ class _StatsPageState extends State<StatsPage> {
           itemBuilder: (context, position) {
             return (widget.info.se.isEmpty) ?
               startPage(context) :
-              SingleChildScrollView(child:
-                Column(
-                  children: [
-                    menuBar(context),
-                    StatsExtensionWidget(widget.info)
-                  ],
-                )
-              );
+              StatsExtensionWidget(widget.info, _pageController);
           }
         )
     );

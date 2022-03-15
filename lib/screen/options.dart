@@ -138,14 +138,14 @@ class _OptionsPageState extends State<OptionsPage> {
                 Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline5)),
                 toolBarLanguage(),
                 Row( children: [
-                  Checkbox(value: Environment.instance.storeImageLocaly,
+                  Checkbox(value: Environment.instance.storeImageLocally,
                     onChanged: (newValue) {
-                      Environment.instance.storeImageLocaly = newValue!;
+                      Environment.instance.storeImageLocally = newValue!;
                       EasyLoading.show();
 
                       SharedPreferences.getInstance().then((prefs) {
                         prefs.setBool("storeImageLocaly",
-                            Environment.instance.storeImageLocaly);
+                            Environment.instance.storeImageLocally);
                       }).whenComplete(() {
                         Environment.instance.storage.clean().then((value) {
                           setState(() {});
@@ -158,7 +158,7 @@ class _OptionsPageState extends State<OptionsPage> {
                       children: [
                         Text(StatitikLocale.of(context).read('O_B10'), softWrap: true),
                         Text(StatitikLocale.of(context).read('O_B11'), softWrap: true, textAlign: TextAlign.left, style: TextStyle(fontSize: 10)),
-                        if(Environment.instance.storeImageLocaly)
+                        if(Environment.instance.storeImageLocally)
                           (moSize != null) ? Text(sprintf(StatitikLocale.of(context).read('O_B12'), [moSize]), textAlign: TextAlign.left, style: TextStyle(fontSize: 10)) : CircularProgressIndicator(color: Colors.orange[300]),
                         Text(StatitikLocale.of(context).read('devBeta'), softWrap: true, textAlign: TextAlign.left, style: TextStyle(fontSize: 10)),
                     ]),

@@ -17,20 +17,22 @@ class PokeSpaceCardExplorer extends StatefulWidget {
   _PokeSpaceCardExplorerState createState() => _PokeSpaceCardExplorerState();
 }
 
-class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> {
-  List showState = [true, true, true];
+class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with SingleTickerProviderStateMixin {
   bool showMissing = false;
   List cards = [];
 
   bool edited = false;
+  late TabController tabController;
 
   @override
   void initState() {
-    showState[1] = widget.subExtension.seCards.energyCard.isNotEmpty;
-    showState[2] = widget.subExtension.seCards.noNumberedCard.isNotEmpty;
+    int count = widget.subExtension.seCards.countNbLists();
+    tabController = TabController(
+      length: count,
+      vsync: this,
+      animationDuration: Duration.zero);
 
     refresh();
-
     super.initState();
   }
 
@@ -76,22 +78,16 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> {
     }
   }
 
-  Widget createCardSerieButton(BuildContext context, List showState, int id) {
-    return Expanded( child: Card(
-        margin: EdgeInsets.all(2.0),
-        child: TextButton(child:
-        Text(StatitikLocale.of(context).read('S_SERIE_$id'),
-            style: TextStyle(fontSize: 12)
-        ),
-            onPressed: () { setState(() { showState[id] = !showState[id];});}
-        ),
-        color: showState[id] ? Colors.green : Colors.grey
-    ));
-  }
-
   Future<bool> returnTo() async {
     Navigator.of(context).pop(edited);
     return true;
+  }
+
+  Widget menuBar(BuildContext context, String idText ) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Text(StatitikLocale.of(context).read(idText)),
+    );
   }
 
   @override
@@ -99,39 +95,51 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> {
     return WillPopScope(
       onWillPop: returnTo,
       child: Scaffold(
-          appBar: AppBar(
-            title: Row(
-              children: [
-                widget.subExtension.extension.language.barIcon(),
-                SizedBox(width: 5),
-                widget.subExtension.image(wSize: 40, hSize: 40),
-                SizedBox(width: 5),
-                Text(widget.subExtension.name, style: Theme.of(context).textTheme.headline5),
+        appBar: AppBar(
+          title: Row(
+            children: [
+              widget.subExtension.extension.language.barIcon(),
+              SizedBox(width: 5),
+              widget.subExtension.image(wSize: 40, hSize: 40),
+              SizedBox(width: 5),
+              Text(widget.subExtension.name, style: Theme.of(context).textTheme.headline5?.copyWith(
+                fontSize: widget.subExtension.name.length > 9 ? 10 : 7
+              )),
+            ]
+          ),
+          actions: [
+            IconButton(icon: Icon( showMissing ? Icons.grid_off : Icons.grid_on),
+              onPressed: () {
+                setState(() { showMissing = !showMissing; refresh(); });
+            })
+          ],
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              TabBar(
+              controller: tabController,
+              isScrollable: false,
+              indicatorPadding: const EdgeInsets.all(1),
+              indicator: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.blueAccent,
+              ),
+              tabs: [
+                if(widget.subExtension.seCards.cards.isNotEmpty)
+                  menuBar(context, 'S_SERIE_0'),
+                if(widget.subExtension.seCards.energyCard.isNotEmpty)
+                  menuBar(context, 'S_SERIE_1'),
+                if(widget.subExtension.seCards.noNumberedCard.isNotEmpty)
+                  menuBar(context, 'S_SERIE_2'),
               ]
             ),
-            actions: [
-              IconButton(icon: Icon( showMissing ? Icons.grid_off : Icons.grid_on),
-                onPressed: () {
-                  setState(() { showMissing = !showMissing; refresh(); });
-              })
-            ],
-          ),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  if(widget.subExtension.seCards.energyCard.isNotEmpty ||
-                      widget.subExtension.seCards.noNumberedCard.isNotEmpty)
-                  Row(
-                    children: [
-                      createCardSerieButton(context, showState, 0),
-                      if(widget.subExtension.seCards.energyCard.isNotEmpty)
-                        createCardSerieButton(context, showState, 1),
-                      if(widget.subExtension.seCards.noNumberedCard.isNotEmpty)
-                        createCardSerieButton(context, showState, 2),
-                    ],
-                  ),
-                if(showState[0] && cards.length > 0)
+            Expanded(
+              child: TabBarView(
+              controller: tabController,
+              physics: NeverScrollableScrollPhysics(),
+              children:[
+                if(widget.subExtension.seCards.cards.isNotEmpty && cards.length > 0)
                   GridView.builder(
                     padding: EdgeInsets.all(1.0),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -145,7 +153,7 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> {
                       return PokemonCard(cardSelector, refresh: refresh, readOnly: false, singlePress: true, afterOpenSelector: afterLaunchEditor);
                     },
                   ),
-                if(showState[1] && cards.length > 1)
+                if(widget.subExtension.seCards.energyCard.isNotEmpty && cards.length > 1)
                   GridView.builder(
                     padding: EdgeInsets.all(1.0),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -159,7 +167,7 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> {
                       return PokemonCard(cardSelector, refresh: refresh, readOnly: false, singlePress: true, afterOpenSelector: afterLaunchEditor);
                     },
                   ),
-                if(showState[2] && cards.length > 2)
+                if(widget.subExtension.seCards.noNumberedCard.isNotEmpty && cards.length > 2)
                   GridView.builder(
                     padding: EdgeInsets.all(1.0),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -173,11 +181,13 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> {
                       return PokemonCard(cardSelector, refresh: refresh, readOnly: false, singlePress: true, afterOpenSelector: afterLaunchEditor);
                     },
                   ),
-              ],
-          ),
-            ),
+              ]
+              )
+            )
+            ]
+          )
         )
-      ),
+      )
     );
   }
 }

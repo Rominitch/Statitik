@@ -16,7 +16,7 @@ import 'package:statitikcard/services/models/SubExtension.dart';
 import 'connection.dart';
 
 Widget drawCachedImage(folder, image, {double? width, double? height, alternativeRendering}){
-  if(Environment.instance.storeImageLocaly) {
+  if(Environment.instance.storeImageLocally) {
     return ImageStoredLocally(["images", folder], '$image.png',
       [Uri.parse('$adresseHTTPS/StatitikCard/$folder/$image.png')],
       width: width,

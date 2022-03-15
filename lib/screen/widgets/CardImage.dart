@@ -13,7 +13,7 @@ import 'package:statitikcard/services/PokemonCardData.dart';
 
 
 Widget genericCardWidget(SubExtension se, List<int> idCard, {double height=400, Language? language, bool reloader=false}) {
-  if( Environment.instance.storeImageLocaly ) {
+  if( Environment.instance.storeImageLocally ) {
     Widget? alternative;
     if( language != null ) {
       alternative = Center(child: Text(se.seCards.readTitleOfCard(language, idCard)));

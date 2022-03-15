@@ -76,11 +76,11 @@ class Environment
 
     // Manager
     Credential credential = Credential();
-    Database db = Database();
+    Database   db         = Database();
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.7.4';
+    final String version = '1.7.5';
 
     // State
     bool isInitialized          = false;
@@ -91,7 +91,7 @@ class Environment
     bool showTCGImages          = false;
     bool isMaintenance          = false;
 
-    bool storeImageLocaly       = false;
+    bool storeImageLocally      = false;
 
     // Cached data
     Collection collection = Collection();
@@ -106,8 +106,8 @@ class Environment
     {
         // General data control
         assert(TypeCard.values.length <= 255);
-        assert(TypeCard.values.length       == orderedType.length);
-        assert(TypeCard.values.length       == typeColors.length);
+        assert(TypeCard.values.length == orderedType.length);
+        assert(TypeCard.values.length == typeColors.length);
 
         if(!isInitialized) {
             // Sync event
@@ -154,7 +154,7 @@ class Environment
                             (readPokeSpace()).whenComplete( () async {
 
                                 SharedPreferences.getInstance().then((prefs) {
-                                    storeImageLocaly = prefs.getBool("storeImageLocaly") ?? false;
+                                    storeImageLocally = prefs.getBool("storeImageLocaly") ?? false;
                                 }).whenComplete(() {
                                     isInitialized = true;
                                     onInitialize.add(isInitialized);
