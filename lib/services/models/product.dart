@@ -11,15 +11,22 @@ import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
 
-class ProductSide
+abstract class ProductGeneric
 {
-  int             idDB;
-  ProductCategory category;
-  String          name;
-  String          imageURL;
-  DateTime        releaseDate;
+  int               idDB;
+  ProductCategory?  category;
+  String            name;
+  String            imageURL;
+  DateTime          releaseDate;
 
-  ProductSide(this.idDB, this.category, this.name, this.imageURL, this.releaseDate);
+  ProductGeneric(this.idDB, this.category, this.name, this.imageURL, this.releaseDate);
+
+  Widget image();
+}
+
+class ProductSide extends ProductGeneric
+{
+  ProductSide(idDB, category, name, imageURL, releaseDate) : super(idDB, category, name, imageURL, releaseDate);
 
   Widget image()
   {
@@ -100,15 +107,15 @@ class ProductCard {
   }
 }
 
-class Product
+class Product extends ProductGeneric
 {
-  int                      idDB;
-  String                   name;
-  String                   imageURL;
+  //int                      idDB;
+  //String                   name;
+  //String                   imageURL;
   List<ProductBooster>     boosters;
   Language?                language;
-  ProductCategory?         category;
-  DateTime                 outDate;
+  //ProductCategory?         category;
+  //DateTime                 outDate;
   // New
   Map<ProductSide, int>    sideProducts = {};
   List<ProductCard>        otherCards   = [];
@@ -116,17 +123,16 @@ class Product
   static const int version = 2;
 
   Product.empty():
-    this.idDB     =-1,
-    this.outDate  = DateTime.now(),
-    this.name     = "",
-    this.imageURL = "",
-    this.boosters = [];
+    this.boosters = [],
+    super(-1, null, "", "", DateTime.now());
 
-  Product(this.idDB, this.language, this.name, this.imageURL, this.outDate, this.category, this.boosters);
+  Product(idDB, this.language, name, imageURL, outDate, category, this.boosters):
+    super(idDB, category, name, imageURL, outDate);
 
-  Product.fromBytes(this.idDB, this.language, this.name, this.imageURL, this.outDate, this.category,
+  Product.fromBytes(idDB, this.language, name, imageURL, outDate, category,
                     List<int> data, Map mapSubExtensions, Map productSides):
-    this.boosters = []
+    this.boosters = [],
+    super(idDB, category, name, imageURL, outDate)
   {
     int currentVersion = data[0];
     if(!(currentVersion <= version))
@@ -290,7 +296,7 @@ bool filter(Product product, Language l, SubExtension se, ProductCategory? categ
             }
             // Keep product if after extension
             if (keep)
-              keep = (product.outDate.compareTo(se.out) >= 0);
+              keep = (product.releaseDate.compareTo(se.out) >= 0);
           }
         }
       }

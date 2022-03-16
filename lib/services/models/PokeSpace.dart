@@ -286,6 +286,16 @@ class PokeSpace
     return languages;
   }
 
+  List<Language> myLanguagesProduct() {
+    List<Language> languages = [];
+    myProducts.keys.forEach((product) {
+      if(!languages.contains(product.language)) {
+        languages.add(product.language!);
+      }
+    });
+    return languages;
+  }
+
   /// Build space from database
   PokeSpace.fromBytes(List<int> data, Map subExtensions, Map products, Map sideProducts)
   {
@@ -437,5 +447,13 @@ class PokeSpace
     computeStats();
 
     return myNewCard;
+  }
+
+  Map getProductsBy(Language? language) {
+    if(language != null) {
+      return Map.from(myProducts)..removeWhere((product, info) => product.language! != language);
+    } else {
+      return mySideProducts;
+    }
   }
 }

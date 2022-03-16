@@ -6,7 +6,7 @@ import 'package:statitikcard/screen/Admin/AdminPage.dart';
 import 'package:statitikcard/screen/Cartes/CardStatistic.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/options.dart';
-import 'package:statitikcard/screen/tirage/draw_connexion.dart';
+import 'package:statitikcard/screen/PokeSpace/draw_connexion.dart';
 import 'package:statitikcard/screen/widgets/NewsDialog.dart';
 import 'package:statitikcard/services/News.dart';
 import 'package:statitikcard/services/connection.dart';

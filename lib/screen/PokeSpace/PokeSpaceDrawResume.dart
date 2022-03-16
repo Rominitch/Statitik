@@ -5,7 +5,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:statitikcard/screen/commonPages/UserNewCardsDraw.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
-import 'package:statitikcard/screen/tirage/PokeSpaceDrawBooster.dart';
+import 'package:statitikcard/screen/PokeSpace/PokeSpaceDrawBooster.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorProductDraw.dart';
 import 'package:statitikcard/screen/widgets/PokemonCard.dart';

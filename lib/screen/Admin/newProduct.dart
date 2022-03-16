@@ -98,13 +98,13 @@ class _NewProductPageState extends State<NewProductPage> {
   Future<Null> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: product.outDate,
+        initialDate: product.releaseDate,
         initialDatePickerMode: DatePickerMode.day,
         firstDate: DateTime(2015),
         lastDate: DateTime(2101));
     if (picked != null)
       setState(() {
-        product.outDate = picked;
+        product.releaseDate = picked;
       });
   }
 
@@ -116,7 +116,7 @@ class _NewProductPageState extends State<NewProductPage> {
         Environment env = Environment.instance;
         env.db.transactionR( (connection) async {
 
-          var outDate = DateFormat('yyyy-MM-dd 00:00:00').format(product.outDate);
+          var outDate = DateFormat('yyyy-MM-dd 00:00:00').format(product.releaseDate);
           String query;
           List myData = <Object?>[];
           if(widget.editProduct == null) {
@@ -277,7 +277,7 @@ class _NewProductPageState extends State<NewProductPage> {
         Card(
           child: TextButton(
             onPressed: () { _selectDate(context); },
-            child: Text(DateFormat('yyyy-MM-dd').format(product.outDate)),
+            child: Text(DateFormat('yyyy-MM-dd').format(product.releaseDate)),
           )
         ),
       ] + bs + [

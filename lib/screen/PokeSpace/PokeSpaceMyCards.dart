@@ -3,7 +3,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
-import 'package:statitikcard/screen/tirage/PokeSpaceCardExplorer.dart';
+import 'package:statitikcard/screen/PokeSpace/PokeSpaceCardExplorer.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -98,7 +98,6 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> {
         title: Text(StatitikLocale.of(context).read('DC_B16'), style: Theme.of(context).textTheme.headline3),
         actions: [
           FloatingActionButton(
-            //label: Text(StatitikLocale.of(context).read('PSMC_B0')),
             child: Icon(Icons.add_photo_alternate_outlined, color: Colors.white,),
             backgroundColor: Colors.blueAccent.shade200,
             onPressed: (){

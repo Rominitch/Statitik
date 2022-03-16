@@ -358,6 +358,11 @@ Images and illustrations used are the property of their respective authors.
       'PSMC_B4':   'Add cards manually',
       'CS_B0':     'Jumbo',
       'CS_B1':     'Random',
+      'PSMP_B0':   'Add new product',
+      'PSMP_B1':   'No products registered',
+      'PSPE_B0':   'Product edition',
+      'PSPE_B1':   'Opened product',
+      'PSPE_B2':   'Seal product',
     },
     'fr': {
       'H_T0': 'PokéSpace',
@@ -710,6 +715,11 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'PSMC_B4':   'Ajouter des cartes manuellement',
       'CS_B0':     'Jumbo',
       'CS_B1':     'Aléatoire',
+      'PSMP_B0':   'Ajouter un nouveau produit',
+      'PSMP_B1':   'Aucun produit enregistré',
+      'PSPE_B0':   'Edition du produit',
+      'PSPE_B1':   'Produit ouvert',
+      'PSPE_B2':   'Produit scellé',
     },
   };
 
