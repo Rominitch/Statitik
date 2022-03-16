@@ -363,6 +363,9 @@ Images and illustrations used are the property of their respective authors.
       'PSPE_B0':   'Product edition',
       'PSPE_B1':   'Opened product',
       'PSPE_B2':   'Seal product',
+      'PS_T0':     'Products',
+      'PS_B0':     'Booster/Box',
+      'PS_B1':     'Others',
     },
     'fr': {
       'H_T0': 'PokéSpace',
@@ -720,6 +723,9 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'PSPE_B0':   'Edition du produit',
       'PSPE_B1':   'Produit ouvert',
       'PSPE_B2':   'Produit scellé',
+      'PS_T0':     'Produits',
+      'PS_B0':     'Booster/Coffret',
+      'PS_B1':     'Autres',
     },
   };
 

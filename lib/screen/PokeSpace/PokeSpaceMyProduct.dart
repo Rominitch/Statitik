@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/PokeSpace/PokeSpaceProductsExplorer.dart';
+import 'package:statitikcard/screen/PokeSpace/ProductSelector.dart';
+import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -29,7 +31,10 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with SingleTi
   }
 
   void afterUpdateProducts() {
-
+    setState(() {
+      // Configure again tab
+      configureTabController(langueController.previousIndex);
+    });
   }
 
   @override
@@ -63,9 +68,22 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with SingleTi
         title: Text(StatitikLocale.of(context).read('DC_B17'), style: Theme.of(context).textTheme.headline3),
         actions: [
           FloatingActionButton(
-            child: Icon(Icons.add_photo_alternate_outlined, color: Colors.white,),
+            child: Icon(Icons.add_shopping_cart, color: Colors.white,),
             backgroundColor: Colors.deepOrange,
             onPressed: (){
+              Navigator.push(context, MaterialPageRoute(builder:
+                (context) => LanguageSelector((BuildContext c, Language l)
+                  {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => ProductSelector(l)));
+                  })
+                )
+              ).then((subExtension) {
+                if(subExtension != null) {
+                  setState(() {
+                    afterUpdateProducts();
+                  });
+                }
+              });
             },
           ),
         ],
