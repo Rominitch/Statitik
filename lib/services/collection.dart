@@ -21,7 +21,7 @@ import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
-import 'package:statitikcard/services/SessionDraw.dart';
+import 'package:statitikcard/services/Draw/SessionDraw.dart';
 import 'package:statitikcard/services/TimeReport.dart';
 import 'package:statitikcard/services/Tools.dart';
 
@@ -189,7 +189,8 @@ class Collection
       var setResult = await connection.query("SELECT * FROM `Set`");
       for (var row in setResult) {
         try {
-          sets[row[0]] = CardSet(MultiLanguageString([row[1] ?? "", row[2] ?? "", row[3] ?? ""]), Color(row[4]), row[5]);
+          var isStandard = row[0] < 2;
+          sets[row[0]] = CardSet(MultiLanguageString([row[1] ?? "", row[2] ?? "", row[3] ?? ""]), Color(row[4]), row[5], isStandard);
         } catch(e) {
           printOutput("Bad Set: ${row[0]} $e");
         }

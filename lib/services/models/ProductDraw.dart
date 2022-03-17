@@ -1,5 +1,5 @@
-import 'package:statitikcard/services/SessionDraw.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/Draw/SessionDraw.dart';
+import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/models/BytesCoder.dart';
 import 'package:statitikcard/services/models/product.dart';
 

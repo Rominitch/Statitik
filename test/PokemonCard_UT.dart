@@ -11,7 +11,7 @@ import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/MultiLanguageString.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/models/SerieType.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';

@@ -2,15 +2,17 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:mysql1/mysql1.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/services/Draw/BoosterDraw.dart';
 
 import 'package:statitikcard/services/connection.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/collection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -22,7 +24,7 @@ import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/SessionDraw.dart';
+import 'package:statitikcard/services/Draw/SessionDraw.dart';
 import 'package:statitikcard/services/TimeReport.dart';
 import 'package:statitikcard/services/Tools.dart';
 
@@ -33,7 +35,7 @@ class StatitikException implements Exception {
 
 class Database
 {
-    final String version = '3.0';
+    final String version = '3.1';
     final ConnectionSettings settings = createConnection();
 
     Future<bool> transactionR(Function queries) async
@@ -434,6 +436,21 @@ class Environment
 
     bool isAdministrator() {
         return isLogged() && user!.admin;
+    }
+
+    void savePokeSpace(BuildContext context, PokeSpace pokeSpace) {
+        EasyLoading.show();
+
+        pokeSpace.computeStats();
+
+        Environment.instance.db.transactionR((connection) async {
+            await Environment.instance.sendPokeSpace(connection);
+        }).then((value) {
+            EasyLoading.dismiss();
+        }).onError((error, stackTrace) {
+            EasyLoading.showError(StatitikLocale.of(context).read('error'));
+            printOutput("$error\n${stackTrace.toString()}");
+        });
     }
 
     void login(CredentialMode mode, context, Function(String?)? updateGUI) {

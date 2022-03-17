@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorBoosterDraw.dart';
 import 'package:statitikcard/screen/widgets/PokemonCard.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/Draw/BoosterDraw.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/models.dart';
@@ -22,8 +22,9 @@ class BoosterPage extends StatefulWidget {
 }
 
 class _BoosterPageState extends State<BoosterPage> {
-  late List<Widget> widgets;
-  late List<Widget> widgetEnergies;
+  List<Widget> widgets        = [];
+  List<Widget> widgetEnergies = [];
+  List<Widget> widgetNoNumber = [];
 
   @override
   void initState() {
@@ -48,6 +49,14 @@ class _BoosterPageState extends State<BoosterPage> {
     widget.boosterDraw.subExtension!.seCards.energyCard.forEach((card) {
       var selector = CardSelectorBoosterDraw(widget.boosterDraw, card, widget.boosterDraw.cardDrawing!.drawEnergies[idInBooster]);
       widgetEnergies.add( PokemonCard(selector, refresh:refresh, readOnly: widget.readOnly) );
+      idInBooster += 1;
+    });
+
+    widgetNoNumber = [];
+    idInBooster=0;
+    widget.boosterDraw.subExtension!.seCards.noNumberedCard.forEach((card) {
+      var selector = CardSelectorBoosterDraw(widget.boosterDraw, card, widget.boosterDraw.cardDrawing!.drawNoNumber[idInBooster]);
+      widgetNoNumber.add( PokemonCard(selector, refresh:refresh, readOnly: widget.readOnly) );
       idInBooster += 1;
     });
   }
@@ -149,6 +158,15 @@ class _BoosterPageState extends State<BoosterPage> {
                 childAspectRatio: 1.15,
                 children: widgets,
               ),
+              if(widgetNoNumber.isNotEmpty)
+                GridView.count(
+                  crossAxisCount: 5,
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  primary: false,
+                  childAspectRatio: 1.15,
+                  children: widgetNoNumber,
+                ),
             ],
           ),
     );

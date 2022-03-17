@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
-import 'package:statitikcard/services/SessionDraw.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/Draw/BoosterDraw.dart';
+import 'package:statitikcard/services/Draw/SessionDraw.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -95,8 +95,8 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             (bd.subExtension != null) ? bd.subExtension!.image(hSize: iconSize) : Icon(Icons.add_to_photos),
-            SizedBox(height: 6.0),
-            Text('${bd.id}'),
+            SizedBox(height: 4.0),
+            Text(bd.id.toString()),
         ]),
       ),
       onPressed: () => press(context),

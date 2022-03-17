@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/SessionDraw.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/Draw/SessionDraw.dart';
+import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/BytesCoder.dart';
 import 'package:statitikcard/services/models/Language.dart';
@@ -318,7 +318,7 @@ class PokeSpace
     int nbProducts = parser.extractInt16();
     for(var id=0; id < nbProducts; id +=1) {
       var product = products[parser.extractInt16()]!;
-      insertProduct(product, UserProductCounter.fromBytes(parser));
+      insertProduct(product, UserProductCounter.fromBytes(parser), addCardAndMore: false);
     }
 
     int nbSideProducts = parser.extractInt16();
@@ -368,7 +368,7 @@ class PokeSpace
     }
   }
 
-  void insertProduct(Product product, UserProductCounter counter, [NewCardsReport? report]) {
+  void insertProduct(Product product, UserProductCounter counter, {NewCardsReport? report, bool addCardAndMore=true}) {
     // Added new product
     if( myProducts.containsKey(product) ) {
       myProducts[product]!.cumulate(counter);
@@ -377,7 +377,7 @@ class PokeSpace
     }
 
     // Fill container if opened
-    if(counter.opened > 0) {
+    if(addCardAndMore && counter.opened > 0) {
       // Side product
       product.sideProducts.forEach((sideProduct, count) {
         insertSideProduct(sideProduct, UserProductCounter.fromOpened( counter.opened * count));
@@ -433,7 +433,7 @@ class PokeSpace
     });
 
     // Add new product
-    insertProduct(draw.product, UserProductCounter.fromOpened(), myNewCard);
+    insertProduct(draw.product, UserProductCounter.fromOpened(), report: myNewCard);
 
     // Add random product draw
     draw.productDraw.randomProductCard.forEach((productDraw, counter) {

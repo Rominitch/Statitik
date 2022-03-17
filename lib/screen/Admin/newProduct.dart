@@ -12,7 +12,7 @@ import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorProductCard
 import 'package:statitikcard/screen/widgets/CardsSelection.dart';
 import 'package:statitikcard/screen/widgets/PokemonCard.dart';
 import 'package:statitikcard/services/Tools.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Language.dart';
@@ -192,7 +192,13 @@ class _NewProductPageState extends State<NewProductPage> {
     cardsWidget.clear();
     product.otherCards.forEach((otherCard) {
       var selector = CardSelectorProductCard(otherCard);
-      cardsWidget.add(PokemonCard(selector, refresh: (){ setState(() {}); }, readOnly: false, singlePress: true));
+      cardsWidget.add(PokemonCard(selector,
+        refresh: (){ setState(() {
+          if( otherCard.counter.count() == 0 )
+            product.otherCards.remove(otherCard);
+            });
+        },
+        readOnly: false, singlePress: true));
     });
     //
     cardsWidget.add(
@@ -209,9 +215,11 @@ class _NewProductPageState extends State<NewProductPage> {
                 if(value != null) {
                   // Added only new product and refresh
                   setState(() {
-                    var counter = CodeDraw.fromSet(value.card.sets.length);
-                    counter.countBySet[0] = 1;
-                    product.otherCards.add(ProductCard(value.subExtension, value.card, AlternativeDesign.Basic, false, false, counter) );
+                    value.cards.forEach((card){
+                      var counter = CodeDraw.fromSet(card.sets.length);
+                      counter.countBySet[0] = 1;
+                      product.otherCards.add(ProductCard(value.subExtension, card, AlternativeDesign.Basic, false, false, counter) );
+                    });
                   });
                 }
               });

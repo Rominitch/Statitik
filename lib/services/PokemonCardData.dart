@@ -354,12 +354,6 @@ class PokemonCardExtension {
     return !isValid() || hasMultiSet();
   }
 
-  /*
-  Mode defaultMode() {
-    return data.design == Design.Holographic ? Mode.Halo : Mode.Normal;
-  }
-   */
-
   bool isForReport() {
     return Environment.instance.collection.goodCard.contains(rarity);
   }

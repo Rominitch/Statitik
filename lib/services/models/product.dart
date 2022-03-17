@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/Draw/BoosterDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/Draw/cardDrawData.dart';
 
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/BytesCoder.dart';

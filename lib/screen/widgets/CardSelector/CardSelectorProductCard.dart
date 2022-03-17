@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
 
 import 'package:statitikcard/services/PokemonCardData.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/product.dart';
@@ -60,37 +60,37 @@ class CardSelectorProductCard extends GenericCardSelector {
   @override
   Widget? advancedWidget(BuildContext context, Function refresh) {
     return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-              children:[
-                Expanded(
-                  child: Card(
-                      color: card.jumbo ? Colors.green : Colors.grey,
-                      child: TextButton(
-                        child: Text(StatitikLocale.of(context).read('CS_B0'), style: Theme.of(context).textTheme.headline5),
-                        onPressed: () {
-                          card.jumbo = !card.jumbo;
-                          refresh();
-                        },
-                      )
-                  ),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+            children:[
+              Expanded(
+                child: Card(
+                    color: card.jumbo ? Colors.green : Colors.grey,
+                    child: TextButton(
+                      child: Text(StatitikLocale.of(context).read('CS_B0'), style: Theme.of(context).textTheme.headline5),
+                      onPressed: () {
+                        card.jumbo = !card.jumbo;
+                        refresh();
+                      },
+                    )
                 ),
-                Expanded(
-                  child: Card(
-                      color: card.isRandom ? Colors.green : Colors.grey,
-                      child: TextButton(
-                        child: Text(StatitikLocale.of(context).read('CS_B1'), style: Theme.of(context).textTheme.headline5),
-                        onPressed: () {
-                          card.isRandom = !card.isRandom;
-                          refresh();
-                        },
-                      )
-                  ),
-                )
-              ]
-          )
-        ]
+              ),
+              Expanded(
+                child: Card(
+                    color: card.isRandom ? Colors.green : Colors.grey,
+                    child: TextButton(
+                      child: Text(StatitikLocale.of(context).read('CS_B1'), style: Theme.of(context).textTheme.headline5),
+                      onPressed: () {
+                        card.isRandom = !card.isRandom;
+                        refresh();
+                      },
+                    )
+                ),
+              )
+            ]
+        )
+      ]
     );
   }
 

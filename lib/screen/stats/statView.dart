@@ -10,6 +10,7 @@ import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/product.dart';
 
@@ -37,23 +38,10 @@ class StatsView extends StatelessWidget {
     final translator = StatitikLocale.of(context);
 
     double divider = data.subExt != null ? data.subExt!.cardPerBooster.toDouble() : 11.0;
+    List<Widget> types  = [];
     List<Widget> rarity = [];
     List<Widget> sets   = [];
     if( data.subExt!.seCards.isValid ) {
-      {
-        int sum=0;
-        data.stats!.countEnergy.forEach((number) {sum += number; });
-        double luck = sum.toDouble() / data.stats!.nbBoosters;
-        if(luck > 0) {
-          double? userLuck;
-          if(data.userStats != null && data.userStats!.nbBoosters > 0) {
-            double userSum=0;
-            data.userStats!.countEnergy.forEach((number) {userSum += number.toDouble(); });
-            userLuck = (userSum / data.userStats!.nbBoosters);
-          }
-          rarity.add(buildLine([ Icon(Icons.battery_charging_full), ], sum, luck, Colors.yellowAccent, divider, userLuck));
-        }
-      }
       data.stats!.countByRarity.forEach((rare, sum) {
         if(rare != Environment.instance.collection.unknownRarity) {
           double luck = sum.toDouble() / data.stats!.nbBoosters;
@@ -67,6 +55,21 @@ class StatsView extends StatelessWidget {
             rarity.add( buildLine(getImageRarity(rare, data.language!), sum, luck, rare.color, divider, userLuck) );
           }
         }
+      });
+
+      int typeId=0;
+      data.stats!.countByType.forEach( (sum) {
+        double luck = sum.toDouble() / data.stats!.nbBoosters;
+        if(luck > 0)
+        {
+          double? userLuck;
+          if(data.userStats != null && data.userStats!.nbBoosters > 0) {
+            int userCount = data.userStats!.countByType[typeId];
+            userLuck = userCount.toDouble() / data.userStats!.nbBoosters;
+          }
+          types.add( buildLine([getImageType(TypeCard.values[typeId])], sum, luck, typeColors[typeId], divider, userLuck) );
+        }
+        typeId += 1;
       });
 
       data.stats!.countBySet.forEach((set, sum) {
@@ -110,6 +113,12 @@ class StatsView extends StatelessWidget {
                 shrinkWrap: true,
                 primary: false,
                 children: sets,
+              ),
+              Text(translator.read('S_B22'), style: Theme.of(context).textTheme.headline6 ),
+              ListView(
+                shrinkWrap: true,
+                primary: false,
+                children: types,
               ),
               if(!options.print && energyData) Text(translator.read('S_B12'), style: Theme.of(context).textTheme.headline5 ),
               if(!options.print && energyData) PieChartEnergies(allStats: data.stats!),

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
+import 'package:statitikcard/services/Draw/BoosterDraw.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
@@ -86,6 +87,12 @@ class CardSelectorBoosterDraw extends GenericCardSelector {
           ]
       );
       case 1 : return getImageType(card.data.typeExtended ?? TypeCard.Unknown);
+      case 2 :
+        var name = card.numberOfCard(idCard[1]);
+        if( nbCard > 1)
+          name += '($nbCard)';
+
+        return Text(name, style: TextStyle(fontSize: name.length > 8 ? 10 : 12));
       default:
         throw StatitikException("No visual for this card");
     }

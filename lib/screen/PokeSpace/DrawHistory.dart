@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/PokeSpace/PokeSpaceDrawResume.dart';
-import 'package:statitikcard/services/SessionDraw.dart';
+import 'package:statitikcard/services/Draw/SessionDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -26,20 +26,20 @@ class _DrawHistoryState extends State<DrawHistory> {
           myDrawWidgets!.add(Card(
               child: TextButton(
                 child:Row(
-                    children:[
-                      draw.language.barIcon(),
-                      SizedBox(width: 15),
-                      draw.product.image(),
-                      SizedBox(width: 15),
-                      Flexible(
-                        child: Text(draw.product.name,
-                            softWrap: true,
-                            maxLines: 3,
-                            style: draw.product.name.length > 10
-                                ? Theme.of(context).textTheme.headline6
-                                : Theme.of(context).textTheme.headline5),
-                      )
-                    ]),
+                  children:[
+                    draw.language.barIcon(),
+                    SizedBox(width: 15),
+                    draw.product.image(),
+                    SizedBox(width: 15),
+                    Flexible(
+                      child: Text(draw.product.name,
+                        softWrap: true,
+                        maxLines: 3,
+                        style: draw.product.name.length > 10
+                            ? Theme.of(context).textTheme.headline6
+                            : Theme.of(context).textTheme.headline5),
+                    )
+                  ]),
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceDrawResume(draw)));
                 },

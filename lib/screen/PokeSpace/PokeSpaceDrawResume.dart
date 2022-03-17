@@ -9,10 +9,10 @@ import 'package:statitikcard/screen/PokeSpace/PokeSpaceDrawBooster.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorProductDraw.dart';
 import 'package:statitikcard/screen/widgets/PokemonCard.dart';
-import 'package:statitikcard/services/SessionDraw.dart';
+import 'package:statitikcard/services/Draw/BoosterDraw.dart';
+import 'package:statitikcard/services/Draw/SessionDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/UserDrawFile.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Language.dart';
@@ -336,7 +336,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                     }
                 },
               ),
-              if(widget._activeSession.productDraw.randomProductCard.isNotEmpty)
+              if( !widget._readOnly && widget._activeSession.productDraw.randomProductCard.isNotEmpty)
                 Card(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/SessionDraw.dart';
+import 'package:statitikcard/services/Draw/SessionDraw.dart';
 import 'package:statitikcard/services/UserDrawFile.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/models/Extension.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/MultiLanguageString.dart';

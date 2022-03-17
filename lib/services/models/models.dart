@@ -3,7 +3,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/CardTitleData.dart';
@@ -179,22 +179,58 @@ class StatsBooster {
     edc.drawEnergies.forEach((code) {
       if(energyCard.moveNext()) {
         var count = code.count();
-        countEnergy[idEnergy]                           += count;
-        countByType[energyCard.current.data.type.index] += count;
+        if(count > 0) {
+          var cardInfo = energyCard.current;
+          countEnergy[idEnergy]                           += count;
+          countByType[cardInfo.data.type.index] += count;
 
-        // Energy can be reversed
-        int setId=0;
-        code.countBySet.forEach((element) {
-          var setCard = energyCard.current.sets[setId];
-          if(countBySet.containsKey(setCard))
-            countBySet[setCard] = countBySet[setCard]! + element;
+          if(countByRarity.containsKey(cardInfo.rarity))
+            countByRarity[cardInfo.rarity] = countByRarity[cardInfo.rarity]! + count;
           else
-            countBySet[setCard] = element;
+            countByRarity[cardInfo.rarity] = count;
 
-          setId += 1;
-        });
+          // Energy can be reversed
+          int setId=0;
+          code.countBySet.forEach((element) {
+            var setCard = cardInfo.sets[setId];
+            if(countBySet.containsKey(setCard))
+              countBySet[setCard] = countBySet[setCard]! + element;
+            else
+              countBySet[setCard] = element;
+
+            setId += 1;
+          });
+        }
       }
       idEnergy += 1;
+    });
+
+    var noNumberCards = subExt.seCards.noNumberedCard.iterator;
+    edc.drawNoNumber.forEach((code) {
+      if(noNumberCards.moveNext()) {
+        var count = code.count();
+        if(count > 0) {
+          var cardInfo = noNumberCards.current;
+          countByType[cardInfo.data.type.index] += count;
+
+          if(countByRarity.containsKey(cardInfo.rarity))
+            countByRarity[cardInfo.rarity] = countByRarity[cardInfo.rarity]! + count;
+          else
+            countByRarity[cardInfo.rarity] = count;
+
+          // No Number can be reversed
+          int setId=0;
+          code.countBySet.forEach((element) {
+            var setCard = cardInfo.sets[setId];
+            if(countBySet.containsKey(setCard))
+              countBySet[setCard] = countBySet[setCard]! + element;
+            else
+              countBySet[setCard] = element;
+
+            setId += 1;
+          });
+        }
+      }
     });
 
     int cardsId=0;

@@ -20,15 +20,17 @@ enum TypeCard {
   Stade,
   Energy,
   Unknown,
+  Marker,
 }
 const List<TypeCard> orderedType = const[
   TypeCard.Unknown, TypeCard.Plante, TypeCard.Feu, TypeCard.Eau, TypeCard.Electrique, TypeCard.Psy,
   TypeCard.Combat, TypeCard.Obscurite, TypeCard.Metal, TypeCard.Fee,
   TypeCard.Dragon, TypeCard.Incolore, TypeCard.Objet, TypeCard.Supporter, TypeCard.Stade, TypeCard.Energy,
+  TypeCard.Marker,
 ];
 
 bool isPokemonCard(TypeCard type) {
-  const List<TypeCard> notPokemon = [TypeCard.Objet, TypeCard.Supporter, TypeCard.Stade, TypeCard.Energy];
+  const List<TypeCard> notPokemon = [TypeCard.Objet, TypeCard.Supporter, TypeCard.Stade, TypeCard.Energy, TypeCard.Marker];
   return !notPokemon.contains(type);
 }
 
@@ -50,7 +52,8 @@ bool isPokemonType(type) {
   return type != TypeCard.Energy
       && type != TypeCard.Objet
       && type != TypeCard.Supporter
-      && type != TypeCard.Stade;
+      && type != TypeCard.Stade
+      && type != TypeCard.Marker;
 }
 
 const List<TypeCard> energies = [TypeCard.Plante,  TypeCard.Feu,  TypeCard.Eau,
@@ -67,7 +70,7 @@ const List<Color> generationColor = [
   Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal
 ];
 
-List<Color> typeColors = energiesColors + [Color(0xFF1976D2), Color(0xFFC62828), Color(0xFFB9F6CA), Color(0xFFFFFF8D), Colors.black];
+List<Color> typeColors = energiesColors + [Color(0xFF1976D2), Color(0xFFC62828), Color(0xFFB9F6CA), Color(0xFFFFFF8D), Colors.black, Colors.greenAccent];
 
 Widget energyImage(TypeCard type, {double sizeIcon = iconSize}) {
   assert (type != TypeCard.Unknown);
@@ -99,6 +102,9 @@ Widget getImageType(TypeCard type, {bool generate=false, double? sizeIcon})
         break;
       case TypeCard.Energy:
         iconWidget = Icon(Icons.battery_charging_full, size: sizeIcon);
+        break;
+      case TypeCard.Marker:
+        iconWidget = Icon(Icons.bookmark_border, size: sizeIcon);
         break;
       case TypeCard.Unknown:
         iconWidget = Icon(Icons.help_outline, size: sizeIcon);
