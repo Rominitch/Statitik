@@ -26,7 +26,7 @@ class Credential
       // Auto login
       var prefs = await SharedPreferences.getInstance();
       if( prefs.getString('uid') != null ) {
-        Environment.instance.login(CredentialMode.AutoLog, null, null);
+        Environment.instance.login(CredentialMode.AutoLog, null);
       }
 
       printOutput("User created");

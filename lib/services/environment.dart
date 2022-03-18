@@ -82,7 +82,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.8.0';
+    final String version = '1.8.1';
 
     // State
     bool isInitialized          = false;
@@ -164,12 +164,12 @@ class Environment
                             });
                         }).catchError((error) {
                             isInitialized = false;
-                            onServerError.add(error.msg);
+                            onServerError.add(error.message);
                         });
                     });
                 }).catchError((error) {
                     isInitialized = false;
-                    onServerError.add(error.msg);
+                    onServerError.add(error.message);
                 }).onError((error, stackTrace) {
                     isInitialized = false;
                     //onServerError.add(error.msg);
@@ -453,7 +453,7 @@ class Environment
         });
     }
 
-    void login(CredentialMode mode, context, Function(String?)? updateGUI) {
+    void login(CredentialMode mode, context, {Function([String?])? afterLogOrError}) async {
         var onSuccess = (uid) {
             //printOutput("Credential Success: "+uid);
             SharedPreferences.getInstance().then((prefs) {
@@ -462,19 +462,20 @@ class Environment
 
                 // Register and check access
                 assert(uid != null);
-                registerUser(uid).then((value) {
-                    if(updateGUI != null)
-                        updateGUI(null);
+                registerUser(uid).then((value){
+                    if(afterLogOrError != null)
+                        afterLogOrError();
                 });
             });
         };
-        var onError = (message, [code]) {
+        var onError = (codeMessage, [code]) {
             //printOutput("Credential Error: "+message);
+            var message = sprintf(StatitikLocale.of(context).read(codeMessage), [code]);
             Environment.instance.user = null;
-            if(updateGUI != null)
-                updateGUI(sprintf(StatitikLocale.of(context).read(message), [code]));
-        };
 
+            if(afterLogOrError != null)
+                afterLogOrError(message);
+        };
         try {
             // Log system
             if(mode==CredentialMode.Phone) {

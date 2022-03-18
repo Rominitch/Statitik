@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:statitikcard/screen/PokeSpace/PokeSpaceMyProduct.dart';
 
@@ -253,13 +254,15 @@ class _DrawHomePageState extends State<DrawHomePage> {
         ),
       );
     } else {
-      var refresh = (String? message) {
-        setState( () { this.message = message;} );
+      var refresh = ([String? message]) {
+        setState( () {
+          this.message = message;
+        } );
       };
       return Scaffold(
         appBar: AppBar(
           title: Center(
-            child: Text( StatitikLocale.of(context).read('DC_B4'), style: Theme.of(context).textTheme.headline3 ),
+            child: Text( StatitikLocale.of(context).read('H_T0'), style: Theme.of(context).textTheme.headline3 ),
           ),
         ),
         body:SafeArea(
@@ -268,18 +271,30 @@ class _DrawHomePageState extends State<DrawHomePage> {
             child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Row(
+                children: [
+                  SizedBox(width: 10),
+                  drawImagePress(context, 'CafeMix_Pikachu', 50),
+                  SizedBox(width: 10),
+                  Text(StatitikLocale.of(context).read('DC_B4'), style: Theme.of(context).textTheme.headline3),
+                ]
+              ),
+              SizedBox(height: 10),
               Text(StatitikLocale.of(context).read('DC_B5')),
               textBullet(StatitikLocale.of(context).read('DC_B6')),
               textBullet(StatitikLocale.of(context).read('DC_B7')),
-              Expanded(child: SizedBox()),
+              textBullet(StatitikLocale.of(context).read('DC_B21')),
+              textBullet(StatitikLocale.of(context).read('DC_B22')),
+              SizedBox(height: 30),
               Container(
                 child: signInButton('V_B5', CredentialMode.Google, refresh, context)
               ),
               Container(
                 child: signInButton('V_B6', CredentialMode.Phone, refresh, context)
               ),
+              SizedBox(height: 30),
               if(message != null) Container( child: Center( child: Text(message!, style: TextStyle(color: Colors.red)))),
-              Expanded(child: SizedBox()),
+              Expanded(child: drawImagePress(context, 'PikaIntro', 300)),
               Container( padding: const EdgeInsets.only(left: 10),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,

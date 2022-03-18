@@ -19,15 +19,21 @@ class PokeSpaceMyProducts extends StatefulWidget {
 
 class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerProviderStateMixin, WidgetsBindingObserver{
   late TabController langueController;
-  List<Language?>    languages = [];
+  List<int>          myProdLanguages = []; //Impossible to create a List<Language?> ???
   bool               needToSave=false;
 
   void configureTabController(int index) {
+    myProdLanguages.clear();
+    
     var mySpace = Environment.instance.user!.pokeSpace;
-    languages = mySpace.myLanguagesProduct();
-    if(mySpace.mySideProducts.isNotEmpty)
-      languages.add(null); // Null product == side product
-    langueController = TabController(length: languages.length,
+    mySpace.myLanguagesProduct().forEach((language) {
+      myProdLanguages.add(language.id);
+    });
+
+    if(mySpace.mySideProducts.isNotEmpty) {
+      myProdLanguages.add(-1); // Null product == side product
+    }
+    langueController = TabController(length: myProdLanguages.length,
       animationDuration: Duration.zero,
       initialIndex: index,
       vsync: this);
@@ -78,8 +84,10 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
   Widget build(BuildContext context) {
     List<Widget> productTab      = [];
     List<Widget> languageWidgets = [];
-    languages.forEach( (language){
-      if(language != null) {
+    myProdLanguages.forEach( (idLanguage){
+      var language;
+      if(idLanguage >= 0) {
+        language = Environment.instance.collection.languages[idLanguage];
         languageWidgets.add(Padding(
           padding: const EdgeInsets.all(8.0),
           child: language.barIcon(),

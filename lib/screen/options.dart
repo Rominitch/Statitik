@@ -61,7 +61,7 @@ class _OptionsPageState extends State<OptionsPage> {
   Widget build(BuildContext context) {
     langueController.currentValue = StatitikLocale.of(context).locale.languageCode;
 
-    var refreshWithError = (String? message) {
+    var refreshWithError = ([String? message]) {
       setState((){
         this.message = message;
       });

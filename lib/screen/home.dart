@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,7 +8,7 @@ import 'package:statitikcard/screen/Admin/AdminPage.dart';
 import 'package:statitikcard/screen/Cartes/CardStatistic.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/options.dart';
-import 'package:statitikcard/screen/PokeSpace/draw_connexion.dart';
+import 'package:statitikcard/screen/PokeSpace/PokeSpaceConnexion.dart';
 import 'package:statitikcard/screen/widgets/NewsDialog.dart';
 import 'package:statitikcard/services/News.dart';
 import 'package:statitikcard/services/connection.dart';
@@ -26,15 +28,6 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-
-    _widgetOptions = [
-      DrawHomePage(),
-      StatsPage(),
-      CardStatisticPage(),
-      OptionsPage(),
-      if(Environment.instance.isAdministrator())
-        AdminPage(),
-    ];
 
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
       SharedPreferences.getInstance().then((prefs) {
@@ -64,10 +57,19 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    _widgetOptions = [
+      DrawHomePage(),
+      StatsPage(),
+      CardStatisticPage(),
+      OptionsPage(),
+      if(Environment.instance.isAdministrator())
+        AdminPage(),
+    ];
+
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: _widgetOptions.elementAt(_selectedIndex),
+          child: _widgetOptions.elementAt(min(_widgetOptions.length, _selectedIndex)),
         ),
       ),
       bottomNavigationBar:

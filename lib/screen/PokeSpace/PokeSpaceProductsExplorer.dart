@@ -23,6 +23,8 @@ class _PokeSpaceProductsExplorerState extends State<PokeSpaceProductsExplorer> w
   void computeYearTab(int index) {
     var mySpace = Environment.instance.user!.pokeSpace;
 
+    years.clear();
+
     // Get all product with language
     myProducts  = mySpace.getProductsBy(widget.language);
 

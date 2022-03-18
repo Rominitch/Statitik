@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/Draw/BoosterDraw.dart';
@@ -139,13 +140,31 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
 
 
 
-Widget signInButton(String nameId, CredentialMode mode, Function(String?) press, BuildContext context) {
+Widget signInButton(String nameId, CredentialMode mode, Function([String?]) press, BuildContext context) {
   return  Card(
+    color: Colors.grey.shade600,
     child: TextButton(
         onPressed: () {
           try {
             // Login
-            Environment.instance.login(mode, context, press);
+            Environment.instance.login(mode, context,
+              afterLogOrError: ([String? messageError]) {
+                // Try to restore PokeSpace if exists
+                if(Environment.instance.user != null) {
+                  EasyLoading.show();
+                  Environment.instance.readPokeSpace().then((value) {
+                  }).whenComplete(() {
+                    EasyLoading.dismiss();
+
+                    // Show error and refresh
+                    press(messageError);
+                  });
+                }
+                else
+                  // Show error and refresh
+                  press(messageError);
+              }
+            );
           }
           catch (e) {
 
@@ -157,7 +176,6 @@ Widget signInButton(String nameId, CredentialMode mode, Function(String?) press,
             StatitikLocale.of(context).read(nameId),
             style: TextStyle(
               fontSize: 20,
-              color: Colors.grey,
             ),
           ),
         )
