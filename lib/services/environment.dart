@@ -82,7 +82,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.8.1';
+    final String version = '1.8.2';
 
     // State
     bool isInitialized          = false;
@@ -300,7 +300,7 @@ class Environment
             [[Int8List.fromList(user!.pokeSpace.toBytes())]]);
     }
 
-    Future sendDraw([bool registerPokeSpace=true]) async {
+    Future<NewCardsReport?> sendDraw([bool registerPokeSpace=true]) async {
         if( !isLogged() )
             return null;
         try {

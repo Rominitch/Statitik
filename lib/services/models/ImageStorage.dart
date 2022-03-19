@@ -8,13 +8,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:statitikcard/services/Tools.dart';
 
 class StorageData {
-  final StreamController controler;
+  //final StreamController controler;
   final List<String> folders;
   final String    imageLocalPath;
   final List<Uri> urls;
   final bool      force;
 
-  const StorageData(this.controler, this.folders, this.imageLocalPath, this.urls, {this.force=false});
+  const StorageData(/*this.controler,*/ this.folders, this.imageLocalPath, this.urls, {this.force=false});
 }
 
 class ImageStorage {

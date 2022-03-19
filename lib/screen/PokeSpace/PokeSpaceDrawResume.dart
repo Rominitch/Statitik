@@ -172,6 +172,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
 
                     EasyLoading.dismiss();
                     if( report != null ) {
+                      report.sort();
                       // Show registration report
                       showDialog(
                           context: context,

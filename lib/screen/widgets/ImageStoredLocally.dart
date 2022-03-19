@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -22,59 +21,44 @@ class ImageStoredLocally extends StatefulWidget {
 }
 
 class _ImageStoredLocallyState extends State<ImageStoredLocally> {
-  bool loading = true;
-  File? image;
-  StreamController afterLoad = new StreamController();
-
-  @override
-  void initState() {
-    afterLoad = new StreamController();
-    afterLoad.stream.listen((data) async {
-      image = await Environment.instance.storage.imageFromPath(data);
-      loading = false;
-      if(!afterLoad.isClosed) {
-        setState(() {});
-      }
-    }, onDone: () {
-      loading = false;
-    }, onError: (error) {
-      loading = false;
-      if(!afterLoad.isClosed) {
-        setState(() {});
-      }
-    });
-
-    afterLoad.add(StorageData(afterLoad, widget.path, widget.imageName, widget.webAddress));
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    afterLoad.close();
-    super.dispose();
-  }
+  bool force=false;
 
   @override
   Widget build(BuildContext context) {
-    if(loading)
-      return CircularProgressIndicator(color: Colors.orange[300]);
-    else {
-      if(image != null) {
-        return widget.reloader ?
-          GestureDetector(
-              onLongPress: () {
-                setState(() {
-                  loading = true;
-                });
-                afterLoad.add(StorageData(afterLoad, widget.path, widget.imageName, widget.webAddress, force: true));
-              },
-              child: Image.file(image!, width: widget.width, height: widget.height)
-          )
-        : Image.file(image!, width: widget.width, height: widget.height);
-      } else {
-        return widget.alternativeRendering!= null ? widget.alternativeRendering! : Icon(Icons.help_outline);
-      }
-    }
+    return FutureBuilder<File?>(
+        future: Environment.instance.storage.imageFromPath(StorageData(widget.path, widget.imageName, widget.webAddress, force: force)), // a previously-obtained Future<String> or null
+        builder: (BuildContext context, AsyncSnapshot<File?> snapshot) {
+          if(snapshot.hasData ) {
+            force = true;
+            if (snapshot.data == null)
+              return widget.alternativeRendering != null ? widget
+                  .alternativeRendering! : Icon(Icons.help_outline);
+            else {
+              var cardWidget = Image.file(
+                snapshot.data!, width: widget.width,
+                height: widget.height,
+                errorBuilder: (context, error, stackTrace) {
+                  setState(() {
+                    force = true;
+                  });
+                  return CircularProgressIndicator(color: Colors.orange[300]);
+                }
+              );
+              return widget.reloader ?
+                GestureDetector(
+                  onLongPress: () {
+                    // Reload widget
+                    setState(() {
+                      force = true;
+                    });
+                  },
+                  child: cardWidget
+                ) : cardWidget;
+            }
+          }
+          else
+            return CircularProgressIndicator(color: Colors.orange[300]);
+        }
+    );
   }
 }

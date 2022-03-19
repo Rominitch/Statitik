@@ -93,10 +93,9 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
     child: TextButton(
       child: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            (bd.subExtension != null) ? bd.subExtension!.image(hSize: iconSize) : Icon(Icons.add_to_photos),
-            SizedBox(height: 4.0),
+            Expanded(child: (bd.subExtension != null) ? bd.subExtension!.image(hSize: iconSize) : Icon(Icons.add_to_photos)),
             Text(bd.id.toString()),
         ]),
       ),

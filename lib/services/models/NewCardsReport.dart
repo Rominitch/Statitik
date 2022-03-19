@@ -7,6 +7,18 @@ class NewCardReport {
   CodeDraw    state;
 
   NewCardReport(this.idCard, this.state);
+
+  int compareTo(NewCardReport other) {
+    var itOther = other.idCard.iterator;
+    for(var element in idCard) {
+      if(itOther.moveNext()) {
+        var cmp = element.compareTo(itOther.current);
+        if(cmp != 0)
+          return cmp;
+      }
+    }
+    return 0;
+  }
 }
 
 class NewCardsReport {
@@ -32,5 +44,11 @@ class NewCardsReport {
     // else Add new
     if(!find)
       result[subExtension]!.add(code);
+  }
+
+  void sort() {
+    result.forEach((key, list) {
+      list.sort((a, b) => a.compareTo(b));
+    });
   }
 }
