@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Cartes/CardFilterSelector.dart';
 import 'package:statitikcard/screen/Cartes/CardNameSelector.dart';
 import 'package:statitikcard/screen/Cartes/statsCard.dart';
+import 'package:statitikcard/services/TimeReport.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -26,6 +27,7 @@ class _CardStatisticPageState extends State<CardStatisticPage> with TickerProvid
   void initState() {
     tabController = TabController(
       length: Environment.instance.collection.languages.length,
+      animationDuration: Duration.zero,
       vsync: this
     );
 
@@ -78,7 +80,7 @@ class _CardStatisticPageState extends State<CardStatisticPage> with TickerProvid
 }
 
 class CardFilteredReport extends StatefulWidget {
-  final Language    language;
+  final Language language;
 
   const CardFilteredReport(this.language, {Key? key}) : super(key: key);
 
@@ -97,62 +99,58 @@ class _CardFilteredReportState extends State<CardFilteredReport> {
         if(snapshot.hasData) {
           _filterData.stats = snapshot.data;
           if( _filterData.hasStats() ) {
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Card(
-                          child: TextButton(
-                            onPressed: () {
-                              _filterData.specificCard = null;
-                              _filterData.stats        = null;
-                              setState(() {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => CardNameSelector(widget.language)),
-                                ).then((value) {
-                                  setState(() {
-                                    _filterData.specificCard = value;
-                                  });
-                                });
-                              });
-                            },
-                            child: Text( _filterData.specificCard != null ? _filterData.specificCard!.name(widget.language) : StatitikLocale.of(context).read('CA_B3')),
-                          ),
-                        ),
-                      ),
-                      Card(
-                        color: _filterData.isFiltered() ? Colors.green : Colors.grey[700],
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Card(
                         child: TextButton(
                           onPressed: () {
-                            _filterData.stats = null;
-                            setState(() {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => CardFilterSelector(widget.language, _filterData)),
-                              ).then((value) {
-                                setState(() {});
-                              });
+                            _filterData.specificCard = null;
+                            _filterData.stats        = null;
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => CardNameSelector(widget.language)),
+                            ).then((value) {
+                              _filterData.specificCard = value;
+                              setState(() {});
                             });
                           },
-                          child: Text(StatitikLocale.of(context).read('CA_B4')),
+                          child: Text( _filterData.specificCard != null ? _filterData.specificCard!.name(widget.language) : StatitikLocale.of(context).read('CA_B3')),
                         ),
                       ),
-                    ],
-                  ),
-                  (_filterData.stats!.hasData()) ?
-                    Card(child: Padding(
+                    ),
+                    Card(
+                      color: _filterData.isFiltered() ? Colors.green : Colors.grey[700],
+                      child: TextButton(
+                        onPressed: () {
+                          _filterData.stats = null;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => CardFilterSelector(widget.language, _filterData)),
+                          ).then((value) {
+                            setState(() {});
+                          });
+                        },
+                        child: Text(StatitikLocale.of(context).read('CA_B4')),
+                      ),
+                    ),
+                  ],
+                ),
+                (_filterData.stats!.hasData()) ?
+                  Expanded(
+                    child: Card(child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: StatsCard(widget.language, _filterData))
-                    )
-                  : Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: drawNothing(context, 'S_B1'),
+                    ),
                   )
-                ]
-              ),
+                : Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: drawNothing(context, 'S_B1'),
+                )
+              ]
             );
           }
           else
@@ -166,6 +164,7 @@ class _CardFilteredReportState extends State<CardFilteredReport> {
 
   Future<CardStats> computeStats() async {
     return Future(() {
+      var time = TimeReport();
       var stats = CardStats();
       Environment.instance.collection.subExtensions.values.forEach((subExt) {
         if( subExt.extension.language == widget.language && subExt.seCards.isValid ) {
@@ -180,6 +179,7 @@ class _CardFilteredReportState extends State<CardFilteredReport> {
           });
         }
       });
+      time.tick("After filter query");
       return stats;
     });
   }

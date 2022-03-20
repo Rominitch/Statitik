@@ -21,15 +21,27 @@ class ImageStoredLocally extends StatefulWidget {
 }
 
 class _ImageStoredLocallyState extends State<ImageStoredLocally> {
-  bool force=false;
+  void reloadImage() async {
+    var path = await Environment.instance.storage.imageLocalPath(widget.path, widget.imageName, "png");
+    var file = File(path);
+    bool hasFile = file.existsSync();
+    if( !hasFile ) {
+      path = await Environment.instance.storage.imageLocalPath(widget.path, widget.imageName, "jpg");
+      file = File(path);
+      hasFile = file.existsSync();
+    }
+
+    if(hasFile) {
+      file.deleteSync();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<File?>(
-        future: Environment.instance.storage.imageFromPath(StorageData(widget.path, widget.imageName, widget.webAddress, force: force)), // a previously-obtained Future<String> or null
+        future: Environment.instance.storage.imageFromPath(StorageData(widget.path, widget.imageName, widget.webAddress)), // a previously-obtained Future<String> or null
         builder: (BuildContext context, AsyncSnapshot<File?> snapshot) {
           if(snapshot.hasData ) {
-            force = true;
             if (snapshot.data == null)
               return widget.alternativeRendering != null ? widget
                   .alternativeRendering! : Icon(Icons.help_outline);
@@ -38,19 +50,27 @@ class _ImageStoredLocallyState extends State<ImageStoredLocally> {
                 snapshot.data!, width: widget.width,
                 height: widget.height,
                 errorBuilder: (context, error, stackTrace) {
-                  setState(() {
-                    force = true;
-                  });
-                  return CircularProgressIndicator(color: Colors.orange[300]);
+                  try {
+                    reloadImage();
+
+                    return Card(child: IconButton(
+                      onPressed: () {
+                        setState(() {});
+                      },
+                      icon: Icon(Icons.rotate_left),
+                    ) );
+                  }
+                  catch(error) {
+                    return Icon(Icons.bug_report_outlined);
+                  }
                 }
               );
               return widget.reloader ?
                 GestureDetector(
                   onLongPress: () {
                     // Reload widget
-                    setState(() {
-                      force = true;
-                    });
+                    reloadImage();
+                    setState(() {});
                   },
                   child: cardWidget
                 ) : cardWidget;
