@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
@@ -12,12 +13,12 @@ class CardSelectorPokeSpace extends GenericCardSelector {
   final SubExtension         subExt;
   final PokeSpace            pokeSpace;
   final PokemonCardExtension card;
-  final List<int>            idCard;
+  final CardIdentifier       idCard;
   final CodeDraw             code;
 
   static const int limitSet = 255;
 
-  CardSelectorPokeSpace(SubExtension subExt, PokeSpace pokeSpace, List<int> idCard):
+  CardSelectorPokeSpace(SubExtension subExt, PokeSpace pokeSpace, CardIdentifier idCard):
     this.subExt = subExt, this.pokeSpace = pokeSpace,
     this.card   = subExt.cardFromId(idCard),
     this.idCard = idCard,
@@ -75,7 +76,7 @@ class CardSelectorPokeSpace extends GenericCardSelector {
 
   @override
   Widget cardWidget() {
-    var cardName = subExt.seCards.numberOfCard(idCard[1]);
+    var cardName = subExt.seCards.numberOfCard(idCard.numberId);
 
     int count = code.count();
     List<Widget> countBySet = [];

@@ -17,7 +17,7 @@ import 'connection.dart';
 
 Widget drawCachedImage(folder, image, {double? width, double? height, alternativeRendering}){
   if(Environment.instance.storeImageLocally) {
-    return ImageStoredLocally(["images", folder], '$image.png',
+    return ImageStoredLocally(["images", folder], '$image',
       [Uri.parse('$adresseHTTPS/StatitikCard/$folder/$image.png')],
       width: width,
       height: height,
@@ -25,7 +25,7 @@ Widget drawCachedImage(folder, image, {double? width, double? height, alternativ
     );
   } else {
     return CachedNetworkImage(
-      imageUrl: '$adresseHTTPS/StatitikCard/$folder/$image.png',
+      imageUrl: '$adresseHTTPS/StatitikCard/$folder/$image',
       errorWidget: (context, url, error) {
         if(Environment.instance.isAdministrator()) {
           return Tooltip(

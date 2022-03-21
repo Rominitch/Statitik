@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/models/Language.dart';
@@ -14,7 +15,7 @@ import 'package:statitikcard/services/PokemonCardData.dart';
 
 class CardViewerBody extends StatelessWidget {
   final SubExtension se;
-  final List<int> idCard;
+  final CardIdentifier idCard;
   final PokemonCardExtension card;
   const CardViewerBody(this.se, this.idCard, this.card, {Key? key}) : super(key: key);
 
@@ -28,7 +29,7 @@ class CardViewerBody extends StatelessWidget {
   Widget buildHeader(BuildContext context) {
     return Row(
         children:[
-          Expanded(child: Text(se.seCards.titleOfCard(se.extension.language, idCard[1]), style: Theme.of(context).textTheme.headline5)),
+          Expanded(child: Text(se.seCards.titleOfCard(se.extension.language, idCard.numberId), style: Theme.of(context).textTheme.headline5)),
           getImageType(card.data.type),
           if(card.data.typeExtended != null) getImageType(card.data.typeExtended!),
           if(card.rarity != Environment.instance.collection.unknownRarity)  Row(children: getImageRarity(card.rarity, se.extension.language)),
@@ -68,14 +69,14 @@ class CardViewerBody extends StatelessWidget {
         child: TextButton(
           onPressed: (){
             Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) => CardViewer(result.se, result.position, result.card)),
+              MaterialPageRoute(builder: (context) => CardViewer(result.se, result.idCard, result.card)),
             );
           },
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               result.se.image(wSize: 25.0, hSize: 25.0),
-              Text(result.se.seCards.numberOfCard(result.position[1]), style: TextStyle(fontSize: 11), textAlign: TextAlign.center, softWrap: true)
+              Text(result.se.seCards.numberOfCard(result.idCard.numberId), style: TextStyle(fontSize: 11), textAlign: TextAlign.center, softWrap: true)
             ]
           )
         )
@@ -256,8 +257,8 @@ class EffectViewer extends StatelessWidget {
 }
 
 class CardViewer extends StatelessWidget {
-  final SubExtension se;
-  final List<int> id;
+  final SubExtension   se;
+  final CardIdentifier id;
   final PokemonCardExtension card;
   const CardViewer(this.se, this.id, this.card);
 
@@ -277,22 +278,9 @@ class CardViewer extends StatelessWidget {
 
 class CardSEViewer extends StatefulWidget {
   final SubExtension se;
-  final List<int> idCard;
+  final CardIdentifier idCard;
 
   const CardSEViewer(this.se, this.idCard);
-
-  List cardList() {
-    switch(idCard[0]) {
-      case 0:
-        return se.seCards.cards;
-      case 1:
-        return se.seCards.energyCard;
-      case 2:
-        return se.seCards.noNumberedCard;
-      default:
-        throw StatitikException("unnown list id");
-    }
-  }
 
   @override
   _CardSEViewerState createState() => _CardSEViewerState();
@@ -301,12 +289,12 @@ class CardSEViewer extends StatefulWidget {
 class _CardSEViewerState extends State<CardSEViewer> {
   late PageController _pageController;
   CardViewerBody? viewer;
-  late List<int> idCurrentCard;
+  late CardIdentifier idCurrentCard;
 
   @override
   void initState() {
     idCurrentCard = widget.idCard;
-    _pageController = PageController(keepPage: false, initialPage: idCurrentCard[1]);
+    _pageController = PageController(keepPage: false, initialPage: idCurrentCard.numberId);
     super.initState();
   }
 
@@ -323,17 +311,15 @@ class _CardSEViewerState extends State<CardSEViewer> {
       ),
       body: PageView.builder(
         controller: _pageController,
-        itemCount: widget.cardList().length,
+        itemCount: widget.se.seCards.cardList(idCurrentCard).length,
         pageSnapping: true,
         onPageChanged: (position) {
           setState(() {
-            idCurrentCard[1] = position;
-            viewer = CardViewerBody(widget.se, idCurrentCard, widget.se.cardFromId(idCurrentCard));
+            viewer = CardViewerBody(widget.se, idCurrentCard, widget.se.cardFromId(idCurrentCard.changeNumber(position)));
           });
         },
         itemBuilder: (context, position) {
-          var newIdCard = List<int>.from(widget.idCard, growable: false);
-          newIdCard[1] = position;
+          var newIdCard = idCurrentCard.changeNumber(position);
           viewer = CardViewerBody(widget.se, newIdCard, widget.se.cardFromId(newIdCard));
           return viewer!;
         }

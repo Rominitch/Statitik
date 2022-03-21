@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
@@ -177,7 +178,7 @@ class BoosterDraw {
       cardDrawing!.drawNoNumber.forEach((element) {
         var localCount = element.count();
         if(localCount > 0) {
-          var idCard = [2, idCardNum];
+          var idCard = CardIdentifier.from([2, idCardNum]);
           var card = subExtension!.cardFromId(idCard);
 
           // Check alternative
@@ -194,7 +195,7 @@ class BoosterDraw {
       cardDrawing!.drawEnergies.forEach((element) {
         var localCount = element.count();
         if(localCount > 0) {
-          var idCard = [1, idCardNum];
+          var idCard = CardIdentifier.from([1, idCardNum]);
           var card = subExtension!.cardFromId(idCard);
 
           energyAndMarker += localCount;
@@ -213,7 +214,7 @@ class BoosterDraw {
         cards.forEach((element) {
           var localCount = element.count();
           if(localCount > 0) {
-            var idCard = [0, idCardNum, idLocalCard];
+            var idCard = CardIdentifier.from([0, idCardNum, idLocalCard]);
             var card = subExtension!.cardFromId(idCard);
 
             addAlternativeCard(element, card);

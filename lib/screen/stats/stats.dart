@@ -6,6 +6,7 @@ import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/stats/statView.dart';
 import 'package:statitikcard/screen/stats/statsExtensionWidget.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 
 import 'package:statitikcard/services/Tools.dart';
@@ -47,7 +48,7 @@ class StatsConfiguration {
       int idCard=0;
       sData.subExt!.seCards.cards.forEach((listCardSE) {
         listCardSE.forEach((cardSE) {
-          sData.cardStats.stats!.add(sData.subExt!, cardSE, idCard);
+          sData.cardStats.stats!.add(sData.subExt!, cardSE, CardIdentifier.from([0, idCard, 0]));
           idCard +=1;
         });
       });

@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 
 import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
@@ -310,7 +311,7 @@ class CodeNaming
 class CardStats {
   int count = 0;
   Map<Region, int>             countRegion = {};
-  Map<SubExtension, List<int>> countSubExtension = {};
+  Map<SubExtension, List<CardIdentifier>> countSubExtension = {};
   Map<CardMarker, int>         countMarker = {};
   Map<Rarity, int>             countRarity = {};
   Map<TypeCard, int>           countType   = {};
@@ -323,7 +324,7 @@ class CardStats {
     return count;
   }
 
-  void add(SubExtension se, PokemonCardExtension card, int idCard) {
+  void add(SubExtension se, PokemonCardExtension card, CardIdentifier idCard) {
     count += 1;
 
     var d = card.data;

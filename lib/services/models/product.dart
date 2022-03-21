@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/Draw/BoosterDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
@@ -69,9 +70,7 @@ class ProductCard {
     isRandom  = mask(code, _randomMask);
 
     // Retrieve card
-    List<int> cardId = [parser.extractInt8(), parser.extractInt16()];
-    if(cardId[0] == 0)
-      cardId.add(parser.extractInt8());
+    var cardId = CardIdentifier.fromBytes(parser);
     card = subExtension.cardFromId(cardId);
 
     // Restore counter
@@ -92,11 +91,8 @@ class ProductCard {
     bytes += ByteEncoder.encodeInt8(code);
 
     // Encode card full Id
-    var id = subExtension.seCards.computeIdCard(card);
-    bytes += ByteEncoder.encodeInt8(id[0]);
-    bytes += ByteEncoder.encodeInt16(id[1]);
-    if(id.length > 2)
-      bytes += ByteEncoder.encodeInt8(id[2]);
+    var id = subExtension.seCards.computeIdCard(card)!;
+    bytes += id.toBytes();
 
     // Encode counter
     bytes += ByteEncoder.encodeInt8(counter.countBySet.length);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/Cartes/CardStatistic.dart';
 
 import 'package:statitikcard/screen/Cartes/statsCard.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
@@ -61,7 +62,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
           SizedBox(height: 10.0,),
           PieExtension(widget.stats.subExt, Visualize.Rarity),
           if (widget.data.cardStats.hasStats() && widget.data.cardStats.stats!.hasData())
-            StatsCard(widget.data.language!, widget.data.cardStats, showByRarity: false, showBySubEx: false, showTitle: false, showByType: false),
+            StatsCard(widget.data.language!, widget.data.cardStats, CardStatisticOptions(), showByRarity: false, showBySubEx: false, showTitle: false, showByType: false),
         ]
       ),
     );

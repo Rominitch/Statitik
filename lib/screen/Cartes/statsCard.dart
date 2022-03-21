@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/screen/Cartes/CardStatistic.dart';
 
 import 'package:statitikcard/screen/Cartes/CardViewer.dart';
+import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Language.dart';
@@ -24,8 +26,9 @@ enum StatsVisualization
 }
 
 class StatsCard extends StatefulWidget {
-  final Language    l;
-  final CardResults stats;
+  final Language             l;
+  final CardResults          stats;
+  final CardStatisticOptions options;
   final bool showTitle;
   final bool showByRarity;
   final bool showByType;
@@ -33,7 +36,7 @@ class StatsCard extends StatefulWidget {
   final bool showByRegion;
   final bool showBySubEx;
 
-  StatsCard(this.l, this.stats,
+  StatsCard(this.l, this.stats, this.options,
   {
     this.showTitle   =true,
     this.showByRarity=true,
@@ -76,7 +79,7 @@ class _StatsCardState extends State<StatsCard> with TickerProviderStateMixin {
         padding: const EdgeInsets.all(6.0),
         child: Text(StatitikLocale.of(context).read('CA_B11')),
       ));
-      tabPages.add(CardSubExtensionReport(widget.stats));
+      tabPages.add(CardSubExtensionReport(widget.stats, widget.options));
     }
     tabHeaders.add(Padding(
       padding: const EdgeInsets.all(6.0),
@@ -90,34 +93,35 @@ class _StatsCardState extends State<StatsCard> with TickerProviderStateMixin {
     ));
 
     return Column(
-        children: [
-          if(widget.showTitle) Center(child: Text(sprintf(StatitikLocale.of(context).read('CA_B6'), [widget.stats.stats!.nbCards()]), style: Theme.of(context).textTheme.headline5)),
-          TabBar(
-            controller: tabController,
-            indicatorPadding: const EdgeInsets.all(1),
-            indicator: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.green,
-            ),
-            tabs: tabHeaders
+      children: [
+        if(widget.showTitle) Center(child: Text(sprintf(StatitikLocale.of(context).read('CA_B6'), [widget.stats.stats!.nbCards()]), style: Theme.of(context).textTheme.headline5)),
+        TabBar(
+          controller: tabController,
+          indicatorPadding: const EdgeInsets.all(1),
+          indicator: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.green,
           ),
-          Expanded(
-            child: TabBarView(
-              controller: tabController,
-              physics: NeverScrollableScrollPhysics(),
-              children: tabPages
-            )
+          tabs: tabHeaders
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: tabController,
+            physics: NeverScrollableScrollPhysics(),
+            children: tabPages
           )
-        ]
+        )
+      ]
     );
   }
 }
 
 class CardSubExtensionReport extends StatefulWidget {
-  final CardResults stats;
-  final StreamController? onFilterChanged;
+  final CardResults          stats;
+  final CardStatisticOptions options;
+  final StreamController?    onFilterChanged;
 
-  const CardSubExtensionReport(this.stats, {this.onFilterChanged, Key? key}) : super(key: key);
+  const CardSubExtensionReport(this.stats, this.options, {this.onFilterChanged, Key? key}) : super(key: key);
 
   @override
   State<CardSubExtensionReport> createState() => _CardSubExtensionReportState();
@@ -158,30 +162,54 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
           tabHeaders.add(
               subExtension.image(hSize: 30.0)
           );
-          tabPages.add(
-            GridView.builder(
+          if( widget.options.showImage ) {
+            tabPages.add(
+              GridView.builder(
+                  padding: EdgeInsets.all(2),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, crossAxisSpacing: 2, mainAxisSpacing: 2, childAspectRatio: 0.8),
+                  itemCount: listCards.length,
+                  itemBuilder: (context, index){
+                    var idCard = listCards[index];
+                    return Card(color: Colors.grey[800],
+                        margin: EdgeInsets.zero,
+                        child: TextButton(child: genericCardWidget(subExtension, idCard),
+                          onPressed: (){
+                            var card = subExtension.seCards.cardFromId(idCard);
+                            Navigator.push(context,
+                              MaterialPageRoute(builder: (context) => CardViewer(subExtension, idCard, card)),
+                            );
+                          },
+                        )
+                    );
+                  }
+              ),
+          );
+          } else {
+            tabPages.add(
+              GridView.builder(
                 padding: EdgeInsets.all(2),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 7, crossAxisSpacing: 2, mainAxisSpacing: 2),
                 itemCount: listCards.length,
                 itemBuilder: (context, index){
                   var idCard = listCards[index];
-                  var name = subExtension.seCards.numberOfCard(idCard);
-
+                  var name = subExtension.seCards.numberOfCard(idCard.numberId);
                   return Card(color: Colors.grey[800],
                       margin: EdgeInsets.zero,
                       child: TextButton(child: Text(name, style: TextStyle(fontSize: name.length > 2 ? (name.length > 3 ? 9 : 12) : 14)),
                         onPressed: (){
                           var card = subExtension.seCards.cards[idCard][0];
                           Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => CardViewer(subExtension, [0, idCard, 0], card)),
+                            MaterialPageRoute(builder: (context) => CardViewer(subExtension, idCard, card)),
                           );
                         },
                       )
                   );
                 }
-            ),
-          );
+              ),
+            );
+          }
         }
       });
     }

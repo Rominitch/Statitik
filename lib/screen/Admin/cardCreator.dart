@@ -4,6 +4,7 @@ import 'package:statitikcard/screen/Admin/cardEffectPanel.dart';
 import 'package:statitikcard/screen/Admin/searchExtensionCardId.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/EnergySlider.dart';
@@ -24,7 +25,7 @@ class CardCreator extends StatefulWidget {
   final bool                  editor;
   final SubExtension          se;
   final PokemonCardExtension  card;
-  final List<int>             idCard;
+  final CardIdentifier        idCard;
   final Function(int listId, int?)?   onAppendCard;
   final Function(int listId)?         onChangeList;
   final List                  listRarity;
@@ -94,21 +95,21 @@ class _CardCreatorState extends State<CardCreator> {
 
       // Search list of card
       var ancestorCard;
-      switch(widget.idCard[0]) {
+      switch(widget.idCard.listId) {
         case 0:
-          ancestorCard = widget.se.seCards.cards.sublist(0, widget.idCard[1]).reversed.firstWhere((element) {
+          ancestorCard = widget.se.seCards.cards.sublist(0, widget.idCard.numberId).reversed.firstWhere((element) {
             idFind+=1;
             return (element[0].jpDBId != 0);
           })[0];
           break;
         case 1:
-          ancestorCard = widget.se.seCards.energyCard.sublist(0, widget.idCard[1]).reversed.firstWhere((element) {
+          ancestorCard = widget.se.seCards.energyCard.sublist(0, widget.idCard.numberId).reversed.firstWhere((element) {
             idFind+=1;
             return (element.jpDBId != 0);
           });
           break;
         case 2:
-          ancestorCard = widget.se.seCards.noNumberedCard.sublist(0, widget.idCard[1]).reversed.firstWhere((element) {
+          ancestorCard = widget.se.seCards.noNumberedCard.sublist(0, widget.idCard.numberId).reversed.firstWhere((element) {
             idFind+=1;
             return (element.jpDBId != 0);
           });

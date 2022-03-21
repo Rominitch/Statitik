@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
 
 import 'package:statitikcard/services/PokemonCardData.dart';
@@ -9,12 +10,12 @@ import 'package:statitikcard/services/models/product.dart';
 
 class CardSelectorProductCard extends GenericCardSelector {
   final ProductCard card;
-  late List<int> idCard;
+  late CardIdentifier idCard;
 
   static const int _limitSet = 255;
 
   CardSelectorProductCard(this.card): super() {
-    idCard = subExtension().seCards.computeIdCard(card.card);
+    idCard = subExtension().seCards.computeIdCard(card.card)!;
   }
 
   @override
@@ -114,7 +115,7 @@ class CardSelectorProductCard extends GenericCardSelector {
         Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text(subExtension().seCards.numberOfCard(idCard[1])),
+              Text(subExtension().seCards.numberOfCard(idCard.numberId)),
               card.isRandom ? Text("R") : Text(card.counter.countBySet.join(" | "))
             ]
         ),

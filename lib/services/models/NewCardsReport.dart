@@ -1,23 +1,15 @@
-import 'package:flutter/foundation.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 
 class NewCardReport {
-  List<int>   idCard;
-  CodeDraw    state;
+  CardIdentifier  idCard;
+  CodeDraw        state;
 
   NewCardReport(this.idCard, this.state);
 
   int compareTo(NewCardReport other) {
-    var itOther = other.idCard.iterator;
-    for(var element in idCard) {
-      if(itOther.moveNext()) {
-        var cmp = element.compareTo(itOther.current);
-        if(cmp != 0)
-          return cmp;
-      }
-    }
-    return 0;
+    return idCard.compareTo(other.idCard);
   }
 }
 
@@ -33,7 +25,7 @@ class NewCardsReport {
     // Search for merge
     bool find=false;
     for(int id=0; id < list.length; id +=1) {
-      if( listEquals(list[id].idCard, code.idCard) ) {
+      if( list[id].idCard.isEqual(code.idCard) ) {
         list[id].state.add(code.state);
 
         find=true;

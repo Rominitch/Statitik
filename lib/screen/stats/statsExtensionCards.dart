@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:statitikcard/screen/Cartes/CardViewer.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 
@@ -95,7 +96,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> with SingleTi
     );
   }
 
-  Widget createCardWidget(List<int> id, PokemonCardExtension cardData, String cardName, StatsPerCard? statsOfCard, int listId) {
+  Widget createCardWidget(CardIdentifier id, PokemonCardExtension cardData, String cardName, StatsPerCard? statsOfCard, int listId) {
     Widget? extendedType = cardData.imageTypeExtended(generate: true, sizeIcon: 14.0);
     return Card(
       margin: EdgeInsets.all(2.0),
@@ -178,7 +179,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> with SingleTi
                       var cardData = widget.info.statsData.subExt!.seCards.cards[id][0];
                       var statsOfCard = id < statsPerCard.length ? statsPerCard[id] : null;
                       final cardName = widget.info.statsData.subExt!.seCards.numberOfCard(id);
-                      return createCardWidget([0, id, 0], cardData, cardName, statsOfCard, 0);
+                      return createCardWidget(CardIdentifier.from([0, id, 0]), cardData, cardName, statsOfCard, 0);
                     },
                   ),
                 if(widget.info.statsData.subExt!.seCards.energyCard.isNotEmpty)
@@ -192,7 +193,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> with SingleTi
                       var cardData = widget.info.statsData.subExt!.seCards.energyCard[id];
                       final cardName = cardData.numberOfCard(id);
 
-                      return createCardWidget([1, id], cardData, cardName, null, 1);
+                      return createCardWidget(CardIdentifier.from([1, id]), cardData, cardName, null, 1);
                     }
                   ),
                 if(widget.info.statsData.subExt!.seCards.noNumberedCard.isNotEmpty)
@@ -206,7 +207,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> with SingleTi
                       var cardData = widget.info.statsData.subExt!.seCards.noNumberedCard[id];
                       final cardName = cardData.numberOfCard(id);
 
-                      return createCardWidget([2, id], cardData, cardName, null, 2);
+                      return createCardWidget(CardIdentifier.from([2, id]), cardData, cardName, null, 2);
                     },
                   ),
               ]

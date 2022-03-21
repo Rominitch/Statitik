@@ -8,19 +8,18 @@ import 'package:path_provider/path_provider.dart';
 import 'package:statitikcard/services/Tools.dart';
 
 class StorageData {
-  //final StreamController controler;
   final List<String> folders;
   final String    imageLocalPath;
   final List<Uri> urls;
   final bool      force;
 
-  const StorageData(/*this.controler,*/ this.folders, this.imageLocalPath, this.urls, {this.force=false});
+  const StorageData(this.folders, this.imageLocalPath, this.urls, {this.force=false});
 }
 
 class ImageStorage {
   Future<String> imageLocalPath(List<String> folders, String file, String extension) async {
     final directory = await getApplicationDocumentsDirectory();
-    return ([directory.path, ]+folders+["$file.$extension"]).join(Platform.pathSeparator);
+    return ([directory.path]+folders+["$file.$extension"]).join(Platform.pathSeparator);
   }
 
   Future<File?> storeImageToFile(String imageLocalPath, List<Uri> urls) async {
@@ -36,7 +35,7 @@ class ImageStorage {
 
           var ext = url.path.substring(url.path.length - 3);
           // Save on local
-          file = File(imageLocalPath + ext);
+          file = File(imageLocalPath+ext);
           try {
             await file.create(recursive: true);
             await file.writeAsBytes(bodyBytes, flush: true);
@@ -44,6 +43,8 @@ class ImageStorage {
             // Clean bad file save
             if(file != null && file.existsSync())
               file.deleteSync();
+
+            file = null;
           }
         } catch(e) {
           //printOutput("HTTP: ERROR $e\n$stack");

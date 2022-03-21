@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -17,7 +18,7 @@ class SearchExtensionsCardId extends StatelessWidget {
 
   const SearchExtensionsCardId(this.type, this.name, this.title, this.currentId, {Key? key}) : super(key: key);
 
-  void createWidgetCard(BuildContext context, PokemonCardExtension cardEx, SubExtension subExtension, List<int> id,
+  void createWidgetCard(BuildContext context, PokemonCardExtension cardEx, SubExtension subExtension, CardIdentifier id,
                         Set<PokemonCardData> cards, List<Widget> cardImageWidget, List<Widget> cardsWidgets) {
     var cardData = cardEx.data;
     if(type == cardData.type // Keep only same type
@@ -54,7 +55,7 @@ class SearchExtensionsCardId extends StatelessWidget {
               child: TextButton(
                 child: Column(
                   children: [
-                    Expanded(child: Text(subExtension.seCards.numberOfCard(id[1]))),
+                    Expanded(child: Text(subExtension.seCards.numberOfCard(id.numberId))),
                     Text(localId.toString(), style: TextStyle(fontSize: 8)),
                   ],
                 ),
@@ -85,19 +86,19 @@ class SearchExtensionsCardId extends StatelessWidget {
         // Search all basic cards ...
         int id=0;
         subExtension.seCards.cards.forEach((List<PokemonCardExtension> allCards) {
-          createWidgetCard(context, allCards[0], subExtension, [0, id, 0], cards, cardImageWidget, cardsWidgets);
+          createWidgetCard(context, allCards[0], subExtension, CardIdentifier.from([0, id, 0]), cards, cardImageWidget, cardsWidgets);
           id += 1;
         });
         // ... and energy
         id=0;
         subExtension.seCards.energyCard.forEach((PokemonCardExtension allCards) {
-          createWidgetCard(context, allCards, subExtension, [1, id], cards, cardImageWidget, cardsWidgets);
+          createWidgetCard(context, allCards, subExtension, CardIdentifier.from([1, id]), cards, cardImageWidget, cardsWidgets);
           id += 1;
         });
         // ... and no number
         id=0;
         subExtension.seCards.noNumberedCard.forEach((PokemonCardExtension allCards) {
-          createWidgetCard(context, allCards, subExtension, [2, id], cards, cardImageWidget, cardsWidgets);
+          createWidgetCard(context, allCards, subExtension, CardIdentifier.from([2, id]), cards, cardImageWidget, cardsWidgets);
           id += 1;
         });
 

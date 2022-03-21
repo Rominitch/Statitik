@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 
 import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/Tools.dart';
@@ -42,39 +43,34 @@ class SubExtension
     return DateFormat('yyyyMMdd').format(out);
   }
 
-  PokemonCardExtension cardFromId(List<int> cardId) {
-    assert(cardId.length >= 2);
-    switch(cardId[0]){
+  PokemonCardExtension cardFromId(CardIdentifier cardId) {
+    switch(cardId.listId){
       case 0: {
-        assert(cardId.length == 3);
-        return seCards.cards[cardId[1]][cardId[2]];
+        return seCards.cards[cardId.numberId][cardId.alternativeId];
       }
       case 1: {
-        return seCards.energyCard[cardId[1]];
+        return seCards.energyCard[cardId.numberId];
       }
       case 2: {
-        return seCards.noNumberedCard[cardId[1]];
+        return seCards.noNumberedCard[cardId.numberId];
       }
       default:
         throw StatitikException("Unknown list");
     }
   }
 
-  Widget cardInfo(List<int> cardId) {
-    assert(cardId.length >= 2);
+  Widget cardInfo(CardIdentifier cardId) {
     var card = cardFromId(cardId);
-
-    switch(cardId[0]){
+    switch(cardId.listId){
       case 0: {
-        assert(cardId.length == 3);
-        var label = seCards.numberOfCard(cardId[1]);
+        var label = seCards.numberOfCard(cardId.numberId);
         return Text(label, style: TextStyle(fontSize: label.length > 3 ? 10 : 12));
       }
       case 1: {
         return card.imageTypeExtended() ?? card.imageType();
       }
       case 2: {
-        return Text(card.numberOfCard(cardId[1]));
+        return Text(card.numberOfCard(cardId.numberId));
       }
       default:
         throw StatitikException("Unknown list");

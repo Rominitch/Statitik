@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/Draw/SessionDraw.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
@@ -159,19 +160,18 @@ class UserCardCounter
   }
 
   void addRandomCard(ProductCard card, CodeDraw counter, [NewCardsReport? report]) {
-    var idCard = card.subExtension.seCards.computeIdCard(card.card);
-    assert(idCard.isNotEmpty);
+    var idCard = card.subExtension.seCards.computeIdCard(card.card)!;
 
     var code;
-    switch(idCard[0]) {
+    switch(idCard.listId) {
       case 0:
-        code = cards[idCard[1]][idCard[2]].add(counter);
+        code = cards[idCard.numberId][idCard.alternativeId].add(counter);
         break;
       case 1:
-        code = energies[idCard[1]].add(counter);
+        code = energies[idCard.numberId].add(counter);
         break;
       case 2:
-        code = noNumbers[idCard[1]].add(counter);
+        code = noNumbers[idCard.numberId].add(counter);
         break;
       default:
         throw StatitikException("Missing list !");
@@ -188,7 +188,7 @@ class UserCardCounter
       if(dstCode.moveNext()) {
         var code = dstCode.current.add(cardCode);
         if(code != null && report!= null) {
-          report.add(se, NewCardReport(listId + [idCard], code));
+          report.add(se, NewCardReport(CardIdentifier.from(listId + [idCard]), code));
         }
         idCard +=1;
       }
@@ -199,24 +199,21 @@ class UserCardCounter
     assert(productCard.subExtension == subExtension);
     if( !productCard.isRandom ) {
       CodeDraw? report;
-      var idCards = subExtension.seCards.computeIdCard(productCard.card);
-      switch(idCards[0]) {
+      var idCards = subExtension.seCards.computeIdCard(productCard.card)!;
+      switch(idCards.listId) {
         case 0:
-          assert(idCards.length == 3);
-          if (idCards[1] < cards.length &&
-              idCards[2] < cards[idCards[1]].length)
-            report = cards[idCards[1]][idCards[2]].add(
+          if (idCards.numberId < cards.length &&
+              idCards.alternativeId < cards[idCards.numberId].length)
+            report = cards[idCards.numberId][idCards.alternativeId].add(
                 productCard.counter, mulFactor);
           break;
         case 1:
-          assert(idCards.length == 2);
-          if (idCards[1] < energies.length)
-            report = energies[idCards[1]].add(productCard.counter, mulFactor);
+          if (idCards.numberId < energies.length)
+            report = energies[idCards.numberId].add(productCard.counter, mulFactor);
           break;
         case 2:
-          assert(idCards.length == 2);
-          if (idCards[1] < noNumbers.length)
-            report = noNumbers[idCards[1]].add(productCard.counter, mulFactor);
+          if (idCards.numberId < noNumbers.length)
+            report = noNumbers[idCards.numberId].add(productCard.counter, mulFactor);
           break;
         default:
           throw StatitikException("Unknown List");
@@ -262,15 +259,15 @@ class PokeSpace
 
   PokeSpace();
 
-  CodeDraw cardCounter(SubExtension subExtension, List<int> idCard) {
+  CodeDraw cardCounter(SubExtension subExtension, CardIdentifier idCard) {
     var info = myCards[subExtension]!;
-    switch(idCard[0]) {
+    switch(idCard.listId) {
       case 0:
-        return info.cards[idCard[1]][idCard[2]];
+        return info.cards[idCard.numberId][idCard.alternativeId];
       case 1:
-        return info.energies[idCard[1]];
+        return info.energies[idCard.numberId];
       case 2:
-        return info.noNumbers[idCard[1]];
+        return info.noNumbers[idCard.numberId];
       default:
         throw StatitikException("Unknown list !");
     }

@@ -3,11 +3,13 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import 'package:mysql1/mysql1.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/BytesCoder.dart';
+import 'package:statitikcard/services/models/CardIntoSubExtensions.dart';
 import 'package:statitikcard/services/models/CardTitleData.dart';
 import 'package:statitikcard/services/models/Extension.dart';
 import 'package:statitikcard/services/models/Language.dart';
@@ -24,14 +26,6 @@ import 'package:statitikcard/services/PokemonCardData.dart';
 import 'package:statitikcard/services/Draw/SessionDraw.dart';
 import 'package:statitikcard/services/TimeReport.dart';
 import 'package:statitikcard/services/Tools.dart';
-
-class CardIntoSubExtensions {
-  SubExtension         se;
-  List<int>            position;
-  PokemonCardExtension card;
-
-  CardIntoSubExtensions(this.se, this.position,/*this.listOfSe,*/ this.card);
-}
 
 class Collection
 {
@@ -638,7 +632,7 @@ class Collection
         int subId=0;
         cards.forEach((card) {
           if(card.data == searchCard) {
-            result.add(CardIntoSubExtensions(subExtension, [0, id, subId], card));
+            result.add(CardIntoSubExtensions.withAll(subExtension, CardIdentifier.from([0, id, subId]), card));
           }
           subId += 1;
         });
@@ -648,7 +642,7 @@ class Collection
       id=0;
       subExtension.seCards.energyCard.forEach((card) {
         if(card.data == searchCard) {
-          result.add(CardIntoSubExtensions(subExtension, [1, id], card));
+          result.add(CardIntoSubExtensions.withAll(subExtension, CardIdentifier.from([1, id]), card));
         }
         id += 1;
       });
@@ -656,7 +650,7 @@ class Collection
       id=0;
       subExtension.seCards.noNumberedCard.forEach((card) {
         if(card.data == searchCard) {
-          result.add(CardIntoSubExtensions(subExtension, [2, id], card));
+          result.add(CardIntoSubExtensions.withAll(subExtension, CardIdentifier.from([2, id]), card));
         }
         id += 1;
       });
@@ -676,7 +670,7 @@ class Collection
           cards.forEach((card) {
             if(card.data == searchCard) {
               alreadyFind.add(subExtension.seCards);
-              result.add(CardIntoSubExtensions(subExtension, [0, id, subId], card));
+              result.add(CardIntoSubExtensions.withAll(subExtension, CardIdentifier.from([0, id, subId]), card));
             }
             subId += 1;
           });
@@ -686,7 +680,7 @@ class Collection
         id=0;
         subExtension.seCards.energyCard.forEach((card) {
           if(card.data == searchCard) {
-            result.add(CardIntoSubExtensions(subExtension, [1, id], card));
+            result.add(CardIntoSubExtensions.withAll(subExtension, CardIdentifier.from([1, id]), card));
           }
           id += 1;
         });
@@ -694,7 +688,7 @@ class Collection
         id=0;
         subExtension.seCards.noNumberedCard.forEach((card) {
           if(card.data == searchCard) {
-            result.add(CardIntoSubExtensions(subExtension, [2, id], card));
+            result.add(CardIntoSubExtensions.withAll(subExtension, CardIdentifier.from([2, id]), card));
           }
           id += 1;
         });

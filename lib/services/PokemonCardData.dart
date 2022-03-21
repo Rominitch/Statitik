@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/CardSet.dart';
@@ -501,13 +502,29 @@ class SubExtensionCards {
     return mask(configuration, _notInsideRandom);
   }
 
-  List<int> computeIdCard(PokemonCardExtension card) {
+  PokemonCardExtension cardFromId(CardIdentifier cardId) {
+    switch(cardId.listId){
+      case 0: {
+        return cards[cardId.numberId][cardId.alternativeId];
+      }
+      case 1: {
+        return energyCard[cardId.numberId];
+      }
+      case 2: {
+        return noNumberedCard[cardId.numberId];
+      }
+      default:
+        throw StatitikException("Unknown list");
+    }
+  }
+
+  CardIdentifier? computeIdCard(PokemonCardExtension card) {
     int id=0;
     for(var subCards in cards) {
       int subId=0;
       for(var subCard in subCards) {
         if (subCard == card) {
-          return [0, id, subId];
+          return CardIdentifier.from([0, id, subId]);
         }
         subId +=1;
       }
@@ -516,18 +533,18 @@ class SubExtensionCards {
     id=0;
     for(var subCard in energyCard) {
       if (subCard == card) {
-        return [1, id];
+        return CardIdentifier.from([1, id]);
       }
       id += 1;
     }
     id=0;
     for(var subCard in noNumberedCard) {
       if (subCard == card) {
-        return [2, id];
+        return CardIdentifier.from([2, id]);
       }
       id += 1;
     }
-    return [];
+    return null;
   }
 
   String numberOfCard(int id) {
@@ -554,17 +571,8 @@ class SubExtensionCards {
     : "";
   }
 
-  String readTitleOfCard(Language l, List<int> idCard) {
-    assert(idCard.isNotEmpty);
-    switch(idCard[0]) {
-      case 0:
-        return cards[idCard[1]][idCard[2]].data.titleOfCard(l);
-      case 1:
-        return energyCard[idCard[1]].data.titleOfCard(l);
-      case 2:
-        return noNumberedCard[idCard[1]].data.titleOfCard(l);
-    }
-    return "";
+  String readTitleOfCard(Language l, CardIdentifier idCard) {
+    return cardFromId(idCard).data.titleOfCard(l);
   }
 
   List<int> toBytes(Map collectionCards, Map allSets, Map rarities) {
@@ -596,5 +604,38 @@ class SubExtensionCards {
 
     printOutput("SubExtensionCards: other Card data: ${cardBytes.length+1} compressed: ${finalBytes.length}");
     return finalBytes;
+  }
+
+  CardIdentifier? nextId(CardIdentifier id) {
+    int nextId = id.numberId+1;
+    switch(id.listId){
+      case 0: {
+        return nextId < cards.length ? CardIdentifier.from([id.listId, nextId, 0]): null;
+      }
+      case 1: {
+        return nextId < energyCard.length ? CardIdentifier.from([id.listId, nextId]): null;
+      }
+      case 2: {
+        return nextId < noNumberedCard.length ? CardIdentifier.from([id.listId, nextId]): null;
+      }
+      default:
+        throw StatitikException("Unknown list");
+    }
+  }
+
+  cardList(CardIdentifier id) {
+    switch(id.listId){
+      case 0: {
+        return cards;
+      }
+      case 1: {
+        return energyCard;
+      }
+      case 2: {
+        return noNumberedCard;
+      }
+      default:
+        throw StatitikException("Unknown list");
+    }
   }
 }

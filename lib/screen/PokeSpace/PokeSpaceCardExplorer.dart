@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 
 import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorPokeSpace.dart';
 import 'package:statitikcard/screen/widgets/PokemonCard.dart';
@@ -73,7 +74,7 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
 
     var card = [];
     for(int id=0; id < widget.subExtension.seCards.cards.length; id +=1) {
-      var notUser = widget.pokeSpace.cardCounter(widget.subExtension, [0, id, 0]).count() == 0;
+      var notUser = widget.pokeSpace.cardCounter(widget.subExtension, CardIdentifier.from([0, id, 0])).count() == 0;
       if( checkVisible(notUser) )
         card.add(id);
     }
@@ -81,7 +82,7 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
 
     card = [];
     for(int id=0; id < widget.subExtension.seCards.energyCard.length; id +=1) {
-      var notUser = widget.pokeSpace.cardCounter(widget.subExtension, [1, id]).count() == 0;
+      var notUser = widget.pokeSpace.cardCounter(widget.subExtension, CardIdentifier.from([1, id])).count() == 0;
       if( checkVisible(notUser) )
         card.add(id);
     }
@@ -89,7 +90,7 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
 
     card = [];
     for(int id=0; id < widget.subExtension.seCards.noNumberedCard.length; id +=1) {
-      var notUser = widget.pokeSpace.cardCounter(widget.subExtension, [2, id]).count() == 0;
+      var notUser = widget.pokeSpace.cardCounter(widget.subExtension, CardIdentifier.from([2, id])).count() == 0;
       if( checkVisible(notUser) )
         card.add(id);
     }
@@ -167,7 +168,7 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
                             childAspectRatio: 0.7),
                         itemCount: cards[0].length,
                         itemBuilder: (context, id) {
-                          var cardSelector = CardSelectorPokeSpace(widget.subExtension, widget.pokeSpace, [0, cards[0][id], 0]);
+                          var cardSelector = CardSelectorPokeSpace(widget.subExtension, widget.pokeSpace, CardIdentifier.from([0, cards[0][id], 0]));
                           return PokemonCard(cardSelector, refresh: refresh, readOnly: false, singlePress: true, afterOpenSelector: afterLaunchEditor);
                         },
                       ),
@@ -179,7 +180,7 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
                             childAspectRatio: 0.7),
                         itemCount: cards[1].length,
                         itemBuilder: (context, id) {
-                          var cardSelector = CardSelectorPokeSpace( widget.subExtension, widget.pokeSpace, [1, cards[1][id]]);
+                          var cardSelector = CardSelectorPokeSpace( widget.subExtension, widget.pokeSpace, CardIdentifier.from([1, cards[1][id]]));
                           return PokemonCard(cardSelector, refresh: refresh, readOnly: false, singlePress: true, afterOpenSelector: afterLaunchEditor);
                         },
                       ),
@@ -191,7 +192,7 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
                             childAspectRatio: 0.7),
                         itemCount: cards[2].length,
                         itemBuilder: (context, id) {
-                          var cardSelector = CardSelectorPokeSpace( widget.subExtension, widget.pokeSpace, [2, cards[2][id]]);
+                          var cardSelector = CardSelectorPokeSpace( widget.subExtension, widget.pokeSpace, CardIdentifier.from([2, cards[2][id]]));
                           return PokemonCard(cardSelector, refresh: refresh, readOnly: false, singlePress: true, afterOpenSelector: afterLaunchEditor);
                         },
                       ),

@@ -62,7 +62,7 @@ class CardSelectorProductDraw extends CardSelectorProductCard {
   @override
   Widget cardWidget() {
     var cardEx = cardExtension();
-    List<int> idCard = subExtension().seCards.computeIdCard(cardEx);
+    var idCard = subExtension().seCards.computeIdCard(cardEx)!;
     int nbCard = codeDraw().count();
     return Column(
         mainAxisAlignment: MainAxisAlignment.center,

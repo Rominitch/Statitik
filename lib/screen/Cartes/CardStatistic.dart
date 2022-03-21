@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/Cartes/CardFilterSelector.dart';
 import 'package:statitikcard/screen/Cartes/CardNameSelector.dart';
 import 'package:statitikcard/screen/Cartes/statsCard.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/TimeReport.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -12,6 +13,10 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
+
+class CardStatisticOptions {
+  bool showImage = false;
+}
 
 class CardStatisticPage extends StatefulWidget {
   const CardStatisticPage({Key? key}) : super(key: key);
@@ -21,6 +26,7 @@ class CardStatisticPage extends StatefulWidget {
 }
 
 class _CardStatisticPageState extends State<CardStatisticPage> with TickerProviderStateMixin {
+  CardStatisticOptions options = CardStatisticOptions();
   late TabController tabController;
 
   @override
@@ -44,7 +50,7 @@ class _CardStatisticPageState extends State<CardStatisticPage> with TickerProvid
         child: language.barIcon(),
       ));
 
-      tabPages.add(CardFilteredReport(language));
+      tabPages.add(CardFilteredReport(language, options));
     });
 
     return Scaffold(
@@ -52,6 +58,22 @@ class _CardStatisticPageState extends State<CardStatisticPage> with TickerProvid
         title: Center(
           child: Text( StatitikLocale.of(context).read('CA_T0'), style: Theme.of(context).textTheme.headline3),
         ),
+        actions: <Widget>[
+          Padding(
+          padding: EdgeInsets.only(right: 20.0),
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  options.showImage = !options.showImage;
+                });
+              },
+              child: Icon(
+                options.showImage ? Icons.image_outlined : Icons.text_snippet_outlined,
+                size: 26.0,
+              ),
+            )
+        ),
+        ]
       ),
       body: SafeArea(
         child: Column(
@@ -81,8 +103,9 @@ class _CardStatisticPageState extends State<CardStatisticPage> with TickerProvid
 
 class CardFilteredReport extends StatefulWidget {
   final Language language;
+  final CardStatisticOptions options;
 
-  const CardFilteredReport(this.language, {Key? key}) : super(key: key);
+  const CardFilteredReport(this.language, this.options, {Key? key}) : super(key: key);
 
   @override
   State<CardFilteredReport> createState() => _CardFilteredReportState();
@@ -143,7 +166,7 @@ class _CardFilteredReportState extends State<CardFilteredReport> {
                   Expanded(
                     child: Card(child: Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: StatsCard(widget.language, _filterData))
+                      child: StatsCard(widget.language, _filterData, widget.options))
                     ),
                   )
                 : Padding(
@@ -172,7 +195,7 @@ class _CardFilteredReportState extends State<CardFilteredReport> {
           subExt.seCards.cards.forEach((List<PokemonCardExtension> cards) {
             cards.forEach((singleCard) {
               if( _filterData.isSelected(singleCard) ) {
-                stats.add(subExt, singleCard, id);
+                stats.add(subExt, singleCard, CardIdentifier.from([0, id, 0]));
               }
             });
             id += 1;

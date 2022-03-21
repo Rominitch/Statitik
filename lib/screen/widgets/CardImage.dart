@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:kana_kit/kana_kit.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/ImageStoredLocally.dart';
 
 import 'package:statitikcard/services/environment.dart';
@@ -12,14 +13,14 @@ import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
 
 
-Widget genericCardWidget(SubExtension se, List<int> idCard, {double height=400, Language? language, bool reloader=false}) {
+Widget genericCardWidget(SubExtension se, CardIdentifier idCard, {double height=400, Language? language, bool reloader=false}) {
   if( Environment.instance.storeImageLocally ) {
     Widget? alternative;
     if( language != null ) {
       alternative = Center(child: Text(se.seCards.readTitleOfCard(language, idCard)));
     }
     return ImageStoredLocally(["images", "card", se.extension.language.image, se.seCode.first],
-      "${idCard.join("_")}", CardImage.computeImageURI(se, idCard), height: height, alternativeRendering: alternative, reloader: reloader);
+      idCard.toString(), CardImage.computeImageURI(se, idCard), height: height, alternativeRendering: alternative, reloader: reloader);
 
   } else {
     return CardImage(se, se.cardFromId(idCard), idCard, height: height, language: language);
@@ -31,11 +32,11 @@ class CardImage extends StatefulWidget {
   final double height;
   final SubExtension se;
   final PokemonCardExtension card;
-  final List<int> idCard;
+  final CardIdentifier idCard;
   final Language? language;
 
   CardImage(SubExtension se, PokemonCardExtension card, this.idCard, {this.height=400, this.language}) :
-    cardImage = computeImageLabel(se, card, idCard[1]), this.card = card, this.se = se;
+    cardImage = computeImageLabel(se, card, idCard.numberId), this.card = card, this.se = se;
 
   static String convertRomaji(String name) {
     const Map<String, String> conversions = {
@@ -109,8 +110,8 @@ class CardImage extends StatefulWidget {
     return romajiName;
   }
 
-  static List<Uri> computeImageURI(SubExtension se, List<int> card) {
-    return computeImageLabel(se, se.cardFromId(card), card[1]);
+  static List<Uri> computeImageURI(SubExtension se, CardIdentifier card) {
+    return computeImageLabel(se, se.cardFromId(card), card.numberId);
   }
 
   static List<Uri> computeImageLabel(SubExtension se, PokemonCardExtension card, int id) {

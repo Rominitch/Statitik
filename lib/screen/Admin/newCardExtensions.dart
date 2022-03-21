@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -142,7 +143,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
 
     int localId     = id;
     int localListId = listId;
-    var idCard = localListId != 0 ? [localListId, localId] : [localListId, localId,0];
+    var idCard = CardIdentifier.from(localListId != 0 ? [localListId, localId] : [localListId, localId, 0]);
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: TextButton(
@@ -199,7 +200,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CardEditor(card, _language!.isWorld(), _se!, idCard)),
+            MaterialPageRoute(builder: (context) => CardEditor(_language!.isWorld(), _se!, idCard)),
           ).then((value) {
             setState(() {
               updateCardList(localListId);
@@ -335,7 +336,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                 },
               )
             ),
-            if(_se != null) CardCreator.quick(_language!, _se!, data, [0, 0, 0], onAddCard, _language!.isWorld(), onChangeList: onChangeList),
+            if(_se != null) CardCreator.quick(_language!, _se!, data, CardIdentifier.from([0, 0, 0]), onAddCard, _language!.isWorld(), onChangeList: onChangeList),
             if(_se != null && _se!.seCards.cards.isNotEmpty && idList == 0) GridView.count(
                 primary: false,
                 children: _cardInfo,

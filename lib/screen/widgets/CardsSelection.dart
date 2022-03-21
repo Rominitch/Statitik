@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Language.dart';
@@ -46,7 +47,7 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
     super.initState();
   }
   
-  Widget createCardButton(PokemonCardExtension card, List<int> cardId) {
+  Widget createCardButton(PokemonCardExtension card, CardIdentifier cardId) {
     return Card(
       color: selection.cards.contains(card) ? Colors.green : Colors.grey.shade700,
       margin: EdgeInsets.all(3.0),
@@ -80,9 +81,10 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
       shrinkWrap: true,
       primary: false,
       itemBuilder: (context, id) {
-        var cardId = [idList, id];
+        var cardListId = [idList, id];
         if(idList == 0)
-          cardId.add(0);
+          cardListId.add(0);
+        var cardId = CardIdentifier.from(cardListId);
         return createCardButton(widget.subExtension.cardFromId(cardId), cardId);
       },
     );
