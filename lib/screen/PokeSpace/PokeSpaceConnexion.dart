@@ -205,9 +205,12 @@ class _DrawHomePageState extends State<DrawHomePage> {
       }).whenComplete(() {
         // Search local collection
         UserDrawCollection.readSavedDraws().then((value) {
-          setState(() {
-            userDraw = value;
-          });
+          // WARNING: avoid infinite loop
+          if(userDraw.length != value.length) {
+            setState(() {
+              userDraw = value;
+            });
+          }
         });
       });
 

@@ -156,7 +156,9 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
               Row(mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(_se!.seCards.numberOfCard(localId)),
-                  if(_language!.isJapanese() && card.jpDBId == 0) Icon(Icons.broken_image, color: Colors.deepOrange, size: 11)
+                  if(_language!.isJapanese() && card.jpDBId == 0) Icon(Icons.broken_image, color: Colors.deepOrange, size: 11),
+                  if(card.data.missingMainData())           Icon(Icons.text_format, color: Colors.red, size: 10),
+                  if(card.data.cardEffects.effects.isEmpty) Icon(Icons.filter_vintage_outlined, color: Colors.red, size: 10),
               ])
             ]
         ),

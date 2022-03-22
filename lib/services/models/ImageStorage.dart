@@ -11,9 +11,8 @@ class StorageData {
   final List<String> folders;
   final String    imageLocalPath;
   final List<Uri> urls;
-  final bool      force;
 
-  const StorageData(this.folders, this.imageLocalPath, this.urls, {this.force=false});
+  const StorageData(this.folders, this.imageLocalPath, this.urls);
 }
 
 class ImageStorage {
@@ -27,10 +26,8 @@ class ImageStorage {
     for (var url in urls) {
       if(file == null) {
         // Try to download image
-        final client = RetryClient(Client(), retries: 3);
+        final client = RetryClient(Client(), retries: 3, );
         try {
-          //printOutput("Try to extract: ${url.toString()} with ext= $ext");
-
           var bodyBytes = await client.readBytes(url);
 
           var ext = url.path.substring(url.path.length - 3);
@@ -47,7 +44,6 @@ class ImageStorage {
             file = null;
           }
         } catch(e) {
-          //printOutput("HTTP: ERROR $e\n$stack");
         } finally {
           client.close();
         }
@@ -57,18 +53,24 @@ class ImageStorage {
   }
 
   Future<File?> imageFromPath(StorageData data) async {
-    var imageLocale = await imageLocalPath(data.folders, data.imageLocalPath, "");
-    var file = File(imageLocale+"png");
-    var ok = await file.exists();
-    if(!ok) {
-      file = File(imageLocale+"jpg");
-      ok = await file.exists();
-    }
+    try {
+      var imageLocale = await imageLocalPath(data.folders, data.imageLocalPath, "");
+      var file = File(imageLocale+"png");
+      var ok = file.existsSync();
 
-    if(ok && !data.force) {
-      return file;
-    } else {
-      return await storeImageToFile(imageLocale, data.urls);
+      if(!ok) {
+        file = File(imageLocale+"jpg");
+        ok = file.existsSync();
+      }
+
+      if(ok) {
+        return file;
+      } else {
+        return await storeImageToFile(imageLocale, data.urls);
+      }
+    }
+    catch(error) {
+      return null;
     }
   }
 

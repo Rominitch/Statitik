@@ -189,6 +189,10 @@ class PokemonCardData {
   }
 
   PokemonCardData.empty() : title=[], level=Level.Base, type=TypeCard.Unknown, markers=CardMarkers(), life=0, retreat=0;
+
+  bool missingMainData() {
+    return isPokemonType(type) && life == 0;
+  }
 }
 
 class PokemonCardExtension {

@@ -82,7 +82,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.8.4';
+    final String version = '1.8.5';
 
     // State
     bool isInitialized          = false;
@@ -93,7 +93,7 @@ class Environment
     bool showTCGImages          = false;
     bool isMaintenance          = false;
 
-    bool storeImageLocally      = false;
+    bool storeImageLocally      = true;
 
     // Cached data
     Collection collection = Collection();

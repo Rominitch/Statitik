@@ -148,7 +148,9 @@ class _OptionsPageState extends State<OptionsPage> {
                             Environment.instance.storeImageLocally);
                       }).whenComplete(() {
                         Environment.instance.storage.clean().then((value) {
-                          setState(() {});
+                          setState(() {
+                            moSize = 0.0;
+                          });
                           EasyLoading.dismiss();
                         });
                       });
@@ -160,7 +162,6 @@ class _OptionsPageState extends State<OptionsPage> {
                         Text(StatitikLocale.of(context).read('O_B11'), softWrap: true, textAlign: TextAlign.left, style: TextStyle(fontSize: 10)),
                         if(Environment.instance.storeImageLocally)
                           (moSize != null) ? Text(sprintf(StatitikLocale.of(context).read('O_B12'), [moSize]), textAlign: TextAlign.left, style: TextStyle(fontSize: 10)) : CircularProgressIndicator(color: Colors.orange[300]),
-                        Text(StatitikLocale.of(context).read('devBeta'), softWrap: true, textAlign: TextAlign.left, style: TextStyle(fontSize: 10)),
                     ]),
                   ],
                 ),
