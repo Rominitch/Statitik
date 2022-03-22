@@ -29,21 +29,8 @@ class StatsCard extends StatefulWidget {
   final Language             l;
   final CardResults          stats;
   final CardStatisticOptions options;
-  final bool showTitle;
-  final bool showByRarity;
-  final bool showByType;
-  final bool showByMarker;
-  final bool showByRegion;
-  final bool showBySubEx;
 
-  StatsCard(this.l, this.stats, this.options,
-  {
-    this.showTitle   =true,
-    this.showByRarity=true,
-    this.showByType  =true,
-    this.showByMarker=true,
-    this.showByRegion=true,
-    this.showBySubEx =true});
+  StatsCard(this.l, this.stats, this.options);
 
   @override
   _StatsCardState createState() => _StatsCardState();
@@ -74,7 +61,7 @@ class _StatsCardState extends State<StatsCard> with TickerProviderStateMixin {
     List<Widget> tabHeaders = [];
     List<Widget> tabPages   = [];
 
-    if (widget.showBySubEx && (widget.stats.isSpecific() || widget.stats.isFiltered())) {
+    if (widget.options.showBySubEx && (widget.stats.isSpecific() || widget.stats.isFiltered())) {
       tabHeaders.add(Padding(
         padding: const EdgeInsets.all(6.0),
         child: Text(StatitikLocale.of(context).read('CA_B11')),
@@ -85,16 +72,11 @@ class _StatsCardState extends State<StatsCard> with TickerProviderStateMixin {
       padding: const EdgeInsets.all(6.0),
       child: Text(StatitikLocale.of(context).read('CA_B40')),
     ));
-    tabPages.add(CardStatisticReport(widget.l, widget.stats,
-      showByRarity: widget.showByRarity,
-      showByType:   widget.showByType,
-      showByMarker: widget.showByMarker,
-      showByRegion: widget.showByRegion,
-    ));
+    tabPages.add( SingleChildScrollView(child: CardStatisticReport(widget.l, widget.stats, widget.options)));
 
     return Column(
       children: [
-        if(widget.showTitle) Center(child: Text(sprintf(StatitikLocale.of(context).read('CA_B6'), [widget.stats.stats!.nbCards()]), style: Theme.of(context).textTheme.headline5)),
+        if(widget.options.showTitle) Center(child: Text(sprintf(StatitikLocale.of(context).read('CA_B6'), [widget.stats.stats!.nbCards()]), style: Theme.of(context).textTheme.headline5)),
         TabBar(
           controller: tabController,
           indicatorPadding: const EdgeInsets.all(1),
@@ -217,7 +199,6 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
     return Column(
       children: [
         SizedBox(height: 5.0),
-        //Text(StatitikLocale.of(context).read('CA_B11'), style: Theme.of(context).textTheme.headline5),
         TabBar(
           controller: tabController,
           indicatorPadding: const EdgeInsets.all(1),
@@ -244,19 +225,9 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
 class CardStatisticReport extends StatefulWidget {
   final Language    language;
   final CardResults stats;
+  final CardStatisticOptions options;
 
-  final bool showByRarity;
-  final bool showByType;
-  final bool showByMarker;
-  final bool showByRegion;
-
-  const CardStatisticReport(this.language, this.stats,
-  {
-    this.showByRarity=true,
-    this.showByType=true,
-    this.showByMarker=true,
-    this.showByRegion=true
-  });
+  const CardStatisticReport(this.language, this.stats, this.options);
 
   @override
   State<CardStatisticReport> createState() => _CardStatisticReportState();
@@ -293,105 +264,104 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
         filteredType.add(type);
     });
 
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          if(widget.showByRarity) Text(StatitikLocale.of(context).read('CA_B10'), style: Theme.of(context).textTheme.headline5),
-          if(widget.showByRarity) ListView.builder(
-            primary: false,
-            shrinkWrap: true,
-            itemCount: filteredRarities.length,
-            itemBuilder: (BuildContext context, int index) {
-              var rarity = filteredRarities[index];
-              var value  = s.countRarity[rarity]!;
-              var r = value.toDouble();
-              return Row(
-                children: [
-                  Container(
-                    child: Row( children: getImageRarity(rarity, widget.language)),
-                    alignment: Alignment.centerLeft,
-                    width: _spaceBefore
-                  ),
-                  Expanded(child:
-                    LinearPercentIndicator(
-                      lineHeight: 8.0,
-                      percent: ( r / count).clamp(0.0, 1.0),
-                      progressColor: rarity.color,
-                    )
-                  ),
-                  createCountWidget(value)
-                ]
-              );
-            }
-          ),
-          if(widget.showByType) SizedBox(height: 10.0),
-          if(widget.showByType) Text(StatitikLocale.of(context).read('CA_B9'), style: Theme.of(context).textTheme.headline5),
-          if(widget.showByType) ListView.builder(
+    return Column(
+      children: [
+        if(widget.options.showByRarity) Text(StatitikLocale.of(context).read('CA_B10'), style: Theme.of(context).textTheme.headline5),
+        if(widget.options.showByRarity) ListView.builder(
+          primary: false,
+          shrinkWrap: true,
+          itemCount: filteredRarities.length,
+          itemBuilder: (BuildContext context, int index) {
+            var rarity = filteredRarities[index];
+            var value  = s.countRarity[rarity]!;
+            var r = value.toDouble();
+            return Row(
+              children: [
+                Container(
+                  child: Row( children: getImageRarity(rarity, widget.language)),
+                  alignment: Alignment.centerLeft,
+                  width: _spaceBefore
+                ),
+                Expanded(child:
+                  LinearPercentIndicator(
+                    lineHeight: 8.0,
+                    percent: ( r / count).clamp(0.0, 1.0),
+                    progressColor: rarity.color,
+                  )
+                ),
+                createCountWidget(value)
+              ]
+            );
+          }
+        ),
+        if(widget.options.showByType) SizedBox(height: 10.0),
+        if(widget.options.showByType) Text(StatitikLocale.of(context).read('CA_B9'), style: Theme.of(context).textTheme.headline5),
+        if(widget.options.showByType) ListView.builder(
+          primary:    false,
+          shrinkWrap: true,
+          itemCount: filteredType.length,
+          itemBuilder: (BuildContext context, int index) {
+            var type  = filteredType[index];
+            var value = s.countType[type]!;
+            var r = value.toDouble();
+            return Row(
+              children: [
+                Container(child: getImageType(type), alignment: Alignment.centerLeft, width: _spaceBefore, height: 25.0),
+                Expanded(child: LinearPercentIndicator(
+                  lineHeight: 8.0,
+                  percent: ( r / count).clamp(0.0, 1.0),
+                  progressColor: typeColors[type.index],
+                )),
+                createCountWidget(value)
+              ]
+            );
+          }
+        ),
+
+        if(widget.options.showByMarker && s.countMarker.isNotEmpty) SizedBox(height: 10.0),
+        if(widget.options.showByMarker && s.countMarker.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B7'), style: Theme.of(context).textTheme.headline5),
+        if(widget.options.showByMarker && s.countMarker.isNotEmpty) ListView.builder(
             primary:    false,
             shrinkWrap: true,
-            itemCount: filteredType.length,
+            itemCount: s.countMarker.entries.length,
             itemBuilder: (BuildContext context, int index) {
-              var type  = filteredType[index];
-              var value = s.countType[type]!;
-              var r = value.toDouble();
+              var item = s.countMarker.entries.elementAt(index);
+              var r = item.value.toDouble();
               return Row(
-                children: [
-                  Container(child: getImageType(type), alignment: Alignment.centerLeft, width: _spaceBefore, height: 25.0),
+                children: [ Container(child: pokeMarker(widget.language, item.key, height: 15.0), alignment: Alignment.centerLeft, width: _spaceBefore),
                   Expanded(child: LinearPercentIndicator(
                     lineHeight: 8.0,
                     percent: ( r / count).clamp(0.0, 1.0),
-                    progressColor: typeColors[type.index],
+                    progressColor: item.key.color,
                   )),
-                  createCountWidget(value)
+                  createCountWidget(item.value)
                 ]
               );
             }
           ),
-
-          if(widget.showByMarker && s.countMarker.isNotEmpty) SizedBox(height: 10.0),
-          if(widget.showByMarker && s.countMarker.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B7'), style: Theme.of(context).textTheme.headline5),
-          if(widget.showByMarker && s.countMarker.isNotEmpty) ListView.builder(
-              primary:    false,
-              shrinkWrap: true,
-              itemCount: s.countMarker.entries.length,
-              itemBuilder: (BuildContext context, int index) {
-                var item = s.countMarker.entries.elementAt(index);
-                var r = item.value.toDouble();
-                return Row(
-                  children: [ Container(child: pokeMarker(widget.language, item.key, height: 15.0), alignment: Alignment.centerLeft, width: _spaceBefore),
-                    Expanded(child: LinearPercentIndicator(
-                      lineHeight: 8.0,
-                      percent: ( r / count).clamp(0.0, 1.0),
-                      progressColor: item.key.color,
-                    )),
-                    createCountWidget(item.value)
-                  ]
-                );
-              }
-            ),
-          if(widget.showByRegion && s.countRegion.isNotEmpty) SizedBox(height: 10.0),
-          if(widget.showByRegion && s.countRegion.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B8'), style: Theme.of(context).textTheme.headline5),
-          if(widget.showByRegion && s.countRegion.isNotEmpty) ListView.builder(
-            primary: false,
-            shrinkWrap: true,
-            itemCount: s.countRegion.length,
-            itemBuilder: (BuildContext context, int index) {
-              var info = s.countRegion.entries.elementAt(index);
-              var region = info.key;
-              var stat   = info.value;
-              return Row(
-                children: [ Container(child: Text(region.name(widget.language), style: TextStyle(fontSize: 10.0)), width: _spaceBefore),
-                  Expanded(child: LinearPercentIndicator(
-                    lineHeight: 8.0,
-                    percent: (stat / count).clamp(0.0, 1.0),
-                    progressColor: regionColors[index],
-                  )),
-                  createCountWidget(stat),
-                ]
-              );
-            }
-          )
-      ]),
+        if(widget.options.showByRegion && s.countRegion.isNotEmpty) SizedBox(height: 10.0),
+        if(widget.options.showByRegion && s.countRegion.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B8'), style: Theme.of(context).textTheme.headline5),
+        if(widget.options.showByRegion && s.countRegion.isNotEmpty) ListView.builder(
+          primary: false,
+          shrinkWrap: true,
+          itemCount: s.countRegion.length,
+          itemBuilder: (BuildContext context, int index) {
+            var info = s.countRegion.entries.elementAt(index);
+            var region = info.key;
+            var stat   = info.value;
+            return Row(
+              children: [ Container(child: Text(region.name(widget.language), style: TextStyle(fontSize: 10.0)), width: _spaceBefore),
+                Expanded(child: LinearPercentIndicator(
+                  lineHeight: 8.0,
+                  percent: (stat / count).clamp(0.0, 1.0),
+                  progressColor: regionColors[index],
+                )),
+                createCountWidget(stat),
+              ]
+            );
+          }
+        )
+      ]
     );
   }
 }

@@ -16,6 +16,15 @@ import 'package:statitikcard/services/PokemonCardData.dart';
 
 class CardStatisticOptions {
   bool showImage = false;
+
+  bool showTitle    = true;
+  bool showByRarity = true;
+  bool showByType   = true;
+  bool showByMarker = true;
+  bool showByRegion = true;
+  bool showBySubEx  = true;
+
+  CardStatisticOptions({showByRarity: true, showBySubEx: true, showTitle: true, showByType: true});
 }
 
 class CardStatisticPage extends StatefulWidget {

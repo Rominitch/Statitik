@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/ImageStorage.dart';
 
@@ -41,43 +42,48 @@ class _ImageStoredLocallyState extends State<ImageStoredLocally> {
     return FutureBuilder<File?>(
         future: Environment.instance.storage.imageFromPath(StorageData(widget.path, widget.imageName, widget.webAddress)), // a previously-obtained Future<String> or null
         builder: (BuildContext context, AsyncSnapshot<File?> snapshot) {
-          if(snapshot.hasData ) {
-            if (snapshot.data == null)
-              return widget.alternativeRendering != null ? widget
-                  .alternativeRendering! : Icon(Icons.help_outline);
-            else {
-              var cardWidget = Image.file(
-                snapshot.data!, width: widget.width,
-                height: widget.height,
-                errorBuilder: (context, error, stackTrace) {
-                  try {
-                    reloadImage();
+          printOutput("Image state: ${snapshot.hasData.toString()} connexion: ${snapshot.connectionState.toString()}");
+          if(snapshot.connectionState == ConnectionState.done) {
+            if(snapshot.hasData ) {
+              if (snapshot.data == null)
+                return widget.alternativeRendering != null ? widget
+                    .alternativeRendering! : Icon(Icons.help_outline);
+              else {
+                var cardWidget = Image.file(
+                  snapshot.data!, width: widget.width,
+                  height: widget.height,
+                  errorBuilder: (context, error, stackTrace) {
+                    try {
+                      reloadImage();
 
-                    return Card(child: IconButton(
-                      onPressed: () {
-                        setState(() {});
-                      },
-                      icon: Icon(Icons.rotate_left),
-                    ) );
+                      return Card(child: IconButton(
+                        onPressed: () {
+                          setState(() {});
+                        },
+                        icon: Icon(Icons.rotate_left),
+                      ) );
+                    }
+                    catch(error) {
+                      return Icon(Icons.bug_report_outlined);
+                    }
                   }
-                  catch(error) {
-                    return Icon(Icons.bug_report_outlined);
-                  }
-                }
-              );
-              return widget.reloader ?
-                GestureDetector(
-                  onLongPress: () {
-                    // Reload widget
-                    reloadImage();
-                    setState(() {});
-                  },
-                  child: cardWidget
-                ) : cardWidget;
+                );
+                return widget.reloader ?
+                  GestureDetector(
+                    onLongPress: () {
+                      // Reload widget
+                      reloadImage();
+                      setState(() {});
+                    },
+                    child: cardWidget
+                  ) : cardWidget;
+              }
             }
-          }
           else
-            return CircularProgressIndicator(color: Colors.orange[300]);
+            return widget.alternativeRendering != null ? widget
+                .alternativeRendering! : Icon(Icons.help_outline);
+          }
+          else return CircularProgressIndicator(color: Colors.orange[300]);
         }
     );
   }

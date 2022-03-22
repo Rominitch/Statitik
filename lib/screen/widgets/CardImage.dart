@@ -143,9 +143,16 @@ class CardImage extends StatefulWidget {
         else
         if( se.seCards.energyCard.contains(card) )
           return [Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/NRG/NRG_EN_${card.image}.png")];
-        else
+        else {
           // Official image source
-          return [Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/${se.seCode}/${se.seCode}_EN_${se.seCards.tcgImage(id)}.png")];
+          List<Uri> images = [];
+          se.seCode.forEach((seFolder) {
+            images += [
+              Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/$seFolder/${seFolder}_EN_${se.seCards.tcgImage(id)}.png")
+            ];
+          });
+          return images;
+        }
       else if( se.extension.language.id == 3 ) {
         if(card.image.startsWith("https://"))
           return [Uri.parse(card.image)];

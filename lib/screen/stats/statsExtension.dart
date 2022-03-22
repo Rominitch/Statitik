@@ -46,24 +46,27 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
     });
 
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(4.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(StatitikLocale.of(context).read('SE_B0'), style: Theme.of(context).textTheme.headline5),
-          GridView.count(
-            crossAxisCount: 3,
-            children: infoCount,
-            primary: false,
-            shrinkWrap: true,
-            childAspectRatio: 1.8,
-          ),
-          PieExtension(widget.stats.subExt, Visualize.Type),
-          SizedBox(height: 10.0,),
-          PieExtension(widget.stats.subExt, Visualize.Rarity),
-          if (widget.data.cardStats.hasStats() && widget.data.cardStats.stats!.hasData())
-            StatsCard(widget.data.language!, widget.data.cardStats, CardStatisticOptions(), showByRarity: false, showBySubEx: false, showTitle: false, showByType: false),
-        ]
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(StatitikLocale.of(context).read('SE_B0'), style: Theme.of(context).textTheme.headline5),
+            GridView.count(
+              crossAxisCount: 3,
+              children: infoCount,
+              primary: false,
+              shrinkWrap: true,
+              childAspectRatio: 1.8,
+            ),
+            PieExtension(widget.stats.subExt, Visualize.Type),
+            SizedBox(height: 10.0,),
+            PieExtension(widget.stats.subExt, Visualize.Rarity),
+            if (widget.data.cardStats.hasStats() && widget.data.cardStats.stats!.hasData())
+              Card(child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: CardStatisticReport(widget.data.language!, widget.data.cardStats, CardStatisticOptions(showByRarity: false, showBySubEx: false, showTitle: false, showByType: false)),
+              )),
+          ]
       ),
     );
   }
