@@ -106,13 +106,9 @@ class ProductCard {
 
 class Product extends ProductGeneric
 {
-  //int                      idDB;
-  //String                   name;
-  //String                   imageURL;
   List<ProductBooster>     boosters;
   Language?                language;
-  //ProductCategory?         category;
-  //DateTime                 outDate;
+
   // New
   Map<ProductSide, int>    sideProducts = {};
   List<ProductCard>        otherCards   = [];

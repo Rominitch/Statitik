@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/screen/Admin/ExtensionProductsCreator.dart';
+import 'package:statitikcard/screen/Admin/SideProductCreator.dart';
 
 import 'package:statitikcard/screen/Admin/newCardExtensions.dart';
 import 'package:statitikcard/screen/Admin/newProduct.dart';
@@ -90,6 +92,12 @@ class _AdminPageState extends State<AdminPage> {
     });
   }
 
+  void goToExtensionProducts(BuildContext context, Language language, SubExtension subExt) {
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
+    Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionProductsCreator(language, subExt) ));
+  }
+
   Widget createButton(String codeText, IconData icon, Color colorBox, Function() action) {
     return Card(
       color: colorBox,
@@ -117,6 +125,12 @@ class _AdminPageState extends State<AdminPage> {
     }));
     buttons.add(createButton('ADMIN_B1', Icons.shopping_cart_outlined, Colors.green.shade700, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage, addMode: true)));
+    }));
+    buttons.add(createButton('ADMIN_B6', Icons.shopping_bag_outlined, Colors.greenAccent.shade700, () {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => SideProductCreator()));
+    }));
+    buttons.add(createButton('ADMIN_B7', Icons.my_library_add_outlined, Colors.lightGreenAccent.shade700, () {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToExtensionProducts, addMode: true)));
     }));
     buttons.add(createButton('ADMIN_B2', Icons.post_add_outlined, Colors.deepOrange, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => NewCardExtensions()));

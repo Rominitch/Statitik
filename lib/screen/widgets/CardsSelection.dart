@@ -107,7 +107,7 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
             SizedBox(width: 5),
             widget.subExtension.image(hSize: iconSize),
             SizedBox(width: 5),
-            Text(widget.subExtension.name, softWrap: true),
+            Text(widget.subExtension.name, softWrap: true, style: TextStyle(fontSize: widget.subExtension.name.length > 8 ? 10 : 12)),
           ]
         ),
         actions: [

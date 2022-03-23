@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:intl/intl.dart';
 
 import 'package:mysql1/mysql1.dart';
 
@@ -620,5 +621,55 @@ class Environment
             }
         }
         return id;
+    }
+
+    Future<bool> sendProducts(List<Product> products, bool creation) async {
+        try {
+           return await db.transactionR( (connection) async {
+            int maxID = 0;
+            String query;
+            var productInfo = <List<Object?>>[];
+            if (creation) {
+                var req = await connection.query('SELECT MAX(idProduit) FROM `Produit`;');
+                for (var row in req) {
+                    maxID = row[0] + 1;
+                }
+                query =
+                'INSERT INTO `Produit` (`idProduit`, `idLangue`, `nom`, `icone`, `sortie`, `idCategorie`, `contenu` )'
+                    ' VALUES (?, ?, ?, ?, ?, ?, ?);';
+            } else {
+                query =
+                'UPDATE `Produit` SET `idLangue` = ?, `nom`= ?, `icone`= ?, `sortie`= ?, `idCategorie`= ?, `contenu`= ?'
+                    ' WHERE `idProduit` = ?;';
+            }
+
+            products.forEach((product) {
+                var outDate = DateFormat('yyyy-MM-dd 00:00:00').format(
+                    product.releaseDate);
+
+                var myData =
+                <Object?>[ product.language!.id, product.name, product.imageURL,
+                    outDate, product.category!.idDB,
+                    Int8List.fromList(product.toBytes())
+                ];
+                if (creation) {
+                    product.idDB = maxID;
+                    maxID += 1;
+                    myData.insert(0, maxID);
+                } else {
+                    assert(product.idDB > 0);
+                    myData += [product.idDB];
+                }
+
+                productInfo.add(myData);
+            });
+            // Go
+            await connection.queryMulti(query, productInfo);
+        } );
+      }
+      catch(e){
+        printOutput("Database error $e");
+        return false;
+      }
     }
 }
