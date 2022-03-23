@@ -6,6 +6,7 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
+import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -209,6 +210,7 @@ class ProbaResult {
 
 class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
   ProbaResult full = ProbaResult(0,0);
+  Map<CardSet, ProbaResult> bySets = {};
   bool approximated = false;
 
   @override
@@ -217,6 +219,12 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
 
     Map<Rarity, double> info = computeProbabilities(statsExtension, statsExtension.rarities);
     full = computeCompletion(statsExtension, statsExtension.rarities, info);
+
+    var allCards = widget.data.subExt!.stats.countAllCards().toDouble();
+    statsExtension.allSets.forEach((set) {
+      var modulation = widget.data.subExt!.stats.countBySet[set]!.toDouble() / allCards;
+      bySets[set] = computeCompletion(statsExtension, statsExtension.rarities, info);
+    });
 
     super.initState();
   }
@@ -312,15 +320,16 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
     return ProbaResult(minimum, mean);
   }
 
-  Widget lineResult(String s0, String d0, String s1, String s2){
+  Widget lineResult(Widget s0, String d0, String s1, String s2){
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Row(
         children: [
           Expanded(child: Column(
             children: [
-              Text(s0),
-              Text(d0, style: TextStyle(fontSize: 8)),
+              s0,
+              if(d0.isNotEmpty)
+                Text(d0, style: TextStyle(fontSize: 8)),
             ],
           )),
           Container(width: 100, child: Center(child:Text(s1))),
@@ -332,6 +341,17 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> setsInfo = [];
+    bySets.forEach((set, value) {
+      var name = set.names.name(widget.data.language!);
+      setsInfo.add(lineResult(Row(children: [
+          set.imageWidget(width: 20),
+          SizedBox(width: 5),
+          Text(name, style: TextStyle(fontSize: name.length > 13 ? 11 : 14))
+        ]), "",
+        value.minimum.toString(), value.mean.toString()));
+    });
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -347,12 +367,9 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
                 Text(StatitikLocale.of(context).read('SCB_B8'), style: TextStyle(fontSize: 9)),
               ]),
             SizedBox(height: 8),
-            lineResult("", "", StatitikLocale.of(context).read('SCB_B1'),StatitikLocale.of(context).read('SCB_B2')),
-            //lineResult(StatitikLocale.of(context).read('SCB_B3'), StatitikLocale.of(context).read('SCB_B7'), base.minimum.toString(), base.mean.toString()),
-            //if(parallel != null)
-            //  lineResult(StatitikLocale.of(context).read('SCB_B4'), "", parallel!.minimum.toString(), parallel!.mean.toString()),
-            lineResult(StatitikLocale.of(context).read('SCB_B5'), StatitikLocale.of(context).read('SCB_B6'), full.minimum.toString(), full.mean.toString()),
-          ],
+            lineResult(Text(""), "", StatitikLocale.of(context).read('SCB_B1'),StatitikLocale.of(context).read('SCB_B2')),
+            lineResult(Text(StatitikLocale.of(context).read('SCB_B5')), StatitikLocale.of(context).read('SCB_B6'), full.minimum.toString(), full.mean.toString()),
+          ]+setsInfo,
         ),
       )
     );

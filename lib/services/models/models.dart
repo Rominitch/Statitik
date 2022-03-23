@@ -147,6 +147,8 @@ class StatsBooster {
   late Map<CardSet,int> countBySet;
   late List<int>        countEnergy;
 
+  late Map<CardSet, Map<Rarity, int>> countBySetByRarity;
+
   StatsBooster({required this.subExt}) {
     count         = List<List<int>>.generate(subExt.seCards.cards.length, (id) {
       return List<int>.filled(subExt.seCards.cards[id].length, 0);
@@ -155,6 +157,7 @@ class StatsBooster {
     countByRarity = {};
     countBySet    = {};
     countEnergy   = List<int>.filled(subExt.seCards.energyCard.length, 0);
+    countBySetByRarity = {};
   }
 
   bool hasEnergy() {
@@ -168,6 +171,27 @@ class StatsBooster {
   void addBoosterDraw(ExtensionDrawCards edc, int anomaly) {
     if( edc.drawCards.length > subExt.seCards.cards.length)
       throw StatitikException('Corruption des données de tirages');
+
+    var computeStatsBySet = (cardInfo, CodeDraw code) {
+      int setId=0;
+      code.countBySet.forEach((element) {
+        var setCard = cardInfo.sets[setId];
+        if(countBySet.containsKey(setCard))
+          countBySet[setCard] = countBySet[setCard]! + element;
+        else
+          countBySet[setCard] = element;
+
+        if(!countBySetByRarity.containsKey(setCard))
+          countBySetByRarity[setCard] = {};
+
+        if(!countBySetByRarity[setCard]!.containsKey(cardInfo.rarity))
+          countBySetByRarity[setCard]![cardInfo.rarity] = element;
+        else
+          countBySetByRarity[setCard]![cardInfo.rarity] = countBySetByRarity[setCard]![cardInfo.rarity]! + element;
+
+        setId += 1;
+      });
+    };
 
     anomaly += anomaly;
     nbBoosters += 1;
@@ -191,16 +215,7 @@ class StatsBooster {
             countByRarity[cardInfo.rarity] = count;
 
           // Energy can be reversed
-          int setId=0;
-          code.countBySet.forEach((element) {
-            var setCard = cardInfo.sets[setId];
-            if(countBySet.containsKey(setCard))
-              countBySet[setCard] = countBySet[setCard]! + element;
-            else
-              countBySet[setCard] = element;
-
-            setId += 1;
-          });
+          computeStatsBySet(cardInfo, code);
         }
       }
       idEnergy += 1;
@@ -220,16 +235,7 @@ class StatsBooster {
             countByRarity[cardInfo.rarity] = count;
 
           // No Number can be reversed
-          int setId=0;
-          code.countBySet.forEach((element) {
-            var setCard = cardInfo.sets[setId];
-            if(countBySet.containsKey(setCard))
-              countBySet[setCard] = countBySet[setCard]! + element;
-            else
-              countBySet[setCard] = element;
-
-            setId += 1;
-          });
+          computeStatsBySet(cardInfo, code);
         }
       }
     });
@@ -250,15 +256,7 @@ class StatsBooster {
             else
               countByRarity[cardInfo.rarity] = nbCard;
 
-            var setInfo = cardInfo.sets.iterator;
-            code.countBySet.forEach((countPerSet) {
-              if(setInfo.moveNext()) {
-                if(countBySet.containsKey(setInfo.current))
-                  countBySet[setInfo.current] = countBySet[setInfo.current]! + countPerSet;
-                else
-                  countBySet[setInfo.current] = countPerSet;
-              }
-            });
+            computeStatsBySet(cardInfo, code);
           } else {
             int setId=0;
             code.countBySet.forEach((element) {

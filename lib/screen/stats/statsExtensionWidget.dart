@@ -19,16 +19,17 @@ class StatsExtensionWidget extends StatefulWidget {
   _StatsExtensionWidgetState createState() => _StatsExtensionWidgetState();
 }
 
-class _StatsExtensionWidgetState extends State<StatsExtensionWidget> with SingleTickerProviderStateMixin {
+class _StatsExtensionWidgetState extends State<StatsExtensionWidget> with TickerProviderStateMixin {
   late TabController tabController;
 
   bool hasStats() {
     return widget.info.statsData.subExt != null && widget.info.statsData.subExt!.type == SerieType.Normal;
   }
-
+  
   @override
   void initState() {
-    tabController = TabController(length: hasStats() ? 3 : 2, vsync: this,
+    tabController = TabController(length: hasStats() ? 3 : 2,
+        vsync: this,
         animationDuration: Duration.zero);
     super.initState();
   }
@@ -43,7 +44,6 @@ class _StatsExtensionWidgetState extends State<StatsExtensionWidget> with Single
   @override
   Widget build(BuildContext context) {
     var sData = widget.info.statsData;
-
     if(sData.stats == null && sData.subExt != null) {
       return drawLoading(context);
     } else if(widget.info.statsData.subExt != null && !widget.info.statsData.subExt!.seCards.isValid) {
@@ -62,7 +62,8 @@ class _StatsExtensionWidgetState extends State<StatsExtensionWidget> with Single
             tabs: [
               menuBar(context, 'SMENU_0'),
               menuBar(context, 'SMENU_1'),
-              menuBar(context, 'SMENU_2'),
+              if(hasStats())
+                menuBar(context, 'SMENU_2'),
             ]
           ),
           Expanded(
