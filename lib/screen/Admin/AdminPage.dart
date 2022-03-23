@@ -127,7 +127,7 @@ class _AdminPageState extends State<AdminPage> {
       Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage, addMode: true)));
     }));
     buttons.add(createButton('ADMIN_B6', Icons.shopping_bag_outlined, Colors.greenAccent.shade700, () {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => SideProductCreator()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => SideProductCreator(Environment.instance.collection.languages[1])));
     }));
     buttons.add(createButton('ADMIN_B7', Icons.my_library_add_outlined, Colors.lightGreenAccent.shade700, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToExtensionProducts, addMode: true)));

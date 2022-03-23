@@ -28,6 +28,8 @@ abstract class ProductGeneric
 
 class ProductSide extends ProductGeneric
 {
+  ProductSide.empty() : super(0, null, "", "", DateTime.now());
+
   ProductSide(idDB, category, name, imageURL, releaseDate) : super(idDB, category, name, imageURL, releaseDate);
 
   Widget image()

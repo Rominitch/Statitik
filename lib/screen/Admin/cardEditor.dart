@@ -47,7 +47,9 @@ class _CardEditorState extends State<CardEditor> {
     String title = widget.titleCard();
 
     var nextCardId = widget.se.seCards.nextId(widget.id);
-    return Scaffold(
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child:Scaffold(
         appBar: AppBar(
           title: Container(
             child: Text(sprintf("%s: %s", [ StatitikLocale.of(context).read('CE_T0'), title]),
@@ -80,6 +82,7 @@ class _CardEditorState extends State<CardEditor> {
             ]
           )
         )
+      )
     );
   }
 }

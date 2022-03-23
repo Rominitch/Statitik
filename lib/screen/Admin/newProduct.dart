@@ -100,7 +100,7 @@ class _NewProductPageState extends State<NewProductPage> {
         context: context,
         initialDate: product.releaseDate,
         initialDatePickerMode: DatePickerMode.day,
-        firstDate: DateTime(2015),
+        firstDate: DateTime(1998),
         lastDate: DateTime(2101));
     if (picked != null)
       setState(() {
@@ -110,49 +110,22 @@ class _NewProductPageState extends State<NewProductPage> {
 
   void sendProduct() {
     if ( product.validate() && _formKey.currentState!.validate()) {
-      error = null;
-      try {
-        EasyLoading.show();
-        Environment env = Environment.instance;
-        env.db.transactionR( (connection) async {
+      EasyLoading.show();
 
-          var outDate = DateFormat('yyyy-MM-dd 00:00:00').format(product.releaseDate);
-          String query;
-          List myData = <Object?>[];
-          if(widget.editProduct == null) {
-            var req = await connection.query('SELECT MAX(idProduit) FROM `Produit`;');
-            for (var row in req) {
-              product.idDB = row[0] + 1;
-            }
-            query = 'INSERT INTO `Produit` (`idProduit`, `idLangue`, `nom`, `icone`, `sortie`, `idCategorie`, `contenu` )'
-            ' VALUES (?, ?, ?, ?, ?, ?, ?);';
-            myData += [product.idDB];
-          } else {
-            assert(product.idDB > 0);
-            query = 'UPDATE `Produit` SET `idLangue` = ?, `nom`= ?, `icone`= ?, `sortie`= ?, `idCategorie`= ?, `contenu`= ?'
-            ' WHERE `idProduit` = ${product.idDB};';
-          }
-          myData += [ product.language!.id, product.name, product.imageURL,
-            outDate, product.category!.idDB,
-            Int8List.fromList(product.toBytes())
-          ];
-          // Go
-          await connection.queryMulti(query, [myData]);
-        } ).then((value) {
-          if(value) {
-            EasyLoading.dismiss();
-            Navigator.popUntil(context, ModalRoute.withName('/'));
-          }
-          else
-            EasyLoading.showError("Erreur produit");
-        }).onError((errorInfo, stackTrace) {
-          error = errorInfo.toString();
-          EasyLoading.showError(error!);
-        });
-      } catch (e) {
-        printOutput(e.toString());
-        EasyLoading.dismiss();
-      }
+      Environment.instance.sendProducts([product], widget.editProduct == null).then((value) {
+        if(value) {
+          // Reload all products and admin stuff
+          Environment.instance.restoreAdminData();
+
+          EasyLoading.dismiss();
+          Navigator.popUntil(context, ModalRoute.withName('/'));
+        } else
+          EasyLoading.showError("Erreur produit");
+
+      }).onError((errorInfo, stackTrace) {
+        error = errorInfo.toString();
+        EasyLoading.showError(error!);
+      });
     }
   }
 
@@ -316,31 +289,34 @@ class _NewProductPageState extends State<NewProductPage> {
           Text(error!),
       ];
     }
-    return Scaffold(
-      appBar: AppBar(
-        title: Container(
-          child: Text(StatitikLocale.of(context).read('NP_T0')),
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child:Scaffold(
+        appBar: AppBar(
+          title: Container(
+            child: Text(StatitikLocale.of(context).read('NP_T0')),
+          ),
+          actions: [
+            if(product.category != null && product.language != null)
+              Card(
+                color: Colors.green,
+                child: TextButton(
+                  onPressed: sendProduct,
+                  child: Text('Envoyer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              )
+          ],
         ),
-        actions: [
-          if(product.category != null && product.language != null)
-            Card(
-              color: Colors.green,
-              child: TextButton(
-                onPressed: sendProduct,
-                child: Text('Envoyer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(8.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: formular,
             )
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(8.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: formular,
-          )
-        ),
+          ),
+        )
       )
     );
   }

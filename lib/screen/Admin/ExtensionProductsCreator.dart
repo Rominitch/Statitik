@@ -236,7 +236,9 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child:Scaffold(
         appBar: AppBar(
           title: Row(children: [
             widget.subExtension.image(wSize: 30),
@@ -301,6 +303,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
             ),
           )
         )
+      )
     );
   }
 }

@@ -655,7 +655,7 @@ class Environment
                 if (creation) {
                     product.idDB = maxID;
                     maxID += 1;
-                    myData.insert(0, maxID);
+                    myData.insert(0, product.idDB);
                 } else {
                     assert(product.idDB > 0);
                     myData += [product.idDB];
@@ -671,5 +671,51 @@ class Environment
         printOutput("Database error $e");
         return false;
       }
+    }
+
+    Future<bool> sendSideProducts(List<ProductSide> products, bool creation) async {
+        try {
+            return await db.transactionR( (connection) async {
+                int maxID = 0;
+                String query;
+                var productInfo = <List<Object?>>[];
+                if (creation) {
+                    var req = await connection.query('SELECT MAX(idProduitAnnexe) FROM `ProduitAnnexe`;');
+                    for (var row in req) {
+                        maxID = row[0] + 1;
+                    }
+                    query =
+                    'INSERT INTO `ProduitAnnexe` (`idProduitAnnexe`, `nom`, `image`, `idCategorie`, `dateSortie` )'
+                        ' VALUES (?, ?, ?, ?, ?);';
+                } else {
+                    query =
+                    'UPDATE `ProduitAnnexe` SET `nom`= ?, `image`= ?, `idCategorie`= ?, `dateSortie`= ?'
+                        ' WHERE `idProduitAnnexe` = ?;';
+                }
+
+                products.forEach((product) {
+                    var outDate = DateFormat('yyyy-MM-dd 00:00:00').format(
+                        product.releaseDate);
+
+                    var myData = <Object?>[ product.name, product.imageURL, product.category!.idDB, outDate];
+                    if (creation) {
+                        product.idDB = maxID;
+                        maxID += 1;
+                        myData.insert(0, product.idDB);
+                    } else {
+                        assert(product.idDB > 0);
+                        myData += [product.idDB];
+                    }
+
+                    productInfo.add(myData);
+                });
+                // Go
+                await connection.queryMulti(query, productInfo);
+            } );
+        }
+        catch(e){
+            printOutput("Database error $e");
+            return false;
+        }
     }
 }
