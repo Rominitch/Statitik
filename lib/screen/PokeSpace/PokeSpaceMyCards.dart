@@ -79,11 +79,10 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
   @override
   Widget build(BuildContext context) {
     var mySpace = Environment.instance.user!.pokeSpace;
-    var activelanguages = mySpace.myLanguagesCard();
 
     List<Widget> tabHeaders = [];
     List<Widget> tabPages   = [];
-    activelanguages.forEach((language) {
+    mySpace.myLanguagesCard().forEach((language) {
       tabHeaders.add(Padding(
         padding: const EdgeInsets.all(8.0),
         child: language.barIcon(),

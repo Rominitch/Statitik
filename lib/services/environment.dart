@@ -216,6 +216,7 @@ class Environment
         // Finalize data
         collection.adminReverse();
         // Change poke space
+        user!.pokeSpace = PokeSpace();
         await readPokeSpace();
     }
 
