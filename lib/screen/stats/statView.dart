@@ -7,6 +7,7 @@ import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
 import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -217,19 +218,26 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
   void initState() {
     var statsExtension = widget.data.subExt!.stats;
 
-    Map<Rarity, double> info = computeProbabilities(statsExtension, statsExtension.rarities);
-    full = computeCompletion(statsExtension, statsExtension.rarities, info);
+    // Remove energy / other sets (now draw CAN'T be equal to 1)
+    statsExtension.allSets.remove(Environment.instance.collection.sets[6]);
+    statsExtension.allSets.remove(Environment.instance.collection.sets[7]);
+    statsExtension.allSets.remove(Environment.instance.collection.sets[8]);
 
-    var allCards = widget.data.subExt!.stats.countAllCards().toDouble();
+    // Compute full expansion
+    Map<Rarity, double> info = computeProbabilities(statsExtension, statsExtension.allSets);
+    adminControlData(info);
+    full = computeCompletion(statsExtension, info);
+
+    // Compute by important set of expansion
     statsExtension.allSets.forEach((set) {
-      var modulation = widget.data.subExt!.stats.countBySet[set]!.toDouble() / allCards;
-      bySets[set] = computeCompletion(statsExtension, statsExtension.rarities, info);
+      Map<Rarity, double> infoSet = computeProbabilities(statsExtension, [set]);
+      bySets[set] = computeCompletion(statsExtension, infoSet);
     });
 
     super.initState();
   }
 
-  Map<Rarity, double> computeProbabilities(StatsExtension statsExtension, List raritiesSelected) {
+  Map<Rarity, double> computeProbabilities(StatsExtension statsExtension, List<CardSet> setSelected) {
     Map<Rarity, double> info = {};
     int     countZero = 0;
     int?    minRarity;
@@ -238,24 +246,32 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
     int countEmpty = 0;
 
     // Compute basic info and search invalid data
-    for(Rarity r in raritiesSelected) {
-      int validRarity = widget.data.stats!.countByRarity[r] ?? 0;
-      if(validRarity == 0) {
-        countZero += 1;
-        findEmpty.add(r);
-        countEmpty += statsExtension.countByRarity[r]!;
-      } else {
-        if( minRarity != null) {
-          if(validRarity < minRarity) {
-            minRarity   = min(minRarity, validRarity);
+    for(CardSet s in setSelected) {
+      var mapRarityStat    = widget.data.stats!.countBySetByRarity[s]!;
+      var mapRarityExt     = statsExtension.countBySetByRarity[s]!;
+      var raritiesSelected = statsExtension.allRarityPerSets[s]!;
+      for(Rarity r in raritiesSelected) {
+        int validRarity = mapRarityStat[r] ?? 0;
+        if(validRarity == 0) {
+          countZero += 1;
+          findEmpty.add(r);
+          countEmpty += mapRarityExt[r]!;
+        } else {
+          if( minRarity != null) {
+            if(validRarity < minRarity) {
+              minRarity   = min(minRarity, validRarity);
+              idMinRarity = r;
+            }
+          } else {
+            minRarity   = validRarity;
             idMinRarity = r;
           }
-        } else {
-          minRarity   = validRarity;
-          idMinRarity = r;
         }
+        if(info.containsKey(r))
+          info[r] = info[r]! + validRarity.toDouble();
+        else
+          info[r] = validRarity.toDouble();
       }
-      info[r] = validRarity.toDouble();
     }
 
     if(countZero > 0 && minRarity != null) {
@@ -279,27 +295,33 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
         assert(proba > 0.0);
       });
     }
-/*
-    // Control
-    double count = 0.0;
-    info.forEach((key, value) {
-      count += value;
-    });
-
-    assert(widget.data.stats!.totalCards.round() == count.round(), "${widget.data.stats!.totalCards.round()} == ${count.round()}");
-*/
-    info.forEach((key, value) {
-      if(value == 0)
-        throw StatitikException("Control error");
-    });
     return info;
   }
 
-  ProbaResult computeCompletion(StatsExtension statsExtension, List raritiesSelected, Map<Rarity, double> info) {
+  void adminControlData(info) {
+    if(Environment.instance.isAdministrator()) {
+      // Control
+      double count = 0.0;
+      info.forEach((key, value) {
+        count += value;
+
+        printOutput("${key.id.toString().padRight(15)}: $value");
+
+        if(value == 0)
+          throw StatitikException("Control error");
+      });
+
+      printOutput("Compare count: ${widget.data.stats!.totalCards.round()} == ${count.round()}");
+      //assert(widget.data.stats!.totalCards.round() == count.round(),
+      //       "${widget.data.stats!.totalCards.round()} == ${count.round()}");
+    }
+  }
+
+  ProbaResult computeCompletion(StatsExtension statsExtension, Map<Rarity, double> info) {
     int minimum = 0;
     int mean    = 0;
 
-    for(Rarity r in raritiesSelected) {
+    for(Rarity r in info.keys) {
       int nbRarity = statsExtension.countByRarity[r] ?? 0;
       // Filter can be more than real data
       if( nbRarity > 0) {
@@ -359,6 +381,8 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Center(child: Text(StatitikLocale.of(context).read('SCB_T0'), style: Theme.of(context).textTheme.headline5)),
+            SizedBox(height: 8),
+            Row(mainAxisAlignment: MainAxisAlignment.end, children: [Icon(Icons.warning_amber_rounded), Text(StatitikLocale.of(context).read('devBeta'), style: TextStyle(color: Colors.orange))]),
             SizedBox(height: 8),
             Text(StatitikLocale.of(context).read('SCB_B0'), style: TextStyle(fontSize: 12)),
             if(approximated)

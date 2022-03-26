@@ -6,6 +6,8 @@ import 'package:http/retry.dart';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 
 class StorageData {
   final List<String> folders;
@@ -29,13 +31,13 @@ class ImageStorage {
         final client = RetryClient(Client(), retries: 3, );
         try {
           var bodyBytes = await client.readBytes(url);
-
           var ext = url.path.substring(url.path.length - 3);
           // Save on local
           file = File(imageLocalPath+ext);
           try {
             await file.create(recursive: true);
             await file.writeAsBytes(bodyBytes, flush: true);
+            printOutput("ImageStorage: Find ${url.toString()}");
           } catch(e) {
             // Clean bad file save
             if(file != null && file.existsSync())
@@ -44,6 +46,7 @@ class ImageStorage {
             file = null;
           }
         } catch(e) {
+          printOutput("ImageStorage: Not found ${url.toString()}");
         } finally {
           client.close();
         }
@@ -71,6 +74,25 @@ class ImageStorage {
     }
     catch(error) {
       return null;
+    }
+  }
+
+  Future<void> cleanCardFile(SubExtension se, CardIdentifier idCard) async {
+    await cleanImageFile(["images", "card", se.extension.language.image, se.icon], idCard.toString());
+  }
+
+  Future<void> cleanImageFile(List<String> pathParts, String imageName) async {
+    var path = await imageLocalPath(pathParts, imageName, "png");
+    var file = File(path);
+    bool hasFile = file.existsSync();
+    if( !hasFile ) {
+      path = await imageLocalPath(pathParts, imageName, "jpg");
+      file = File(path);
+      hasFile = file.existsSync();
+    }
+
+    if(hasFile) {
+      file.deleteSync();
     }
   }
 

@@ -79,13 +79,15 @@ class SubExtension
 }
 
 class StatsExtension {
-  late List<Rarity>       rarities;
-  late List<CardSet>      allSets;
+  late List<Rarity>         rarities;
+  late List<CardSet>        allSets;
+  late Map<CardSet, List<Rarity>> allRarityPerSets;
 
   late List<int>          countByType;
   late Map<Rarity, int>   countByRarity;
   late Map<CardSet, int>  countBySet;
   late int                countSecret;
+  late Map<CardSet, Map<Rarity, int>> countBySetByRarity;
 
   StatsExtension.from(SubExtension subExt) {
     countByType   = List<int>.filled(TypeCard.values.length, 0);
@@ -94,30 +96,52 @@ class StatsExtension {
     allSets       = [];
     countBySet    = {};
     countSecret   = 0;
+    allRarityPerSets = {};
+    countBySetByRarity = {};
+
+    var computeStatsByCard = (PokemonCardExtension c) {
+      c.sets.forEach((element) {
+        if(!allSets.contains(element)) {
+          allSets.add(element);
+          allRarityPerSets[element] = [c.rarity];
+          countBySetByRarity[element] = {};
+          countBySetByRarity[element]![c.rarity] = 1;
+          countBySet[element] = 1;
+        } else {
+          countBySet[element] = countBySet[element]! + 1;
+          if(!allRarityPerSets[element]!.contains(c.rarity))
+            allRarityPerSets[element]!.add(c.rarity);
+          if(!countBySetByRarity[element]!.containsKey(c.rarity))
+            countBySetByRarity[element]![c.rarity] = 1;
+          else
+            countBySetByRarity[element]![c.rarity] =  countBySetByRarity[element]![c.rarity]! + 1;
+        }
+      });
+
+      if(c.isSecret)
+        countSecret += 1;
+
+      countByType[c.data.type.index] += 1;
+      if(countByRarity.containsKey(c.rarity))
+        countByRarity[c.rarity] = countByRarity[c.rarity]! + 1;
+      else
+        countByRarity[c.rarity] = 1;
+
+      if(!rarities.contains(c.rarity))
+        rarities.add(c.rarity);
+
+    };
 
     subExt.seCards.cards.forEach((cards) {
       cards.forEach((c) {
-        c.sets.forEach((element) {
-          if(!allSets.contains(element)) {
-            allSets.add(element);
-            countBySet[element] = 1;
-          } else {
-            countBySet[element] = countBySet[element]! + 1;
-          }
-        });
-
-        if(c.isSecret)
-          countSecret += 1;
-
-        countByType[c.data.type.index] += 1;
-        if(countByRarity.containsKey(c.rarity))
-          countByRarity[c.rarity] = countByRarity[c.rarity]! + 1;
-        else
-          countByRarity[c.rarity] = 1;
-
-        if(!rarities.contains(c.rarity))
-          rarities.add(c.rarity);
+        computeStatsByCard(c);
       });
+    });
+    subExt.seCards.energyCard.forEach((c) {
+      computeStatsByCard(c);
+    });
+    subExt.seCards.noNumberedCard.forEach((c) {
+      computeStatsByCard(c);
     });
   }
 

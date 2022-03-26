@@ -92,7 +92,6 @@ class _CardCreatorState extends State<CardCreator> {
   void computeJPCardID() {
     try {
       int idFind = 0;
-
       // Search list of card
       var ancestorCard;
       switch(widget.idCard.listId) {
@@ -210,27 +209,50 @@ class _CardCreatorState extends State<CardCreator> {
                   widget.card.image = data;
               }
           ),
-          if(widget.activeLanguage.isJapanese()) TextField(
-              keyboardType: TextInputType.number,
-              controller: jpCodeController,
-              decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.upgrade),
-                    onPressed: () {
-                      setState(() {
-                        computeJPCardID();
-                      });
-                    },
-                  )
+          if(widget.activeLanguage.isJapanese()) Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  keyboardType: TextInputType.number,
+                  controller: jpCodeController,
+                  onChanged: (data) {
+                    setState(() {
+                      if(data.isNotEmpty)
+                        widget.card.jpDBId = int.parse(data);
+                      else
+                        widget.card.jpDBId = 0;
+                    });
+                  }
+                ),
               ),
-              onChanged: (data) {
-                setState(() {
-                  if(data.isNotEmpty)
-                    widget.card.jpDBId = int.parse(data);
-                  else
-                    widget.card.jpDBId = 0;
-                });
-              }),
+              Card( child: IconButton(
+                icon: Icon(Icons.refresh),
+                onPressed: () async {
+                  // Clean all data
+                  widget.card.finalImage = "";
+                  await Environment.instance.storage.cleanCardFile(widget.se, widget.idCard);
+
+                  setState(() {
+                    widget.card.jpDBId = int.parse(jpCodeController.value.text);
+                  });
+                },
+              )),
+              Card( child: IconButton(
+                icon: Icon(Icons.upgrade),
+                onPressed: () async  {
+                  // Clean all data
+                  widget.card.finalImage = "";
+                  await Environment.instance.storage.cleanCardFile(widget.se, widget.idCard);
+
+                  // Retry
+                  setState(() async {
+                    computeJPCardID();
+                    jpCodeController.text = widget.card.jpDBId.toString();
+                  });
+                },
+              ))
+            ]
+          ),
           Column(
             children: [
               Text(StatitikLocale.of(context).read('CA_B38')),
@@ -331,7 +353,7 @@ class _CardCreatorState extends State<CardCreator> {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-            Container(child: genericCardWidget(widget.se, widget.idCard, height: 100), height: 100),
+            Container(child: genericCardWidget(widget.se, widget.idCard, height: 100, reloader: true), height: 100),
             SizedBox(width:8),
             Expanded(child: Text(StatitikLocale.of(context).read('CA_B30')+ " " + codeDB, style: Theme.of(context).textTheme.headline5)),
             Card (
@@ -408,13 +430,6 @@ class _CardCreatorState extends State<CardCreator> {
                   padding: const EdgeInsets.all(8.0),
                   child: createImageFieldWidget(),
                 ),
-                Text("Set"),
-                GridView.count(
-                  crossAxisCount: 4,
-                  primary: false,
-                  shrinkWrap: true,
-                  children: setsWidget,
-                ),
                 Row(
                   children: [
                     Text("Carte secrète: "),
@@ -425,7 +440,14 @@ class _CardCreatorState extends State<CardCreator> {
                     }
                     )
                   ],
-                )
+                ),
+                Text("Set"),
+                GridView.count(
+                  crossAxisCount: 4,
+                  primary: false,
+                  shrinkWrap: true,
+                  children: setsWidget,
+                ),
               ])
             ),
           ExpansionPanelRadio(

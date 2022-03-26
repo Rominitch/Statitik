@@ -206,7 +206,7 @@ class StatsBooster {
         var count = code.count();
         if(count > 0) {
           var cardInfo = energyCard.current;
-          countEnergy[idEnergy]                           += count;
+          countEnergy[idEnergy]                 += count;
           countByType[cardInfo.data.type.index] += count;
 
           if(countByRarity.containsKey(cardInfo.rarity))

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/ImageStorage.dart';
 
@@ -22,18 +23,7 @@ class ImageStoredLocally extends StatefulWidget {
 
 class _ImageStoredLocallyState extends State<ImageStoredLocally> {
   void reloadImage() async {
-    var path = await Environment.instance.storage.imageLocalPath(widget.path, widget.imageName, "png");
-    var file = File(path);
-    bool hasFile = file.existsSync();
-    if( !hasFile ) {
-      path = await Environment.instance.storage.imageLocalPath(widget.path, widget.imageName, "jpg");
-      file = File(path);
-      hasFile = file.existsSync();
-    }
-
-    if(hasFile) {
-      file.deleteSync();
-    }
+    await Environment.instance.storage.cleanImageFile(widget.path, widget.imageName);
   }
 
   @override

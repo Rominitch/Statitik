@@ -1,6 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinbox/material.dart';
 
@@ -11,7 +10,6 @@ import 'package:statitikcard/screen/commonPages/sideProductSelection.dart';
 import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorProductCard.dart';
 import 'package:statitikcard/screen/widgets/CardsSelection.dart';
 import 'package:statitikcard/screen/widgets/PokemonCard.dart';
-import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
