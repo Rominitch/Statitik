@@ -52,6 +52,7 @@ class CardImage extends StatefulWidget {
       " ":    "", // Remove space
       "/":    "", // Remove /
       // Kanji Convertion
+      "財団職員" : "ZAIDANSHOKUIN",
       "溶接工": "YOUSETSUKOU",
       "火打石": "HIDAISHI",
       "保護区": "HOGOKU",
@@ -70,6 +71,7 @@ class CardImage extends StatefulWidget {
       "特性":   "KUSEI",
       "作戦":   "SAKUSEN",
       "改造":   "KAIZOU",
+      "暗示":   "ANJI",
       "姉":     "NEE",
       "水":     "MIZU",
       "団":     "DAN",
@@ -163,7 +165,7 @@ class CardImage extends StatefulWidget {
           se.seCode.forEach((seFolder) {
             // Official image source
             images.insert(0, Uri.https("assets.pokemon.com", "assets/cms2-fr-fr/img/cards/web/$seFolder/${seFolder}_FR_${se.seCards.tcgImage(id)}.png"));
-
+            // Reliable alternative source
             images += [
               Uri.https("www.pokecardex.com", "assets/images/sets_fr/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"),
               Uri.https("www.pokecardex.com", "assets/images/sets/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"),
@@ -194,10 +196,13 @@ class CardImage extends StatefulWidget {
             codeType = "E";
           String codeImage = card.jpDBId.toString().padLeft(6, '0');
 
+          if( cardId.listId == 1 )
+            images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/ENE/${codeImage}_${codeType}_$romajiName.jpg"));
+
           se.seCode.forEach((seFolder) {
             // Official image source
             images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_$romajiName.jpg"));
-            // Fiable alternative source
+            // Reliable alternative source
             images.add(Uri.https("www.pokecardex.com", "assets/images/sets_jp/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"));
           });
         }
