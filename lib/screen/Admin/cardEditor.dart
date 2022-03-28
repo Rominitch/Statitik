@@ -73,14 +73,9 @@ class _CardEditorState extends State<CardEditor> {
               ),
           ],
         ),
-        body: SingleChildScrollView(
+        body: Padding(
           padding: const EdgeInsets.all(2.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              CardCreator.editor(widget.se.extension.language, widget.se, widget.card, widget.id, title, widget.isWorldCard),
-            ]
-          )
+          child: CardCreator.editor(widget.se.extension.language, widget.se, widget.card, widget.id, title, widget.isWorldCard),
         )
       )
     );

@@ -30,37 +30,36 @@ class CardCreator extends StatefulWidget {
   final Function(int listId)?         onChangeList;
   final List                  listRarity;
   final String                title;
+  final List?                 secondTypes;
 
   CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, bool isWorldCard):
-        editor=true, onAppendCard=null, onChangeList=null, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity);
+    editor=true, onAppendCard=null, onChangeList=null,
+    listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity)
+      ..removeWhere((element) => element == Environment.instance.collection.unknownRarity),
+    secondTypes = [TypeCard.Unknown] + energies;
+
 
   CardCreator.quick(this.activeLanguage, this.se, this.card, this.idCard, this.onAppendCard, bool isWorldCard, {this.onChangeList}):
-        editor=false, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity), title="";
+    editor=false, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity), title="",
+    secondTypes=null;
 
   @override
   _CardCreatorState createState() => _CardCreatorState();
 }
 
-class _CardCreatorState extends State<CardCreator> {
-  late CustomRadioController typeController       = CustomRadioController(onChange: (value) { onTypeChanged(value); });
-  late CustomRadioController rarityController     = CustomRadioController(onChange: (value) { onRarityChanged(value); });
-  late CustomRadioController typeExtController    = CustomRadioController(onChange: (value) { onTypeExtChanged(value); });
-  late CustomRadioController levelController      = CustomRadioController(onChange: (value) { onLevel(value); });
-  late CustomRadioController designController     = CustomRadioController(onChange: (value) { onDesignChanged(value); });
-
+class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin {
+  late CustomRadioController typeController        = CustomRadioController(onChange: (value) { onTypeChanged(value); });
+  late CustomRadioController rarityController      = CustomRadioController(onChange: (value) { onRarityChanged(value); });
+  late CustomRadioController typeExtController     = CustomRadioController(onChange: (value) { onTypeExtChanged(value); });
+  late CustomRadioController levelController       = CustomRadioController(onChange: (value) { onLevel(value); });
+  late CustomRadioController designController      = CustomRadioController(onChange: (value) { onDesignChanged(value); });
   late CustomRadioController listChooserController = CustomRadioController(onChange: (value) { onChangeList(value); });
-  final imageController  = TextEditingController();
-  final jpCodeController = TextEditingController();
+  late TabController         tabController;
+
+  final imageController     = TextEditingController();
+  final jpCodeController    = TextEditingController();
   final specialIDController = TextEditingController();
 
-  List<Widget> typeCard = [];
-  List<Widget> typeExtCard = [];
-  List<Widget> rarity   = [];
-  List<Widget> marker   = [];
-  List<Widget> level    = [];
-  List<Widget> designs  = [];
-  List<Widget> longMarkerWidget = [];
-  List<Widget> setsWidget = [];
   bool         _auto    = false;
 
   void onChangeList(value) {
@@ -127,66 +126,21 @@ class _CardCreatorState extends State<CardCreator> {
 
   @override
   void initState() {
-    super.initState();
+    tabController = TabController( length: 6, vsync: this );
 
     // Auto fill (only for japanese card)
     if(widget.activeLanguage.isJapanese() && widget.card.jpDBId == 0) {
       computeJPCardID();
     }
 
-    TypeCard.values.forEach((element) {
-        typeCard.add(CustomRadio(value: element, controller: typeController, widget: getImageType(element)));
-    });
-
-    rarity.clear();
-    widget.listRarity.forEach((element) {
-      if( element != Environment.instance.collection.unknownRarity )
-        rarity.add(CustomRadio(value: element, controller: rarityController,
-            widget: Row(mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: getImageRarity(element, widget.activeLanguage, fontSize: 8.0, generate: true))
-        )
-        );
-    });
-
-    if( widget.editor ) {
-      typeExtCard.add(CustomRadio(value: TypeCard.Unknown, controller: typeExtController, widget: getImageType(TypeCard.Unknown)));
-      energies.forEach((element) {
-        typeExtCard.add(CustomRadio(value: element, controller: typeExtController, widget: getImageType(element)));
-      });
-    }
     listChooserController.currentValue = 0;
 
     selectCard();
+
+    super.initState();
   }
 
   void selectCard() {
-    marker = [];
-    longMarkerWidget = [];
-    setsWidget = [];
-
-    if( widget.editor ) {
-      Environment.instance.collection.markers.values.forEach((element) {
-        if (!Environment.instance.collection.longMarkers.contains(element))
-          marker.add(MarkerButtonCheck(widget.activeLanguage, widget.card.data.markers, element));
-      });
-      Environment.instance.collection.longMarkers.forEach((element) {
-        longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.activeLanguage, widget.card.data.markers, element)));
-      });
-      Environment.instance.collection.sets.values.forEach((element) {
-        setsWidget.add(CardSetButtonCheck(widget.activeLanguage, widget.card.sets, element));
-      });
-
-      typeExtController.afterPress(widget.card.data.typeExtended != null ? widget.card.data.typeExtended! : TypeCard.Unknown);
-    }
-
-    if( widget.card.data.weakness == null ) {
-      widget.card.data.weakness = EnergyValue(TypeCard.Unknown, 0);
-    }
-    if( widget.card.data.resistance == null ) {
-      widget.card.data.resistance = EnergyValue(TypeCard.Unknown, 0);
-    }
-
     // Set current value
     typeController.afterPress(widget.card.data.type);
     rarityController.afterPress(widget.card.rarity);
@@ -280,16 +234,16 @@ class _CardCreatorState extends State<CardCreator> {
         id+=1;
       });
 
-      level = [];
-      Level.values.forEach((element) {
-        level.add(Expanded(child: CustomRadio(value: element, controller: levelController, widget: Text( getLevelText(context, element) ))));
-      });
-      levelController.afterPress(widget.card.data.level);
+      typeExtController.afterPress(widget.card.data.typeExtended != null ? widget.card.data.typeExtended! : TypeCard.Unknown);
 
-      designs = [];
-      Design.values.forEach((element) {
-        designs.add(Expanded(child: CustomRadio(value: element, controller: designController, widget: icon(element) )));
-      });
+      if( widget.card.data.weakness == null ) {
+        widget.card.data.weakness = EnergyValue(TypeCard.Unknown, 0);
+      }
+      if( widget.card.data.resistance == null ) {
+        widget.card.data.resistance = EnergyValue(TypeCard.Unknown, 0);
+      }
+
+      levelController.afterPress(widget.card.data.level);
       designController.afterPress(widget.card.data.design);
 
       int? databaseCardId = Environment.instance.collection.pokemonCards.containsValue(widget.card.data)
@@ -300,10 +254,32 @@ class _CardCreatorState extends State<CardCreator> {
                  ? databaseCardId.toString()
                  : StatitikLocale.of(context).read('CA_B29');
 
-      List<Widget> cardInfo = [Row( children: designs)];
+      List<Widget> cardInfo = [
+        GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.1),
+          itemCount: Design.values.length,
+          primary: false,
+          shrinkWrap: true,
+          itemBuilder: (BuildContext context, int index) {
+            var element = Design.values[index];
+            return CustomRadio(value: element, controller: designController, widget: icon(element) );
+          }
+        ),
+      ];
       if(isPokemonType(widget.card.data.type)){
         cardInfo += [
-          Row( children: level),
+          GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 3.2),
+            itemCount: Level.values.length,
+            primary: false,
+            shrinkWrap: true,
+            itemBuilder: (BuildContext context, int index) {
+              var element = Level.values[index];
+              return CustomRadio(value: element, controller: levelController, widget: Text( getLevelText(context, element) ));
+            }
+          ),
           Row(children: [
             Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B25'), style: TextStyle(fontSize: 12))),
             Expanded(
@@ -324,11 +300,11 @@ class _CardCreatorState extends State<CardCreator> {
               child: SliderInfo( SliderInfoController(() {
                 return widget.card.data.retreat.toDouble();
               },
-                      (double value){
-                    widget.card.data.retreat = value.round().toInt();
-                  }),
-                  minRetreat, maxRetreat,
-                  division: 5),
+              (double value){
+                widget.card.data.retreat = value.round().toInt();
+              }),
+              minRetreat, maxRetreat,
+              division: 5),
             ),
           ]),
           Column(
@@ -348,178 +324,201 @@ class _CardCreatorState extends State<CardCreator> {
         ];
       }
 
-      others = <Widget>[
+      List<Widget> tabHeaders = [
+        Text(StatitikLocale.of(context).read('CA_B22'), style: TextStyle(fontSize: 12)),
+        Icon(Icons.info_outline, size: 28),                 //Text(StatitikLocale.of(context).read('CA_B18'), style: TextStyle(fontSize: 10)),
+        Icon(Icons.add_photo_alternate_outlined, size: 28), // Text(StatitikLocale.of(context).read('CA_B39'), style: TextStyle(fontSize: 10)),
+        Icon(Icons.bookmark_border_outlined, size: 28),     //Text(StatitikLocale.of(context).read('CA_B16'), style: TextStyle(fontSize: 10)),
+        Text(StatitikLocale.of(context).read('CA_B17'), style: TextStyle(fontSize: 12)),
+        Text(StatitikLocale.of(context).read('CA_B15'), style: TextStyle(fontSize: 10)),
+      ];
+
+      List<Widget> tabPages = [
+        // Page 1
+        SingleChildScrollView(
+          child: Column(
+            children: namedWidgets + [
+              Card(child: TextButton(
+                child: Text(StatitikLocale.of(context).read('NCE_B7')),
+                onPressed: () {
+                  widget.card.data.title.add(Pokemon(Environment.instance.collection.pokemons[1]));
+                  PokeCardNaming.selectCardName(context, widget.activeLanguage, widget.card, widget.card.data.title.length-1).then((value) {
+                    setState(() {});
+                  });
+                },
+              ))
+            ]
+          ),
+        ),
+        // Page 2
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-            Container(child: genericCardWidget(widget.se, widget.idCard, height: 100, reloader: true), height: 100),
-            SizedBox(width:8),
-            Expanded(child: Text(StatitikLocale.of(context).read('CA_B30')+ " " + codeDB, style: Theme.of(context).textTheme.headline5)),
-            Card (
-              color: Colors.grey[500],
-              child: TextButton(
-                child: Text(StatitikLocale.of(context).read('CA_B32')),
-                onPressed: () {
-                  Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SearchExtensionsCardId(widget.card.data.type,
-                      widget.card.data.title.isNotEmpty ? widget.card.data.title[0].name : null, widget.title, databaseCardId ?? 0)),
-                  ).then((idCard) {
-                    if(idCard != null) {
-                      setState(() {
-                        // Change object
-                        widget.card.data = Environment.instance.collection.pokemonCards[idCard];
-                        // Recompute default value
-                        selectCard();
-                      });
-                    }
+          child: Column(
+            children: cardInfo
+          ),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: createImageFieldWidget(),
+            ),
+            Row(
+              children: [
+                Text("Carte secrète: "),
+                Checkbox(value: widget.card.isSecret, onChanged: (value) {
+                  setState(() {
+                    widget.card.isSecret = value!;
                   });
                 }
-              )
-            )
-          ]),
-        ),
-        ExpansionPanelList.radio(
-          expandedHeaderPadding: EdgeInsets.zero,
-          children: [
-            ExpansionPanelRadio(
-                canTapOnHeader: true,
-                headerBuilder: (context, isOpen) { return ListTile(
-                title: Text(StatitikLocale.of(context).read('CA_B22'), style: TextStyle(fontSize: 12))); },
-                backgroundColor: Colors.blueGrey[800],
-                value: 0,
-                body: Column(
-                  children: namedWidgets + [
-                    Card(child: TextButton(
-                    child: Text(StatitikLocale.of(context).read('NCE_B7')),
-                    onPressed: () {
-                      widget.card.data.title.add(Pokemon(Environment.instance.collection.pokemons[1]));
-                      PokeCardNaming.selectCardName(context, widget.activeLanguage, widget.card, widget.card.data.title.length-1).then((value) {
-                        setState(() {});
-                      });
-                    },
-                  ))
-                  ]
                 )
+              ],
             ),
-
-            ExpansionPanelRadio(
-              canTapOnHeader: true,
-              headerBuilder: (context, isOpen) { return ListTile(
-                  title:Text(StatitikLocale.of(context).read('CA_B18'), style: TextStyle(fontSize: 12))); },
-              value: 1,
-              backgroundColor: Colors.blueGrey[800],
-              body: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: cardInfo
-                ),
-              )
+            Text("Set"),
+            GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.2),
+              primary: false,
+              shrinkWrap: true,
+              itemCount: Environment.instance.collection.sets.values.length,
+              itemBuilder: (BuildContext context, int index) {
+                var element = Environment.instance.collection.sets.values.elementAt(index);
+                return CardSetButtonCheck(widget.activeLanguage, widget.card.sets, element);
+              },
+            ),
+          ]
+        ),
+        GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.5),
+          itemCount: Environment.instance.collection.markers.values.length,
+          itemBuilder: (BuildContext context, int index) {
+             var element = Environment.instance.collection.markers.values.elementAt(index);
+             return MarkerButtonCheck(widget.activeLanguage, widget.card.data.markers, element);
+          }
+        ),
+        CardEffectsPanel(widget.card, widget.activeLanguage),
+        Column( children: [
+          GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.3),
+            itemCount: widget.listRarity.length,
+            primary: false,
+            shrinkWrap: true,
+            itemBuilder: (BuildContext context, int index) {
+              var element = widget.listRarity.elementAt(index);
+              return CustomRadio(value: element, controller: rarityController,
+                widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: getImageRarity(element, widget.activeLanguage, fontSize: 8.0, generate: true))
+              );
+            }
           ),
-          ExpansionPanelRadio(
-            canTapOnHeader: true,
-            headerBuilder: (context, isOpen) { return ListTile(
-            title:Text(StatitikLocale.of(context).read('CA_B39'), style: TextStyle(fontSize: 12))); },
-            value: 2,
-            backgroundColor: Colors.blueGrey[800],
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: createImageFieldWidget(),
-                ),
-                Row(
-                  children: [
-                    Text("Carte secrète: "),
-                    Checkbox(value: widget.card.isSecret, onChanged: (value) {
-                      setState(() {
-                        widget.card.isSecret = value!;
-                      });
-                    }
-                    )
-                  ],
-                ),
-                Text("Set"),
-                GridView.count(
-                  crossAxisCount: 4,
-                  primary: false,
-                  shrinkWrap: true,
-                  children: setsWidget,
-                ),
-              ])
-            ),
-          ExpansionPanelRadio(
-            value: 3,
-            canTapOnHeader: true,
-            headerBuilder: (context, isOpen) { return ListTile(
-                title:Text(StatitikLocale.of(context).read('CA_B16'), style: TextStyle(fontSize: 12))); },
-            backgroundColor: Colors.blueGrey[800],
-            body: Column( children: [
-              GridView.count(
-                crossAxisCount: 6,
-                primary: false,
-                shrinkWrap: true,
-                children: marker,
-                childAspectRatio: 1.2,
-              ),
-              Row(children: longMarkerWidget.sublist(0, 3)),
-              Row(children: longMarkerWidget.sublist(3)),
+          GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 8, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.1),
+            primary: false,
+            shrinkWrap: true,
+            itemCount: TypeCard.values.length,
+            itemBuilder: (BuildContext context, int index) {
+              var element = TypeCard.values.elementAt(index);
+              return CustomRadio(value: element, controller: typeController, widget: getImageType(element));
+            }
+          ),
+          GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 8, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.1),
+            primary: false,
+            shrinkWrap: true,
+            itemCount: widget.secondTypes!.length,
+            itemBuilder: (BuildContext context, int index){
+              var element = widget.secondTypes!.elementAt(index);
+              return CustomRadio(value: element, controller: typeExtController, widget: getImageType(element));
+            }
+          ),
+        ]),
+      ];
+
+      return Column(children:
+        [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+            children: [
+              Container(child: genericCardWidget(widget.se, widget.idCard, height: 220, reloader: true), height: 220),
+              SizedBox(width:8),
+              Expanded(child: Text(StatitikLocale.of(context).read('CA_B30')+ " " + codeDB, style: Theme.of(context).textTheme.headline5)),
+              Card(
+                color: Colors.grey.shade500,
+                child: TextButton(
+                  child: Text(StatitikLocale.of(context).read('CA_B32')),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SearchExtensionsCardId(widget.card.data.type,
+                          widget.card.data.title.isNotEmpty ? widget.card.data.title[0].name : null, widget.title, databaseCardId ?? 0)),
+                    ).then((idCard) {
+                      if(idCard != null) {
+                        setState(() {
+                          // Change object
+                          widget.card.data = Environment.instance.collection.pokemonCards[idCard];
+                          // Recompute default value
+                          selectCard();
+                        });
+                      }
+                    });
+                  }
+                )
+              )
             ]),
           ),
-          ExpansionPanelRadio(
-            value: 4,
-            canTapOnHeader: true,
-            headerBuilder: (context, isOpen) { return ListTile(
-                title:Text(StatitikLocale.of(context).read('CA_B17'), style: TextStyle(fontSize: 12))); },
-            backgroundColor: Colors.blueGrey[800],
-            body: CardEffectsPanel(widget.card, widget.activeLanguage)
-          ),
-          ExpansionPanelRadio(
-            value: 5,
-            canTapOnHeader: true,
-            headerBuilder: (context, isOpen) { return ListTile(
-                title: Text(StatitikLocale.of(context).read('CA_B15'), style: TextStyle(fontSize: 12))); },
-            backgroundColor: Colors.blueGrey[800],
-            body: Column( children: [
-              GridView.count(
-                crossAxisCount: 7,
-                primary: false,
-                shrinkWrap: true,
-                children: rarity,
+          TabBar(
+            controller: tabController,
+            indicatorPadding: const EdgeInsets.all(1),
+            indicator: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.green,
+            ),
+            tabs: tabHeaders),
+          Expanded(
+            child: Card(
+              color: Colors.teal.shade900,
+              child: TabBarView(
+                controller: tabController,
+                children: tabPages,
               ),
-              GridView.count(
-                crossAxisCount: 8,
-                primary: false,
-                shrinkWrap: true,
-                children: typeCard,
-              ),
-              GridView.count(
-                crossAxisCount: 8,
-                primary: false,
-                shrinkWrap: true,
-                children: typeExtCard,
-              ),
-            ])
-          ),
-        ])
-      ];
+            )
+          )
+        ]
+      );
     } else {
       others = [
-        GridView.count(
-          crossAxisCount: 8,
-          primary: false,
-          shrinkWrap: true,
-          children: typeCard,
-          childAspectRatio: 1.1,
+        GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 8, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.1),
+            primary: false,
+            shrinkWrap: true,
+            itemCount: TypeCard.values.length,
+            itemBuilder: (BuildContext context, int index) {
+              var element = TypeCard.values.elementAt(index);
+              return CustomRadio(value: element, controller: typeController, widget: getImageType(element));
+            }
         ),
-        GridView.count(
-          crossAxisCount: 7,
+        GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.3),
+          itemCount: widget.listRarity.length,
           primary: false,
           shrinkWrap: true,
-          children: rarity,
-          childAspectRatio: 1.3,
+          itemBuilder: (BuildContext context, int index) {
+            var element = widget.listRarity.elementAt(index);
+            return CustomRadio(value: element, controller: rarityController,
+                widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: getImageRarity(element, widget.activeLanguage, fontSize: 8.0, generate: true))
+            );
+          }
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -529,30 +528,30 @@ class _CardCreatorState extends State<CardCreator> {
             CustomRadio(value: 2, controller: listChooserController, widget: Text("Special")),
             Expanded(child: SizedBox(width: 1)),
             Card(
-                color: Colors.grey[800],
-                child: TextButton(
-                  child: Text(StatitikLocale.of(context).read('NCE_B0')),
-                  onPressed: (){
-                    widget.onAppendCard!(listChooserController.currentValue, null);
-                  },
-                )
+              color: Colors.grey[800],
+              child: TextButton(
+                child: Text(StatitikLocale.of(context).read('NCE_B0')),
+                onPressed: (){
+                  widget.onAppendCard!(listChooserController.currentValue, null);
+                },
+              )
             ),
             Card(
-                color: _auto ? Colors.green : Colors.grey[800],
-                child: TextButton(
-                    child: Text(StatitikLocale.of(context).read('NCE_B2')),
-                    onPressed: () {
-                      setState((){
-                        _auto = !_auto;
-                      });
-                    }
-                )
+              color: _auto ? Colors.green : Colors.grey[800],
+              child: TextButton(
+                  child: Text(StatitikLocale.of(context).read('NCE_B2')),
+                  onPressed: () {
+                    setState((){
+                      _auto = !_auto;
+                    });
+                  }
+              )
             ),
           ]
         ),
       ];
+      return Card( child: Column(children: others) );
     }
-    return Card( child: Column(children: others) );
   }
 }
 
@@ -625,13 +624,14 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
     List<Widget> formeWidget   = [];
 
     Environment.instance.collection.formes.values.forEach((element) {
+      var text = element.applyToPokemonName(widget.language);
       formeWidget.add(CustomRadio(value: element, controller: specialController,
           widget: Row(mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Flexible(child: Center(child: Text(
-                  element.applyToPokemonName(widget.language),
-                  style: TextStyle(fontSize: 8), softWrap: true)))
+                  text,
+                  style: TextStyle(fontSize: text.length > 12 ? 8 : 10), softWrap: true)))
               ])
       )
       );
@@ -697,14 +697,16 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
           ),
           if( isPokemonType(widget.card.data.type) )
             GridView.count(
-              crossAxisCount: 7,
+              crossAxisCount: 5,
+              childAspectRatio: 2.0,
               primary: false,
               shrinkWrap: true,
               children: regionsWidget,
             ),
           if( isPokemonType(widget.card.data.type) )
             GridView.count(
-              crossAxisCount: 6,
+              crossAxisCount: 4,
+              childAspectRatio: 3.0,
               primary: false,
               shrinkWrap: true,
               children: formeWidget,
