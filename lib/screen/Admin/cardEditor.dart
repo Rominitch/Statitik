@@ -9,17 +9,25 @@ import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
 
+class CardEditorOptions {
+  int tabIndex = 0;
+
+  CardEditorOptions();
+}
+
 class CardEditor extends StatefulWidget {
   final CardIdentifier       id;
   final int                  idAlternative = 0;
   final SubExtension         se;
   final PokemonCardExtension card;
   final bool                 isWorldCard;
+  final CardEditorOptions    options;
 
-  CardEditor(this.isWorldCard, SubExtension se, CardIdentifier id) :
+  CardEditor(this.isWorldCard, SubExtension se, CardIdentifier id, [options]) :
     this.se   = se,
     this.id   = id,
-    this.card = se.cardFromId(id);
+    this.card = se.cardFromId(id),
+    this.options = options ?? CardEditorOptions();
 
   String titleCard() {
     var cardId = id.numberId;
@@ -66,7 +74,7 @@ class _CardEditorState extends State<CardEditor> {
                     child: Text(StatitikLocale.of(context).read('NCE_B6')),
                     onPressed: (){
                       Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => CardEditor(widget.isWorldCard, widget.se, nextCardId)),
+                        MaterialPageRoute(builder: (context) => CardEditor(widget.isWorldCard, widget.se, nextCardId, widget.options)),
                       );
                     },
                   )
@@ -75,7 +83,7 @@ class _CardEditorState extends State<CardEditor> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(2.0),
-          child: CardCreator.editor(widget.se.extension.language, widget.se, widget.card, widget.id, title, widget.isWorldCard),
+          child: CardCreator.editor(widget.se.extension.language, widget.se, widget.card, widget.id, title, widget.isWorldCard, widget.options),
         )
       )
     );

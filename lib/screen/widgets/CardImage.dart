@@ -139,19 +139,16 @@ class CardImage extends StatefulWidget {
 
       // Mine
       var cardPath = "StatitikCard/card/${se.extension.language.image}/${se.icon}/${cardId.cardId.join("_")}";
-      images += [
-        Uri.https(adresse, "$cardPath.png"),
-        Uri.https(adresse, "$cardPath.jpg")
-      ];
+      var formats = ["webp", "png", "jpg"];
+      formats.forEach((ext) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardPath.$ext"));});
+
       if(cardId.listId == 1) {
         var cardEnergyPath = "StatitikCard/card/${se.extension.language.image}/E_${se.icon}_${cardId.numberId+1}";
-        images.add(Uri.https(adresse, "$cardEnergyPath.png"));
-        images.add(Uri.https(adresse, "$cardEnergyPath.jpg"));
+        formats.forEach((ext) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardEnergyPath.$ext"));});
       }
       if(cardId.listId == 2) {
         var cardNoNumberPath = "StatitikCard/card/${se.extension.language.image}/${cardId.cardId.join("_")}";
-        images.add(Uri.https(adresse, "$cardNoNumberPath.png"));
-        images.add(Uri.https(adresse, "$cardNoNumberPath.jpg"));
+        formats.forEach((ext) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardNoNumberPath.$ext"));});
       }
 
       //

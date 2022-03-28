@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/Admin/cardEditor.dart';
 
 import 'package:statitikcard/screen/Admin/cardEffectPanel.dart';
 import 'package:statitikcard/screen/Admin/searchExtensionCardId.dart';
@@ -31,17 +32,19 @@ class CardCreator extends StatefulWidget {
   final List                  listRarity;
   final String                title;
   final List?                 secondTypes;
+  final CardEditorOptions     options;
 
-  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, bool isWorldCard):
+  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, bool isWorldCard, [options]):
     editor=true, onAppendCard=null, onChangeList=null,
     listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity)
       ..removeWhere((element) => element == Environment.instance.collection.unknownRarity),
-    secondTypes = [TypeCard.Unknown] + energies;
+    secondTypes = [TypeCard.Unknown] + energies,
+    this.options = options;
 
 
   CardCreator.quick(this.activeLanguage, this.se, this.card, this.idCard, this.onAppendCard, bool isWorldCard, {this.onChangeList}):
     editor=false, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity), title="",
-    secondTypes=null;
+    secondTypes=null, options = CardEditorOptions();
 
   @override
   _CardCreatorState createState() => _CardCreatorState();
@@ -126,7 +129,10 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
 
   @override
   void initState() {
-    tabController = TabController( length: 6, vsync: this );
+    tabController = TabController( length: 6, vsync: this, initialIndex: widget.options.tabIndex );
+    tabController.addListener(() {
+      widget.options.tabIndex = tabController.index;
+    });
 
     // Auto fill (only for japanese card)
     if(widget.activeLanguage.isJapanese() && widget.card.jpDBId == 0) {
@@ -357,37 +363,39 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             children: cardInfo
           ),
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: createImageFieldWidget(),
-            ),
-            Row(
-              children: [
-                Text("Carte secrète: "),
-                Checkbox(value: widget.card.isSecret, onChanged: (value) {
-                  setState(() {
-                    widget.card.isSecret = value!;
-                  });
-                }
-                )
-              ],
-            ),
-            Text("Set"),
-            GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.2),
-              primary: false,
-              shrinkWrap: true,
-              itemCount: Environment.instance.collection.sets.values.length,
-              itemBuilder: (BuildContext context, int index) {
-                var element = Environment.instance.collection.sets.values.elementAt(index);
-                return CardSetButtonCheck(widget.activeLanguage, widget.card.sets, element);
-              },
-            ),
-          ]
+        SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: createImageFieldWidget(),
+              ),
+              Row(
+                children: [
+                  Text("Carte secrète: "),
+                  Checkbox(value: widget.card.isSecret, onChanged: (value) {
+                    setState(() {
+                      widget.card.isSecret = value!;
+                    });
+                  }
+                  )
+                ],
+              ),
+              Text("Set"),
+              GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.2),
+                primary: false,
+                shrinkWrap: true,
+                itemCount: Environment.instance.collection.sets.values.length,
+                itemBuilder: (BuildContext context, int index) {
+                  var element = Environment.instance.collection.sets.values.elementAt(index);
+                  return CardSetButtonCheck(widget.activeLanguage, widget.card.sets, element);
+                },
+              ),
+            ]
+          ),
         ),
         GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
