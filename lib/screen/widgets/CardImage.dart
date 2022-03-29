@@ -158,9 +158,12 @@ class CardImage extends StatefulWidget {
         if(card.image.startsWith("https://"))
           images += [Uri.parse(card.image)];
         else {
-          int addAt = cardId.listId == 2 ? images.length : 0;
+          int addAt = cardId.listId != 0 ? images.length : 0;
           se.seCode.forEach((seFolder) {
             // Official image source
+            if( cardId.listId == 1 )
+              images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2-fr-fr/img/cards/web/NRG/NRG_FR_${card.image}.png") );
+
             images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2-fr-fr/img/cards/web/$seFolder/${seFolder}_FR_${se.seCards.tcgImage(id)}.png"));
             // Reliable alternative source
             images += [
@@ -168,22 +171,20 @@ class CardImage extends StatefulWidget {
               Uri.https("www.pokecardex.com", "assets/images/sets/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"),
             ];
           });
-          if( se.seCards.energyCard.contains(card) )
-            images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2-fr-fr/img/cards/web/NRG/NRG_FR_${card.image}.png") );
         }
       else if( se.extension.language.id == 2 )
         if(card.image.startsWith("https://"))
           images += [Uri.parse(card.image)];
         else
         {
-          int addAt = cardId.listId == 2 ? images.length : 0;
+          int addAt = cardId.listId != 0 ? images.length : 0;
+          if( cardId.listId == 1 )
+            images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/NRG/NRG_EN_${card.image}.png") );
 
           // Official image source
           se.seCode.forEach((seFolder) {
             images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/$seFolder/${seFolder}_EN_${se.seCards.tcgImage(id)}.png"));
           });
-          if( cardId.listId == 1 )
-            images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/NRG/NRG_EN_${card.image}.png") );
         }
       else if( se.extension.language.id == 3 ) {
         if(card.image.startsWith("https://"))
