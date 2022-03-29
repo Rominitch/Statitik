@@ -145,6 +145,8 @@ class CardImage extends StatefulWidget {
       if(cardId.listId == 1) {
         var cardEnergyPath = "StatitikCard/card/${se.extension.language.image}/E_${se.icon}_${cardId.numberId+1}";
         formats.forEach((ext) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardEnergyPath.$ext"));});
+        var cardEnergy2Path = "StatitikCard/card/${se.extension.language.image}/E_${card.image}_${cardId.numberId+1}";
+        formats.forEach((ext) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardEnergy2Path.$ext"));});
       }
       if(cardId.listId == 2) {
         var cardNoNumberPath = "StatitikCard/card/${se.extension.language.image}/${cardId.cardId.join("_")}";
@@ -155,31 +157,33 @@ class CardImage extends StatefulWidget {
       if( se.extension.language.id == 1 )
         if(card.image.startsWith("https://"))
           images += [Uri.parse(card.image)];
-        else
-        if( se.seCards.energyCard.contains(card) )
-          images += [Uri.https("assets.pokemon.com", "assets/cms2-fr-fr/img/cards/web/NRG/NRG_FR_${card.image}.png")];
         else {
+          int addAt = cardId.listId == 2 ? images.length : 0;
           se.seCode.forEach((seFolder) {
             // Official image source
-            images.insert(0, Uri.https("assets.pokemon.com", "assets/cms2-fr-fr/img/cards/web/$seFolder/${seFolder}_FR_${se.seCards.tcgImage(id)}.png"));
+            images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2-fr-fr/img/cards/web/$seFolder/${seFolder}_FR_${se.seCards.tcgImage(id)}.png"));
             // Reliable alternative source
             images += [
               Uri.https("www.pokecardex.com", "assets/images/sets_fr/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"),
               Uri.https("www.pokecardex.com", "assets/images/sets/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(id)}.jpg"),
             ];
           });
+          if( se.seCards.energyCard.contains(card) )
+            images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2-fr-fr/img/cards/web/NRG/NRG_FR_${card.image}.png") );
         }
       else if( se.extension.language.id == 2 )
         if(card.image.startsWith("https://"))
           images += [Uri.parse(card.image)];
         else
         {
+          int addAt = cardId.listId == 2 ? images.length : 0;
+
           // Official image source
           se.seCode.forEach((seFolder) {
-            images.insert(0, Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/$seFolder/${seFolder}_EN_${se.seCards.tcgImage(id)}.png"));
+            images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/$seFolder/${seFolder}_EN_${se.seCards.tcgImage(id)}.png"));
           });
           if( cardId.listId == 1 )
-            images.insert(0, Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/NRG/NRG_EN_${card.image}.png") );
+            images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/NRG/NRG_EN_${card.image}.png") );
         }
       else if( se.extension.language.id == 3 ) {
         if(card.image.startsWith("https://"))

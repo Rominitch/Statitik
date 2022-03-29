@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
 
@@ -18,6 +19,8 @@ class StorageData {
 }
 
 class ImageStorage {
+  static const List formats = const["webp", "png" , "jpg"];
+
   Future<String> imageLocalPath(List<String> folders, String file, String extension) async {
     final directory = await getApplicationDocumentsDirectory();
     return ([directory.path]+folders+["$file.$extension"]).join(Platform.pathSeparator);
@@ -31,14 +34,34 @@ class ImageStorage {
         final client = RetryClient(Client(), retries: 3, );
         try {
           var bodyBytes = await client.readBytes(url);
-          var ext = url.path.substring(url.path.length - 3);
-          // Save on local
+          var dots = url.path.split(".");
+          var ext = url.path.substring(url.path.length - dots[dots.length-1].length);
+          // Save on local (to webp format)
           file = File(imageLocalPath+ext);
           try {
             await file.create(recursive: true);
             await file.writeAsBytes(bodyBytes, flush: true);
             printOutput("ImageStorage: Find ${url.toString()}");
+
+            if(ext != "webp") {
+              try {
+                var newFile = await FlutterImageCompress.compressAndGetFile(
+                  imageLocalPath + ext,
+                  imageLocalPath + "webp",
+                  quality: 98,
+                  format: CompressFormat.webp,
+                );
+                printOutput("Convert image from $ext to webp: from ${bodyBytes.length} to ${newFile!.lengthSync()}");
+                // Clean original file save
+                if(file != null && file.existsSync())
+                  file.deleteSync();
+                file = newFile;
+              } catch(e) {
+                printOutput("ImageStorage : convert Error: ${e.toString()}");
+              }
+            }
           } catch(e) {
+            printOutput("ImageStorage : error ${e.toString()}");
             // Clean bad file save
             if(file != null && file.existsSync())
               file.deleteSync();
@@ -58,12 +81,13 @@ class ImageStorage {
   Future<File?> imageFromPath(StorageData data) async {
     try {
       var imageLocale = await imageLocalPath(data.folders, data.imageLocalPath, "");
-      var file = File(imageLocale+"png");
-      var ok = file.existsSync();
-
-      if(!ok) {
-        file = File(imageLocale+"jpg");
+      var ok = false;
+      var file;
+      for(var format in formats) {
+        file = File(imageLocale+format);
         ok = file.existsSync();
+        if(ok)
+          break;
       }
 
       if(ok) {
@@ -82,17 +106,13 @@ class ImageStorage {
   }
 
   Future<void> cleanImageFile(List<String> pathParts, String imageName) async {
-    var path = await imageLocalPath(pathParts, imageName, "png");
-    var file = File(path);
-    bool hasFile = file.existsSync();
-    if( !hasFile ) {
-      path = await imageLocalPath(pathParts, imageName, "jpg");
-      file = File(path);
-      hasFile = file.existsSync();
-    }
-
-    if(hasFile) {
-      file.deleteSync();
+    for(var format in formats) {
+      var path = await imageLocalPath(pathParts, imageName, format);
+      var file = File(path);
+      if(file.existsSync()) {
+        file.deleteSync();
+        break;
+      }
     }
   }
 

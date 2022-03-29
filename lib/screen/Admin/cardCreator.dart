@@ -213,17 +213,32 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
               ))
             ]
           ),
-          Column(
+          Text(StatitikLocale.of(context).read('CA_B38')),
+          Row(
             children: [
-              Text(StatitikLocale.of(context).read('CA_B38')),
-              TextField(
-                  controller: specialIDController,
-                  decoration: InputDecoration(hintText: StatitikLocale.of(context).read('CA_B38') ),
-                  onChanged: (data) {
-                    widget.card.specialID = data;
-                  }
+              Expanded(
+                child: TextField(
+                    controller: specialIDController,
+                    decoration: InputDecoration(hintText: StatitikLocale.of(context).read('CA_B38') ),
+                    onChanged: (data) {
+                      widget.card.specialID = data;
+                    }
+                ),
               ),
-            ]
+              if(!widget.activeLanguage.isJapanese())
+                Card( child: IconButton(
+                  icon: Icon(Icons.refresh),
+                  onPressed: () async {
+                    // Clean all data
+                    widget.card.finalImage = "";
+                    await Environment.instance.storage.cleanCardFile(widget.se, widget.idCard);
+
+                    setState(() {
+                      widget.card.jpDBId = int.parse(jpCodeController.value.text);
+                    });
+                  },
+                )),
+            ],
           )
         ]
     );
