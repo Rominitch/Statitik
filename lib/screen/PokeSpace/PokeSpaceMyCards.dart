@@ -51,9 +51,18 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
       padding: const EdgeInsets.all(2.0),
       child: Column(
         children: [
-          Text(name, style: TextStyle(
-            fontFamily: Theme.of(context).textTheme.headline1!.fontFamily,
-            fontSize: size-1)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(name, style: TextStyle(
+                fontFamily: Theme.of(context).textTheme.headline1!.fontFamily,
+                fontSize: size-1)
+              ),
+              if(myCard == maxCard)
+                SizedBox(width: 4),
+              if(myCard == maxCard)
+                Icon(Icons.stars_rounded, color: Colors.amber.shade400, size: 14),
+            ],
           ),
           SizedBox(height: 2),
           LinearPercentIndicator(
@@ -62,8 +71,8 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
             progressColor: color,
             backgroundColor: Colors.black,
             center: new Text("$myCard / $maxCard", style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: size-2.0)),
+              fontWeight: FontWeight.bold,
+              fontSize: size-2.0)),
           ),
         ],
       ),

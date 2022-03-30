@@ -9,6 +9,7 @@ import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/BytesCoder.dart';
 import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';

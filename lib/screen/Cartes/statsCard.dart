@@ -10,6 +10,7 @@ import 'package:statitikcard/screen/Cartes/CardViewer.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/models.dart';
@@ -155,7 +156,7 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
                     var idCard = listCards[index];
                     return Card(color: Colors.grey[800],
                         margin: EdgeInsets.zero,
-                        child: TextButton(child: genericCardWidget(subExtension, idCard),
+                        child: TextButton(child: genericCardWidget(subExtension, idCard, CardImageIdentifier()),
                           onPressed: (){
                             var card = subExtension.seCards.cardFromId(idCard);
                             Navigator.push(context,

@@ -10,10 +10,12 @@ import 'package:statitikcard/services/models/Extension.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/MultiLanguageString.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/models/SerieType.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
+import 'package:statitikcard/services/models/SubExtensionCards.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 
 import 'package:statitikcard/services/models/models.dart';
@@ -184,14 +186,17 @@ void main() {
     [
       PokemonCardExtension.empty(collection[1], raritySets[1]),
       PokemonCardExtension.empty(collection[2], raritySets[2]),
-      PokemonCardExtension.empty(collection[3], raritySets[0], image: "Image.png"),
+      PokemonCardExtension.empty(collection[3], raritySets[0]),
     ];
+    var img = ImageDesign();
+    img.image = "image.png";
+    c[2].images.add([img]);
 
     for(PokemonCardExtension code in c) {
       PokemonCardExtension codeS = PokemonCardExtension.fromBytes(ByteParser(code.toBytes(rCollection, rAllSets, rRaritySets)), collection, allSets, raritySets);
       expect(codeS.data,   code.data); // Pointer comparison
       expect(codeS.rarity, code.rarity);
-      expect(codeS.image,  code.image);
+      expect(codeS.images.length,  code.images.length);
     }
   });
 

@@ -6,10 +6,11 @@ import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/Extension.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/SerieType.dart';
+import 'package:statitikcard/services/models/SubExtensionCards.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
 
 class SubExtension
 {

@@ -5,13 +5,13 @@ import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/services/CardEffect.dart';
 import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
 
 class CardViewerBody extends StatelessWidget {
   final SubExtension se;
@@ -96,7 +96,7 @@ class CardViewerBody extends StatelessWidget {
               scrollDirection: Axis.horizontal,
             ),
           ),
-          genericCardWidget(se, idCard, quality: FilterQuality.high, width: MediaQuery.of(context).size.width-16, reloader: true),
+          genericCardWidget(se, idCard, CardImageIdentifier(), quality: FilterQuality.high, width: MediaQuery.of(context).size.width-16, reloader: true),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(8.0),

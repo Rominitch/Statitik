@@ -4,11 +4,11 @@ import 'package:statitikcard/screen/Cartes/CardViewer.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
 
 class StatsExtensionCards extends StatefulWidget {
   final StatsConfiguration info;
@@ -115,7 +115,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> with SingleTi
                   )
               ),
               SizedBox(height:5),
-              Expanded(child: genericCardWidget(widget.info.statsData.subExt!, id, height: 150, language: widget.info.statsData.language!,)),
+              Expanded(child: genericCardWidget(widget.info.statsData.subExt!, id, CardImageIdentifier(), height: 150, language: widget.info.statsData.language!,)),
               if(statsOfCard != null)
                 textStats(statsOfCard)
             ],

@@ -10,10 +10,12 @@ import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/models/Extension.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/MultiLanguageString.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/SerieType.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
+import 'package:statitikcard/services/models/SubExtensionCards.dart';
 import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
 

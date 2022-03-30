@@ -19,6 +19,7 @@ import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/SerieType.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
+import 'package:statitikcard/services/models/SubExtensionCards.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/product.dart';
@@ -392,10 +393,9 @@ class Collection
         var weakness     = row[8] != null ? EnergyValue.fromBytes((row[8] as Blob).toBytes().toList()) : null;
         var resistance   = row[9] != null ? EnergyValue.fromBytes((row[9] as Blob).toBytes().toList()) : null;
         var illustrator  = row[10] != null ? illustrators[row[10]]: null;
-        var design       = Design.values[row[11]];
 
         //Build card
-        PokemonCardData p = PokemonCardData(namePokemons, level, type, cardMarkers, design, life, retreat, resistance, weakness);
+        PokemonCardData p = PokemonCardData(namePokemons, level, type, cardMarkers, life, retreat, resistance, weakness);
         //Extract typeExtended (for double energy card)
         if(typeBytes.length > 1) {
           p.typeExtended = TypeCard.values[typeBytes[1]];
@@ -543,13 +543,13 @@ class Collection
 
     List data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life,
       Int8List.fromList(card.markers.toBytes(rMarkers)),
-      effects, retreat, weakness, resistance, idIllustrator, card.design.index
+      effects, retreat, weakness, resistance, idIllustrator,
     ];
 
     var query = "";
     if (idCard == null) {
       data.insert(0, nextId);
-      query = 'INSERT INTO `Cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
+      query = 'INSERT INTO `Cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
 
       // Update internal database
       pokemonCards[nextId] = card;
@@ -557,7 +557,7 @@ class Collection
     
       //printOutput("New card added at $nextId and we update internal list");
     } else {
-      query = 'UPDATE `Cartes` SET `noms` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?, `design` = ?'
+      query = 'UPDATE `Cartes` SET `noms` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?'
               ' WHERE `Cartes`.`idCartes` = $idCard';
 
       //printOutput("Update card at $idCard and we update internal list");

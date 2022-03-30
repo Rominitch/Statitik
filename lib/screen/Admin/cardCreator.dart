@@ -12,6 +12,7 @@ import 'package:statitikcard/screen/widgets/EnergySlider.dart';
 import 'package:statitikcard/screen/widgets/ListSelector.dart';
 import 'package:statitikcard/screen/widgets/SliderWithText.dart';
 import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -55,7 +56,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
   late CustomRadioController rarityController      = CustomRadioController(onChange: (value) { onRarityChanged(value); });
   late CustomRadioController typeExtController     = CustomRadioController(onChange: (value) { onTypeExtChanged(value); });
   late CustomRadioController levelController       = CustomRadioController(onChange: (value) { onLevel(value); });
-  late CustomRadioController designController      = CustomRadioController(onChange: (value) { onDesignChanged(value); });
+  //late CustomRadioController designController      = CustomRadioController(onChange: (value) { onDesignChanged(value); });
   late CustomRadioController listChooserController = CustomRadioController(onChange: (value) { onChangeList(value); });
   late TabController         tabController;
 
@@ -88,7 +89,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
       widget.onAppendCard!(listChooserController.currentValue, null);
   }
   void onDesignChanged(value) {
-    widget.card.data.design = value;
+    //widget.card.data.design = value;
   }
 
   void computeJPCardID() {
@@ -100,19 +101,19 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
         case 0:
           ancestorCard = widget.se.seCards.cards.sublist(0, widget.idCard.numberId).reversed.firstWhere((element) {
             idFind+=1;
-            return (element[0].jpDBId != 0);
+            return (element[0].getImage(CardImageIdentifier()).jpDBId != 0);
           })[0];
           break;
         case 1:
           ancestorCard = widget.se.seCards.energyCard.sublist(0, widget.idCard.numberId).reversed.firstWhere((element) {
             idFind+=1;
-            return (element.jpDBId != 0);
+            return (element.getImage(CardImageIdentifier()).jpDBId != 0);
           });
           break;
         case 2:
           ancestorCard = widget.se.seCards.noNumberedCard.sublist(0, widget.idCard.numberId).reversed.firstWhere((element) {
             idFind+=1;
-            return (element.jpDBId != 0);
+            return (element.getImage(CardImageIdentifier()).jpDBId != 0);
           });
           break;
         default:
@@ -121,7 +122,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
 
       // Zero propagation or next number
       if(ancestorCard.jpDBId != 0)
-        widget.card.jpDBId = ancestorCard.jpDBId + idFind;
+        widget.card.getImage(CardImageIdentifier()).jpDBId = ancestorCard.jpDBId + idFind;
     } catch(e) {
       // Nothing found !
     }
@@ -135,7 +136,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
     });
 
     // Auto fill (only for japanese card)
-    if(widget.activeLanguage.isJapanese() && widget.card.jpDBId == 0) {
+    if(widget.activeLanguage.isJapanese() && widget.card.getImage(CardImageIdentifier()).jpDBId == 0) {
       computeJPCardID();
     }
 
@@ -150,8 +151,8 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
     // Set current value
     typeController.afterPress(widget.card.data.type);
     rarityController.afterPress(widget.card.rarity);
-    imageController.text     = widget.card.image;
-    jpCodeController.text    = widget.card.jpDBId.toString();
+    imageController.text     = widget.card.getImage(CardImageIdentifier()).image;
+    jpCodeController.text    = widget.card.getImage(CardImageIdentifier()).jpDBId.toString();
     specialIDController.text = widget.card.specialID;
   }
 
@@ -166,7 +167,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                   hintText: CardImage.computeJPPokemonName(widget.se, widget.card)
               ),
               onChanged: (data) {
-                  widget.card.image = data;
+                  widget.card.getImage(CardImageIdentifier()).image = data;
               }
           ),
           if(widget.activeLanguage.isJapanese()) Row(
@@ -178,9 +179,9 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                   onChanged: (data) {
                     setState(() {
                       if(data.isNotEmpty)
-                        widget.card.jpDBId = int.parse(data);
+                        widget.card.getImage(CardImageIdentifier()).jpDBId = int.parse(data);
                       else
-                        widget.card.jpDBId = 0;
+                        widget.card.getImage(CardImageIdentifier()).jpDBId = 0;
                     });
                   }
                 ),
@@ -193,7 +194,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                   await Environment.instance.storage.cleanCardFile(widget.se, widget.idCard);
 
                   setState(() {
-                    widget.card.jpDBId = int.parse(jpCodeController.value.text);
+                    widget.card.getImage(CardImageIdentifier()).jpDBId = int.parse(jpCodeController.value.text);
                   });
                 },
               )),
@@ -207,7 +208,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                   // Retry
                   setState(() async {
                     computeJPCardID();
-                    jpCodeController.text = widget.card.jpDBId.toString();
+                    jpCodeController.text = widget.card.getImage(CardImageIdentifier()).jpDBId.toString();
                   });
                 },
               ))
@@ -234,7 +235,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                     await Environment.instance.storage.cleanCardFile(widget.se, widget.idCard);
 
                     setState(() {
-                      widget.card.jpDBId = int.parse(jpCodeController.value.text);
+                      widget.card.getImage(CardImageIdentifier()).jpDBId = int.parse(jpCodeController.value.text);
                     });
                   },
                 )),
@@ -265,7 +266,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
       }
 
       levelController.afterPress(widget.card.data.level);
-      designController.afterPress(widget.card.data.design);
+      //designController.afterPress(widget.card.data.design);
 
       int? databaseCardId = Environment.instance.collection.pokemonCards.containsValue(widget.card.data)
                           ? Environment.instance.collection.rPokemonCards[widget.card.data]
@@ -276,6 +277,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                  : StatitikLocale.of(context).read('CA_B29');
 
       List<Widget> cardInfo = [
+        /*
         GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 4, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.1),
@@ -287,6 +289,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             return CustomRadio(value: element, controller: designController, widget: icon(element) );
           }
         ),
+        */
       ];
       if(isPokemonType(widget.card.data.type)){
         cardInfo += [
@@ -469,7 +472,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             padding: const EdgeInsets.all(8.0),
             child: Row(
             children: [
-              Container(child: genericCardWidget(widget.se, widget.idCard, height: 220, reloader: true), height: 220),
+              Container(child: genericCardWidget(widget.se, widget.idCard, CardImageIdentifier(), height: 220, reloader: true), height: 220),
               SizedBox(width:8),
               Expanded(child: Text(StatitikLocale.of(context).read('CA_B30')+ " " + codeDB, style: Theme.of(context).textTheme.headline5)),
               Card(

@@ -6,8 +6,8 @@ import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
 
 class CardEditorOptions {
   int tabIndex = 0;

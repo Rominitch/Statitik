@@ -1,5 +1,5 @@
 import 'package:statitikcard/services/models/CardIdentifier.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 
 class CardIntoSubExtensions {

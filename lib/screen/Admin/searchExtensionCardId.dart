@@ -6,6 +6,7 @@ import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/CardTitleData.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
@@ -39,7 +40,7 @@ class SearchExtensionsCardId extends StatelessWidget {
                   child: Row(
                     children: [
                       RotatedBox(quarterTurns:3, child: Text(localId.toString(), style: TextStyle(fontSize: 10))),
-                      Expanded(child: genericCardWidget(subExtension, id, height: 100)),
+                      Expanded(child: genericCardWidget(subExtension, id, CardImageIdentifier(), height: 100)),
                     ],
                   ),
                   onPressed: () {

@@ -58,3 +58,10 @@ class CardIdentifier {
     return CardIdentifier.from(newId);
   }
 }
+
+class CardImageIdentifier {
+  int idSet;
+  int idImage;
+
+  CardImageIdentifier([this.idSet=0, this.idImage=0]);
+}

@@ -9,6 +9,7 @@ import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
@@ -156,7 +157,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
               Row(mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(_se!.seCards.numberOfCard(localId)),
-                  if(_language!.isJapanese() && card.jpDBId == 0) Icon(Icons.broken_image, color: Colors.deepOrange, size: 11),
+                  if(_language!.isJapanese() && card.getImage(CardImageIdentifier()).jpDBId == 0) Icon(Icons.broken_image, color: Colors.deepOrange, size: 11),
                   if(card.data.missingMainData())           Icon(Icons.text_format, color: Colors.red, size: 10),
                   if(card.data.cardEffects.effects.isEmpty) Icon(Icons.filter_vintage_outlined, color: Colors.red, size: 10),
               ])

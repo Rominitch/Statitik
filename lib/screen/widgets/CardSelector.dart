@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
 
 abstract class GenericCardSelector {
 

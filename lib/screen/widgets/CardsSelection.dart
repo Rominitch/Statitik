@@ -3,10 +3,9 @@ import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
-
 import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
 
 enum CardVisualization {
   Name,
@@ -47,7 +46,7 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
     super.initState();
   }
   
-  Widget createCardButton(PokemonCardExtension card, CardIdentifier cardId) {
+  Widget createCardButton(PokemonCardExtension card, CardIdentifier cardId, CardImageIdentifier imageId) {
     return Card(
       color: selection.cards.contains(card) ? Colors.green : Colors.grey.shade700,
       margin: EdgeInsets.all(3.0),
@@ -58,7 +57,7 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
             SizedBox(height: 5),
             widget.subExtension.cardInfo(cardId),
           ],
-        ) : CardImage(widget.subExtension, card, cardId),
+        ) : CardImage(widget.subExtension, card, cardId, imageId),
         onPressed: (){
           setState(() {
             if(selection.cards.contains(card))
@@ -85,7 +84,7 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
         if(idList == 0)
           cardListId.add(0);
         var cardId = CardIdentifier.from(cardListId);
-        return createCardButton(widget.subExtension.cardFromId(cardId), cardId);
+        return createCardButton(widget.subExtension.cardFromId(cardId), cardId, CardImageIdentifier());
       },
     );
   }

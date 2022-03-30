@@ -1,17 +1,17 @@
 import 'dart:core';
-
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/models/CardIdentifier.dart';
 
 import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/models/CardTitleData.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/MultiLanguageString.dart';
 import 'package:statitikcard/services/models/PokeSpace.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/models/ProductCategory.dart';
 import 'package:statitikcard/services/models/Rarity.dart';

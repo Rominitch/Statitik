@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
 
-import 'package:statitikcard/services/PokemonCardData.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/product.dart';
 

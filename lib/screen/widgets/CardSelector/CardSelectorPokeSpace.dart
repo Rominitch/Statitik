@@ -3,9 +3,9 @@ import 'package:statitikcard/services/models/CardIdentifier.dart';
 
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/screen/widgets/CardSelector.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/models/PokeSpace.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 
@@ -52,7 +52,7 @@ class CardSelectorPokeSpace extends GenericCardSelector {
 
   @override
   void setOnly(int idSet) {
-    code.reset();
+    //code.reset();
     code.increase(idSet, limitSet);
   }
 
@@ -83,7 +83,7 @@ class CardSelectorPokeSpace extends GenericCardSelector {
     if(count > 0) {
       var itCount = code.countBySet.iterator;
       card.sets.forEach((set) {
-        if(itCount.moveNext()) {
+        if(itCount.moveNext() && itCount.current > 0) {
           countBySet.add(
             Expanded(
               child: Card(
@@ -120,7 +120,7 @@ class CardSelectorPokeSpace extends GenericCardSelector {
             )
         ),
         SizedBox(height:3),
-        Expanded(child: genericCardWidget(subExt, idCard, height: 150, language: subExt.extension.language)),
+        Expanded(child: genericCardWidget(subExt, idCard, CardImageIdentifier(), height: 150, language: subExt.extension.language)),
         if(count > 0)
           SizedBox(height:3),
         if(count > 0)

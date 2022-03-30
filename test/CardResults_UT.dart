@@ -6,6 +6,7 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/CardTitleData.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/MultiLanguageString.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
