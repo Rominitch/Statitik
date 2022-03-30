@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart';
@@ -27,51 +28,63 @@ class ImageStorage {
   }
 
   Future<File?> storeImageToFile(String imageLocalPath, List<Uri> urls) async {
-    var file;
+    File? file;
     for (var url in urls) {
       if(file == null) {
         // Try to download image
-        final client = RetryClient(Client(), retries: 3, );
+        final client = RetryClient(Client(), retries: 4 );
+        Uint8List? bodyBytes;
+        var ext;
         try {
-          var bodyBytes = await client.readBytes(url);
+          bodyBytes = await client.readBytes(url);
           var dots = url.path.split(".");
-          var ext = url.path.substring(url.path.length - dots[dots.length-1].length);
-          // Save on local (to webp format)
-          file = File(imageLocalPath+ext);
-          try {
-            await file.create(recursive: true);
-            await file.writeAsBytes(bodyBytes, flush: true);
-            printOutput("ImageStorage: Find ${url.toString()}");
-
-            if(ext != "webp") {
-              try {
-                var newFile = await FlutterImageCompress.compressAndGetFile(
-                  imageLocalPath + ext,
-                  imageLocalPath + "webp",
-                  quality: 98,
-                  format: CompressFormat.webp,
-                );
-                printOutput("Convert image from $ext to webp: from ${bodyBytes.length} to ${newFile!.lengthSync()}");
-                // Clean original file save
-                if(file != null && file.existsSync())
-                  file.deleteSync();
-                file = newFile;
-              } catch(e) {
-                printOutput("ImageStorage : convert Error: ${e.toString()}");
-              }
-            }
-          } catch(e) {
-            printOutput("ImageStorage : error ${e.toString()}");
-            // Clean bad file save
-            if(file != null && file.existsSync())
-              file.deleteSync();
-
-            file = null;
-          }
+          ext = url.path.substring(url.path.length - dots[dots.length-1].length);
         } catch(e) {
-          printOutput("ImageStorage: Not found ${url.toString()}");
-        } finally {
-          client.close();
+          printOutput("ImageStorage: Not found ${url.toString()} -> ${urls.indexOf(url)}/${urls.length}");
+          file      = null;
+          bodyBytes = null;
+        }
+        client.close();
+
+        // If data
+        if(bodyBytes != null && bodyBytes.isNotEmpty) {
+          // Try to convert png data to webp (better format ?)
+          if(ext != "webp") {
+            try {
+              var newData = await FlutterImageCompress.compressWithList(
+                bodyBytes,
+                quality: 98,
+                format: CompressFormat.webp,
+              );
+              //Replace data
+              if( newData.length <= bodyBytes.length ) {
+                printOutput("ImageStorage: Convert from $ext to webp: from ${bodyBytes.length} to ${newData.length}");
+                bodyBytes = newData;
+                ext = "webp";
+              } else {
+                printOutput("ImageStorage: Keep original: size ${bodyBytes.length} (webp: ${newData.length})");
+              }
+            } catch(e) {
+              printOutput("ImageStorage: convert Error: ${e.toString()}");
+              bodyBytes!.clear();
+            }
+          }
+          // Create final file (best size on device)
+          if(bodyBytes.isNotEmpty) {
+            try {
+              file = File(imageLocalPath+ext);
+
+              file.createSync(recursive: true);
+              file.writeAsBytesSync(bodyBytes, flush: true);
+              printOutput("ImageStorage: Find ${url.toString()} -> ${imageLocalPath+ext}");
+            } catch(e) {
+              printOutput("ImageStorage : error ${e.toString()}");
+              // Clean bad file save
+              if(file != null && file.existsSync())
+                file.deleteSync();
+              file = null;
+            }
+          }
         }
       }
     }
@@ -110,8 +123,8 @@ class ImageStorage {
       var path = await imageLocalPath(pathParts, imageName, format);
       var file = File(path);
       if(file.existsSync()) {
+        printOutput("Remove file: $path");
         file.deleteSync();
-        break;
       }
     }
   }

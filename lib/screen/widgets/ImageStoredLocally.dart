@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/Tools.dart';
 
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/ImageStorage.dart';
@@ -10,12 +11,13 @@ class ImageStoredLocally extends StatefulWidget {
   final List<String> path;
   final String       imageName;
 
+  final FilterQuality? quality;
   final double?      width;
   final double?      height;
   final Widget?      alternativeRendering;
   final bool         reloader;
 
-  const ImageStoredLocally(this.path, this.imageName, this.webAddress, {this.width, this.height, this.alternativeRendering, this.reloader=false});
+  const ImageStoredLocally(this.path, this.imageName, this.webAddress, {this.quality, this.width, this.height, this.alternativeRendering, this.reloader=false});
 
   @override
   State<ImageStoredLocally> createState() => _ImageStoredLocallyState();
@@ -39,9 +41,11 @@ class _ImageStoredLocallyState extends State<ImageStoredLocally> {
                       .alternativeRendering! : Icon(Icons.help_outline);
                 else {
                   var cardWidget = Image.file(
-                      snapshot.data!, width: widget.width,
-                      height: widget.height,
+                      snapshot.data!,
+                      width: widget.width, height: widget.height,
+                      filterQuality: widget.quality ?? FilterQuality.medium,
                       errorBuilder: (context, error, stackTrace) {
+                        printOutput("ImageStored: Error ${error.toString()}\n$stackTrace");
                         try {
                           reloadImage();
 

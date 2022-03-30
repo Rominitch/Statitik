@@ -96,7 +96,7 @@ class CardViewerBody extends StatelessWidget {
               scrollDirection: Axis.horizontal,
             ),
           ),
-          genericCardWidget(se, idCard, reloader: true),
+          genericCardWidget(se, idCard, quality: FilterQuality.high, width: MediaQuery.of(context).size.width-16, reloader: true),
           Card(
             child: Padding(
               padding: const EdgeInsets.all(8.0),

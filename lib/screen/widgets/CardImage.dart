@@ -14,16 +14,16 @@ import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
 
 
-Widget genericCardWidget(SubExtension se, CardIdentifier idCard, {double height=400, Language? language, bool reloader=false}) {
+Widget genericCardWidget(SubExtension se, CardIdentifier idCard, {FilterQuality? quality, double? width, double? height, Language? language, bool reloader=false}) {
   if( Environment.instance.storeImageLocally ) {
     Widget? alternative;
     if( language != null ) {
       alternative = Center(child: Text(se.seCards.readTitleOfCard(language, idCard)));
     }
     return ImageStoredLocally(["images", "card", se.extension.language.image, se.icon],
-      idCard.toString(), CardImage.computeImageURI(se, idCard), height: height, alternativeRendering: alternative, reloader: reloader);
+      idCard.toString(), CardImage.computeImageURI(se, idCard), quality: quality, width: width, height: height, alternativeRendering: alternative, reloader: reloader);
   } else {
-    return CardImage(se, se.cardFromId(idCard), idCard, height: height, language: language);
+    return CardImage(se, se.cardFromId(idCard), idCard, height: height ?? 400, language: language);
   }
 }
 
