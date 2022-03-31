@@ -13,20 +13,20 @@ import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 
 class ImageDesign {
-  Design  design = Design.Basic;
-  String  image  = "";
-  int     jpDBId = 0;
+  CardDesign design = CardDesign();
+  String     image  = "";
+  int        jpDBId = 0;
+
+  String     finalImage = ""; /// Cached to retrieve final image when found
 }
 
 class PokemonCardExtension {
   PokemonCardData  data;
   Rarity           rarity;
-  //String           image = "";
-  //int              jpDBId = 0;
   String           specialID = ""; /// For card without number or special (like energy, celebration card, ...)
   List<CardSet>    sets=[];
   bool             isSecret = false;
-  String           finalImage = ""; /// Cached to retrieve final image when found
+
   List<List<ImageDesign>> images = [];
 
   String numberOfCard(int id) {
@@ -37,15 +37,17 @@ class PokemonCardExtension {
     return sets.length > 1;
   }
 
-  PokemonCardExtension.empty(this.data, this.rarity, {this.specialID="", this.isSecret=false});
+  PokemonCardExtension.empty(this.data, this.rarity, {this.specialID="", this.isSecret=false}) {
+    images.add([ImageDesign()]);
+  }
 
   PokemonCardExtension.creation(this.data, this.rarity, Map allSets, {jpDBId=0, this.specialID="", this.isSecret=false}) {
-    computeDefaultSet(allSets);
+    var image = ImageDesign();
     if(jpDBId != 0) {
-      var image = ImageDesign();
       image.jpDBId = jpDBId;
-      images.add([image]);
     }
+    images.add([image]);
+    computeDefaultSet(allSets);
   }
 
   void computeDefaultSet(Map allSets) {
@@ -60,6 +62,14 @@ class PokemonCardExtension {
       if( rarity.id <= 6 )
         sets.add(allSets[2]);
     }
+
+    // Fill image list
+    while(images.length < sets.length) {
+      images.add([]);
+    }
+    assert(images.length == sets.length);
+    assert(images.isNotEmpty,    "Card issue: ${data.toString()}");
+    assert(images[0].isNotEmpty, "Card issue: ${data.toString()}");
   }
 
   PokemonCardExtension.fromBytesV3(ByteParser parser, Map collection, Map allSets, Map allRarities) :
@@ -72,6 +82,8 @@ class PokemonCardExtension {
     catch(e){
 
     }
+    images.add([ImageDesign()]);
+
     computeDefaultSet(allSets);
   }
 
@@ -158,7 +170,14 @@ class PokemonCardExtension {
     for(int i = 0; i < nbSets; i +=1){
       sets.add(allSets[parser.extractInt8()]);
     }
+    // Fill image list
+    while(images.length < sets.length) {
+      images.add([]);
+    }
     isSecret = parser.extractInt8() == 1;
+
+    assert(images.length == sets.length);
+    assert(images.isNotEmpty && images[0].isNotEmpty);
   }
 
   PokemonCardExtension.fromBytes(ByteParser parser, Map collection, Map allSets, Map allRarities) :
@@ -180,7 +199,7 @@ class PokemonCardExtension {
         var image = ImageDesign();
         image.image  = parser.decodeString16();
         image.jpDBId = parser.extractInt32();
-        image.design = Design.values[parser.extractInt8()];
+        image.design = CardDesign.fromBytes(parser);
         imageSets.add(image);
       }
       images.add(imageSets);
@@ -193,6 +212,9 @@ class PokemonCardExtension {
       sets.add(allSets[parser.extractInt8()]);
     }
     isSecret = parser.extractInt8() == 1;
+
+    assert(images.length == sets.length);
+    assert(images.isNotEmpty && images[0].isNotEmpty);
   }
 
   List<int> toBytes(Map rCollection, Map rSet, Map rRarity) {
@@ -213,7 +235,7 @@ class PokemonCardExtension {
       for(var image in imageBySets) {
         imagesBytes += ByteEncoder.encodeString16(image.image.codeUnits);
         imagesBytes += ByteEncoder.encodeInt32(image.jpDBId);
-        imagesBytes += ByteEncoder.encodeInt8(image.design.index);
+        imagesBytes += image.design.toBytes();
       }
     }
 
@@ -260,11 +282,25 @@ class PokemonCardExtension {
     return isValid() && Environment.instance.collection.goodCard.contains(rarity);
   }
 
-  ImageDesign getImage(CardImageIdentifier idImage) {
+  ImageDesign tryGetImage(CardImageIdentifier idImage) {
     assert(images.isNotEmpty);
     int finalIdSet   = idImage.idSet   < images.length             ? idImage.idSet   : 0;
     int finalIdImage = idImage.idImage < images[finalIdSet].length ? idImage.idImage : 0;
 
+    assert(images[finalIdSet].isNotEmpty);
     return images[finalIdSet][finalIdImage];
+  }
+
+  ImageDesign? image(CardImageIdentifier idImage) {
+    assert(images.isNotEmpty);
+    return images[idImage.idSet][idImage.idImage];
+  }
+
+  void removeImage(CardImageIdentifier idImage) {
+    if(idImage.idSet < images.length) {
+      if( idImage.idImage < images[idImage.idSet].length ) {
+        images[idImage.idSet].removeAt(idImage.idImage);
+      }
+    }
   }
 }

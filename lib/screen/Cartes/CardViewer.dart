@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'package:percent_indicator/linear_percent_indicator.dart';
@@ -13,10 +15,18 @@ import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
 
-class CardViewerBody extends StatelessWidget {
-  final SubExtension se;
-  final CardIdentifier idCard;
-  final PokemonCardExtension card;
+class CardViewerIdentifier {
+  final SubExtension        se;
+  final CardIdentifier      idCard;
+  final CardImageIdentifier idImage;
+
+  CardViewerIdentifier(this.se, this.idCard, this.idImage);
+}
+
+class CardViewerBody extends StatefulWidget {
+  final SubExtension          se;
+  final CardIdentifier        idCard;
+  final PokemonCardExtension  card;
   const CardViewerBody(this.se, this.idCard, this.card, {Key? key}) : super(key: key);
 
   static const double maxHP      = 340.0;
@@ -38,32 +48,18 @@ class CardViewerBody extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    List<Widget> effectsWidgets = [];
-    card.data.cardEffects.effects.forEach((effect) {
-      effectsWidgets.add(EffectViewer(effect, se.extension.language));
-    });
+  State<CardViewerBody> createState() => _CardViewerBodyState();
+}
 
-    List<Widget> languageCards = [];
-    Environment.instance.collection.subExtensions.forEach((key, parseSe) {
-      if(se.seCards == parseSe.seCards) {
-        languageCards.add(Card(
-          color: Colors.grey[800],
-          child: se == parseSe ? parseSe.extension.language.barIcon()
-            : TextButton(
-            onPressed: (){
-              Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => CardViewer(parseSe, idCard, parseSe.cardFromId(idCard)))
-              );
-            },
-            child: parseSe.extension.language.barIcon()
-          )
-        ));
-      }
-    });
+class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStateMixin {
+  Map<Language, List<CardViewerIdentifier>> allDesigns = {};
+  List<Widget> findCard = [];
+  late TabController languageController;
+  late TabController pageController;
 
-    List<Widget> findCard = [];
-    Environment.instance.collection.searchCardIntoSubExtension(card.data).forEach((result) {
+  @override
+  void initState() {
+    Environment.instance.collection.searchCardIntoSubExtension(widget.card.data).forEach((result) {
       findCard.add(Card(
         color: Colors.grey[800],
         child: TextButton(
@@ -82,111 +78,195 @@ class CardViewerBody extends StatelessWidget {
         )
       ));
     });
+    Environment.instance.collection.searchCardIntoSubExtension(widget.card.data, true).forEach((result) {
+      var language = result.se.extension.language;
+      // Add language
+      if(!allDesigns.containsKey(language)) {
+        allDesigns[language] = [];
+      }
+      var idSet=0;
+      result.card.images.forEach((imagePerSet) {
+        var idImage = 0;
+        imagePerSet.forEach((element) {
+          allDesigns[language]!.add(CardViewerIdentifier(result.se, result.idCard, CardImageIdentifier(idSet, idImage)));
+          idImage += 1;
+        });
+        idSet+=1;
+      });
+    });
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    var index = allDesigns.keys.toList(growable: false).indexOf(widget.se.extension.language);
+    languageController = TabController(initialIndex: index, length: allDesigns.length, vsync: this);
+    pageController     = TabController(initialIndex: 0, length: 2, vsync: this);
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> effectsWidgets = [];
+    widget.card.data.cardEffects.effects.forEach((effect) {
+      effectsWidgets.add(EffectViewer(effect, widget.se.extension.language));
+    });
+
+    List<Widget> imageTabHeaders = [];
+    List<Widget> imageTabPages   = [];
+
+    allDesigns.forEach((language, identifiers) {
+      imageTabHeaders.add(Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: language.barIcon(),
+      ));
+      imageTabPages.add(CardImageViewer(identifiers, widget.se));
+    });
+
+    List<Widget> tabHeaders = [
+      Padding(
+        padding: const EdgeInsets.all(2.0),
+        child: Text(StatitikLocale.of(context).read('CAVIEW_B11')),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(2.0),
+        child: Text(StatitikLocale.of(context).read('CAVIEW_B12')),
+      ),
+    ];
+    List<Widget> tabPages   = [
+      Column(
         children: [
-          Container(
-            height: 50,
-            child: ListView(
-              children: languageCards,
-              primary: false,
-              shrinkWrap: false,
-              scrollDirection: Axis.horizontal,
+          TabBar(
+            controller: languageController,
+            indicatorPadding: const EdgeInsets.all(1),
+            indicator: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.green,
+            ),
+            tabs: imageTabHeaders
+          ),
+          Expanded(
+            child: TabBarView(
+                physics: NeverScrollableScrollPhysics(),
+                controller: languageController,
+                children: imageTabPages
             ),
           ),
-          genericCardWidget(se, idCard, CardImageIdentifier(), quality: FilterQuality.high, width: MediaQuery.of(context).size.width-16, reloader: true),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(children: [
-                    Expanded(child: Text(StatitikLocale.of(context).read('CAVIEW_B4'), style: Theme.of(context).textTheme.headline5)),
-                    Card(
-                      color: Colors.grey[800],
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(getLevelText(context, card.data.level)),
-                      ),
-                    )
-                  ]),
-                  if( isPokemonType(card.data.type) )
-                  Row(children: [
-                    Container(width: labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B0'))),
-                    Container(width: valueSpace, child: Text(card.data.life.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
-                    SizedBox(width: 10.0),
-                    Expanded(child: LinearPercentIndicator(
-                      lineHeight: lineHeight,
-                      percent: (card.data.life.toDouble() / maxHP).clamp(0.0, 1.0),
-                      progressColor: Colors.red,
-                    )),
-                  ]),
-                  if( isPokemonType(card.data.type) )
-                  Row(children: [
-                    Container(width: labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B1'))),
-                    Container(width: valueSpace, child: Text(card.data.retreat.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
-                    SizedBox(width: 10.0),
-                    Expanded(child: LinearPercentIndicator(
-                      lineHeight: lineHeight,
-                      percent: (card.data.retreat.toDouble() / maxRetreat).clamp(0.0, 1.0),
-                      progressColor: Colors.white,
-                    )),
-                  ]),
-                  if( card.data.resistance != null && card.data.resistance!.energy != TypeCard.Unknown )
-                    Row(children: [
-                      Container(width: labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B2'))),
-                      Container(width: valueSpace, child: Text(card.data.resistance!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
-                      SizedBox(width: 10.0),
-                      energyImage(card.data.resistance!.energy),
-                      Expanded(child: SizedBox()),
-                    ]),
-                  if( card.data.weakness != null && card.data.weakness!.energy != TypeCard.Unknown )
-                    Row(children: [
-                      Container(width: labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B3'))),
-                      Container(width: valueSpace, child: Text(card.data.weakness!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
-                      SizedBox(width: 10.0),
-                      energyImage(card.data.weakness!.energy),
-                      Expanded(child: SizedBox()),
-                    ]),
-                ]
-              ),
-            )
-          ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Text(StatitikLocale.of(context).read('CAVIEW_B5'), style: Theme.of(context).textTheme.headline5),
-                ] + effectsWidgets
-              )
-            )
-          ),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  Text(StatitikLocale.of(context).read('CAVIEW_B6'), style: Theme.of(context).textTheme.headline5),
-                  GridView.count(
-                    crossAxisCount: 4,
-                    childAspectRatio: 1.2,
-                    shrinkWrap: true,
-                    scrollDirection: Axis.vertical,
-                    primary: false,
-                    children: findCard,
-                  )
-                ]
-              )
-            )
-          ),
         ]
+      ),
+      SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(children: [
+                        Expanded(child: Text(StatitikLocale.of(context).read('CAVIEW_B4'), style: Theme.of(context).textTheme.headline5)),
+                        Card(
+                          color: Colors.grey[800],
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(getLevelText(context, widget.card.data.level)),
+                          ),
+                        )
+                      ]),
+                      if( isPokemonType(widget.card.data.type) )
+                        Row(children: [
+                          Container(width: CardViewerBody.labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B0'))),
+                          Container(width: CardViewerBody.valueSpace, child: Text(widget.card.data.life.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
+                          SizedBox(width: 10.0),
+                          Expanded(child: LinearPercentIndicator(
+                            lineHeight: CardViewerBody.lineHeight,
+                            percent: (widget.card.data.life.toDouble() / CardViewerBody.maxHP).clamp(0.0, 1.0),
+                            progressColor: Colors.red,
+                          )),
+                        ]),
+                      if( isPokemonType(widget.card.data.type) )
+                        Row(children: [
+                          Container(width: CardViewerBody.labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B1'))),
+                          Container(width: CardViewerBody.valueSpace, child: Text(widget.card.data.retreat.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
+                          SizedBox(width: 10.0),
+                          Expanded(child: LinearPercentIndicator(
+                            lineHeight: CardViewerBody.lineHeight,
+                            percent: (widget.card.data.retreat.toDouble() / CardViewerBody.maxRetreat).clamp(0.0, 1.0),
+                            progressColor: Colors.white,
+                          )),
+                        ]),
+                      if( widget.card.data.resistance != null && widget.card.data.resistance!.energy != TypeCard.Unknown )
+                        Row(children: [
+                          Container(width: CardViewerBody.labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B2'))),
+                          Container(width: CardViewerBody.valueSpace, child: Text(widget.card.data.resistance!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
+                          SizedBox(width: 10.0),
+                          energyImage(widget.card.data.resistance!.energy),
+                          Expanded(child: SizedBox()),
+                        ]),
+                      if( widget.card.data.weakness != null && widget.card.data.weakness!.energy != TypeCard.Unknown )
+                        Row(children: [
+                          Container(width: CardViewerBody.labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B3'))),
+                          Container(width: CardViewerBody.valueSpace, child: Text(widget.card.data.weakness!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
+                          SizedBox(width: 10.0),
+                          energyImage(widget.card.data.weakness!.energy),
+                          Expanded(child: SizedBox()),
+                        ]),
+                      ]
+                  ),
+                )
+              ),
+              Card(
+                  child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Text(StatitikLocale.of(context).read('CAVIEW_B5'), style: Theme.of(context).textTheme.headline5),
+                          ] + effectsWidgets
+                      )
+                  )
+              ),
+              Card(
+                  child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            Text(StatitikLocale.of(context).read('CAVIEW_B6'), style: Theme.of(context).textTheme.headline5),
+                            GridView.count(
+                              crossAxisCount: 4,
+                              childAspectRatio: 1.2,
+                              shrinkWrap: true,
+                              scrollDirection: Axis.vertical,
+                              primary: false,
+                              children: findCard,
+                            )
+                          ]
+                      )
+                  )
+              ),
+            ]
+          )
       )
+    ];
+
+    return Column(
+      children: [
+        TabBar(
+          controller: pageController,
+          indicatorPadding: const EdgeInsets.all(1),
+          indicator: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.green,
+          ),
+          tabs: tabHeaders
+        ),
+        Expanded(
+          child: TabBarView(
+            physics: NeverScrollableScrollPhysics(),
+            controller: pageController,
+            children: tabPages
+          ),
+        ),
+      ]
     );
   }
 }
@@ -327,3 +407,69 @@ class _CardSEViewerState extends State<CardSEViewer> {
     );
   }
 }
+
+class CardImageViewer extends StatefulWidget {
+  final SubExtension selectSE;
+  final List<CardViewerIdentifier> ids;
+  const CardImageViewer(this.ids, this.selectSE, {Key? key}) : super(key: key);
+
+  @override
+  State<CardImageViewer> createState() => _CardImageViewerState();
+}
+
+class _CardImageViewerState extends State<CardImageViewer> with TickerProviderStateMixin {
+  late TabController imagesController;
+
+  @override
+  void initState() {
+    var index = max(0, widget.ids.indexWhere((element) => element.se == widget.selectSE));
+    imagesController = TabController(length: widget.ids.length, initialIndex: index,
+      vsync: this,
+      animationDuration: Duration.zero
+    );
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> imageTabHeaders = [];
+    List<Widget> imageTabPages   = [];
+    widget.ids.forEach((image) {
+      var card = image.se.cardFromId(image.idCard);
+      imageTabHeaders.add(
+        Row(
+          children: [
+            image.se.image(wSize: 40, hSize: 40),
+            card.tryGetImage(image.idImage).design.icon()
+          ]
+        )
+      );
+      imageTabPages.add(
+        genericCardWidget(image.se, image.idCard, image.idImage, quality: FilterQuality.high, width: MediaQuery.of(context).size.width-16, reloader: true),
+      );
+    });
+
+    return Column(
+      children: [
+        TabBar(
+          controller: imagesController,
+          indicatorPadding: const EdgeInsets.all(1),
+          indicator: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.green,
+          ),
+          tabs: imageTabHeaders,
+          isScrollable: true,
+        ),
+        Expanded(
+          child: TabBarView(
+            physics: NeverScrollableScrollPhysics(),
+            controller: imagesController,
+            children: imageTabPages
+          ),
+        ),
+      ]
+    );
+  }
+}
+

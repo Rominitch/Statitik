@@ -36,7 +36,7 @@ class StatitikException implements Exception {
 
 class Database
 {
-    final String version = '3.1';
+    final String version = '3.2';
     final ConnectionSettings settings = createConnection();
 
     Future<bool> transactionR(Function queries) async
@@ -170,10 +170,11 @@ class Environment
                     });
                 }).catchError((error) {
                     isInitialized = false;
-                    onServerError.add(error.message);
+                    var message = error is StatitikException ? error.msg : error.toString();
+                    onServerError.add(message);
                 }).onError((error, stackTrace) {
                     isInitialized = false;
-                    //onServerError.add(error.msg);
+                    onServerError.add('Error');
                 });
             }
             on StatitikException catch(e) {

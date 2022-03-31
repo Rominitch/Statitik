@@ -157,7 +157,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
               Row(mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(_se!.seCards.numberOfCard(localId)),
-                  if(_language!.isJapanese() && card.getImage(CardImageIdentifier()).jpDBId == 0) Icon(Icons.broken_image, color: Colors.deepOrange, size: 11),
+                  if(_language!.isJapanese() && card.tryGetImage(CardImageIdentifier()).jpDBId == 0) Icon(Icons.broken_image, color: Colors.deepOrange, size: 11),
                   if(card.data.missingMainData())           Icon(Icons.text_format, color: Colors.red, size: 10),
                   if(card.data.cardEffects.effects.isEmpty) Icon(Icons.filter_vintage_outlined, color: Colors.red, size: 10),
               ])
@@ -170,33 +170,35 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         onLongPress: () {
           setState(() {
             showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return SimpleDialog(
-                      title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.headline3)),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                      children: [
-                        Card(
-                            color: Colors.grey[700],
-                            child: TextButton(
-                              child: Text(StatitikLocale.of(context).read('NCE_B4')),
-                              onPressed: () {
-                                onAddCard(localListId, localId);
-                                Navigator.of(context).pop();
-                              },
-                            )),
-                        Card(
-                            color: Colors.red,
-                            child: TextButton(
-                              child: Text(StatitikLocale.of(context).read('NCE_B5')),
-                              onPressed: () {
-                                removeCard(localListId, localId);
-                                Navigator.of(context).pop();
-                              },
-                            )),
-                      ]
-                  );
-                }
+              context: context,
+              builder: (BuildContext context) {
+                return SimpleDialog(
+                  title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.headline3)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                  children: [
+                    Card(
+                      color: Colors.grey[700],
+                      child: TextButton(
+                        child: Text(StatitikLocale.of(context).read('NCE_B4')),
+                        onPressed: () {
+                          onAddCard(localListId, localId);
+                          Navigator.of(context).pop();
+                        },
+                      )
+                    ),
+                    Card(
+                      color: Colors.red,
+                      child: TextButton(
+                        child: Text(StatitikLocale.of(context).read('NCE_B5')),
+                        onPressed: () {
+                          removeCard(localListId, localId);
+                          Navigator.of(context).pop();
+                        },
+                      )
+                    ),
+                  ]
+                );
+              }
             );
           });
         },
@@ -344,21 +346,21 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                 primary: false,
                 children: _cardInfo,
                 shrinkWrap: true,
-                childAspectRatio: 1.3,
+                childAspectRatio: 1.35,
                 crossAxisCount: 5,
             ),
             if(_se != null && _se!.seCards.energyCard.isNotEmpty && idList == 1) GridView.count(
               primary: false,
               children: _cardEnergyInfo,
               shrinkWrap: true,
-              childAspectRatio: 1.3,
+              childAspectRatio: 1.35,
               crossAxisCount: 5,
             ),
             if(_se != null && _se!.seCards.noNumberedCard.isNotEmpty && idList == 2) GridView.count(
               primary: false,
               children: _cardNoNumberInfo,
               shrinkWrap: true,
-              childAspectRatio: 1.3,
+              childAspectRatio: 1.35,
               crossAxisCount: 5,
             ),
           ],

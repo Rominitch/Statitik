@@ -69,15 +69,15 @@ class _CardEditorState extends State<CardEditor> {
           actions: [
             if(nextCardId != null)
               Card(
-                  color: Colors.grey[800],
-                  child: TextButton(
-                    child: Text(StatitikLocale.of(context).read('NCE_B6')),
-                    onPressed: (){
-                      Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => CardEditor(widget.isWorldCard, widget.se, nextCardId, widget.options)),
-                      );
-                    },
-                  )
+                color: Colors.grey[800],
+                child: TextButton(
+                  child: Text(StatitikLocale.of(context).read('NCE_B6')),
+                  onPressed: (){
+                    Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => CardEditor(widget.isWorldCard, widget.se, nextCardId, widget.options)),
+                    );
+                  },
+                )
               ),
           ],
         ),

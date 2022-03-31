@@ -441,7 +441,8 @@ class Collection
               ? SubExtensionCards.build((row[1] as Blob).toBytes().toList(), codeNaming, pokemonCards, sets, rarities, row[5], energyList, noNumberList)
               : SubExtensionCards.emptyDraw(codeNaming, row[5], sets);
         } catch(e, callStack) {
-          printOutput("Bad SubExtensionCards: ${row[0]} $e\n$callStack");
+          var msg = e is StatitikException ? e.msg : e.toString();
+          printOutput("Bad SubExtensionCards: ${row[0]} - $msg\n$callStack");
           cardsExtensions[row[0]] = SubExtensionCards.emptyDraw([], 0, sets);
         }
       }
@@ -658,12 +659,12 @@ class Collection
     return result;
   }
 
-  List<CardIntoSubExtensions> searchCardIntoSubExtension(PokemonCardData searchCard) {
+  List<CardIntoSubExtensions> searchCardIntoSubExtension(PokemonCardData searchCard, [bool supportedDuplicateSeCard=false]) {
     List<CardIntoSubExtensions> result = [];
     var alreadyFind = Set();
 
     subExtensions.values.forEach((subExtension) {
-      if( !alreadyFind.contains(subExtension.seCards) ) {
+      if( supportedDuplicateSeCard || !alreadyFind.contains(subExtension.seCards) ) {
         int id=0;
         subExtension.seCards.cards.forEach((cards) {
           int subId=0;

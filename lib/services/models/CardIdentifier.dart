@@ -64,4 +64,8 @@ class CardImageIdentifier {
   int idImage;
 
   CardImageIdentifier([this.idSet=0, this.idImage=0]);
+
+  String toString() {
+    return "${idSet}_$idImage";
+  }
 }

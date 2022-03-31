@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'package:sprintf/sprintf.dart';
 
 import 'package:statitikcard/services/CardEffect.dart';

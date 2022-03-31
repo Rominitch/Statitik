@@ -19,8 +19,9 @@ Widget genericCardWidget(SubExtension se, CardIdentifier idCard, CardImageIdenti
     if( language != null ) {
       alternative = Center(child: Text(se.seCards.readTitleOfCard(language, idCard)));
     }
+    var nameDiskImage = "${idCard.toString()}_${idImage.toString()}";
     return ImageStoredLocally(["images", "card", se.extension.language.image, se.icon],
-      idCard.toString(), CardImage.computeImageURI(se, idCard, idImage), quality: quality, width: width, height: height, alternativeRendering: alternative, reloader: reloader);
+      nameDiskImage, CardImage.computeImageURI(se, idCard, idImage), quality: quality, width: width, height: height, alternativeRendering: alternative, reloader: reloader);
   } else {
     return CardImage(se, se.cardFromId(idCard), idCard, idImage, height: height ?? 400, language: language);
   }
@@ -127,9 +128,11 @@ class CardImage extends StatefulWidget {
 
   static List<Uri> computeImageLabel(SubExtension se, PokemonCardExtension card, CardIdentifier cardId, CardImageIdentifier idImage) {
     if(Environment.instance.showTCGImages){
-      if(card.finalImage.isNotEmpty)
-        return [Uri.parse(card.finalImage)];
-      ImageDesign defaultImage = card.getImage(idImage);
+      ImageDesign defaultImage = card.image(idImage)!;
+
+      if(defaultImage.finalImage.isNotEmpty)
+        return [Uri.parse(defaultImage.finalImage)];
+
 
       List<Uri> images = [];
 
@@ -139,7 +142,8 @@ class CardImage extends StatefulWidget {
       // - Alternative
 
       // Mine
-      var cardPath = "StatitikCard/card/${se.extension.language.image}/${se.icon}/${cardId.cardId.join("_")}";
+      var cardIdentifier = "${cardId.toString()}_${idImage.toString()}";
+      var cardPath = "StatitikCard/card/${se.extension.language.image}/${se.icon}/$cardIdentifier";
       var formats = ["webp", "png", "jpg"];
       formats.forEach((ext) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardPath.$ext"));});
 
@@ -150,7 +154,7 @@ class CardImage extends StatefulWidget {
         formats.forEach((ext) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardEnergy2Path.$ext"));});
       }
       if(cardId.listId == 2) {
-        var cardNoNumberPath = "StatitikCard/card/${se.extension.language.image}/${cardId.cardId.join("_")}";
+        var cardNoNumberPath = "StatitikCard/card/${se.extension.language.image}/$cardIdentifier";
         formats.forEach((ext) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardNoNumberPath.$ext"));});
       }
 
@@ -240,17 +244,18 @@ class _CardImageState extends State<CardImage> {
   }
 
   Widget buildCachedImage([bool admin=false]) {
+    var img = widget.card.tryGetImage(widget.idImage);
     if(widget.cardImage.isNotEmpty) {
       // Save current name (to avoid search in future)
-      widget.card.finalImage = widget.cardImage.first.toString();
+      img.finalImage = widget.cardImage.first.toString();
 
       // Show image if possible
       return CachedNetworkImage(
         imageUrl: widget.cardImage.first.toString(),
         errorWidget: (context, url, error) {
-          widget.card.finalImage = "";
+          img.finalImage = "";
           if(admin && widget.se.extension.language.id == 3) {
-            widget.card.getImage(widget.idImage).jpDBId = 0;
+            widget.card.tryGetImage(widget.idImage).jpDBId = 0;
           }
           onURLError.add(0);
           return Icon(Icons.help_outline);
@@ -267,12 +272,13 @@ class _CardImageState extends State<CardImage> {
   }
   @override
   Widget build(BuildContext context) {
-    if(Environment.instance.isAdministrator())
+    if(Environment.instance.isAdministrator()) {
+      var img = widget.card.tryGetImage(widget.idImage);
       return Tooltip(
-        message: widget.card.finalImage.isNotEmpty ? widget.card.finalImage : widget.cardImage.join("\n"),
+        message: img.finalImage.isNotEmpty ? img.finalImage : widget.cardImage.join("\n"),
         child: buildCachedImage(true)
       );
-    else
+    } else
       return buildCachedImage();
   }
 }

@@ -5,6 +5,7 @@ import 'package:statitikcard/screen/Admin/cardEffectPanel.dart';
 import 'package:statitikcard/screen/Admin/searchExtensionCardId.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
+import 'package:statitikcard/services/models/CardDesign.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
@@ -56,15 +57,26 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
   late CustomRadioController rarityController      = CustomRadioController(onChange: (value) { onRarityChanged(value); });
   late CustomRadioController typeExtController     = CustomRadioController(onChange: (value) { onTypeExtChanged(value); });
   late CustomRadioController levelController       = CustomRadioController(onChange: (value) { onLevel(value); });
-  //late CustomRadioController designController      = CustomRadioController(onChange: (value) { onDesignChanged(value); });
   late CustomRadioController listChooserController = CustomRadioController(onChange: (value) { onChangeList(value); });
+  late CustomButtonCheckController setController = CustomButtonCheckController(onChangeSets);
   late TabController         tabController;
 
-  final imageController     = TextEditingController();
-  final jpCodeController    = TextEditingController();
   final specialIDController = TextEditingController();
 
   bool         _auto    = false;
+
+  void onChangeSets() {
+    setState(() {
+      if( widget.card.sets.isNotEmpty ) {
+        while(widget.card.images.length < widget.card.sets.length) {
+          widget.card.images.add([]);
+        }
+        while(widget.card.images.length > widget.card.sets.length) {
+          widget.card.images.removeLast();
+        }
+      }
+    });
+  }
 
   void onChangeList(value) {
     widget.onChangeList!(value);
@@ -88,45 +100,6 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
     if(_auto)
       widget.onAppendCard!(listChooserController.currentValue, null);
   }
-  void onDesignChanged(value) {
-    //widget.card.data.design = value;
-  }
-
-  void computeJPCardID() {
-    try {
-      int idFind = 0;
-      // Search list of card
-      var ancestorCard;
-      switch(widget.idCard.listId) {
-        case 0:
-          ancestorCard = widget.se.seCards.cards.sublist(0, widget.idCard.numberId).reversed.firstWhere((element) {
-            idFind+=1;
-            return (element[0].getImage(CardImageIdentifier()).jpDBId != 0);
-          })[0];
-          break;
-        case 1:
-          ancestorCard = widget.se.seCards.energyCard.sublist(0, widget.idCard.numberId).reversed.firstWhere((element) {
-            idFind+=1;
-            return (element.getImage(CardImageIdentifier()).jpDBId != 0);
-          });
-          break;
-        case 2:
-          ancestorCard = widget.se.seCards.noNumberedCard.sublist(0, widget.idCard.numberId).reversed.firstWhere((element) {
-            idFind+=1;
-            return (element.getImage(CardImageIdentifier()).jpDBId != 0);
-          });
-          break;
-        default:
-          throw StatitikException("Unknown list !");
-      }
-
-      // Zero propagation or next number
-      if(ancestorCard.jpDBId != 0)
-        widget.card.getImage(CardImageIdentifier()).jpDBId = ancestorCard.jpDBId + idFind;
-    } catch(e) {
-      // Nothing found !
-    }
-  }
 
   @override
   void initState() {
@@ -136,8 +109,8 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
     });
 
     // Auto fill (only for japanese card)
-    if(widget.activeLanguage.isJapanese() && widget.card.getImage(CardImageIdentifier()).jpDBId == 0) {
-      computeJPCardID();
+    if(widget.activeLanguage.isJapanese() && widget.card.tryGetImage(CardImageIdentifier()).jpDBId == 0) {
+      CardImageCreator.computeJPCardID(widget.se, widget.card, widget.idCard, CardImageIdentifier());
     }
 
     listChooserController.currentValue = 0;
@@ -151,97 +124,55 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
     // Set current value
     typeController.afterPress(widget.card.data.type);
     rarityController.afterPress(widget.card.rarity);
-    imageController.text     = widget.card.getImage(CardImageIdentifier()).image;
-    jpCodeController.text    = widget.card.getImage(CardImageIdentifier()).jpDBId.toString();
     specialIDController.text = widget.card.specialID;
   }
 
   Widget createImageFieldWidget() {
-    return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(StatitikLocale.of(context).read('CA_B34'), style: TextStyle(fontSize: 12)),
-          TextField(
-              controller: imageController,
-              decoration: InputDecoration(
-                  hintText: CardImage.computeJPPokemonName(widget.se, widget.card)
-              ),
-              onChanged: (data) {
-                  widget.card.getImage(CardImageIdentifier()).image = data;
-              }
+
+    return ListView.builder(
+      primary: false,
+      shrinkWrap: true,
+      itemCount: widget.card.images.length,
+      itemBuilder: (BuildContext context, int index){
+        List<Widget> images = [widget.card.sets[index].imageWidget(height: 50)];
+        int idImg=0;
+        widget.card.images[index].forEach( (element){
+          var localIdImg = CardImageIdentifier(index, idImg);
+          images.add(Card(
+            child: TextButton(child: element.design.icon(),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CardImageCreator(
+                    widget.se, widget.card, widget.idCard, localIdImg, widget.activeLanguage)),
+                ).then((value) {
+                  setState(() {});
+                });
+              },
+              onLongPress: () {
+                setState(() {
+                  widget.card.removeImage(localIdImg);
+                });
+              },
+            )
+          ));
+          idImg +=1;
+        });
+
+        images.add(Card(
+          child: IconButton(icon: Icon(Icons.add_circle_outline),
+            onPressed: () {
+              setState(() {
+                widget.card.images[index].add(ImageDesign());
+              });
+            }
           ),
-          if(widget.activeLanguage.isJapanese()) Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  keyboardType: TextInputType.number,
-                  controller: jpCodeController,
-                  onChanged: (data) {
-                    setState(() {
-                      if(data.isNotEmpty)
-                        widget.card.getImage(CardImageIdentifier()).jpDBId = int.parse(data);
-                      else
-                        widget.card.getImage(CardImageIdentifier()).jpDBId = 0;
-                    });
-                  }
-                ),
-              ),
-              Card( child: IconButton(
-                icon: Icon(Icons.refresh),
-                onPressed: () async {
-                  // Clean all data
-                  widget.card.finalImage = "";
-                  await Environment.instance.storage.cleanCardFile(widget.se, widget.idCard);
+        ));
 
-                  setState(() {
-                    widget.card.getImage(CardImageIdentifier()).jpDBId = int.parse(jpCodeController.value.text);
-                  });
-                },
-              )),
-              Card( child: IconButton(
-                icon: Icon(Icons.upgrade),
-                onPressed: () async  {
-                  // Clean all data
-                  widget.card.finalImage = "";
-                  await Environment.instance.storage.cleanCardFile(widget.se, widget.idCard);
-
-                  // Retry
-                  setState(() async {
-                    computeJPCardID();
-                    jpCodeController.text = widget.card.getImage(CardImageIdentifier()).jpDBId.toString();
-                  });
-                },
-              ))
-            ]
-          ),
-          Text(StatitikLocale.of(context).read('CA_B38')),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                    controller: specialIDController,
-                    decoration: InputDecoration(hintText: StatitikLocale.of(context).read('CA_B38') ),
-                    onChanged: (data) {
-                      widget.card.specialID = data;
-                    }
-                ),
-              ),
-              if(!widget.activeLanguage.isJapanese())
-                Card( child: IconButton(
-                  icon: Icon(Icons.refresh),
-                  onPressed: () async {
-                    // Clean all data
-                    widget.card.finalImage = "";
-                    await Environment.instance.storage.cleanCardFile(widget.se, widget.idCard);
-
-                    setState(() {
-                      widget.card.getImage(CardImageIdentifier()).jpDBId = int.parse(jpCodeController.value.text);
-                    });
-                  },
-                )),
-            ],
-          )
-        ]
+        return Row(
+          children: images
+        );
+      }
     );
   }
 
@@ -276,21 +207,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                  ? databaseCardId.toString()
                  : StatitikLocale.of(context).read('CA_B29');
 
-      List<Widget> cardInfo = [
-        /*
-        GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.1),
-          itemCount: Design.values.length,
-          primary: false,
-          shrinkWrap: true,
-          itemBuilder: (BuildContext context, int index) {
-            var element = Design.values[index];
-            return CustomRadio(value: element, controller: designController, widget: icon(element) );
-          }
-        ),
-        */
-      ];
+      List<Widget> cardInfo = [];
       if(isPokemonType(widget.card.data.type)){
         cardInfo += [
           GridView.builder(
@@ -385,10 +302,6 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: createImageFieldWidget(),
-              ),
               Row(
                 children: [
                   Text("Carte secrète: "),
@@ -400,18 +313,33 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                   )
                 ],
               ),
-              Text("Set"),
               GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.2),
+                  crossAxisCount: 2, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 5.5),
                 primary: false,
                 shrinkWrap: true,
                 itemCount: Environment.instance.collection.sets.values.length,
                 itemBuilder: (BuildContext context, int index) {
                   var element = Environment.instance.collection.sets.values.elementAt(index);
-                  return CardSetButtonCheck(widget.activeLanguage, widget.card.sets, element);
+                  return CardSetButtonCheck(widget.activeLanguage, widget.card.sets, element, controller: setController);
                 },
               ),
+              Row(
+                children:[
+                  Text(StatitikLocale.of(context).read('CA_B38')),
+                  SizedBox(width: 15),
+                  Expanded(
+                    child: TextField(
+                      controller: specialIDController,
+                      decoration: InputDecoration(hintText: StatitikLocale.of(context).read('CA_B38') ),
+                      onChanged: (data) {
+                      widget.card.specialID = data;
+                      }
+                    ),
+                  )
+                ]
+              ),
+              createImageFieldWidget()
             ]
           ),
         ),
@@ -522,7 +450,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
       others = [
         GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 8, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.1),
+                crossAxisCount: 8, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.05),
             primary: false,
             shrinkWrap: true,
             itemCount: TypeCard.values.length,
@@ -540,9 +468,9 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           itemBuilder: (BuildContext context, int index) {
             var element = widget.listRarity.elementAt(index);
             return CustomRadio(value: element, controller: rarityController,
-                widget: Row(mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: getImageRarity(element, widget.activeLanguage, fontSize: 8.0, generate: true))
+              widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+                children: getImageRarity(element, widget.activeLanguage, fontSize: 8.0, generate: true)
+              )
             );
           }
         ),
@@ -552,7 +480,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             CustomRadio(value: 0, controller: listChooserController, widget: Text("Normal")),
             CustomRadio(value: 1, controller: listChooserController, widget: Text("Energie")),
             CustomRadio(value: 2, controller: listChooserController, widget: Text("Special")),
-            Expanded(child: SizedBox(width: 1)),
+            Spacer(),
             Card(
               color: Colors.grey[800],
               child: TextButton(
@@ -741,3 +669,155 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
     );
   }
 }
+class CardImageCreator extends StatefulWidget {
+  final SubExtension         se;
+  final PokemonCardExtension card;
+  final CardIdentifier       idCard;
+  final CardImageIdentifier  idImage;
+  final Language             activeLanguage;
+  const CardImageCreator(this.se, this.card, this.idCard, this.idImage, this.activeLanguage, {Key? key}) : super(key: key);
+
+  static void computeJPCardID(SubExtension se, PokemonCardExtension card, CardIdentifier idCard, CardImageIdentifier idImage) {
+    try {
+      int idFind = 0;
+      // Search list of card
+      var ancestorCard;
+      switch(idCard.listId) {
+        case 0:
+          ancestorCard = se.seCards.cards.sublist(0, idCard.numberId).reversed.firstWhere((element) {
+            idFind+=1;
+            return (element[0].tryGetImage(idImage).jpDBId != 0);
+          })[0];
+          break;
+        case 1:
+          ancestorCard = se.seCards.energyCard.sublist(0, idCard.numberId).reversed.firstWhere((element) {
+            idFind+=1;
+            return (element.tryGetImage(idImage).jpDBId != 0);
+          });
+          break;
+        case 2:
+          ancestorCard = se.seCards.noNumberedCard.sublist(0, idCard.numberId).reversed.firstWhere((element) {
+            idFind+=1;
+            return (element.tryGetImage(idImage).jpDBId != 0);
+          });
+          break;
+        default:
+          throw StatitikException("Unknown list !");
+      }
+
+      // Zero propagation or next number
+      if(ancestorCard.jpDBId != 0)
+        card.tryGetImage(idImage).jpDBId = ancestorCard.jpDBId + idFind;
+    } catch(e) {
+      // Nothing found !
+    }
+  }
+
+  @override
+  State<CardImageCreator> createState() => _CardImageCreatorState();
+}
+
+class _CardImageCreatorState extends State<CardImageCreator> {
+  late CustomRadioController designController = CustomRadioController(onChange: (value) { onDesignChanged(value); });
+  final imageController     = TextEditingController();
+  final jpCodeController    = TextEditingController();
+
+  void onDesignChanged(value) {
+    widget.card.image(widget.idImage)!.design.design = value;
+  }
+
+  @override
+  void initState() {
+    var imageDesign = widget.card.image(widget.idImage)!;
+    imageController.text          = imageDesign.image;
+    jpCodeController.text         = imageDesign.jpDBId.toString();
+    designController.currentValue = imageDesign.design.design;
+
+    super.initState();
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    var imageDesign = widget.card.image(widget.idImage)!;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(StatitikLocale.of(context).read('CA_B41')),
+      ),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(child: genericCardWidget(widget.se, widget.idCard, widget.idImage)),
+          GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.1),
+            itemCount: Design.values.length,
+            primary: false,
+            shrinkWrap: true,
+            itemBuilder: (BuildContext context, int index) {
+              var element = Design.values[index];
+              return CustomRadio(value: element, controller: designController, widget: iconDesign(element) );
+            }
+          ),
+          Text(StatitikLocale.of(context).read('CA_B34'), style: TextStyle(fontSize: 12)),
+          TextField(
+            controller: imageController,
+            decoration: InputDecoration(
+                hintText: CardImage.computeJPPokemonName(widget.se, widget.card)
+            ),
+            onChanged: (data) {
+              imageDesign.image = data;
+            }
+          ),
+          if(widget.activeLanguage.isJapanese()) Row(
+            children: [
+              Expanded(
+                child: TextField(
+                    keyboardType: TextInputType.number,
+                    controller: jpCodeController,
+                    onChanged: (data) {
+                      setState(() {
+                        if(data.isNotEmpty)
+                          imageDesign.jpDBId = int.parse(data);
+                        else
+                          imageDesign.jpDBId = 0;
+                      });
+                    }
+                ),
+              ),
+              Card( child: IconButton(
+                icon: Icon(Icons.upgrade),
+                onPressed: () async {
+                  // Clean all data
+                  imageDesign.finalImage = "";
+                  await Environment.instance.storage.cleanCardFile(widget.se, widget.idCard);
+
+                  // Retry
+                  setState(() async {
+                    CardImageCreator.computeJPCardID(widget.se, widget.card, widget.idCard, widget.idImage);
+                    jpCodeController.text = imageDesign.jpDBId.toString();
+                  });
+                },
+              ))
+            ]
+          ),
+          Card(
+            child: IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () async {
+                // Clean all data
+                imageDesign.finalImage = "";
+                await Environment.instance.storage.cleanCardFile(widget.se, widget.idCard);
+
+                setState(() {
+                  imageDesign.jpDBId = int.parse(jpCodeController.value.text);
+                });
+              },
+            )
+          ),
+        ]
+      )
+    );
+  }
+}
+
+
