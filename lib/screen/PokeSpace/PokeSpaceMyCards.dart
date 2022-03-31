@@ -132,6 +132,9 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
             if(subExtension.stats.countSecret > 0)
               buildLine(StatitikLocale.of(context).read('PSMC_B2'), Colors.yellowAccent, counter.statsCards.countSecret, subExtension.stats.countSecret),
           ];
+          var validSets = subExtension.stats.allSets;
+          validSets.removeWhere((element) => !element.isStandard);
+
           return Card(
               margin: EdgeInsets.all(2.0),
               child: TextButton(
@@ -155,9 +158,9 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
                               primary: false,
                               shrinkWrap: true,
                               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: ratioGrid),
-                              itemCount: subExtension.stats.allSets.length,
+                              itemCount: validSets.length,
                               itemBuilder: (context, id) {
-                                var set = subExtension.stats.allSets[id];
+                                var set = validSets[id];
                                 assert(subExtension.stats.countBySet[set] != null);
                                 return buildLine(set.names.name(subExtension.extension.language), set.color, counter.statsCards.countBySet[set] ?? 0, subExtension.stats.countBySet[set]!);
                               }
