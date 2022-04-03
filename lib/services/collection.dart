@@ -552,10 +552,6 @@ class Collection
       data.insert(0, nextId);
       query = 'INSERT INTO `Cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
 
-      // Update internal database
-      pokemonCards[nextId] = card;
-      rPokemonCards[card] = nextId;
-    
       //printOutput("New card added at $nextId and we update internal list");
     } else {
       query = 'UPDATE `Cartes` SET `noms` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?'
@@ -566,6 +562,12 @@ class Collection
 
     try {
       await connection.queryMulti(query, [data]);
+
+      if(idCard == null) {
+        // Update internal database
+        pokemonCards[nextId] = card;
+        rPokemonCards[card] = nextId;
+      }
     } catch(e) {
       printOutput("Request error: "+e.toString());
       throw e;

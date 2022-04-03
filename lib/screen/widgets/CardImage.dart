@@ -40,7 +40,7 @@ class CardImage extends StatefulWidget {
     cardImage = computeImageLabel(se, card, idCard, idImage), this.card = card, this.se = se;
 
   static String convertRomaji(String name) {
-    const Map<String, String> conversions = {
+    const Map<String, String> conversions = const {
       "FYI":  "FI",
       "RY":   "RI",
       "TCH":  "CCH",
@@ -73,6 +73,10 @@ class CardImage extends StatefulWidget {
       "作戦":   "SAKUSEN",
       "改造":   "KAIZOU",
       "暗示":   "ANJI",
+      "大口":   "OOGUCHI",
+      "化石":   "KASEKI",
+      "活気":   "KAKKI",
+      "神殿":   "SHINDEN",
       "姉":     "NEE",
       "水":     "MIZU",
       "団":     "DAN",
@@ -85,6 +89,7 @@ class CardImage extends StatefulWidget {
       "鋼":     "KOU",
       "罠":     "WANA",
       "気":     "KI",
+      "沼":     "NUMA",
     };
     const kanaKit = KanaKit();
     var val = "";
@@ -210,6 +215,7 @@ class CardImage extends StatefulWidget {
           se.seCode.forEach((seFolder) {
             // Official image source
             images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_$romajiName.jpg"));
+            images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_${romajiName}_m.jpg"));
             // Reliable alternative source
             images.add(Uri.https("www.pokecardex.com", "assets/images/sets_jp/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(cardId.numberId)}.jpg"));
           });

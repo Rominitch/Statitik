@@ -109,8 +109,15 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
     });
 
     // Auto fill (only for japanese card)
-    if(widget.activeLanguage.isJapanese() && widget.card.tryGetImage(CardImageIdentifier()).jpDBId == 0) {
-      CardImageCreator.computeJPCardID(widget.se, widget.card, widget.idCard, CardImageIdentifier());
+    if(widget.activeLanguage.isJapanese() && widget.editor) {
+      for(int idSet=0; idSet < widget.card.images.length; idSet+=1) {
+        for(int idImage=0; idImage < widget.card.images[idSet].length; idImage+=1) {
+          var id = CardImageIdentifier(idSet,idImage);
+          if(widget.card.image(id)!.jpDBId == 0)
+            CardImageCreator.computeJPCardID(widget.se, widget.card, widget.idCard, id);
+        }
+      }
+
     }
 
     listChooserController.currentValue = 0;
@@ -207,6 +214,9 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                  ? databaseCardId.toString()
                  : StatitikLocale.of(context).read('CA_B29');
 
+      final newResistances = const<int>[3, 6, 9];
+      int defaultResistance = newResistances.contains(widget.se.extension.id) ? 30 : 20;
+
       List<Widget> cardInfo = [];
       if(isPokemonType(widget.card.data.type)){
         cardInfo += [
@@ -259,7 +269,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(StatitikLocale.of(context).read('CA_B27'), style: TextStyle(fontSize: 12)),
-              EnergySlider(widget.card.data.resistance!, 30, minResistance, maxResistance, division: 6)
+              EnergySlider(widget.card.data.resistance!, defaultResistance, minResistance, maxResistance, division: 6)
             ],
           )
         ];
@@ -686,7 +696,7 @@ class CardImageCreator extends StatefulWidget {
         case 0:
           ancestorCard = se.seCards.cards.sublist(0, idCard.numberId).reversed.firstWhere((element) {
             idFind+=1;
-            return (element[0].tryGetImage(idImage).jpDBId != 0);
+            return (element[idCard.alternativeId].tryGetImage(idImage).jpDBId != 0);
           })[0];
           break;
         case 1:
@@ -706,8 +716,9 @@ class CardImageCreator extends StatefulWidget {
       }
 
       // Zero propagation or next number
-      if(ancestorCard.jpDBId != 0)
-        card.tryGetImage(idImage).jpDBId = ancestorCard.jpDBId + idFind;
+      var jpDB = ancestorCard.tryGetImage(idImage).jpDBId;
+      if(jpDB != 0)
+        card.tryGetImage(idImage).jpDBId = jpDB + idFind;
     } catch(e) {
       // Nothing found !
     }
@@ -746,7 +757,7 @@ class _CardImageCreatorState extends State<CardImageCreator> {
       body: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(child: genericCardWidget(widget.se, widget.idCard, widget.idImage)),
+          Expanded(child: genericCardWidget(widget.se, widget.idCard, widget.idImage, reloader: true)),
           GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.1),
@@ -789,12 +800,12 @@ class _CardImageCreatorState extends State<CardImageCreator> {
                 onPressed: () async {
                   // Clean all data
                   imageDesign.finalImage = "";
-                  await Environment.instance.storage.cleanCardFile(widget.se, widget.idCard);
-
-                  // Retry
-                  setState(() async {
+                  Environment.instance.storage.cleanCardFile(widget.se, widget.idCard).then((value) {
                     CardImageCreator.computeJPCardID(widget.se, widget.card, widget.idCard, widget.idImage);
-                    jpCodeController.text = imageDesign.jpDBId.toString();
+                    // Retry
+                    setState(() {
+                      jpCodeController.text = imageDesign.jpDBId.toString();
+                    });
                   });
                 },
               ))

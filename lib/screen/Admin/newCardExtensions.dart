@@ -32,6 +32,8 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   PokemonCardExtension data = PokemonCardExtension.creation(PokemonCardData([], Level.Base, TypeCard.Plante, CardMarkers.from([])), Environment.instance.collection.unknownRarity!, Environment.instance.collection.sets);
   int idList = 0;
 
+  final List<int> secretRarities = const [21, 22, 23, 24, 25, 26, 36, 37];
+
   void onChangeList(int newIdList) {
    setState(() {
      idList = newIdList;
@@ -76,6 +78,8 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
           _se!.seCards.noNumberedCard.insert(pos, newItem);
         }
       } else {
+        newItem.isSecret = secretRarities.contains(data.rarity.id);
+
         if( pos == null) {
           _se!.seCards.cards.add([newItem]);
         } else {
