@@ -440,7 +440,8 @@ class _CardImageViewerState extends State<CardImageViewer> with TickerProviderSt
         Row(
           children: [
             image.se.image(wSize: 40, hSize: 40),
-            card.tryGetImage(image.idImage).design.icon()
+            SizedBox(width: 2),
+            card.tryGetImage(image.idImage).design.icon(height: 26)
           ]
         )
       );

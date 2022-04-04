@@ -97,6 +97,14 @@ flutter:
     - assets/carte/set_25.png
     - assets/carte/set_energy.png
     - assets/carte/set_other.png
+    - assets/design/DesignGold.png
+    - assets/design/DesignGoldBlack.png
+    - assets/design/DesignHoloDot.png
+    - assets/design/DesignHoloVertical.png
+    - assets/design/DesignNormal.png
+    - assets/design/DesignRainbow.png
+    - assets/design/DesignReverse0.png
+    - assets/design/DesignReverse1.png
     - assets/energie/plante.png
     - assets/energie/feu.png
     - assets/energie/electrique.png

@@ -146,7 +146,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
         widget.card.images[index].forEach( (element){
           var localIdImg = CardImageIdentifier(index, idImg);
           images.add(Card(
-            child: TextButton(child: element.design.icon(),
+            child: TextButton(child: element.design.icon(height: 30),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -760,7 +760,7 @@ class _CardImageCreatorState extends State<CardImageCreator> {
           Expanded(child: genericCardWidget(widget.se, widget.idCard, widget.idImage, reloader: true)),
           GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.1),
+                crossAxisCount: 6, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.0),
             itemCount: Design.values.length,
             primary: false,
             shrinkWrap: true,

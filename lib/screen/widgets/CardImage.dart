@@ -77,6 +77,7 @@ class CardImage extends StatefulWidget {
       "化石":   "KASEKI",
       "活気":   "KAKKI",
       "神殿":   "SHINDEN",
+      "覇気":   "HAKI",
       "姉":     "NEE",
       "水":     "MIZU",
       "団":     "DAN",
@@ -214,8 +215,8 @@ class CardImage extends StatefulWidget {
 
           se.seCode.forEach((seFolder) {
             // Official image source
-            images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_$romajiName.jpg"));
             images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_${romajiName}_m.jpg"));
+            images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_$romajiName.jpg"));
             // Reliable alternative source
             images.add(Uri.https("www.pokecardex.com", "assets/images/sets_jp/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(cardId.numberId)}.jpg"));
           });

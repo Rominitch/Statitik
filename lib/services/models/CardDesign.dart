@@ -3,30 +3,31 @@ import 'package:statitikcard/services/models/BytesCoder.dart';
 
 enum Design {
   Basic,
-  ImageShining,
-  TextShining,
+  Holographic,
+  Reverse,
   ArcEnCiel,
   Gold,
+  GoldBlack
 }
 enum ShiningPattern {
   None,
-  Horizontal,
-  Vertical,
-  Dot,
+  Alternative,
 }
 
-Widget iconDesign(Design design) {
+Widget iconDesign(Design design, [double? width, double? height]) {
   switch(design) {
     case Design.Basic:
-      return Icon(Icons.crop_square);
-    case Design.ImageShining:
-      return Icon(Icons.image);
-    case Design.TextShining:
-      return Icon(Icons.article);
+      return Image.asset("assets/design/DesignNormal.png", width: width, height: height);
+    case Design.Holographic:
+      return Image.asset("assets/design/DesignHoloVertical.png", width: width, height: height);
+    case Design.Reverse:
+      return Image.asset("assets/design/DesignReverse0.png", width: width, height: height);
     case Design.ArcEnCiel:
-      return Icon(Icons.looks);
+      return Image.asset("assets/design/DesignRainbow.png", width: width, height: height);
     case Design.Gold:
-      return Icon(Icons.stars_rounded, color: Colors.yellow.shade700);
+      return Image.asset("assets/design/DesignGold.png", width: width, height: height);
+    case Design.GoldBlack:
+      return Image.asset("assets/design/DesignGoldBlack.png", width: width, height: height);
     default:
       return Icon(Icons.help_outline);
   }
@@ -47,11 +48,17 @@ class CardDesign {
             ByteEncoder.encodeInt8(pattern.index);
   }
 
-  Widget icon() {
-    return Row(
-      children: [
-        iconDesign(design)
-      ]
-    );
+  Widget icon({double? width, double? height}) {
+    if(pattern == ShiningPattern.Alternative)
+      switch(design) {
+        case Design.Holographic:
+          return Image.asset("assets/design/DesignHoloDot.png", width: width, height: height);
+        case Design.Reverse:
+          return Image.asset("assets/design/DesignReverse1.png", width: width, height: height);
+        default:
+          return Icon(Icons.help_outline);
+      }
+    else
+      return iconDesign(design, width, height);
   }
 }
