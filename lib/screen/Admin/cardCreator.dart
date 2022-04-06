@@ -696,19 +696,22 @@ class CardImageCreator extends StatefulWidget {
         case 0:
           ancestorCard = se.seCards.cards.sublist(0, idCard.numberId).reversed.firstWhere((element) {
             idFind+=1;
-            return (element[idCard.alternativeId].tryGetImage(idImage).jpDBId != 0);
+            var img = element[idCard.alternativeId].image(idImage);
+            return img != null && img.jpDBId != 0;
           })[0];
           break;
         case 1:
           ancestorCard = se.seCards.energyCard.sublist(0, idCard.numberId).reversed.firstWhere((element) {
             idFind+=1;
-            return (element.tryGetImage(idImage).jpDBId != 0);
+            var img = element.image(idImage);
+            return img != null && img.jpDBId != 0;
           });
           break;
         case 2:
           ancestorCard = se.seCards.noNumberedCard.sublist(0, idCard.numberId).reversed.firstWhere((element) {
             idFind+=1;
-            return (element.tryGetImage(idImage).jpDBId != 0);
+            var img = element.image(idImage);
+            return img != null && img.jpDBId != 0;
           });
           break;
         default:
@@ -716,11 +719,21 @@ class CardImageCreator extends StatefulWidget {
       }
 
       // Zero propagation or next number
-      var jpDB = ancestorCard.tryGetImage(idImage).jpDBId;
-      if(jpDB != 0)
-        card.tryGetImage(idImage).jpDBId = jpDB + idFind;
+      if(ancestorCard != null) {
+        var jpDB = ancestorCard
+            .image(idImage)
+            .jpDBId;
+        if (jpDB != 0)
+          card.image(idImage)!.jpDBId = jpDB + idFind;
+      }
+
+      // Copy name of parent
+      var name = card.tryGetImage(CardImageIdentifier()).image;
+      if(name.isNotEmpty)
+        card.image(idImage)!.image = name;
     } catch(e) {
       // Nothing found !
+      printOutput("ComputeJCard: impossible to find $e");
     }
   }
 

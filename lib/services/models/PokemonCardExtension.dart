@@ -293,7 +293,12 @@ class PokemonCardExtension {
 
   ImageDesign? image(CardImageIdentifier idImage) {
     assert(images.isNotEmpty);
-    return images[idImage.idSet][idImage.idImage];
+    if(idImage.idSet < images.length) {
+      var v = images[idImage.idSet];
+      if(idImage.idImage < v.length)
+        return v[idImage.idImage];
+    }
+    return null;
   }
 
   void removeImage(CardImageIdentifier idImage) {
