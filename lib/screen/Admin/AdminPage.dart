@@ -98,6 +98,15 @@ class _AdminPageState extends State<AdminPage> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionProductsCreator(language, subExt) ));
   }
 
+  void launchEditionCards() {
+    Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(
+      afterSelected: (BuildContext context, Language language, SubExtension subExtension) {
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+        Navigator.push(context, MaterialPageRoute(builder: (context) => NewCardExtensions(language, subExtension) ));
+      }, addMode: false)));
+  }
+
   Widget createButton(String codeText, IconData icon, Color colorBox, Function() action) {
     return Card(
       color: colorBox,
@@ -133,7 +142,7 @@ class _AdminPageState extends State<AdminPage> {
       Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToExtensionProducts, addMode: true)));
     }));
     buttons.add(createButton('ADMIN_B2', Icons.post_add_outlined, Colors.deepOrange, () {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => NewCardExtensions()));
+      launchEditionCards();
     }));
     buttons.add(createButton('ADMIN_B3', Icons.remove_red_eye_rounded, Colors.blueAccent, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory(true)));

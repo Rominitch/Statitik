@@ -16,21 +16,23 @@ import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/PokemonCardData.dart';
 
 class NewCardExtensions extends StatefulWidget {
-  const NewCardExtensions({Key? key}) : super(key: key);
+  final Language     language;
+  final SubExtension se;
+
+  const NewCardExtensions(this.language, this.se, {Key? key}) : super(key: key);
 
   @override
   _NewCardExtensionsState createState() => _NewCardExtensionsState();
 }
 
 class _NewCardExtensionsState extends State<NewCardExtensions> {
-  Language?     _language;
-  SubExtension? _se;
   List<Widget>  _cardInfo         = [];
   List<Widget>  _cardEnergyInfo   = [];
   List<Widget>  _cardNoNumberInfo = [];
   bool _modify = false;
   PokemonCardExtension data = PokemonCardExtension.creation(PokemonCardData([], Level.Base, TypeCard.Plante, CardMarkers.from([])), Environment.instance.collection.unknownRarity!, Environment.instance.collection.sets);
   int idList = 0;
+  bool _showQuickCreator = true;
 
   final List<int> secretRarities = const [21, 22, 23, 24, 25, 26, 36, 37];
 
@@ -54,9 +56,9 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
       _modify = true;
 
       // Remove default state
-      if( !_se!.seCards.isValid ) {
-        _se!.seCards.cards.clear();
-        _se!.seCards.isValid = true;
+      if( !widget.se.seCards.isValid ) {
+        widget.se.seCards.cards.clear();
+        widget.se.seCards.isValid = true;
       }
 
       // Create new card
@@ -66,24 +68,24 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
       // Added
       if(listId == 1) {
         if( pos == null) {
-            _se!.seCards.energyCard.add(newItem);
+          widget.se.seCards.energyCard.add(newItem);
         } else {
-          _se!.seCards.energyCard.insert(pos, newItem);
+          widget.se.seCards.energyCard.insert(pos, newItem);
         }
       }
       else if(listId == 2) {
         if( pos == null) {
-          _se!.seCards.noNumberedCard.add(newItem);
+          widget.se.seCards.noNumberedCard.add(newItem);
         } else {
-          _se!.seCards.noNumberedCard.insert(pos, newItem);
+          widget.se.seCards.noNumberedCard.insert(pos, newItem);
         }
       } else {
         newItem.isSecret = secretRarities.contains(data.rarity.id);
 
         if( pos == null) {
-          _se!.seCards.cards.add([newItem]);
+          widget.se.seCards.cards.add([newItem]);
         } else {
-          _se!.seCards.cards.insert(pos, [newItem]);
+          widget.se.seCards.cards.insert(pos, [newItem]);
         }
       }
 
@@ -95,11 +97,11 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     setState(() {
       var cardList;
       if(listId == 1)
-        cardList = _se!.seCards.energyCard;
+        cardList = widget.se.seCards.energyCard;
       else if(listId == 2)
-        cardList = _se!.seCards.noNumberedCard;
+        cardList = widget.se.seCards.noNumberedCard;
       else
-        cardList = _se!.seCards.cards;
+        cardList = widget.se.seCards.cards;
 
       _modify = true;
       cardList.removeAt(localId);
@@ -108,18 +110,13 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     });
   }
 
-  void afterSelectExtension(BuildContext context, Language language, SubExtension subExt) {
-    Navigator.pop(context);
-    Navigator.pop(context);
-    setState(() {
-      // Change selection
-      _language = language;
-      _se       = subExt;
+  @override
+  void initState() {
+    updateCardList(0);
+    updateCardList(1);
+    updateCardList(2);
 
-      updateCardList(0);
-      updateCardList(1);
-      updateCardList(2);
-    });
+    super.initState();
   }
 
   Widget cardBuilder(PokemonCardExtension card, int id, int listId) {
@@ -135,7 +132,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         }
       }
 
-      if(_language!.isJapanese()) {
+      if(widget.language.isJapanese()) {
         // Show multi link
         colorCard = count > 1 ? Colors.cyan : Colors.green[900]!;
       } else {
@@ -157,11 +154,11 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row( mainAxisAlignment: MainAxisAlignment.center,
-                  children: [card.imageType()]+card.imageRarity(_language!)),
+                  children: [card.imageType()]+card.imageRarity(widget.language)),
               Row(mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(_se!.seCards.numberOfCard(localId)),
-                  if(_language!.isJapanese() && card.tryGetImage(CardImageIdentifier()).jpDBId == 0) Icon(Icons.broken_image, color: Colors.deepOrange, size: 11),
+                  Text(widget.se.seCards.numberOfCard(localId)),
+                  if(widget.language.isJapanese() && card.tryGetImage(CardImageIdentifier()).jpDBId == 0) Icon(Icons.broken_image, color: Colors.deepOrange, size: 11),
                   if(card.data.missingMainData())           Icon(Icons.text_format, color: Colors.red, size: 10),
                   if(card.data.cardEffects.effects.isEmpty) Icon(Icons.filter_vintage_outlined, color: Colors.red, size: 10),
               ])
@@ -209,7 +206,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CardEditor(_language!.isWorld(), _se!, idCard)),
+            MaterialPageRoute(builder: (context) => CardEditor(widget.language.isWorld(), widget.se, idCard)),
           ).then((value) {
             setState(() {
               updateCardList(localListId);
@@ -225,8 +222,8 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     List<Widget> myCards = [];
     int id=0;
     int listId=0;
-    if( _se!.seCards.isValid ) {
-      _se!.seCards.cards.forEach((cardList) {
+    if( widget.se.seCards.isValid ) {
+      widget.se.seCards.cards.forEach((cardList) {
         // Select only first
         var card = cardList[0];
         myCards.add( cardBuilder(card, id, listId) );
@@ -241,8 +238,8 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     List<Widget> myCards = [];
     int id=0;
     int listId=1;
-    if( _se!.seCards.isValid ) {
-      _se!.seCards.energyCard.forEach((cardList) {
+    if( widget.se.seCards.isValid ) {
+      widget.se.seCards.energyCard.forEach((cardList) {
         myCards.add( cardBuilder(cardList, id, listId) );
 
         id += 1;
@@ -255,8 +252,8 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     List<Widget> myCards = [];
     int id=0;
     int listId=2;
-    if( _se!.seCards.isValid ) {
-      _se!.seCards.noNumberedCard.forEach((cardList) {
+    if( widget.se.seCards.isValid ) {
+      widget.se.seCards.noNumberedCard.forEach((cardList) {
         // Select only first
         myCards.add( cardBuilder(cardList, id, listId) );
 
@@ -270,7 +267,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     if( !_modify ) {
       Navigator.of(context).pop(true);
     } else {
-      _se!.computeStats();
+      widget.se.computeStats();
       var exit = await showDialog(
           context: context,
           barrierDismissible: false, // user must tap button!
@@ -295,7 +292,18 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     child: Scaffold(
       appBar: AppBar(
         title: Container(
-          child: Text(StatitikLocale.of(context).read('NCE_T0')),
+          child: Row(
+            children: [
+              Image(image: widget.language.create(), height: 30),
+              SizedBox(width: 4.0),
+              widget.se.image(hSize: 30),
+              SizedBox(width: 4.0),
+              Text(widget.se.name, softWrap: true, style: Theme.of(context).textTheme.headline6?..copyWith(
+                  fontSize: widget.se.name.length > 9 ? 8 : 10
+                )
+              ),
+            ]
+          ),
         ),
         leading: new IconButton(
           icon: new Icon(Icons.arrow_back),
@@ -307,9 +315,9 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
           child: Text(StatitikLocale.of(context).read('NCE_B1')),
           onPressed: () {
             EasyLoading.show();
-            _se!.computeStats();
+            widget.se.computeStats();
             // Send database info
-            Environment.instance.sendCardInfo(_se!)
+            Environment.instance.sendCardInfo(widget.se)
               .onError((error, stackTrace) {
                 EasyLoading.showError('Error');
                 return false;
@@ -329,38 +337,45 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Card(
-              child: TextButton(
-                child: _language != null ? Row(
-                  children: [
-                    Text(StatitikLocale.of(context).read('S_B0')),
-                    SizedBox(width: 8.0),
-                    Image(image: _language!.create(), height: 30),
-                    SizedBox(width: 8.0),
-                    Tooltip(message: _se!.name,
-                      child:_se!.image(hSize: 30)),
-                  ]) : Text(StatitikLocale.of(context).read('S_B0')),
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension, addMode: false)));
-                },
-              )
+            ExpansionPanelList(
+              children: [
+                ExpansionPanel(
+                  canTapOnHeader: true,
+                  headerBuilder: (context, isOpen) {
+                    return Row(children:[
+                      Icon(Icons.add_box_outlined),
+                      SizedBox(width: 4),
+                      Text("Quick Creator")
+                      ]
+                    );
+                  },
+                  body: CardCreator.quick(widget.language, widget.se, data, CardIdentifier.from([0, 0, 0]), onAddCard, widget.language.isWorld(), onChangeList: onChangeList),
+                  isExpanded: _showQuickCreator,
+                )
+              ],
+              expandedHeaderPadding: EdgeInsets.zero,
+              expansionCallback: (i, isOpen) {
+                setState(() {
+                  _showQuickCreator = !isOpen;
+                });
+              },
+              elevation: 0,
             ),
-            if(_se != null) CardCreator.quick(_language!, _se!, data, CardIdentifier.from([0, 0, 0]), onAddCard, _language!.isWorld(), onChangeList: onChangeList),
-            if(_se != null && _se!.seCards.cards.isNotEmpty && idList == 0) GridView.count(
+            if(widget.se.seCards.cards.isNotEmpty && idList == 0) GridView.count(
                 primary: false,
                 children: _cardInfo,
                 shrinkWrap: true,
                 childAspectRatio: 1.35,
                 crossAxisCount: 5,
             ),
-            if(_se != null && _se!.seCards.energyCard.isNotEmpty && idList == 1) GridView.count(
+            if(widget.se.seCards.energyCard.isNotEmpty && idList == 1) GridView.count(
               primary: false,
               children: _cardEnergyInfo,
               shrinkWrap: true,
               childAspectRatio: 1.35,
               crossAxisCount: 5,
             ),
-            if(_se != null && _se!.seCards.noNumberedCard.isNotEmpty && idList == 2) GridView.count(
+            if(widget.se.seCards.noNumberedCard.isNotEmpty && idList == 2) GridView.count(
               primary: false,
               children: _cardNoNumberInfo,
               shrinkWrap: true,
