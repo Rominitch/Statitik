@@ -251,7 +251,7 @@ class PokemonCardExtension {
   }
 
   List<Widget> imageRarity(Language l) {
-    return getImageRarity(rarity, l);
+    return getImageRarity(rarity, l, iconSize: 18.0);
   }
 
   Widget imageType({bool generate=false, double? sizeIcon}) {

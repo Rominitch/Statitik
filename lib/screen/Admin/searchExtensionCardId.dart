@@ -40,7 +40,7 @@ class SearchExtensionsCardId extends StatelessWidget {
                   child: Row(
                     children: [
                       RotatedBox(quarterTurns:3, child: Text(localId.toString(), style: TextStyle(fontSize: 10))),
-                      Expanded(child: genericCardWidget(subExtension, id, CardImageIdentifier(), height: 100)),
+                      Expanded(child: genericCardWidget(subExtension, id, CardImageIdentifier())),
                     ],
                   ),
                   onPressed: () {
@@ -130,7 +130,7 @@ class SearchExtensionsCardId extends StatelessWidget {
     List<Widget> cardImages = cardImageWidget.isNotEmpty ?
     [
       GridView.count(
-        crossAxisCount: 4,
+        crossAxisCount: 3,
         children: cardImageWidget,
         shrinkWrap: true,
         primary: false,

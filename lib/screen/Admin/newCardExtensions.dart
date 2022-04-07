@@ -3,7 +3,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
-import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/Marker.dart';
@@ -298,8 +297,11 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
               SizedBox(width: 4.0),
               widget.se.image(hSize: 30),
               SizedBox(width: 4.0),
-              Text(widget.se.name, softWrap: true, style: Theme.of(context).textTheme.headline6?..copyWith(
-                  fontSize: widget.se.name.length > 9 ? 8 : 10
+              Flexible(
+                child:Text(widget.se.name, softWrap: true,
+                  style: Theme.of(context).textTheme.headline6?..copyWith(
+                    fontSize: widget.se.name.length > 9 ? 7 : 10
+                  )
                 )
               ),
             ]

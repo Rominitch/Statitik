@@ -78,6 +78,8 @@ class CardImage extends StatefulWidget {
       "活気":   "KAKKI",
       "神殿":   "SHINDEN",
       "覇気":   "HAKI",
+      "道場":   "DOUJOU",
+      "巨大":   "KYODAI",
       "姉":     "NEE",
       "水":     "MIZU",
       "団":     "DAN",
@@ -91,6 +93,11 @@ class CardImage extends StatefulWidget {
       "罠":     "WANA",
       "気":     "KI",
       "沼":     "NUMA",
+      "戒":     "IMASHI",
+      "祠":     "SHI",
+      "格":     "KAKU",
+      "山":     "YAMA",
+      "森":     "MORI",
     };
     const kanaKit = KanaKit();
     var val = "";

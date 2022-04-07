@@ -403,6 +403,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           ),
         ]),
       ];
+      final imageSize = 270.0;
 
       return Column(children:
         [
@@ -410,28 +411,30 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             padding: const EdgeInsets.all(8.0),
             child: Row(
             children: [
-              Container(child: genericCardWidget(widget.se, widget.idCard, CardImageIdentifier(), height: 220, reloader: true), height: 220),
+              Container(child: genericCardWidget(widget.se, widget.idCard, CardImageIdentifier(), height: imageSize, reloader: true), height: imageSize),
               SizedBox(width:8),
               Expanded(child: Text(StatitikLocale.of(context).read('CA_B30')+ " " + codeDB, style: Theme.of(context).textTheme.headline5)),
               Card(
-                color: Colors.grey.shade500,
+                color: widget.card.data.title.isNotEmpty ? Colors.grey.shade500 : Colors.grey.shade900,
                 child: TextButton(
                   child: Text(StatitikLocale.of(context).read('CA_B32')),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SearchExtensionsCardId(widget.card.data.type,
-                          widget.card.data.title.isNotEmpty ? widget.card.data.title[0].name : null, widget.title, databaseCardId ?? 0)),
-                    ).then((idCard) {
-                      if(idCard != null) {
-                        setState(() {
-                          // Change object
-                          widget.card.data = Environment.instance.collection.pokemonCards[idCard];
-                          // Recompute default value
-                          selectCard();
-                        });
-                      }
-                    });
+                    if(widget.card.data.title.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SearchExtensionsCardId(widget.card.data.type,
+                            widget.card.data.title.isNotEmpty ? widget.card.data.title[0].name : null, widget.title, databaseCardId ?? 0)),
+                      ).then((idCard) {
+                        if(idCard != null) {
+                          setState(() {
+                            // Change object
+                            widget.card.data = Environment.instance.collection.pokemonCards[idCard];
+                            // Recompute default value
+                            selectCard();
+                          });
+                        }
+                      });
+                    }
                   }
                 )
               )
@@ -745,9 +748,21 @@ class _CardImageCreatorState extends State<CardImageCreator> {
   late CustomRadioController designController = CustomRadioController(onChange: (value) { onDesignChanged(value); });
   final imageController     = TextEditingController();
   final jpCodeController    = TextEditingController();
+  final List<CardDesign> designs = [
+    CardDesign(Design.Basic),
+    CardDesign(Design.Holographic),
+    CardDesign(Design.Holographic, ShiningPattern.Alternative),
+    CardDesign(Design.Holographic, ShiningPattern.Alternative2),
+    CardDesign(Design.Reverse),
+    CardDesign(Design.Reverse, ShiningPattern.Alternative),
+    CardDesign(Design.ArcEnCiel),
+    CardDesign(Design.Gold),
+    CardDesign(Design.GoldBlack),
+    CardDesign(Design.Shiny),
+  ];
 
   void onDesignChanged(value) {
-    widget.card.image(widget.idImage)!.design.design = value;
+    widget.card.image(widget.idImage)!.design = value;
   }
 
   @override
@@ -755,7 +770,7 @@ class _CardImageCreatorState extends State<CardImageCreator> {
     var imageDesign = widget.card.image(widget.idImage)!;
     imageController.text          = imageDesign.image;
     jpCodeController.text         = imageDesign.jpDBId.toString();
-    designController.currentValue = imageDesign.design.design;
+    designController.currentValue = imageDesign.design;
 
     super.initState();
   }
@@ -774,12 +789,12 @@ class _CardImageCreatorState extends State<CardImageCreator> {
           GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 6, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.0),
-            itemCount: Design.values.length,
+            itemCount: designs.length,
             primary: false,
             shrinkWrap: true,
             itemBuilder: (BuildContext context, int index) {
-              var element = Design.values[index];
-              return CustomRadio(value: element, controller: designController, widget: iconDesign(element) );
+              var element = designs[index];
+              return CustomRadio(value: element, controller: designController, widget: element.icon() );
             }
           ),
           Text(StatitikLocale.of(context).read('CA_B34'), style: TextStyle(fontSize: 12)),
@@ -796,16 +811,16 @@ class _CardImageCreatorState extends State<CardImageCreator> {
             children: [
               Expanded(
                 child: TextField(
-                    keyboardType: TextInputType.number,
-                    controller: jpCodeController,
-                    onChanged: (data) {
-                      setState(() {
-                        if(data.isNotEmpty)
-                          imageDesign.jpDBId = int.parse(data);
-                        else
-                          imageDesign.jpDBId = 0;
-                      });
-                    }
+                  keyboardType: TextInputType.number,
+                  controller: jpCodeController,
+                  onChanged: (data) {
+                    setState(() {
+                      if(data.isNotEmpty)
+                        imageDesign.jpDBId = int.parse(data);
+                      else
+                        imageDesign.jpDBId = 0;
+                    });
+                  }
                 ),
               ),
               Card( child: IconButton(
