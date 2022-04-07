@@ -279,7 +279,10 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
             return Row(
               children: [
                 Container(
-                  child: Row( children: getImageRarity(rarity, widget.language)),
+                  height: 23.0,
+                  child: Row(
+                    children: getImageRarity(rarity, widget.language)
+                  ),
                   alignment: Alignment.centerLeft,
                   width: _spaceBefore
                 ),

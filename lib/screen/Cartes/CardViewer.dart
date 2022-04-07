@@ -117,7 +117,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
         padding: const EdgeInsets.all(4.0),
         child: language.barIcon(),
       ));
-      imageTabPages.add(CardImageViewer(identifiers, widget.se));
+      imageTabPages.add(CardImageViewer(identifiers, widget.se, widget.idCard));
     });
 
     List<Widget> tabHeaders = [
@@ -409,9 +409,10 @@ class _CardSEViewerState extends State<CardSEViewer> {
 }
 
 class CardImageViewer extends StatefulWidget {
-  final SubExtension selectSE;
+  final SubExtension   selectSE;
+  final CardIdentifier selectIdCard;
   final List<CardViewerIdentifier> ids;
-  const CardImageViewer(this.ids, this.selectSE, {Key? key}) : super(key: key);
+  const CardImageViewer(this.ids, this.selectSE, this.selectIdCard, {Key? key}) : super(key: key);
 
   @override
   State<CardImageViewer> createState() => _CardImageViewerState();
@@ -422,7 +423,7 @@ class _CardImageViewerState extends State<CardImageViewer> with TickerProviderSt
 
   @override
   void initState() {
-    var index = max(0, widget.ids.indexWhere((element) => element.se == widget.selectSE));
+    var index = max(0, widget.ids.indexWhere((element) => element.se == widget.selectSE && element.idCard.compareTo(widget.selectIdCard)==0));
     imagesController = TabController(length: widget.ids.length, initialIndex: index,
       vsync: this,
       animationDuration: Duration.zero

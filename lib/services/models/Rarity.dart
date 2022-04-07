@@ -21,8 +21,8 @@ class Rarity {
   List<Widget> icon(Language l, {iconSize, fontSize=12.0}) {
     return [
       if(image.isNotEmpty)
-        (iconSize != null) ? drawCachedImage('logo', image, height: iconSize ?? 20)
-                           : Expanded(child: drawCachedImage('logo', image)),
+        drawCachedImage('logo', image, height: iconSize ?? 20),
+        //                   : Expanded(child: drawCachedImage('logo', image)),
       if(iconId != null)
         rotate ? Transform.rotate(angle: pi / 4.0, child: Icon(iconId, size: iconSize))
                : Icon(iconId, size: iconSize),
