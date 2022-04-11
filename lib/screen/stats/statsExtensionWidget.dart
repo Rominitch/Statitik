@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/screen/stats/stats.dart';
@@ -22,16 +24,10 @@ class StatsExtensionWidget extends StatefulWidget {
 class _StatsExtensionWidgetState extends State<StatsExtensionWidget> with TickerProviderStateMixin {
   late TabController tabController;
 
+
+
   bool hasStats() {
     return widget.info.statsData.subExt != null && widget.info.statsData.subExt!.type == SerieType.Normal;
-  }
-  
-  @override
-  void initState() {
-    tabController = TabController(length: hasStats() ? 3 : 2,
-        vsync: this,
-        animationDuration: Duration.zero);
-    super.initState();
   }
 
   Widget menuBar(BuildContext context, String idText ) {
@@ -39,6 +35,10 @@ class _StatsExtensionWidgetState extends State<StatsExtensionWidget> with Ticker
       padding: const EdgeInsets.all(8.0),
       child: Text(StatitikLocale.of(context).read(idText)),
     );
+  }
+
+  void onChangedTab() {
+    widget.info.options.tabViewMode = tabController.index;
   }
 
   @override
@@ -49,6 +49,12 @@ class _StatsExtensionWidgetState extends State<StatsExtensionWidget> with Ticker
     } else if(widget.info.statsData.subExt != null && !widget.info.statsData.subExt!.seCards.isValid) {
       return drawOut(context, widget.info.statsData.subExt!);
     } else {
+      var maxTab = hasStats() ? 3 : 2;
+      tabController = TabController(length: maxTab,
+          vsync: this,
+          initialIndex: min(max(widget.info.options.tabViewMode, 0), maxTab-1),
+          animationDuration: Duration.zero);
+      tabController.addListener(onChangedTab);
       return Column(
         children: [
           TabBar(

@@ -362,7 +362,9 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
              return MarkerButtonCheck(widget.activeLanguage, widget.card.data.markers, element);
           }
         ),
-        CardEffectsPanel(widget.card, widget.activeLanguage),
+        SingleChildScrollView(
+          child: CardEffectsPanel(widget.card, widget.activeLanguage)
+        ),
         Column( children: [
           GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -375,7 +377,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
               return CustomRadio(value: element, controller: rarityController,
                 widget: Row(mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: getImageRarity(element, widget.activeLanguage, fontSize: 8.0, generate: true))
+                  children: getImageRarity(element, widget.activeLanguage, fontSize: 8.0, textureSize: null, generate: true))
               );
             }
           ),
@@ -482,7 +484,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             var element = widget.listRarity.elementAt(index);
             return CustomRadio(value: element, controller: rarityController,
               widget: Row(mainAxisAlignment: MainAxisAlignment.center,
-                children: getImageRarity(element, widget.activeLanguage, fontSize: 8.0, generate: true)
+                children: getImageRarity(element, widget.activeLanguage, textureSize: null, fontSize: 8.0, generate: true)
               )
             );
           }

@@ -96,7 +96,7 @@ class _PieExtensionState extends State<PieExtension> {
     sections.clear();
 
     bool odd=false;
-    final double ratio = 100.0 / widget.subExtension.seCards.cards.length;
+    final double ratio = 100.0 / widget.subExtension.stats.countOneCards;
     if( widget.visu == Visualize.Type) {
       for(var type in TypeCard.values) {
         final isTouched = type.index == touchedIndex;
@@ -107,7 +107,7 @@ class _PieExtensionState extends State<PieExtension> {
           sections.add(PieChartSectionData(
             color: typeColors[type.index],
             value: count.toDouble(),
-            title: "$count (${percent.toStringAsPrecision(2)}%)",
+            title: "$count (${percent.toStringAsFixed(2)}%)",
             radius: radius,
             titlePositionPercentageOffset: odd ? 0.7 : 0.4,
             titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
@@ -133,7 +133,7 @@ class _PieExtensionState extends State<PieExtension> {
           sections.add(PieChartSectionData(
             color: rarity.color,
             value: count.toDouble(),
-            title: "$count (${percent.toStringAsPrecision(2)}%)",
+            title: "$count (${percent.toStringAsFixed(2)}%)",
             radius: radius,
             titlePositionPercentageOffset: odd ? 0.75 : 0.5,
             titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),

@@ -18,11 +18,11 @@ class Rarity {
   const Rarity.fromIcon(this.id,  this.iconId, this.value, this.color, {this.rotate=false}): this.image = "";
   const Rarity.fromImage(this.id, this.image, this.color) : this.iconId = null, this.value = null, this.rotate = false;
 
-  List<Widget> icon(Language l, {iconSize, fontSize=12.0}) {
+  List<Widget> icon(Language l, {iconSize, fontSize=12.0, textureSize=20.0}) {
     return [
       if(image.isNotEmpty)
-        drawCachedImage('logo', image, height: iconSize ?? 20),
-        //                   : Expanded(child: drawCachedImage('logo', image)),
+        textureSize != null ? drawCachedImage('logo', image, height: textureSize)
+            : Flexible(child:drawCachedImage('logo', image)),
       if(iconId != null)
         rotate ? Transform.rotate(angle: pi / 4.0, child: Icon(iconId, size: iconSize))
                : Icon(iconId, size: iconSize),
@@ -35,13 +35,13 @@ class Rarity {
   }
 }
 
-List<Widget> getImageRarity(Rarity rarity, Language l,{iconSize, fontSize=12.0, generate=false}) {
+List<Widget> getImageRarity(Rarity rarity, Language l,{iconSize, textureSize=20.0, fontSize=12.0, generate=false}) {
   if(Environment.instance.collection.cachedImageRarity[l] == null) {
     Environment.instance.collection.cachedImageRarity[l] = {};
   }
 
   if(generate || Environment.instance.collection.cachedImageRarity[l]![rarity] == null) {
-    List<Widget> rendering = rarity.icon(l, iconSize: iconSize, fontSize: fontSize);
+    List<Widget> rendering = rarity.icon(l, iconSize: iconSize, fontSize: fontSize, textureSize: textureSize);
     if(generate)
       return rendering;
     else

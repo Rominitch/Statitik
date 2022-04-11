@@ -22,6 +22,7 @@ enum OptionShowState {
 }
 
 class StatsViewOptions {
+  int tabViewMode = 0;
   bool delta = false;
   bool print = false;
   OptionShowState showOption = OptionShowState.BoosterLuck;

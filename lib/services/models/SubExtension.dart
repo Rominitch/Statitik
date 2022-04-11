@@ -89,6 +89,7 @@ class StatsExtension {
   late Map<CardSet, int>  countBySet;
   late int                countSecret;
   late Map<CardSet, Map<Rarity, int>> countBySetByRarity;
+  late int                countOneCards;
 
   StatsExtension.from(SubExtension subExt) {
     countByType   = List<int>.filled(TypeCard.values.length, 0);
@@ -144,6 +145,8 @@ class StatsExtension {
     subExt.seCards.noNumberedCard.forEach((c) {
       computeStatsByCard(c);
     });
+
+    countOneCards = subExt.seCards.cards.length + subExt.seCards.energyCard.length + subExt.seCards.noNumberedCard.length;
   }
 
   int countAllCards() {

@@ -3,6 +3,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/screen/Admin/cardEditor.dart';
+import 'package:statitikcard/services/collection.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/Marker.dart';
@@ -29,11 +30,11 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   List<Widget>  _cardEnergyInfo   = [];
   List<Widget>  _cardNoNumberInfo = [];
   bool _modify = false;
-  PokemonCardExtension data = PokemonCardExtension.creation(PokemonCardData([], Level.Base, TypeCard.Plante, CardMarkers.from([])), Environment.instance.collection.unknownRarity!, Environment.instance.collection.sets);
+  PokemonCardExtension data = PokemonCardExtension.creation(PokemonCardData([], Level.Base, TypeCard.Plante, CardMarkers.from([])), Environment.instance.collection.rarities[Collection.idEmptyRarity]!, Environment.instance.collection.sets);
   int idList = 0;
   bool _showQuickCreator = true;
 
-  final List<int> secretRarities = const [21, 22, 23, 24, 25, 26, 36, 37];
+  final List<int> secretRarities = const [21, 22, 23, 24, 25, 26, 27, 36, 37];
 
   void onChangeList(int newIdList) {
    setState(() {
@@ -145,6 +146,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     int localId     = id;
     int localListId = listId;
     var idCard = CardIdentifier.from(localListId != 0 ? [localListId, localId] : [localListId, localId, 0]);
+    var numberCard = widget.se.seCards.numberOfCard(localId);
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: TextButton(
@@ -156,7 +158,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                   children: [card.imageType()]+card.imageRarity(widget.language)),
               Row(mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(widget.se.seCards.numberOfCard(localId)),
+                  Text(numberCard, style: TextStyle(fontSize: numberCard.length > 3 ? 10 : 12)),
                   if(widget.language.isJapanese() && card.tryGetImage(CardImageIdentifier()).jpDBId == 0) Icon(Icons.broken_image, color: Colors.deepOrange, size: 11),
                   if(card.data.missingMainData())           Icon(Icons.text_format, color: Colors.red, size: 10),
                   if(card.data.cardEffects.effects.isEmpty) Icon(Icons.filter_vintage_outlined, color: Colors.red, size: 10),
