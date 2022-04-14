@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:statitikcard/services/News.dart';
 import 'package:statitikcard/services/Tools.dart';
@@ -45,14 +46,61 @@ class _CarouselNewsState extends State<CarouselNews> {
   @override
   Widget build(BuildContext context) {
     List<Widget> newsWidget = [];
+    RegExp exp = new RegExp(r'(?:(?:https?|ftp)://)[\w/\-?=%.]+\.[\w/\-?=%.]+');
     for(var newsItem in widget.news) {
+      List<InlineSpan> children = [];
+
+      int index=0;
+      Iterable<RegExpMatch> matches = exp.allMatches(newsItem.body);
+      if(matches.isEmpty) {
+        children.add(TextSpan(text: newsItem.body));
+      } else {
+        matches.forEach((match) {
+          if (index < match.start) {
+            children.add(
+              TextSpan(text: newsItem.body.substring(index, match.start))
+            );
+          }
+          var link = newsItem.body.substring(match.start, match.end);
+          children.add(
+            WidgetSpan(
+              child: Card(child: TextButton(
+                  child: Text(link),
+                  onPressed: () async {
+                    if (await canLaunch(link)) {
+                      await launch(link);
+                    }
+                  }
+                )
+              )
+            )
+          );
+          index = match.end;
+        });
+        if (index < newsItem.body.length) {
+          children.add(
+              TextSpan(text: newsItem.body.substring(index, newsItem.body.length))
+          );
+        }
+      }
+
       newsWidget.add(Container(
           width: MediaQuery.of(context).size.width,
           child: Column(
                 children: [
                   Center( child: Text(newsItem.title, style: Theme.of(context).textTheme.headline5)),
                   SizedBox(height: 20),
-                  SingleChildScrollView(child: Text(newsItem.body, textAlign: TextAlign.justify, softWrap: true, maxLines: 20, style: TextStyle(fontSize: 12))),
+                  SingleChildScrollView(
+                    child: RichText(
+                        textAlign: TextAlign.justify,
+                        softWrap: true,
+                        maxLines: 20,
+                        text: TextSpan(
+                            style: TextStyle(fontSize: 12),
+                            children: children
+                        )
+                    )
+                  ),
                   if(newsItem.images != null) Flexible(child: drawImagePress(context, newsItem.images!, 300)),
                 ]
             ),
