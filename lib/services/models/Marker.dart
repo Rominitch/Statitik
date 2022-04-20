@@ -84,8 +84,8 @@ class CardMarkers {
   }
 }
 
-Widget pokeMarker(Language l, CardMarker marker, {double? height=15.0}) {
-  if( Environment.instance.collection.cachedMarkers[marker] == null ) {
+Widget pokeMarker(Language l, CardMarker marker, {double? height=15.0, bool generate=false}) {
+  if( generate || Environment.instance.collection.cachedMarkers[marker] == null ) {
     Environment.instance.collection.cachedMarkers[marker] = marker.icon(l, height: height);
   }
   return Environment.instance.collection.cachedMarkers[marker]!;

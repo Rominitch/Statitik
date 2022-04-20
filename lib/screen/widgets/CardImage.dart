@@ -52,6 +52,8 @@ class CardImage extends StatefulWidget {
       ".":    "", // Remove .
       " ":    "", // Remove space
       "/":    "", // Remove /
+      "[":    "", // Remove [
+      "]":    "", // Remove ]
       // Kanji Convertion
       "地底探険隊": "CHITEITANKENTAI",
       "財団職員" : "ZAIDANSHOKUIN",
@@ -59,6 +61,7 @@ class CardImage extends StatefulWidget {
       "溶接工": "YOUSETSUKOU",
       "火打石": "HIDAISHI",
       "保護区": "HOGOKU",
+      "活力剤": "KATSURYOKUZAI",
       "基本":   "KIHON",
       "回収":   "KAISHUU",
       "博士":   "HAKASE",
@@ -88,6 +91,11 @@ class CardImage extends StatefulWidget {
       "決断":   "KETSUDAN",
       "職人":   "SHOKUNIN",
       "鉤爪":   "KOUTSUME",
+      "炸裂":   "SAKURETSU",
+      "闘魂":   "TOUKON",
+      "大海":   "TAIKAI",
+      "植物":   "SHOKUBUTSU",
+      "次元":   "JIGEN",
       "姉":     "NEE",
       "水":     "MIZU",
       "団":     "DAN",
@@ -109,6 +117,7 @@ class CardImage extends StatefulWidget {
       "喰":     "KU",
       "丘":     "OKA",
       "竜":     "RYUU",
+      "谷":     "TANI",
     };
     const kanaKit = KanaKit();
     var val = "";

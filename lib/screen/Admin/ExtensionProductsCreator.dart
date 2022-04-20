@@ -150,7 +150,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
   }
 
   Product createProduct(ProductKind kind, int boosterCount, [String name=""]) {
-    var image = "${_languageCode[widget.language.id]}_${widget.subExtension.icon}_${_productCode[kind.index]}$name";
+    var image = "${_languageCode[widget.language.id-1]}_${widget.subExtension.icon}_${_productCode[kind.index]}$name";
     var product = Product(0, widget.language, StatitikLocale.of(context).read('PROD_KIND_${kind.index}'),
                           image,
                           widget.subExtension.out,

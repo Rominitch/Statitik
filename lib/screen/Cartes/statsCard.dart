@@ -332,7 +332,7 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
               var item = s.countMarker.entries.elementAt(index);
               var r = item.value.toDouble();
               return Row(
-                children: [ Container(child: pokeMarker(widget.language, item.key, height: 15.0), alignment: Alignment.centerLeft, width: _spaceBefore),
+                children: [ Container(child: pokeMarker(widget.language, item.key, height: 15.0, generate: true), alignment: Alignment.centerLeft, width: _spaceBefore),
                   Expanded(child: LinearPercentIndicator(
                     lineHeight: 8.0,
                     percent: ( r / count).clamp(0.0, 1.0),
