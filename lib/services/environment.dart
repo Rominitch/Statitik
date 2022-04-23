@@ -83,7 +83,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.8.18';
+    final String version = '1.8.19';
 
     // State
     bool isInitialized          = false;

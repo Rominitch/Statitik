@@ -96,6 +96,7 @@ class CardImage extends StatefulWidget {
       "大海":   "TAIKAI",
       "植物":   "SHOKUBUTSU",
       "次元":   "JIGEN",
+      "日輪":   "NICHIRIN",
       "姉":     "NEE",
       "水":     "MIZU",
       "団":     "DAN",
@@ -118,6 +119,8 @@ class CardImage extends StatefulWidget {
       "丘":     "OKA",
       "竜":     "RYUU",
       "谷":     "TANI",
+      "虚":     "UTSU",
+      "海":     "UMI",
     };
     const kanaKit = KanaKit();
     var val = "";
