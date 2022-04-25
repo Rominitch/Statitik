@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/widgets/EnergyButton.dart';
 import 'package:statitikcard/screen/widgets/SliderWithText.dart';
 
-import 'package:statitikcard/services/models.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 class EnergySlider extends StatefulWidget {
   final EnergyValue energyValue;
@@ -24,7 +24,7 @@ class _EnergySliderState extends State<EnergySlider> {
     return Row(
       children: [
         EnergyButton(EBEnergyValueController(widget.energyValue, widget.defaultValue, (){ setState(() {});})),
-        if(widget.energyValue.energy != Type.Unknown )
+        if(widget.energyValue.energy != TypeCard.Unknown )
           Expanded(
             child: SliderInfo( SliderInfoController(() {
               return widget.energyValue.value.toDouble();

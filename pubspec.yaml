@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.5.2+195
+version: 1.8.20+241
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -45,6 +45,8 @@ dependencies:
   carousel_slider: ^4.0.0
   kana_kit: ^2.0.0
   flutter_easyloading: ^3.0.3
+  http: ^0.13.4
+  flutter_image_compress: ^1.1.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   #cupertino_icons: ^1.0.2
@@ -87,10 +89,27 @@ flutter:
     - assets/langue/france.png
     - assets/langue/usa.png
     - assets/langue/japon.png
-    - assets/carte/normal.png
-    - assets/carte/reverse.png
-    - assets/carte/halo.png
     - assets/carte/alternative.png
+    - assets/carte/set_standard.png
+    - assets/carte/set_parallel.png
+    - assets/carte/set_holo.png
+    - assets/carte/set_TG.png
+    - assets/carte/set_25.png
+    - assets/carte/set_energy.png
+    - assets/carte/set_other.png
+    - assets/design/DesignGold.png
+    - assets/design/DesignGoldBlack.png
+    - assets/design/DesignHoloDot.png
+    - assets/design/DesignHoloVertical.png
+    - assets/design/DesignNormal.png
+    - assets/design/DesignRainbow.png
+    - assets/design/DesignReverse0.png
+    - assets/design/DesignReverse1.png
+    - assets/design/DesignShiny.png
+    - assets/design/DesignHoloLight.png
+    - assets/design/DesignFullArt.png
+    - assets/design/DesignReversePoke.png
+    - assets/design/DesignK.png
     - assets/energie/plante.png
     - assets/energie/feu.png
     - assets/energie/electrique.png

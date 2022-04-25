@@ -5,9 +5,7 @@ import 'package:statitikcard/services/internationalization.dart';
 SimpleDialog createOptionDialog(BuildContext context, options) {
   return SimpleDialog(
     title: Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline3)),
-    //titlePadding: EdgeInsets.zero,
     contentPadding: EdgeInsets.symmetric(horizontal: 10),
-    //insetPadding: EdgeInsets.symmetric(horizontal: 0),
     children: [StatsOptions(options)]
   );
 }

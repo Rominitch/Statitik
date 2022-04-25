@@ -1,10 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/Rarity.dart';
-import 'package:statitikcard/services/internationalization.dart';
 
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/SerieType.dart';
+import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 
 class CustomButtonCheckController {
   List<ButtonCheck> _radios = [];
@@ -94,15 +99,16 @@ class _ButtonCheckState extends State<ButtonCheck> {
 }
 
 class MarkerButtonCheck extends ButtonCheck<CardMarker> {
-  MarkerButtonCheck(cardMarkers, value, {controller}) : super(cardMarkers, value, controller);
+  final Language l;
+  MarkerButtonCheck(this.l, cardMarkers, value, {controller}) : super(cardMarkers, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {
-    return pokeMarker(context, value, height: 15);
+    return pokeMarker(this.l, value, height: 15);
   }
 }
 
-class TypeButtonCheck extends ButtonCheck<Type> {
+class TypeButtonCheck extends ButtonCheck<TypeCard> {
   TypeButtonCheck(typesList, value, {controller}) : super(typesList, value, controller);
 
   @override
@@ -112,12 +118,13 @@ class TypeButtonCheck extends ButtonCheck<Type> {
 }
 
 class RarityButtonCheck extends ButtonCheck<Rarity> {
-  RarityButtonCheck(raritiesList, value, {controller}) : super(raritiesList, value, controller);
+  final Language l;
+  RarityButtonCheck(this.l, raritiesList, value, {controller}) : super(raritiesList, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {
     return Row(mainAxisAlignment: MainAxisAlignment.center,
-        children: getImageRarity(value, fontSize: 8.0, generate: true));
+        children: getImageRarity(value, l, fontSize: 8.0, generate: true));
   }
 }
 
@@ -138,5 +145,15 @@ class SerieTypeButtonCheck extends ButtonCheck<SerieType> {
   @override
   Widget makeWidget(BuildContext context) {
     return Text(StatitikLocale.of(context).read(seTypeString[value.index]));
+  }
+}
+
+class CardSetButtonCheck extends ButtonCheck<CardSet> {
+  final Language l;
+  CardSetButtonCheck(this.l, seList, value, {controller}) : super(seList, value, controller);
+
+  @override
+  Widget makeWidget(BuildContext context) {
+    return Text(value.names.name(l));
   }
 }

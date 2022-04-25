@@ -1,32 +1,46 @@
 import 'package:cached_network_image/cached_network_image.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:intl/intl.dart';
+
 import 'package:sprintf/sprintf.dart';
+
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/screen/widgets/ImageStoredLocally.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 
 import 'connection.dart';
 
-
-CachedNetworkImage drawCachedImage(folder, image, {double? width, double? height}){
-  return CachedNetworkImage(
-    imageUrl: '$adresseHTTPS/StatitikCard/$folder/$image.png',
-    errorWidget: (context, url, error) {
-      if(Environment.instance.user != null && Environment.instance.user!.admin) {
-        return Tooltip(
-            message: '$adresseHTTPS\r\n$image\r\n$url\r\n$error\r\n',
-            child: Icon(Icons.help_outline));
-      } else {
-        return Icon(Icons.help_outline);
-      }
-    },
-    placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
-    width: width,
-    height: height,
-  );
+Widget drawCachedImage(folder, image, {double? width, double? height, alternativeRendering}){
+  if(Environment.instance.storeImageLocally) {
+    return ImageStoredLocally(["images", folder], '$image',
+      [Uri.parse('$adresseHTTPS/StatitikCard/$folder/$image.webp'),
+       Uri.parse('$adresseHTTPS/StatitikCard/$folder/$image.png')],
+      width: width,
+      height: height,
+      alternativeRendering : alternativeRendering
+    );
+  } else {
+    return CachedNetworkImage(
+      imageUrl: '$adresseHTTPS/StatitikCard/$folder/$image',
+      errorWidget: (context, url, error) {
+        if(Environment.instance.isAdministrator()) {
+          return Tooltip(
+              message: '$adresseHTTPS\r\n$image\r\n$url\r\n$error\r\n',
+              child: alternativeRendering ?? Icon(Icons.help_outline));
+        } else {
+          return alternativeRendering ?? Icon(Icons.help_outline);
+        }
+      },
+      placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
+      width: width,
+      height: height,
+    );
+  }
 }
 
 Widget drawOut(BuildContext context, SubExtension se) {
@@ -90,4 +104,8 @@ Widget drawNothing(BuildContext context, String code) {
         SizedBox(height: 20),
         drawImagePress(context, 'Arrozard', 300),
       ]);
+}
+
+bool mask(int value, int mask) {
+  return value & mask == mask;
 }

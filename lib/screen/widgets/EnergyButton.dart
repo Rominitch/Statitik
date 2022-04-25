@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/CardEffect.dart';
-import 'package:statitikcard/services/models.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 abstract class EnergyButtonController {
-  void setValue(Type type);
+  void setValue(TypeCard type);
 
-  Type value();
+  TypeCard value();
 }
 
 class EBEffectController extends EnergyButtonController {
@@ -16,12 +16,12 @@ class EBEffectController extends EnergyButtonController {
   EBEffectController(this.effect, this.id);
 
   @override
-  void setValue(Type type) {
+  void setValue(TypeCard type) {
     effect.attack[id] = type;
   }
 
   @override
-  Type value() {
+  TypeCard value() {
     return effect.attack[id];
   }
 }
@@ -34,15 +34,15 @@ class EBEnergyValueController extends EnergyButtonController {
   EBEnergyValueController(this.energyValue, this.autoValue, this.afterEdit);
 
   @override
-  void setValue(Type type) {
-    if(energyValue.energy == Type.Unknown && energyValue.value == 0)
+  void setValue(TypeCard type) {
+    if(energyValue.energy == TypeCard.Unknown && energyValue.value == 0)
       energyValue.value = autoValue;
     energyValue.energy = type;
     afterEdit();
   }
 
   @override
-  Type value() {
+  TypeCard value() {
     return energyValue.energy;
   }
 }
@@ -57,7 +57,7 @@ class EnergyButton extends StatefulWidget {
 }
 
 class _EnergyButtonState extends State<EnergyButton> {
-  final List types = List.unmodifiable([Type.Unknown] + energies);
+  final List types = List.unmodifiable([TypeCard.Unknown] + energies);
 
   SimpleDialog energyPadDialog(BuildContext context) {
     return SimpleDialog(
@@ -91,7 +91,7 @@ class _EnergyButtonState extends State<EnergyButton> {
   Widget build(BuildContext context) {
     return Card(
       child: IconButton(onPressed: (){
-        showDialog<Type>(
+        showDialog<TypeCard>(
           context: context,
           builder: (BuildContext context) {
               return energyPadDialog(context);

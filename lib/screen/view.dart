@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/screen/widgets/CardSelector.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/services/Draw/BoosterDraw.dart';
+import 'package:statitikcard/services/Draw/SessionDraw.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 Widget createLanguage(Language l, BuildContext context, Widget Function(BuildContext) press)
 {
@@ -89,11 +93,10 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
     child: TextButton(
       child: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            (bd.subExtension != null) ? bd.subExtension!.image(hSize: iconSize) : Icon(Icons.add_to_photos),
-            SizedBox(height: 6.0),
-            Text('${bd.id}'),
+            Expanded(child: (bd.subExtension != null) ? bd.subExtension!.image(hSize: iconSize) : Icon(Icons.add_to_photos)),
+            Text(bd.id.toString()),
         ]),
       ),
       onPressed: () => press(context),
@@ -134,162 +137,33 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
   );
 }
 
-class PokemonCard extends StatefulWidget {
-  final int                  idCard;
-  final PokemonCardExtension card;
-  final BoosterDraw          boosterDraw;
-  final Function             refresh;
-  final bool                 readOnly;
 
-  PokemonCard({required this.idCard, required this.card, required this.boosterDraw, required this.refresh, required this.readOnly});
 
-  @override
-  _PokemonCardState createState() => _PokemonCardState();
-}
-
-class _PokemonCardState extends State<PokemonCard> {
-  late List<Widget> icons;
-
-  @override
-  void initState() {
-    icons =
-    [
-      if(widget.card.isValid())
-        Row( mainAxisAlignment: MainAxisAlignment.center,
-            children: [widget.card.imageType()] + widget.card.imageRarity()),
-      if(widget.card.isValid()) SizedBox(height: 6.0),
-    ];
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    List<CodeDraw> cardValues = widget.boosterDraw.cardDrawing!.draw[widget.idCard];
-    var cardValue = cardValues[0];
-    int nbCard = 0;
-    cardValues.forEach((card) { nbCard += cardValue.count(); });
-    Function update = () {
-      setState(() {});
-      widget.refresh();
-    };
-
-    return Padding(
-      padding: const EdgeInsets.all(2.0),
-      child: TextButton(
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: icons+[
-                if( nbCard > 1)
-                  Text('${widget.boosterDraw.nameCard(widget.idCard)} ($nbCard)')
-                else
-                  Text('${widget.boosterDraw.nameCard(widget.idCard)}')
-              ]),
-          style: TextButton.styleFrom(
-            backgroundColor: cardValue.color(),
-            padding: const EdgeInsets.all(2.0)
-          ),
-          onLongPress: () {
-            // Show more info if many rendering of more cards
-            if( widget.card.hasAnotherRendering() || cardValues.length > 1 ) {
-              setState(() {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.idCard, update, false, widget.readOnly); }
-                );
-                widget.refresh();
-              });
-            }
-          },
-          onPressed: widget.readOnly ? null : () {
-            setState(() {
-              // WARNING: default press is always on first
-              widget.boosterDraw.toggleCard(widget.boosterDraw.cardDrawing!.draw[widget.idCard], widget.card.defaultMode());
-              widget.refresh();
-            });
-          }
-      ),
-    );
-  }
-}
-
-class EnergyButton extends StatefulWidget {
-  final BoosterDraw boosterDraw;
-  final Type type;
-  final Function refresh;
-  final bool readOnly;
-
-  EnergyButton({required this.type, required this.boosterDraw, required this.refresh, required this.readOnly});
-
-  @override
-  _EnergyButtonState createState() => _EnergyButtonState();
-}
-
-class _EnergyButtonState extends State<EnergyButton> {
-
-  @override
-  void initState() {
-    super.initState();
-
-    widget.boosterDraw.onEnergyChanged.stream.listen( (bool) {
-      if (!mounted) return;
-      setState(() {
-        widget.refresh();
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Function update = () {
-      setState(() {
-        widget.boosterDraw.onEnergyChanged.add(true);
-      });
-      widget.refresh();
-    };
-
-    CodeDraw code = widget.boosterDraw.energiesBin[widget.type.index];
-    return Container(
-        constraints: BoxConstraints(
-          maxWidth: 55.0,
-        ),
-        padding: EdgeInsets.all(2.0),
-        child: TextButton(
-          style: TextButton.styleFrom(
-            backgroundColor: code.color(),
-          ),
-          child: energyImage(widget.type),
-          onPressed: () {
-            setState(() {
-              widget.boosterDraw.toggleCard([code], Mode.Normal);
-              widget.boosterDraw.onEnergyChanged.add(true);
-            });
-          },
-          onLongPress: () {
-            setState(() {
-              showDialog(
-                  context: context,
-                  builder: (BuildContext context) { return CardSelector(widget.boosterDraw, widget.type.index, update, true, widget.readOnly); }
-              ).whenComplete(()  {
-                setState(() {
-                  widget.boosterDraw.onEnergyChanged.add(true);
-                  widget.refresh();
-                });
-              });
-            });
-          },
-        ),
-    );
-  }
-}
-
-Widget signInButton(String nameId, CredentialMode mode, Function(String?) press, BuildContext context) {
+Widget signInButton(String nameId, CredentialMode mode, Function([String?]) press, BuildContext context) {
   return  Card(
+    color: Colors.grey.shade600,
     child: TextButton(
         onPressed: () {
           try {
             // Login
-            Environment.instance.login(mode, context, press);
+            Environment.instance.login(mode, context,
+              afterLogOrError: ([String? messageError]) {
+                // Try to restore PokeSpace if exists
+                if(Environment.instance.user != null) {
+                  EasyLoading.show();
+                  Environment.instance.readPokeSpace().then((value) {
+                  }).whenComplete(() {
+                    EasyLoading.dismiss();
+
+                    // Show error and refresh
+                    press(messageError);
+                  });
+                }
+                else
+                  // Show error and refresh
+                  press(messageError);
+              }
+            );
           }
           catch (e) {
 
@@ -301,7 +175,6 @@ Widget signInButton(String nameId, CredentialMode mode, Function(String?) press,
             StatitikLocale.of(context).read(nameId),
             style: TextStyle(
               fontSize: 20,
-              color: Colors.grey,
             ),
           ),
         )
@@ -368,14 +241,6 @@ RichText textBullet(text) {
       ],
     ),
   );
-}
-
-String categoryName(BuildContext context, int id) {
-  try {
-    return (id == -1) ? StatitikLocale.of(context).read('S_B9') : StatitikLocale.of(context).read('CAT_$id');
-  } catch (e) {
-    return StatitikLocale.of(context).read('error');
-  }
 }
 
 List<Widget> createRegionsWidget(context, regionController, Language language) {

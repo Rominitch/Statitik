@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:statitikcard/services/CardEffect.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/CardTitleData.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/MultiLanguageString.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 
 void main() {
   test('CardDescription.decrypted', () {
     Language fr = Language(id: 1, image: "");
     Language en = Language(id: 2, image: "");
     Language jp = Language(id: 3, image: "");
-    Type t5 = Type.Psy;
+    TypeCard t5 = TypeCard.Psy;
 
     Map<int, DescriptionData> map =
     {

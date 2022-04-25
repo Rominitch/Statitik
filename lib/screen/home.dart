@@ -1,14 +1,18 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:statitikcard/screen/Admin/AdminPage.dart';
 
 import 'package:statitikcard/screen/Cartes/CardStatistic.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/options.dart';
-import 'package:statitikcard/screen/tirage/draw_connexion.dart';
+import 'package:statitikcard/screen/PokeSpace/PokeSpaceConnexion.dart';
 import 'package:statitikcard/screen/widgets/NewsDialog.dart';
 import 'package:statitikcard/services/News.dart';
 import 'package:statitikcard/services/connection.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';
 
@@ -24,13 +28,6 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-
-    _widgetOptions = [
-      DrawHomePage(),
-      StatsPage(),
-      CardStatisticPage(),
-      OptionsPage(),
-    ];
 
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
       SharedPreferences.getInstance().then((prefs) {
@@ -60,15 +57,24 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    _widgetOptions = [
+      DrawHomePage(),
+      StatsPage(),
+      CardStatisticPage(),
+      OptionsPage(),
+      if(Environment.instance.isAdministrator())
+        AdminPage(),
+    ];
+
     return Scaffold(
       body: SafeArea(
         child: Center(
-          child: _widgetOptions.elementAt(_selectedIndex),
+          child: _widgetOptions.elementAt(min(_widgetOptions.length, _selectedIndex)),
         ),
       ),
       bottomNavigationBar:
        BottomNavigationBar(
-          backgroundColor: useDebug ? Color.fromARGB(255,50, 0, 0) : Colors.grey[900],
+          backgroundColor: useDebug ? Color.fromARGB(255,50, 0, 0) : Environment.instance.isMaintenance ? Colors.cyan[900] : Colors.grey[900],
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.add_chart),
@@ -86,6 +92,11 @@ class _HomeState extends State<Home> {
               icon: Icon(Icons.settings),
               label: StatitikLocale.of(context).read('H_T2'),
             ),
+            if(Environment.instance.isAdministrator())
+              BottomNavigationBarItem(
+                icon: Icon(Icons.admin_panel_settings_outlined),
+                label: StatitikLocale.of(context).read('H_T4'),
+              ),
           ],
           currentIndex: _selectedIndex,
           selectedItemColor: Colors.amber[800],

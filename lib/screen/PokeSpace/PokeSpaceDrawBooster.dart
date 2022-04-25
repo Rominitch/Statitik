@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+
 import 'package:statitikcard/screen/view.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorBoosterDraw.dart';
+import 'package:statitikcard/screen/widgets/PokemonCard.dart';
+import 'package:statitikcard/services/Draw/BoosterDraw.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
+
 
 class BoosterPage extends StatefulWidget {
   final BoosterDraw boosterDraw;
@@ -16,8 +22,9 @@ class BoosterPage extends StatefulWidget {
 }
 
 class _BoosterPageState extends State<BoosterPage> {
-  late List<Widget> widgets;
-  late List<Widget> widgetEnergies;
+  List<Widget> widgets        = [];
+  List<Widget> widgetEnergies = [];
+  List<Widget> widgetNoNumber = [];
 
   @override
   void initState() {
@@ -30,17 +37,28 @@ class _BoosterPageState extends State<BoosterPage> {
     // Build one time all widgets
     Function refresh = () => setState( () {} );
     widgets = [];
-    int id=0;
+    int idInBooster=0;
     for(var cards in widget.boosterDraw.subExtension!.seCards.cards) {
-      widgets.add( PokemonCard(card: cards[0], idCard: id, boosterDraw: widget.boosterDraw, refresh:refresh, readOnly: widget.readOnly) );
-      id += 1;
+      var selector = CardSelectorBoosterDraw(widget.boosterDraw, cards[0], widget.boosterDraw.cardDrawing!.drawCards[idInBooster][0]);
+      widgets.add( PokemonCard(selector, refresh:refresh, readOnly: widget.readOnly) );
+      idInBooster += 1;
     }
 
     widgetEnergies = [];
-    for(Type type in energies) {
-      widgetEnergies.add(EnergyButton(
-          type: type, boosterDraw: widget.boosterDraw, refresh: refresh, readOnly: widget.readOnly ));
-    }
+    idInBooster=0;
+    widget.boosterDraw.subExtension!.seCards.energyCard.forEach((card) {
+      var selector = CardSelectorBoosterDraw(widget.boosterDraw, card, widget.boosterDraw.cardDrawing!.drawEnergies[idInBooster]);
+      widgetEnergies.add( PokemonCard(selector, refresh:refresh, readOnly: widget.readOnly) );
+      idInBooster += 1;
+    });
+
+    widgetNoNumber = [];
+    idInBooster=0;
+    widget.boosterDraw.subExtension!.seCards.noNumberedCard.forEach((card) {
+      var selector = CardSelectorBoosterDraw(widget.boosterDraw, card, widget.boosterDraw.cardDrawing!.drawNoNumber[idInBooster]);
+      widgetNoNumber.add( PokemonCard(selector, refresh:refresh, readOnly: widget.readOnly) );
+      idInBooster += 1;
+    });
   }
 
   @override
@@ -56,7 +74,7 @@ class _BoosterPageState extends State<BoosterPage> {
           break;
         case Validator.ErrorReverse:
           buttonColor = Colors.deepOrange;
-          buttonLabel = Row(children:[Icon(Icons.warning_amber_outlined), Image(image: AssetImage('assets/carte/${modeImgs[Mode.Reverse]}.png'), height: 30.0)]);
+          buttonLabel = Row(children:[Icon(Icons.warning_amber_outlined), Image(image: AssetImage('assets/carte/set_parallel.png'), height: 30.0)]);
           break;
         case Validator.ErrorTooManyGood:
           buttonColor = Colors.deepOrange;
@@ -103,14 +121,12 @@ class _BoosterPageState extends State<BoosterPage> {
          ListView(
             children: [
               if(widget.boosterDraw.subExtension!.seCards.hasBoosterEnergy())
-                Container(
-                  height: 60.0,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    primary: false,
-                    children: widgetEnergies,
-
-                  ),
+                GridView.count(
+                  crossAxisCount: 7,
+                  primary: false,
+                  shrinkWrap: true,
+                  childAspectRatio: 1.2,
+                  children: widgetEnergies,
                 ),
               CheckboxListTile(
                 title: Text(StatitikLocale.of(context).read('TB_B0')),
@@ -142,6 +158,15 @@ class _BoosterPageState extends State<BoosterPage> {
                 childAspectRatio: 1.15,
                 children: widgets,
               ),
+              if(widgetNoNumber.isNotEmpty)
+                GridView.count(
+                  crossAxisCount: 5,
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  primary: false,
+                  childAspectRatio: 1.15,
+                  children: widgetNoNumber,
+                ),
             ],
           ),
     );

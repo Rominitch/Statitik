@@ -6,12 +6,17 @@ import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/stats/statView.dart';
 import 'package:statitikcard/screen/stats/statsExtensionWidget.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/Extension.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/SerieType.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 enum StateStatsExtension {
   Cards,
@@ -34,22 +39,23 @@ class StatsConfiguration {
     sData.stats     = null;
     sData.cardStats.stats = CardStats();
 
+    var product = sData.pr != null ? sData.pr!.product : null;
     // Get data from DB
     Environment env = Environment.instance;
-    env.getStats(statsData.subExt!, sData.product, sData.category).then( (stats) {
+    env.getStats(statsData.subExt!, product, sData.category).then( (stats) {
       sData.stats = stats;
       // Compute Cards stats
       int idCard=0;
       sData.subExt!.seCards.cards.forEach((listCardSE) {
         listCardSE.forEach((cardSE) {
-          sData.cardStats.stats!.add(sData.subExt!, cardSE, idCard);
+          sData.cardStats.stats!.add(sData.subExt!, cardSE, CardIdentifier.from([0, idCard, 0]));
           idCard +=1;
         });
       });
 
       // Get user info after
       if(env.user != null) {
-        env.getStats(sData.subExt!, sData.product, sData.category, env.user!.idDB).then( (ustats) {
+        env.getStats(sData.subExt!, product, sData.category, env.user!.idDB).then( (ustats) {
           if(ustats.nbBoosters > 0) {
             sData.userStats = ustats;
             refresh();
@@ -61,7 +67,6 @@ class StatsConfiguration {
   }
 }
 
-
 class StatsPage extends StatefulWidget {
   final StatsConfiguration info = StatsConfiguration();
 
@@ -71,10 +76,17 @@ class StatsPage extends StatefulWidget {
 
 class _StatsPageState extends State<StatsPage> {
   late CustomRadioController menuBarController = CustomRadioController(onChange: (value) { afterChangeMenu(value); });
-  PageController _pageController = PageController(keepPage: false);
+  late PageController _pageController;
 
   @override
   void initState() {
+    // Restore good page when return or select 0
+    var idPage = 0;
+    if(widget.info.statsData.subExt != null) {
+      idPage = widget.info.se.indexOf(widget.info.statsData.subExt!);
+    }
+    _pageController = PageController(initialPage: idPage, keepPage: false);
+
     menuBarController.currentValue = StateStatsExtension.Cards;
     super.initState();
   }
@@ -89,8 +101,8 @@ class _StatsPageState extends State<StatsPage> {
     Navigator.popUntil(context, ModalRoute.withName('/'));
     setState(() {
       // Set old filter
-      widget.info.statsData.category = -1;
-      widget.info.statsData.product = null;
+      widget.info.statsData.category = null;
+      widget.info.statsData.pr       = null;
       // Change selection
       widget.info.statsData.language = language;
       widget.info.statsData.subExt = subExt;
@@ -119,7 +131,6 @@ class _StatsPageState extends State<StatsPage> {
         Expanded(child: CustomRadio(value: StateStatsExtension.GlobalStats, controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_1')))),
         if(widget.info.statsData.subExt != null && widget.info.statsData.subExt!.type == SerieType.Normal)
           Expanded(child: CustomRadio(value: StateStatsExtension.Draw,      controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_2')))),
-        //Expanded(child: CustomRadio(value: StateStatsExtension.Product,      controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_3')))),
     ]);
   }
 
@@ -156,7 +167,7 @@ class _StatsPageState extends State<StatsPage> {
       Card(
         margin: EdgeInsets.all(2.0),
         color: Colors.grey.shade800,
-        child: Container(height:145,
+        child: Container(height:160,
           padding: const EdgeInsets.all(6.0),
           child: Column(children: [
             drawImagePress(context, image, 40.0),
@@ -202,6 +213,8 @@ class _StatsPageState extends State<StatsPage> {
             buildExplain(context, "Growl",   "S_TOOL_T1", "S_TOOL_B1"),
             buildExplain(context, "Voltorb", "S_TOOL_T2", "S_TOOL_B2"),
             buildExplain(context, "news",    "S_TOOL_T3", "S_TOOL_B3"),
+            if(Environment.instance.isAdministrator())
+              buildExplain(context, "Voltorb",    "", ""),
           ]
         )
       ]
@@ -251,14 +264,7 @@ class _StatsPageState extends State<StatsPage> {
           itemBuilder: (context, position) {
             return (widget.info.se.isEmpty) ?
               startPage(context) :
-              SingleChildScrollView(child:
-                Column(
-                  children: [
-                    menuBar(context),
-                    StatsExtensionWidget(widget.info)
-                  ],
-                )
-            );
+              StatsExtensionWidget(widget.info, _pageController);
           }
         )
     );

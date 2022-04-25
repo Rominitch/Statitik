@@ -4,13 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:statitikcard/screen/stats/statView.dart';
 import 'package:statitikcard/screen/widgets/screenPrint.dart';
-import 'package:statitikcard/services/Rarity.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
-import 'package:statitikcard/services/product.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
+import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/models/product.dart';
 
 class UserReport extends StatefulWidget {
   final StatsData data;
@@ -37,22 +37,22 @@ class _UserReportState extends State<UserReport> {
     compute = true;
     finalData.stats    = widget.data.userStats;
     finalData.language = widget.data.language;
-    finalData.product  = widget.data.product;
+    finalData.pr  = widget.data.pr;
     finalData.category = widget.data.category;
     finalData.subExt   = widget.data.subExt;
 
-    List<Map<int,PokemonCardExtension>> cardSort = List.generate(Rarity.values.length, (id) => {});
+    List<Map<int,PokemonCardExtension>> cardSort = List.generate(Environment.instance.collection.rarities.length, (id) => {});
 
     bestCards.clear();
 
     if(finalData.stats != null) {
-
+      final Language l = finalData.subExt!.extension.language;
       // Just keep best card for report
       for (int idCardNumber = 0; idCardNumber < finalData.stats!.count.length; idCardNumber += 1) {
         for (int idCard = 0; idCard < finalData.stats!.count[idCardNumber].length; idCard += 1) {
           var card = finalData.subExt!.seCards.cards[idCardNumber][idCard];
           if (finalData.stats!.count[idCardNumber][idCard] > 0 && card.isForReport() ) {
-            cardSort[card.rarity.index][idCardNumber] = card;
+            cardSort[card.rarity.id][idCardNumber] = card;
           }
         }
       }
@@ -63,8 +63,8 @@ class _UserReportState extends State<UserReport> {
             break;
 
           if(finalData.subExt!.seCards.cards.isNotEmpty) {
-            String realName = c.value.data.titleOfCard(finalData.subExt!.extension.language);
-            Widget? markerInfo = c.value.showImportantMarker(context, height: 15);
+            String realName = c.value.data.titleOfCard(l);
+            Widget? markerInfo = c.value.showImportantMarker(l, height: 15);
             bestCards.add(Card(
               color: Colors.grey[600],
               child: Padding(
@@ -76,7 +76,7 @@ class _UserReportState extends State<UserReport> {
                     [
                       Container(child: Text(finalData.subExt!.seCards.numberOfCard(c.key)), width: 40),
                       Container(child: Row(children: [c.value.imageType()] +
-                          c.value.imageRarity()), width: 80),
+                          c.value.imageRarity(l)), width: 80),
                       SizedBox(width: 6.0),
                       Flexible(child: Text(realName, style: TextStyle(fontSize: realName.length > 10 ? 10 : 13))),
                       if(markerInfo != null) markerInfo,
@@ -93,7 +93,7 @@ class _UserReportState extends State<UserReport> {
                   children:
                   [
                     Row(mainAxisAlignment: MainAxisAlignment.center,
-                        children: [c.value.imageType()] + c.value.imageRarity()),
+                        children: [c.value.imageType()] + c.value.imageRarity(l)),
                     SizedBox(height: 6.0),
                     Text(c.key.toString()),
                   ]),
@@ -103,17 +103,18 @@ class _UserReportState extends State<UserReport> {
       });
 
       products.clear();
-      if (finalData.product != null) {
-        products.add(ProductCard(finalData.product!, true));
+      if (finalData.pr != null) {
+        products.add(ProductWidget(finalData.pr!, true));
         compute=false;
       } else { // All products or cat
-        readProductsForUser(finalData.language!, finalData.subExt!, finalData.category).then((aps) {
-          for (final ps in aps) {
-            for (Product p in ps) {
-              if( products.length < 5 && p.countProduct() > 0)
-                products.add(ProductCard(p, true));
+        filterProducts(finalData.language!, finalData.subExt!, finalData.category,
+            onlyLocalUser: true, withUserCount: true, onlyWithUser: true).then((aps) {
+          aps.forEach((key, ps) {
+            for (ProductRequested pr in ps) {
+              if( products.length < 5 && pr.count > 0)
+                products.add(ProductWidget(pr, true));
             }
-          }
+          });
           setState(() {compute=false;});
         });
       }
@@ -160,7 +161,7 @@ class _UserReportState extends State<UserReport> {
             if(!compute) IconButton(
                 icon: Icon(Icons.share_outlined),
                 onPressed: () {
-                  print.shareReport(context, finalData.subExt!.seCode);
+                  print.shareReport(context, finalData.subExt!.seCode[0]);
                 }
             ),
           ],

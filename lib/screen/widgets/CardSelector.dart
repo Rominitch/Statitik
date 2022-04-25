@@ -1,81 +1,85 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/Rarity.dart';
-import 'package:statitikcard/services/cardDrawData.dart';
+
+import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
+
+abstract class GenericCardSelector {
+
+  GenericCardSelector();
+
+  SubExtension         subExtension();
+  PokemonCardExtension cardExtension();
+  CodeDraw             codeDraw();
+
+  void increase(int idSet);
+  void decrease(int idSet);
+  void setOnly(int idSet);
+
+  Widget? advancedWidget(BuildContext context, Function refresh);
+
+  Color backgroundColor();
+  Widget cardWidget();
+
+  void toggle();
+}
 
 class CardSelector extends StatefulWidget {
-  final BoosterDraw boosterDraw;
-  final int      id;
-  final Function refresh;
-  final bool     isEnergy;
+  final GenericCardSelector cardSelector;
+
+  final Function? refresh;
   final bool     readOnly;
 
-  CardSelector(this.boosterDraw, this.id, this.refresh, this.isEnergy, this.readOnly);
+  CardSelector(this.cardSelector, {this.refresh, this.readOnly=false});
 
   @override
   _CardSelectorState createState() => _CardSelectorState();
 }
 
 class _CardSelectorState extends State<CardSelector> {
-  late List<Widget> cardModes;
+  List<Widget> cardModes = [];
 
   @override
   void initState() {
-
-    if( widget.isEnergy  ) {
-      CodeDraw code = widget.boosterDraw.energiesBin[widget.id];
-      cardModes =
-      [
-        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
-        IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
-      ];
-    } else {
-      // WARNING: always work on first (migration)
-      var seCard = widget.boosterDraw.subExtension!.seCards;
-      var card = seCard.cards[widget.id][0];
-      bool forceEnable = widget.boosterDraw.abnormal || card.rarity == Rarity.Unknown;
-
-      CodeDraw code = widget.boosterDraw.cardDrawing!.draw[widget.id][0];
-      if(widget.boosterDraw.subExtension!.extension.language.isJapanese())
-        cardModes =
-        [
-          IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
-          if( forceEnable || (seCard.hasAlternativeSet() && card.rarity.index <= Rarity.JR.index)) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
-        ];
-      else
-        cardModes =
-        [
-          if( forceEnable || card.rarity != Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Normal, refresh: widget.refresh, readOnly: widget.readOnly),
-          if( forceEnable || card.rarity.index <= Rarity.HoloRare.index) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Reverse, refresh: widget.refresh, readOnly: widget.readOnly),
-          if( forceEnable || card.rarity == Rarity.HoloRare) IconCard(boosterDraw: widget.boosterDraw, code: code, mode: Mode.Halo, refresh: widget.refresh, readOnly: widget.readOnly),
-        ];
-    }
+    // Create for all set each widget
+    int idSet=0;
+    cardModes.clear();
+    widget.cardSelector.cardExtension().sets.forEach((set) {
+      cardModes.add(IconCard(widget.cardSelector, idSet, set, refresh: widget.refresh, readOnly: widget.readOnly));
+      idSet += 1;
+    });
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget? advanced = widget.cardSelector.advancedWidget(context, () {setState(() {})} );
     return SimpleDialog(
-        title: Text(StatitikLocale.of(context).read('V_B4')),
-        children: [Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: cardModes
-        ),]
+      title: Text(StatitikLocale.of(context).read('V_B4')),
+      children: [
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: cardModes
+        ),
+        if(advanced != null) advanced
+      ]
     );
   }
 }
 
 class IconCard extends StatefulWidget {
-  final BoosterDraw boosterDraw;
-  final CodeDraw code;
-  final Function refresh;
-  final Mode mode;
-  final bool readOnly;
+  final GenericCardSelector cardSelector;
+  final int           setId;
+  final CardSet       set;
 
-  IconCard({required this.boosterDraw, required this.code, required this.mode, required this.refresh, required this.readOnly});
+  final Function?     refresh;
+  final bool          readOnly;
+
+  IconCard(this.cardSelector, this.setId, this.set, {required this.refresh, required this.readOnly});
 
   @override
   _IconCardState createState() => _IconCardState();
@@ -86,25 +90,27 @@ class _IconCardState extends State<IconCard> {
 
   @override
   Widget build(BuildContext context) {
-    int count = widget.code.getCountFrom(widget.mode);
+    int count = widget.cardSelector.codeDraw().getCountFrom(widget.setId);
     return  Card(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Card(
-                color: count > 0 ? modeColors[widget.mode] : background,
+                color: count > 0 ? widget.set.color : background,
                 child: TextButton(
                   child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      children: [Image(image: AssetImage('assets/carte/${modeImgs[widget.mode]}.png'), width: 75.0),
+                      children: [widget.set.imageWidget(width: 75.0),
                         SizedBox(height: 6.0),
-                        Text(StatitikLocale.of(context).read(modeNames[widget.mode])),
+                        Text(widget.set.names.name(widget.cardSelector.subExtension().extension.language)),
                       ]),
                   style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
                   onPressed: widget.readOnly ? null : () {
-                    widget.boosterDraw.setOtherRendering(widget.code, widget.mode);
+                    widget.cardSelector.setOnly(widget.setId);
+
                     Navigator.of(context).pop();
-                    widget.refresh();
+                    if(widget.refresh!=null)
+                      widget.refresh!();
                   },
                 ),
               ),
@@ -114,9 +120,10 @@ class _IconCardState extends State<IconCard> {
                   ElevatedButton(
                       onPressed: widget.readOnly ? null : () {
                         setState(() {
-                          widget.boosterDraw.increase(widget.code, widget.mode);
+                          widget.cardSelector.increase(widget.setId);
                         });
-                        widget.refresh();
+                        if(widget.refresh!=null)
+                          widget.refresh!();
                       },
                       style: ElevatedButton.styleFrom(
                         primary: background, // background
@@ -131,9 +138,10 @@ class _IconCardState extends State<IconCard> {
                   ElevatedButton(
                       onPressed: widget.readOnly ? null : () {
                         setState(() {
-                          widget.boosterDraw.decrease(widget.code, widget.mode);
+                          widget.cardSelector.decrease(widget.setId);
                         });
-                        widget.refresh();
+                        if(widget.refresh!=null)
+                          widget.refresh!();
                       },
                       style: ElevatedButton.styleFrom(
                         primary: background, // background

@@ -3,10 +3,12 @@ import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/ButtonCheck.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/SliderWithText.dart';
-import 'package:statitikcard/services/Rarity.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/models/models.dart';
+import 'package:statitikcard/services/PokemonCardData.dart';
 
 class CardFilterSelector extends StatefulWidget {
   final CardResults result;
@@ -76,22 +78,22 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
     super.initState();
 
     // Build static card marker
-    CardMarker.values.forEach((element) {
-      if (element != CardMarker.Nothing && !longMarker.contains(element))
-        widgetMarkers.add(MarkerButtonCheck(widget.result.filter, element, controller: refreshController,));
+    Environment.instance.collection.markers.values.forEach((element) {
+      if (!Environment.instance.collection.longMarkers.contains(element))
+        widgetMarkers.add(MarkerButtonCheck(widget.language, widget.result.filter, element, controller: refreshController));
     });
-    longMarker.forEach((element) {
-      longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.result.filter, element, controller: refreshController)));
+    Environment.instance.collection.longMarkers.forEach((element) {
+      longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.language, widget.result.filter, element, controller: refreshController)));
     });
 
     orderedType.forEach((type) {
-      if( type != Type.Unknown )
+      if( type != TypeCard.Unknown )
         typesWidget.add(TypeButtonCheck(widget.result.types, type, controller: refreshController));
     });
 
-    var rarities = widget.language.isWorld() ? worldRarity : japanRarity;
+    var rarities = widget.language.isWorld() ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity;
     rarities.forEach((rarity) {
-      raritiesWidget.add(RarityButtonCheck(widget.result.rarities, rarity, controller: refreshController));
+      raritiesWidget.add(RarityButtonCheck(widget.language, widget.result.rarities, rarity, controller: refreshController));
     });
 
     energies.forEach((element) {

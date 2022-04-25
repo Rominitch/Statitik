@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/screen/view.dart';
-import 'package:statitikcard/services/Tools.dart';
-import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/product.dart';
+import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
+import 'package:statitikcard/services/models/product.dart';
+import 'package:statitikcard/services/models/ProductCategory.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/Tools.dart';
 
 enum ProductPageMode {
-  SingleSelection,
-  MultiSelection,
+  AllSelection,
+  UserSelection,
 }
 
 class ProductPage extends StatefulWidget {
   final Language language;
   final SubExtension subExt;
-  final Function afterSelected;
+  final Function(BuildContext, Language, ProductRequested?, ProductCategory?) afterSelected;
   final ProductPageMode mode;
 
   ProductPage({ required this.mode, required this.language, required this.subExt, required this.afterSelected });
@@ -27,8 +30,8 @@ class _ProductPageState extends State<ProductPage> {
   List<Widget>? widgetProd;
   bool productFound = false;
 
-  bool isMulti() {
-    return (widget.mode == ProductPageMode.MultiSelection);
+  bool userSelection() {
+    return (widget.mode == ProductPageMode.UserSelection);
   }
 
   void setupProducts(BuildContext context) {
@@ -36,44 +39,42 @@ class _ProductPageState extends State<ProductPage> {
       widgetProd!.clear();
     }
 
-    readProducts(widget.language, widget.subExt, null, isMulti() ? widget.subExt : null ).then((products) {
+    filterProducts(widget.language, widget.subExt, null, withUserCount: userSelection(), onlyWithUser: userSelection() ).then((products) {
       widgetProd = [];
       productFound = false;
 
       // All products
-      if( isMulti() ) {
+      if( userSelection() ) {
         widgetProd!.add(
-            Card(
-              child: TextButton(child: Row(
-                  children: [
-                    Text(StatitikLocale.of(context).read('S_B9'), style: Theme
-                        .of(context)
-                        .textTheme
-                        .headline5),
-                    Expanded(child: SizedBox(width: 10)),
-                    Text(StatitikLocale.of(context).read('TP_B2'),
-                        style: TextStyle(fontSize: 9)),
-                    Icon(Icons.arrow_right_outlined)
-                  ]),
-                onPressed: () {
-                  widget.afterSelected(context, widget.language, null, -1);
-                },
-              ),
-            ));
+          Card(
+            child: TextButton(child: Row(
+                children: [
+                  Text(StatitikLocale.of(context).read('S_B9'), style: Theme
+                      .of(context)
+                      .textTheme
+                      .headline5),
+                  Expanded(child: SizedBox(width: 10)),
+                  Text(StatitikLocale.of(context).read('TP_B2'),
+                      style: TextStyle(fontSize: 9)),
+                  Icon(Icons.arrow_right_outlined)
+                ]),
+              onPressed: () {
+                widget.afterSelected(context, widget.language, null, null);
+              },
+            ),
+          ));
       }
 
       // For each product
-      int count = 1;
-      for (var catProd in products) {
-        int idCategory = count;
+      products.forEach((category, catProd) {
         List<Widget> productCard = [];
 
-        for (Product prod in catProd) {
+        for (ProductRequested pr in catProd) {
           productFound = true;
 
-          String nameProduct = prod.name;
-          if(isMulti()) {
-            int countP = prod.countProduct();
+          String nameProduct = pr.product.name;
+          if(userSelection()) {
+            int countP = pr.count;
             // Stop and don't show
             if(countP == 0)
               continue;
@@ -81,19 +82,19 @@ class _ProductPageState extends State<ProductPage> {
             nameProduct += ' (${countP.toString()})';
           }
 
-          bool productImage = prod.hasImages() && Environment.instance.showPressProductImages;
+          bool productImage = pr.product.hasImages() && Environment.instance.showPressProductImages;
           productCard.add(Card(
-              color: prod.color,
+              color: pr.color,
               child: TextButton(
                 style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      if(productImage) prod.image(),
+                      if(productImage) pr.product.image(),
                       if(productImage) Text(
                           nameProduct, textAlign: TextAlign.center,
                           softWrap: true,
-                          style: TextStyle(fontSize: ((prod.name.length > 15)
+                          style: TextStyle(fontSize: ((pr.product.name.length > 15)
                               ? 8
                               : 13)))
                       else
@@ -103,40 +104,33 @@ class _ProductPageState extends State<ProductPage> {
                     ]
                 ),
                 onPressed: () {
-                  widget.afterSelected(context, widget.language, prod, -1);
+                  widget.afterSelected(context, widget.language, pr, null);
                 },
               )
           ));
         }
 
         if (productCard.isNotEmpty) {
-          assert(1 <= idCategory && idCategory <= Environment.instance.collection.category);
-          if(isMulti()) {
+          if(userSelection()) {
             widgetProd!.add(
                 Card(
                   child: TextButton(
                     child: Row(
                     children: [
-                      Text(categoryName(context, idCategory), style: Theme
-                      .of(context)
-                      .textTheme
-                      .headline5),
+                      Text(category.name.name(widget.language), style: Theme.of(context).textTheme.headline5),
                       Expanded(child: SizedBox(width: 10)),
                       Text(StatitikLocale.of(context).read('TP_B2'), style: TextStyle(fontSize: 9)),
                       Icon(Icons.arrow_right_outlined)
                     ]),
                     onPressed: () {
-                      widget.afterSelected(context, widget.language, null, idCategory);
+                      widget.afterSelected(context, widget.language, null, category);
                     },
                   ),
 
                 ));
           } else {
             widgetProd!.add(
-                Text(categoryName(context, idCategory), style: Theme
-                    .of(context)
-                    .textTheme
-                    .headline5));
+                Text(category.name.name(widget.language), style: Theme.of(context).textTheme.headline5));
           }
           widgetProd!.add(GridView.count(
             crossAxisCount: 3,
@@ -146,8 +140,7 @@ class _ProductPageState extends State<ProductPage> {
             shrinkWrap: true,
           ));
         }
-        count += 1;
-      }
+      });
 
       setState(() {});
     });

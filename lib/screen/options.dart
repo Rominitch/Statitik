@@ -1,11 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:sprintf/sprintf.dart';
+
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/NewsDialog.dart';
 import 'package:statitikcard/services/News.dart';
 import 'package:statitikcard/services/Tools.dart';
-import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -19,6 +26,31 @@ class _OptionsPageState extends State<OptionsPage> {
   String? message;
   late CustomRadioController langueController = CustomRadioController(onChange: (value) { refreshLocale(value); });
 
+  StreamController sizeControler = StreamController();
+  double? moSize;
+
+  @override
+  void initState() {
+    sizeControler.stream.listen((event) async {
+      int size = await Environment.instance.storage.storageSize();
+      moSize = size.toDouble() / 1024.0 / 1024.0;
+      if(!sizeControler.isClosed) {
+        setState(() {});
+      }
+    });
+
+    sizeControler.add(0);
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    sizeControler.close();
+
+    super.dispose();
+  }
+
   void refreshLocale(String language) {
     setState((){
       StatitikLocale.of(context).setLocale(Locale(language));
@@ -29,7 +61,7 @@ class _OptionsPageState extends State<OptionsPage> {
   Widget build(BuildContext context) {
     langueController.currentValue = StatitikLocale.of(context).locale.languageCode;
 
-    var refreshWithError = (String? message) {
+    var refreshWithError = ([String? message]) {
       setState((){
         this.message = message;
       });
@@ -105,37 +137,36 @@ class _OptionsPageState extends State<OptionsPage> {
               children: [
                 Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline5)),
                 toolBarLanguage(),
-                if(Environment.instance.user!.admin)
-                  Row( children: [
-                    Text(StatitikLocale.of(context).read('O_B2')),
-                    Checkbox(value: useDebug,
-                      onChanged: (newValue) {
-                        useDebug = newValue!;
-                        EasyLoading.show();
-                        Environment.instance.restoreAdminData().then((value){
-                          setState(() {});
+                Row( children: [
+                  Checkbox(value: Environment.instance.storeImageLocally,
+                    onChanged: (newValue) {
+                      Environment.instance.storeImageLocally = newValue!;
+                      EasyLoading.show();
+
+                      SharedPreferences.getInstance().then((prefs) {
+                        prefs.setBool("storeImageLocaly",
+                            Environment.instance.storeImageLocally);
+                      }).whenComplete(() {
+                        Environment.instance.storage.clean().then((value) {
+                          setState(() {
+                            moSize = 0.0;
+                          });
                           EasyLoading.dismiss();
                         });
-                      }
+                      });
+                    }
                     ),
-                    Expanded(
-                      child: TextButton(
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.grey, // background
-                        ),
-                        onPressed: () {
-                          EasyLoading.show();
-                          Environment.instance.restoreAdminData().then((value) {
-                            EasyLoading.dismiss();
-                          });
-                        },
-                        child: Text(StatitikLocale.of(context).read('O_B1'))
-                      ),
-                    ),
-                  ]
-                  ),
-              ],
-            ),
+                    Column(
+                      children: [
+                        Text(StatitikLocale.of(context).read('O_B10'), softWrap: true),
+                        Text(StatitikLocale.of(context).read('O_B11'), softWrap: true, textAlign: TextAlign.left, style: TextStyle(fontSize: 10)),
+                        if(Environment.instance.storeImageLocally)
+                          (moSize != null) ? Text(sprintf(StatitikLocale.of(context).read('O_B12'), [moSize]), textAlign: TextAlign.left, style: TextStyle(fontSize: 10)) : CircularProgressIndicator(color: Colors.orange[300]),
+                    ]),
+                  ],
+                ),
+              ]
+            )
           )),
           Expanded(child: Center(child: drawImagePress(context, "PikaOption", 200.0))),
           Row(

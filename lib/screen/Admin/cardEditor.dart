@@ -3,48 +3,46 @@ import 'package:flutter/material.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
+
+class CardEditorOptions {
+  int tabIndex = 0;
+
+  CardEditorOptions();
+}
 
 class CardEditor extends StatefulWidget {
-  final int                  id;
+  final CardIdentifier       id;
   final int                  idAlternative = 0;
   final SubExtension         se;
   final PokemonCardExtension card;
   final bool                 isWorldCard;
-  final int                  listId;
+  final CardEditorOptions    options;
 
-  CardEditor(this.card, this.isWorldCard, this.se, this.id, this.listId);
-
-  dynamic listOfCard() {
-    if( listId == 1)
-      return se.seCards.energyCard;
-    else if( listId == 2)
-      return se.seCards.noNumberedCard;
-    else
-      return se.seCards.cards;
-  }
+  CardEditor(this.isWorldCard, SubExtension se, CardIdentifier id, [options]) :
+    this.se   = se,
+    this.id   = id,
+    this.card = se.cardFromId(id),
+    this.options = options ?? CardEditorOptions();
 
   String titleCard() {
+    var cardId = id.numberId;
     var l = Language(id: 1, image: "");
-    if( listId == 0 )
+    if( id.listId == 0 )
       return sprintf("%s %s",
-          [ se.seCards.numberOfCard(id),
-            se.seCards.titleOfCard(l, id, idAlternative)
+          [ se.seCards.numberOfCard(cardId),
+            se.seCards.titleOfCard(l, cardId, idAlternative)
           ]);
     else {
-      List<PokemonCardExtension> currentCards = listOfCard();
       return sprintf("%s %s",
-          [ currentCards[id].numberOfCard(id),
-            currentCards[id].data.titleOfCard(l)
+          [ card.numberOfCard(cardId),
+            card.data.titleOfCard(l)
           ]);
     }
-  }
-
-  PokemonCardExtension nextCard(int nextId) {
-    var cardInfo = listOfCard()[nextId];
-    return listId == 0 ? cardInfo[0] : cardInfo;
   }
 
   @override
@@ -56,7 +54,10 @@ class _CardEditorState extends State<CardEditor> {
   Widget build(BuildContext context) {
     String title = widget.titleCard();
 
-    return Scaffold(
+    var nextCardId = widget.se.seCards.nextId(widget.id);
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child:Scaffold(
         appBar: AppBar(
           title: Container(
             child: Text(sprintf("%s: %s", [ StatitikLocale.of(context).read('CE_T0'), title]),
@@ -66,30 +67,25 @@ class _CardEditorState extends State<CardEditor> {
             ),
           ),
           actions: [
-            if(widget.id+1 < widget.listOfCard().length)
+            if(nextCardId != null)
               Card(
-                  color: Colors.grey[800],
-                  child: TextButton(
-                    child: Text(StatitikLocale.of(context).read('NCE_B6')),
-                    onPressed: (){
-                      int nextId = widget.id+1;
-                      Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => CardEditor(widget.nextCard(nextId), widget.isWorldCard, widget.se, nextId, widget.listId)),
-                      );
-                    },
-                  )
+                color: Colors.grey[800],
+                child: TextButton(
+                  child: Text(StatitikLocale.of(context).read('NCE_B6')),
+                  onPressed: (){
+                    Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => CardEditor(widget.isWorldCard, widget.se, nextCardId, widget.options)),
+                    );
+                  },
+                )
               ),
           ],
         ),
-        body: SingleChildScrollView(
+        body: Padding(
           padding: const EdgeInsets.all(2.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              CardCreator.editor(widget.se.extension.language, widget.se, widget.card, widget.id, title, widget.isWorldCard),
-            ]
-          )
+          child: CardCreator.editor(widget.se.extension.language, widget.se, widget.card, widget.id, title, widget.isWorldCard, widget.options),
         )
+      )
     );
   }
 }

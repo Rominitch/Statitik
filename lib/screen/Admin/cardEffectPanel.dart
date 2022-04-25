@@ -8,8 +8,10 @@ import 'package:statitikcard/services/CardEffect.dart';
 
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
-import 'package:statitikcard/services/pokemonCard.dart';
+import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/MultiLanguageString.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 
 class CardEffectsPanel extends StatefulWidget {
   final Language             l;
@@ -77,7 +79,7 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
   void initState() {
     // Fill with 5 elements
     while(widget.effect.attack.length < 5) {
-      widget.effect.attack.add(Type.Unknown);
+      widget.effect.attack.add(TypeCard.Unknown);
     }
 
     super.initState();

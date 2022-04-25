@@ -1,10 +1,10 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/environment.dart';
 
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models.dart';
+import 'package:statitikcard/services/models/Language.dart';
 
 class ListSelector extends StatefulWidget {
   final String titleCode;
@@ -78,7 +78,7 @@ class _ListSelectorState extends State<ListSelector> {
                     },
                   ),
                 ),
-                if( widget.addNewData != null && Environment.instance.user != null && Environment.instance.user!.admin)
+                if( widget.addNewData != null && Environment.instance.isAdministrator())
                   Card( child: IconButton(
                       icon: Icon(Icons.add_circle_rounded),
                       onPressed: () {
