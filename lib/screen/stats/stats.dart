@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/stats/statView.dart';
 import 'package:statitikcard/screen/stats/statsExtensionWidget.dart';
+import 'package:statitikcard/screen/tutorial/TutorialCaption.dart';
 import 'package:statitikcard/screen/view.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
@@ -247,6 +248,18 @@ class _StatsPageState extends State<StatsPage> {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension, addMode: false)));
               },
             ),
+          actions: widget.info.se.isEmpty ? [] :
+          [
+            IconButton(
+              icon: Icon(Icons.info_outline),
+              visualDensity: VisualDensity.comfortable,
+              splashColor: Colors.orangeAccent,
+              tooltip: StatitikLocale.of(context).read('S_TOOL_T4'),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => TutorialCaption()));
+              },
+            ),
+          ],
         ),
         body: PageView.builder(
           controller: _pageController,

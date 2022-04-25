@@ -144,7 +144,7 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
                 setState(() {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ListSelector('CA_T3', widget.parent.l, Environment.instance.collection.effects)),
+                    MaterialPageRoute(builder: (context) => ListSelector(Text(StatitikLocale.of(context).read('CA_T3'), style: Theme.of(context).textTheme.headline3), widget.parent.l, Environment.instance.collection.effects)),
                   ).then((value) {
                     setState(() {
                       if(value != null)
@@ -195,7 +195,7 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
 
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ListSelector('CA_T4', widget.parent.l, finalEffectList)),
+                    MaterialPageRoute(builder: (context) => ListSelector(Text(StatitikLocale.of(context).read('CA_T4'), style: Theme.of(context).textTheme.headline3), widget.parent.l, finalEffectList)),
                   ).then((value) {
                     setState(() {
                       if(value != null) {

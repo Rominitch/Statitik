@@ -1,10 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/News.dart';
 import 'package:statitikcard/services/Tools.dart';
 
@@ -66,11 +65,7 @@ class _CarouselNewsState extends State<CarouselNews> {
             WidgetSpan(
               child: Card(child: TextButton(
                   child: Text(link),
-                  onPressed: () async {
-                    if (await canLaunch(link)) {
-                      await launch(link);
-                    }
-                  }
+                  onPressed: () => Environment.launchURL(link)
                 )
               )
             )

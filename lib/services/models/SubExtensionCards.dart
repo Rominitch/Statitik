@@ -26,7 +26,7 @@ class SubExtensionCards {
   static const int _hasAlternativeSet = 2;
   static const int _notInsideRandom   = 4;
 
-  static const int version = 8;
+  static const int version = 9;
 
   String tcgImage(idCard) {
     if(codeNaming.isNotEmpty) {
@@ -59,8 +59,10 @@ class SubExtensionCards {
 
   PokemonCardExtension extractCard(int currentVersion, parser, Map cardCollection, Map allSets, Map rarities) {
     try {
-      if(currentVersion == 8)
+      if(currentVersion == 9)
         return PokemonCardExtension.fromBytes(parser, cardCollection, allSets, rarities);
+      else if(currentVersion == 8)
+        return PokemonCardExtension.fromBytesV8(parser, cardCollection, allSets, rarities);
       else if(currentVersion == 7)
         return PokemonCardExtension.fromBytesV7(parser, cardCollection, allSets, rarities);
       else if(currentVersion == 6)

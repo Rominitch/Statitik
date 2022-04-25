@@ -28,6 +28,7 @@ import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/Draw/SessionDraw.dart';
 import 'package:statitikcard/services/TimeReport.dart';
 import 'package:statitikcard/services/Tools.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class StatitikException implements Exception {
     String msg;
@@ -83,7 +84,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.8.20';
+    final String version = '1.9.0';
 
     // State
     bool isInitialized          = false;
@@ -423,14 +424,17 @@ class Environment
     }
 
     void showDisclaimer(context) {
-        showDialog(
-            context: context,
-            builder: (_) => new AlertDialog(
-                title: new Text(StatitikLocale.of(context).read('disclaimer_T0')),
-                content: SingleChildScrollView( child:Text( nameApp + StatitikLocale.of(context).read('disclaimer'),
-                textAlign: TextAlign.justify),
-            ), )
-        );
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text(StatitikLocale.of(context).read('disclaimer_T0'), style: Theme.of(context).textTheme.headline3),
+          content: SingleChildScrollView(
+            child: Text( nameApp + StatitikLocale.of(context).read('disclaimer'),
+              textAlign: TextAlign.justify
+            ),
+          )
+        )
+      );
     }
 
     bool isLogged() {
@@ -718,6 +722,12 @@ class Environment
         catch(e){
             printOutput("Database error $e");
             return false;
+        }
+    }
+
+    static void launchURL(url) async {
+        if (await canLaunchUrl(url)) {
+            await launchUrl(url);
         }
     }
 }

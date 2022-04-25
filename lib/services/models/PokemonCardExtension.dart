@@ -180,6 +180,43 @@ class PokemonCardExtension {
     assert(images.isNotEmpty && images[0].isNotEmpty);
   }
 
+  PokemonCardExtension.fromBytesV8(ByteParser parser, Map collection, Map allSets, Map allRarities) :
+        data   = collection[parser.extractInt16()],
+        rarity = Environment.instance.collection.unknownRarity!
+  {
+    try {
+      rarity = allRarities[parser.extractInt8()];
+    }
+    catch(e, callStack){
+      printOutput("Card info unknown: $e\n$callStack");
+    }
+
+    var nbImagesSet = parser.extractInt8();
+    for(int id=0; id < nbImagesSet; id +=1) {
+      List<ImageDesign> imageSets = [];
+      var nbImagesDesign = parser.extractInt8();
+      for(int id=0; id < nbImagesDesign; id +=1) {
+        var image = ImageDesign();
+        image.image  = parser.decodeString16();
+        image.jpDBId = parser.extractInt32();
+        image.design = CardDesign.fromBytesV1(parser);
+        imageSets.add(image);
+      }
+      images.add(imageSets);
+    }
+
+    specialID = parser.decodeString16();
+
+    var nbSets = parser.extractInt8();
+    for(int i = 0; i < nbSets; i +=1){
+      sets.add(allSets[parser.extractInt8()]);
+    }
+    isSecret = parser.extractInt8() == 1;
+
+    assert(images.length == sets.length);
+    assert(images.isNotEmpty && images[0].isNotEmpty);
+  }
+
   PokemonCardExtension.fromBytes(ByteParser parser, Map collection, Map allSets, Map allRarities) :
         data   = collection[parser.extractInt16()],
         rarity = Environment.instance.collection.unknownRarity!

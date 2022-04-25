@@ -7,13 +7,13 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Language.dart';
 
 class ListSelector extends StatefulWidget {
-  final String titleCode;
+  final Widget   title;
   final Language language;
   final SplayTreeMap dataMap;
   final bool multiLangue;
   final Function(String, int)? addNewData;
 
-  ListSelector(this.titleCode, this.language, nonOrderedDataMap, {this.multiLangue = false, this.addNewData}) :
+  ListSelector(this.title, this.language, nonOrderedDataMap, {this.multiLangue = false, this.addNewData}) :
     dataMap = SplayTreeMap.from(nonOrderedDataMap,
             (key1, key2) {
               assert(nonOrderedDataMap[key1] != null, "Impossible to find: $key1");
@@ -56,7 +56,7 @@ class _ListSelectorState extends State<ListSelector> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text( StatitikLocale.of(context).read(widget.titleCode), style: Theme.of(context).textTheme.headline3, ),
+        title: widget.title,
       ),
       body: SafeArea(
         child: Column(
