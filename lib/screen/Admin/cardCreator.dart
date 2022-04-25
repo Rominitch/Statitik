@@ -757,10 +757,13 @@ class _CardImageCreatorState extends State<CardImageCreator> {
     CardDesign(Design.Holographic, ShiningPattern.Alternative2),
     CardDesign(Design.Reverse),
     CardDesign(Design.Reverse, ShiningPattern.Alternative),
+    CardDesign(Design.Reverse, ShiningPattern.Alternative2),
+    CardDesign(Design.FullArt),
     CardDesign(Design.ArcEnCiel),
     CardDesign(Design.Gold),
     CardDesign(Design.GoldBlack),
     CardDesign(Design.Shiny),
+    CardDesign(Design.K),
   ];
 
   void onDesignChanged(value) {

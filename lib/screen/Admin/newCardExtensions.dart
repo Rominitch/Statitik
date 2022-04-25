@@ -33,6 +33,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   PokemonCardExtension data = PokemonCardExtension.creation(PokemonCardData([], Level.Base, TypeCard.Plante, CardMarkers.from([])), Environment.instance.collection.rarities[Collection.idEmptyRarity]!, Environment.instance.collection.sets);
   int idList = 0;
   bool _showQuickCreator = true;
+  CardEditorOptions options = CardEditorOptions();
 
   final List<int> secretRarities = const [21, 22, 23, 24, 25, 26, 27, 36, 37];
 
@@ -207,7 +208,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CardEditor(widget.language.isWorld(), widget.se, idCard)),
+            MaterialPageRoute(builder: (context) => CardEditor(widget.language.isWorld(), widget.se, idCard, options)),
           ).then((value) {
             setState(() {
               updateCardList(localListId);

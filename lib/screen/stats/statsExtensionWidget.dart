@@ -51,9 +51,9 @@ class _StatsExtensionWidgetState extends State<StatsExtensionWidget> with Ticker
     } else {
       var maxTab = hasStats() ? 3 : 2;
       tabController = TabController(length: maxTab,
-          vsync: this,
-          initialIndex: min(max(widget.info.options.tabViewMode, 0), maxTab-1),
-          animationDuration: Duration.zero);
+        vsync: this,
+        initialIndex: min(max(widget.info.options.tabViewMode, 0), maxTab-1),
+        animationDuration: Duration.zero);
       tabController.addListener(onChangedTab);
       return Column(
         children: [
