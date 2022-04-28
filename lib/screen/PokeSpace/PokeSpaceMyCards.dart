@@ -133,7 +133,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
               buildLine(StatitikLocale.of(context).read('PSMC_B2'), Colors.yellowAccent, counter.statsCards.countSecret, subExtension.stats.countSecret),
           ];
           var validSets = subExtension.stats.allSets;
-          validSets.removeWhere((element) => !element.isStandard);
+          validSets.removeWhere((element) => element.isSystem);
 
           return Card(
               margin: EdgeInsets.all(2.0),

@@ -424,7 +424,7 @@ class CodeDraw {
     var countSet = _countBySetByImage.iterator;
     card.sets.forEach((set) {
       if(countSet.moveNext()) {
-        if(!set.isStandard)
+        if(set.isParallel)
           alternativeSet += countSet.current.reduce((value, currentItem) => value + currentItem);
       }
     });

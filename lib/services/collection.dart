@@ -184,8 +184,7 @@ class Collection
       var setResult = await connection.query("SELECT * FROM `Set`");
       for (var row in setResult) {
         try {
-          var isStandard = row[0] < 2;
-          sets[row[0]] = CardSet(MultiLanguageString([row[1] ?? "", row[2] ?? "", row[3] ?? ""]), Color(row[4]), row[5], isStandard);
+          sets[row[0]] = CardSet(MultiLanguageString([row[1] ?? "", row[2] ?? "", row[3] ?? ""]), Color(row[4]), row[5], mask(row[6], CardSetConfiguration.System.index), mask(row[6], CardSetConfiguration.Parallel.index));
         } catch(e) {
           printOutput("Bad Set: ${row[0]} $e");
         }

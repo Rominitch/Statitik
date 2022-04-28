@@ -173,8 +173,8 @@ class StatsBooster {
     if( edc.drawCards.length > subExt.seCards.cards.length)
       throw StatitikException('Corruption des données de tirages');
 
-    var computeStatsBySet = (cardInfo, CodeDraw code) {
-      for(int setId=0; setId < cardInfo.sets.lenght; setId += 1) {
+    var computeStatsBySet = (PokemonCardExtension cardInfo, CodeDraw code) {
+      for(int setId=0; setId < cardInfo.sets.length; setId += 1) {
         var countSet = code.countBySet(setId);
         var setCard = cardInfo.sets[setId];
         if(countBySet.containsKey(setCard))

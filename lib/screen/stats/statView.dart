@@ -239,6 +239,7 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
   }
 
   Map<Rarity, double> computeProbabilities(StatsExtension statsExtension, List<CardSet> setSelected) {
+    assert(widget.data.stats != null);
     Map<Rarity, double> info = {};
     int     countZero = 0;
     int?    minRarity;

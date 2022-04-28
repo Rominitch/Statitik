@@ -68,8 +68,8 @@ void main() {
     var r  = Rarity.fromText(0, MultiLanguageString(["S0","S0","S0"]), Colors.green);
     var defaultCard = PokemonCardData.empty();
     var sets = [
-      CardSet(MultiLanguageString(["S0","S0","S0"]), Colors.green, "normal"),
-      CardSet(MultiLanguageString(["S1","S1","S1"]), Colors.blue, "normal"),
+      CardSet(MultiLanguageString(["S0","S0","S0"]), Colors.green, "normal", false, false),
+      CardSet(MultiLanguageString(["S1","S1","S1"]), Colors.blue, "normal", false, false),
     ];
     var card = [
       PokemonCardExtension.empty(defaultCard, r),
@@ -99,7 +99,7 @@ void main() {
     edc.drawCards[0][1].setCount(1, 0);
     edc.drawCards[2][0].setCount(4, 0);
     edc.drawCards[2][0].setCount(0, 1);
-    
+
     edc.drawEnergies[0].setCount(3, 0);
     edc.drawEnergies[0].setCount(2, 1);
     edc.drawEnergies[2].setCount(1, 0);
