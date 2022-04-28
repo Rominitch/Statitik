@@ -20,18 +20,18 @@ class ExtensionDrawCards {
     drawCards = List<List<CodeDraw>>.generate(allCardsSE.length, (index) {
       var cardForNumber = allCardsSE[index];
       return List<CodeDraw>.generate(cardForNumber.length, (subIndex) {
-        return CodeDraw.fromSet(cardForNumber[subIndex].sets.length);
+        return CodeDraw.fromPokeCardExtension(cardForNumber[subIndex]);
       });
     });
 
     var energiesCards = subExtension.seCards.energyCard;
     drawEnergies = List<CodeDraw>.generate(energiesCards.length, (index) {
-      return CodeDraw.fromSet(energiesCards[index].sets.length);
+      return CodeDraw.fromPokeCardExtension(energiesCards[index]);
     });
 
     var noNumberCards = subExtension.seCards.noNumberedCard;
     drawNoNumber = List<CodeDraw>.generate(noNumberCards.length, (index) {
-      return CodeDraw.fromSet(noNumberCards[index].sets.length);
+      return CodeDraw.fromPokeCardExtension(noNumberCards[index]);
     });
   }
 
@@ -60,7 +60,7 @@ class ExtensionDrawCards {
       var code = parser.extractInt8();
       if(!noNumberCardList.moveNext())
         throw StatitikException("Unknown Card");
-      drawNoNumber.add(CodeDraw.fromSet(noNumberCardList.current.sets.length, code));
+      drawNoNumber.add(CodeDraw.fromPokeCardExtension(noNumberCardList.current, code));
     }
     return parser;
   }
@@ -82,7 +82,7 @@ class ExtensionDrawCards {
         var code = parser.extractInt8();
         if(!cardEx.moveNext())
           throw StatitikException("Unknown Card");
-        cardCode.add(CodeDraw.fromSet(cardEx.current.sets.length, code));
+        cardCode.add(CodeDraw.fromPokeCardExtension(cardEx.current, code));
       }
       assert(cardCode.isNotEmpty);
       drawCards.add(cardCode);
@@ -95,7 +95,7 @@ class ExtensionDrawCards {
       var code = parser.extractInt8();
       if(!energiesList.moveNext())
         throw StatitikException("Unknown Card");
-      drawEnergies.add(CodeDraw.fromSet(energiesList.current.sets.length, code));
+      drawEnergies.add(CodeDraw.fromPokeCardExtension(energiesList.current, code));
     }
     return parser;
   }
@@ -207,9 +207,31 @@ class ExtensionDrawCards {
 }
 
 class CodeDraw {
-  List<int> countBySet;
+  List<List<int>> _countBySetByImage;
 
-  CodeDraw.fromSet(int nbSets, [int? code]) : countBySet = List<int>.filled(nbSets, 0)
+  CodeDraw.emptyCopy(CodeDraw copy) :
+    _countBySetByImage = []
+  {
+    copy._countBySetByImage.forEach((images) {
+      assert(images.isNotEmpty);
+      _countBySetByImage.add(List<int>.generate(images.length, (id) => 0));
+    });
+  }
+
+  CodeDraw.fromPokeCardExtension(PokemonCardExtension card, [int? code]) :
+    _countBySetByImage = []
+  {
+    assert(card.sets.length == card.images.length);
+    card.images.forEach((images) {
+      _countBySetByImage.add(List<int>.generate(max(1, images.length), (id) => 0));
+    });
+
+    if(code != null) {
+      setCode(code);
+    }
+  }
+  CodeDraw.fromSet(int nbSets, [int? code]) :
+    _countBySetByImage = List<List<int>>.generate(nbSets, (value) => List<int>.generate(1, (id) => 0))
   {
     if(code != null) {
       setCode(code);
@@ -217,74 +239,126 @@ class CodeDraw {
   }
 
   CodeDraw.fromOld([countNormal = 0, countReverse = 0, countHalo = 0]) :
-    countBySet = List<int>.filled(2, 0)
+    _countBySetByImage = List<List<int>>.generate(2, (index) => List<int>.generate(1, (index) => 0))
   {
-    countBySet[0] = countNormal + countHalo;
-    countBySet[1] = countReverse;
+    _countBySetByImage[0][0] = countNormal + countHalo;
+    _countBySetByImage[1][0] = countReverse;
 
-    assert(countBySet[0] <= 7);
-    assert(countBySet[1] <= 7);
+    assert(_countBySetByImage[0][0] <= 7);
+    assert(_countBySetByImage[1][0] <= 7);
   }
 
   CodeDraw.fromOldCode(int nbSets, int code) :
-        countBySet = List<int>.filled(nbSets, 0)
+    _countBySetByImage = List<List<int>>.generate(nbSets, (id) => List<int>.generate(1, (id) =>0))
   {
-    countBySet[0] = code & 0x07 + (code>>6) & 0x07;
-    if(countBySet.length >= 2)
-      countBySet[1] = (code>>3) & 0x07;
+    _countBySetByImage[0][0] = code & 0x07 + (code>>6) & 0x07;
+    if(_countBySetByImage.length >= 2)
+      _countBySetByImage[1][0] = (code>>3) & 0x07;
+  }
+
+  CodeDraw.fromBytesV1(ByteParser parser) :
+    _countBySetByImage = List<List<int>>.generate(parser.extractInt8(), (id) => List<int>.generate(1, (id) =>0))
+  {
+    for(int id=0; id < _countBySetByImage.length; id+=1) {
+      _countBySetByImage[id][0] = parser.extractInt8();
+    }
   }
 
   CodeDraw.fromBytes(ByteParser parser) :
-    countBySet = List<int>.filled(parser.extractInt8(), 0)
+    _countBySetByImage = List<List<int>>.generate(parser.extractInt8(), (id) => [])
   {
-    for(int id=0; id < countBySet.length; id+=1) {
-      countBySet[id] = parser.extractInt8();
+    for(int id=0; id < _countBySetByImage.length; id+=1) {
+      var nbImages = parser.extractInt8();
+      for(int idImage=0; idImage < nbImages; idImage+=1) {
+        _countBySetByImage[id].add(parser.extractInt8());
+      }
     }
   }
 
   List<int> toBytes() {
-    List<int> bytes = ByteEncoder.encodeInt8(countBySet.length);
-    countBySet.forEach((code) {
-      bytes += ByteEncoder.encodeInt8(code);
+    List<int> bytes = ByteEncoder.encodeInt8(_countBySetByImage.length);
+    _countBySetByImage.forEach((List<int> countByImage) {
+      bytes += ByteEncoder.encodeInt8(countByImage.length);
+      countByImage.forEach((count) {
+        assert(count < 256);
+        bytes += ByteEncoder.encodeInt8(count);
+      });
     });
     return bytes;
   }
 
+  Iterator get iterator {
+    return _countBySetByImage.iterator;
+  }
+
+  void setCount(int newCount, int idSet, [int idImage=0]) {
+    assert(newCount >= 0);
+    assert(idSet < _countBySetByImage.length);
+    assert(idImage < _countBySetByImage[idSet].length);
+
+    _countBySetByImage[idSet][idImage] = newCount;
+  }
+
   void setCode(int code) {
-    assert(countBySet.isNotEmpty);
+    assert(_countBySetByImage.isNotEmpty);
 
     int mul = 0;
-    for(int i=0; i < countBySet.length; i +=1)
+    for(int i=0; i < _countBySetByImage.length; i +=1)
     {
-      countBySet[i] = (code>>mul) & 0x07;
+      _countBySetByImage[i].first = (code>>mul) & 0x07;
       mul += 3;
     }
     assert((code>>mul) == 0); // Missing set
   }
 
   void copy(CodeDraw other) {
-    countBySet = List<int>.from(other.countBySet);
+    _countBySetByImage = [];
+    other._countBySetByImage.forEach((element) {
+      _countBySetByImage.add(List<int>.from(element));
+    });
   }
 
   void reset() {
-    countBySet = List<int>.filled(countBySet.length, 0);
+    for(int i=0; i < _countBySetByImage.length; i +=1)
+    {
+      _countBySetByImage[i] = List<int>.generate(_countBySetByImage[i].length, (id) =>0);
+    }
   }
 
-  int getCountFrom(int set) {
-    return countBySet[set];
+  int getCountFrom(int set, [int image=0]) {
+    return _countBySetByImage[set][image];
   }
 
   int toInt() {
-    int code = countBySet.first;
+    int code = _countBySetByImage.first.first;
     int mul = 3;
-    countBySet.skip(1).forEach((element) {
-      code += element << mul;
+    _countBySetByImage.skip(1).forEach((element) {
+      code += element.first << mul;
       mul += 3;
     });
     return code;
   }
+
+  int countBySet(int idSet) {
+    int c = 0;
+    if(idSet < _countBySetByImage.length) {
+      if(_countBySetByImage[idSet].isNotEmpty)
+        c = _countBySetByImage[idSet].reduce((value, currentItem) => value + currentItem);
+    }
+    return c;
+  }
+
+  int nbSetsRegistred() {
+    return _countBySetByImage.length;
+  }
+
   int count() {
-    return countBySet.reduce((value, element) => value + element);
+    int c = 0;
+    _countBySetByImage.forEach((countByImage) {
+      if(countByImage.isNotEmpty)
+        c += countByImage.reduce((value, currentItem) => value + currentItem);
+    });
+    return c;
   }
 
   bool isEmpty() {
@@ -292,42 +366,77 @@ class CodeDraw {
   }
 
   Color color(PokemonCardExtension card) {
-    assert( countBySet.length == card.sets.length, "CodeDraw.Color: size count != card : ${countBySet.length} == ${card.sets.length}" );
+    assert( _countBySetByImage.length == card.sets.length, "CodeDraw.Color: size count != card : ${_countBySetByImage.length} == ${card.sets.length}" );
     var setInfo = card.sets.reversed.iterator;
 
-    for(var element in countBySet.reversed) {
-      setInfo.moveNext();
-      if(element > 0)
-        return setInfo.current.color;
+    for(var element in _countBySetByImage.reversed) {
+      if(setInfo.moveNext()) {
+        var count = element.reduce((value, currentItem) => value + currentItem);
+        if (count > 0)
+          return setInfo.current.color;
+      }
     }
     return Colors.grey[900]!;
   }
 
-  void increase(int set, int limit) {
-    assert(0 <= set && set < countBySet.length);
-    countBySet[set] = min(countBySet[set] + 1, limit);
+  bool increase(int set, int limit, [int image=0]) {
+    assert(0 <= set && set < _countBySetByImage.length);
+    var v = _countBySetByImage[set][image] + 1;
+    var finalV = min(v, limit);
+    _countBySetByImage[set][image] = finalV;
+    return v != finalV;
   }
 
-  void decrease(int set) {
-    assert(0 <= set && set < countBySet.length);
-    countBySet[set] = max(countBySet[set] - 1, 0);
+  bool decrease(int set, [int image=0]) {
+    assert(0 <= set && set < _countBySetByImage.length);
+    var v = _countBySetByImage[set][image] - 1;
+    var finalV = max(v, 0);
+    _countBySetByImage[set][image] = finalV;
+    return v != finalV;
   }
 
   CodeDraw? add(CodeDraw cardCode, [int mulFactor=1]) {
     bool newResult=false;
-    var newCard = CodeDraw.fromSet(countBySet.length);
-    var it = cardCode.countBySet.iterator;
-    for(int id=0; id < countBySet.length; id += 1){
-      if(it.moveNext()) {
-        if(it.current > 0) {
-          newResult |= countBySet[id] == 0;
-          if(newResult)
-            newCard.countBySet[id] = 1;
-          countBySet[id] += it.current * mulFactor;
+    // Create copy for report of new card
+    var newCards = CodeDraw.emptyCopy(this);
+
+    var itByImage = cardCode._countBySetByImage.iterator;
+    for(int idSet=0; idSet < _countBySetByImage.length; idSet += 1){
+      if(itByImage.moveNext()) {
+        var it = itByImage.current.iterator;
+        for(int id=0; id < _countBySetByImage[idSet].length; id += 1){
+          if(it.moveNext()) {
+            if(it.current > 0) {
+              newResult |= _countBySetByImage[idSet][id] == 0;
+              if(newResult)
+                newCards._countBySetByImage[idSet][id] = 1;
+              _countBySetByImage[idSet][id] += it.current * mulFactor;
+            }
+          }
         }
       }
     }
-    return newResult ? newCard: null;
+    return newResult ? newCards: null;
+  }
+
+  int countAlternativeCard(PokemonCardExtension card) {
+    int alternativeSet = 0;
+    var countSet = _countBySetByImage.iterator;
+    card.sets.forEach((set) {
+      if(countSet.moveNext()) {
+        if(!set.isStandard)
+          alternativeSet += countSet.current.reduce((value, currentItem) => value + currentItem);
+      }
+    });
+    return alternativeSet;
+  }
+
+  List<int> allCounts() {
+    List<int> counts = List.generate(_countBySetByImage.length, (id) => 0);
+    for(int idSet=0; idSet < _countBySetByImage.length; idSet += 1) {
+      counts[idSet] = _countBySetByImage[idSet].reduce((value, currentItem) => value + currentItem);
+    }
+    return counts;
   }
 }
 

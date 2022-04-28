@@ -117,7 +117,6 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             CardImageCreator.computeJPCardID(widget.se, widget.card, widget.idCard, id);
         }
       }
-
     }
 
     listChooserController.currentValue = 0;
@@ -147,7 +146,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           var localIdImg = CardImageIdentifier(index, idImg);
           images.add(Card(
             child: TextButton(
-              child: element.design.iconFullDesign(height: iconSize),
+              child: element.cardDesign.iconFullDesign(height: iconSize),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -765,14 +764,14 @@ class _CardImageCreatorState extends State<CardImageCreator> {
   final jpCodeController    = TextEditingController();
 
 
-  void onDesignChanged(value) {
-    var art = widget.card.image(widget.idImage)!.design.art;
-    widget.card.image(widget.idImage)!.design = value;
-    widget.card.image(widget.idImage)!.design.art = art;
+  void onDesignChanged(selectedDesign) {
+    var art = widget.card.image(widget.idImage)!.cardDesign.art;
+    widget.card.image(widget.idImage)!.cardDesign.copyFrom(selectedDesign);
+    widget.card.image(widget.idImage)!.cardDesign.art = art;
   }
 
   void onArtChanged(value) {
-    widget.card.image(widget.idImage)!.design.art = value;
+    widget.card.image(widget.idImage)!.cardDesign.art = value;
   }
 
   @override
@@ -780,8 +779,11 @@ class _CardImageCreatorState extends State<CardImageCreator> {
     var imageDesign = widget.card.image(widget.idImage)!;
     imageController.text          = imageDesign.image;
     jpCodeController.text         = imageDesign.jpDBId.toString();
-    designController.currentValue = imageDesign.design;
-    artController.currentValue    = imageDesign.design.art;
+    // WARNING: don't copy by ref
+    var newCardDesign = CardDesign();
+    newCardDesign.copyFrom(imageDesign.cardDesign);
+    designController.currentValue = newCardDesign;
+    artController.currentValue    = imageDesign.cardDesign.art;
 
     super.initState();
   }

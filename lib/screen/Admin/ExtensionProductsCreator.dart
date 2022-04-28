@@ -161,8 +161,8 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
   }
 
   ProductCard createCardProduct(subExtension, card, random) {
-    var code = CodeDraw.fromSet(card.sets.length);
-    code.countBySet[0] = 1;
+    var code = CodeDraw.fromPokeCardExtension(card);
+    code.setCount(1, 0);
     return ProductCard(subExtension, card, AlternativeDesign.Basic, false, random, code);
   }
 

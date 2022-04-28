@@ -84,7 +84,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.9.0';
+    final String version = '1.9.2';
 
     // State
     bool isInitialized          = false;
@@ -725,7 +725,7 @@ class Environment
         }
     }
 
-    static void launchURL(url) async {
+    static void launchURL(Uri url) async {
         if (await canLaunchUrl(url)) {
             await launchUrl(url);
         }

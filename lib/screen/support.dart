@@ -19,7 +19,7 @@ class SupportPage extends StatelessWidget {
                   SizedBox(height: 16.0),
                   Card(
                     child:TextButton(
-                        onPressed: () => Environment.launchURL('https://github.com/Rominitch/Statitik'),
+                        onPressed: () => Environment.launchURL(Uri.parse('https://github.com/Rominitch/Statitik')),
                         child: Center(child: Text('https://github.com/Rominitch/Statitik', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)))
                     )
                   ),
@@ -28,7 +28,7 @@ class SupportPage extends StatelessWidget {
                   SizedBox(height: 16.0),
                   Card(
                     child: TextButton(
-                      onPressed: () => Environment.launchURL('mailto:rominitch@gmail.com'),
+                      onPressed: () => Environment.launchURL(Uri.parse('mailto:rominitch@gmail.com')),
                       child: Center(child: Text('rominitch@gmail.com', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)))
                     ),
                   ),

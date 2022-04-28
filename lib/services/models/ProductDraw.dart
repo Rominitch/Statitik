@@ -51,16 +51,14 @@ class ProductDraw {
 
   void increase(ProductCard card, int idSet) {
     if(canAdd()) {
-      if(randomProductCard[card]!.countBySet[idSet] < 7) {
-        randomProductCard[card]!.countBySet[idSet] += 1;
+      if(randomProductCard[card]!.increase(idSet, 7)) {
         count += 1;
       }
     }
   }
 
   void decrease(ProductCard card, int idSet) {
-    if(randomProductCard[card]!.countBySet[idSet] > 0) {
-      randomProductCard[card]!.countBySet[idSet] -= 1;
+    if(randomProductCard[card]!.decrease(idSet)) {
       count -= 1;
     }
   }

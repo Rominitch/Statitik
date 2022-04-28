@@ -45,7 +45,7 @@ class _CarouselNewsState extends State<CarouselNews> {
   @override
   Widget build(BuildContext context) {
     List<Widget> newsWidget = [];
-    RegExp exp = new RegExp(r'(?:(?:https?|ftp)://)[\w/\-?=%.]+\.[\w/\-?=%.]+');
+    RegExp exp = new RegExp(r'(?:https?|ftp)://[\w/\-?=%.]+\.[\w/\-?=%.]+');
     for(var newsItem in widget.news) {
       List<InlineSpan> children = [];
 
@@ -65,7 +65,7 @@ class _CarouselNewsState extends State<CarouselNews> {
             WidgetSpan(
               child: Card(child: TextButton(
                   child: Text(link),
-                  onPressed: () => Environment.launchURL(link)
+                  onPressed: () => Environment.launchURL(Uri.parse(link))
                 )
               )
             )

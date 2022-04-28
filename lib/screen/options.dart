@@ -133,7 +133,7 @@ class _OptionsPageState extends State<OptionsPage> {
           Card(child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline5)),
                 toolBarLanguage(),
@@ -156,13 +156,16 @@ class _OptionsPageState extends State<OptionsPage> {
                       });
                     }
                     ),
-                    Column(
-                      children: [
-                        Text(StatitikLocale.of(context).read('O_B10'), softWrap: true),
-                        Text(StatitikLocale.of(context).read('O_B11'), softWrap: true, textAlign: TextAlign.left, style: TextStyle(fontSize: 10)),
-                        if(Environment.instance.storeImageLocally)
-                          (moSize != null) ? Text(sprintf(StatitikLocale.of(context).read('O_B12'), [moSize]), textAlign: TextAlign.left, style: TextStyle(fontSize: 10)) : CircularProgressIndicator(color: Colors.orange[300]),
-                    ]),
+                    Expanded(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(StatitikLocale.of(context).read('O_B10')),
+                          Flexible(child: Text(StatitikLocale.of(context).read('O_B11'), softWrap: true, textAlign: TextAlign.left, style: TextStyle(fontSize: 10))),
+                          if(Environment.instance.storeImageLocally)
+                            (moSize != null) ? Text(sprintf(StatitikLocale.of(context).read('O_B12'), [moSize]), textAlign: TextAlign.left, style: TextStyle(fontSize: 10)) : CircularProgressIndicator(color: Colors.orange[300]),
+                      ]),
+                    ),
                   ],
                 ),
               ]

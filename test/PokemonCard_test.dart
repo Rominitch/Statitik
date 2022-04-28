@@ -101,11 +101,12 @@ void main() {
           itSS.moveNext();
           expect(itSS.current, isNot(null));
 
-          var setSS = itSS.current.countBySet.iterator;
-          code.countBySet.forEach((element) {
+          var setSS = itSS.current.iterator;
+          var cardSS = code.iterator;
+          while(cardSS.moveNext()) {
             setSS.moveNext();
-            expect(element,  setSS.current);
-          });
+            expect(cardSS.current,  setSS.current);
+          }
         });
       });
 
@@ -115,26 +116,27 @@ void main() {
         var itRef = codeS.drawEnergies.iterator;
         code.drawEnergies.forEach((cardCode) {
           itRef.moveNext();
-          var setSS = itRef.current.countBySet.iterator;
-          cardCode.countBySet.forEach((element) {
+          var setSS = itRef.current.iterator;
+          var cardSS = cardCode.iterator;
+          while(cardSS.moveNext()) {
             setSS.moveNext();
-            expect(element,  setSS.current);
-          });
+            expect(cardSS.current,  setSS.current);
+          }
         });
       }
     };
 
     // Demo data
     ExtensionDrawCards edc = ExtensionDrawCards.fromSubExtension(se);
-    edc.drawCards[0][0].countBySet[0] = 2;
-    edc.drawCards[0][0].countBySet[1] = 3;
-    edc.drawCards[0][1].countBySet[0] = 1;
-    edc.drawCards[2][0].countBySet[0] = 4;
-    edc.drawCards[2][0].countBySet[1] = 0;
+    edc.drawCards[0][0].setCount(2, 0);
+    edc.drawCards[0][0].setCount(3, 1);
+    edc.drawCards[0][1].setCount(1, 0);
+    edc.drawCards[2][0].setCount(4, 0);
+    edc.drawCards[2][0].setCount(0, 1);
 
-    edc.drawEnergies[0].countBySet[0] = 3;
-    edc.drawEnergies[0].countBySet[1] = 2;
-    edc.drawEnergies[2].countBySet[0] = 1;
+    edc.drawEnergies[0].setCount(3, 0);
+    edc.drawEnergies[0].setCount(2, 1);
+    edc.drawEnergies[2].setCount(1, 0);
 
     // From byte to byte
     ExtensionDrawCards codeS = ExtensionDrawCards.fromBytes(se, edc.toBytes());
@@ -142,22 +144,22 @@ void main() {
 
     // Simplify
     ExtensionDrawCards long = ExtensionDrawCards.fromSubExtension(se);
-    long.drawCards[0][0].countBySet[0] = 2;
-    long.drawCards[0][0].countBySet[1] = 3;
-    long.drawCards[0][1].countBySet[0] = 1;
+    long.drawCards[0][0].setCount(2, 0);
+    long.drawCards[0][0].setCount(3, 1);
+    long.drawCards[0][1].setCount(1, 0);
 
-    long.drawEnergies[0].countBySet[0] = 3;
-    long.drawEnergies[0].countBySet[1] = 2;
+    long.drawEnergies[0].setCount(3, 0);
+    long.drawEnergies[0].setCount(2, 1);
 
     ExtensionDrawCards simplified = ExtensionDrawCards.fromBytes(se, long.toBytes());
 
-    expect( long.drawCards[0][0].countBySet[0], simplified.drawCards[0][0].countBySet[0] );
-    expect( long.drawCards[0][0].countBySet[1], simplified.drawCards[0][0].countBySet[1] );
-    expect( long.drawCards[0][1].countBySet[0], simplified.drawCards[0][1].countBySet[0] );
+    expect( long.drawCards[0][0].countBySet(0), simplified.drawCards[0][0].countBySet(0) );
+    expect( long.drawCards[0][0].countBySet(1), simplified.drawCards[0][0].countBySet(1) );
+    expect( long.drawCards[0][1].countBySet(0), simplified.drawCards[0][1].countBySet(0) );
 
     expect( 1, simplified.drawEnergies.length );
-    expect( long.drawEnergies[0].countBySet[0], simplified.drawEnergies[0].countBySet[0] );
-    expect( long.drawEnergies[0].countBySet[1], simplified.drawEnergies[0].countBySet[1] );
+    expect( long.drawEnergies[0].countBySet(0), simplified.drawEnergies[0].countBySet(0) );
+    expect( long.drawEnergies[0].countBySet(1), simplified.drawEnergies[0].countBySet(1) );
   });
 
   test('PokemonCardExtension', () {

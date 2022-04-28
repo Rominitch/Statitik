@@ -23,7 +23,7 @@ class ThanksPage extends StatelessWidget {
               SizedBox(height: 16.0),
               Card(
                 child: TextButton(
-                  onPressed: () => Environment.launchURL('https://www.pokecardex.com'),
+                  onPressed: () => Environment.launchURL(Uri.parse('https://www.pokecardex.com')),
                   child: Center(child: Text('https://www.pokecardex.com', style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold)))
                 ),
               ),

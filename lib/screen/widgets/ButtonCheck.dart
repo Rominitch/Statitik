@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/CardDesign.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/SerieType.dart';
@@ -155,5 +156,27 @@ class CardSetButtonCheck extends ButtonCheck<CardSet> {
   @override
   Widget makeWidget(BuildContext context) {
     return Text(value.names.name(l));
+  }
+}
+
+class DesignButtonCheck extends ButtonCheck<CardDesign> {
+  final Language l;
+  final double iconSize;
+  DesignButtonCheck(this.l, designsList, value, {controller, this.iconSize=30.0}) : super(designsList, value, controller);
+
+  @override
+  Widget makeWidget(BuildContext context) {
+    return value.icon(height: iconSize);
+  }
+}
+
+class ArtButtonCheck extends ButtonCheck<ArtFormat> {
+  final Language l;
+  final double iconSize;
+  ArtButtonCheck(this.l, artsList, value, {controller, this.iconSize=30.0}) : super(artsList, value, controller);
+
+  @override
+  Widget makeWidget(BuildContext context) {
+    return iconArt(value, iconSize, iconSize);
   }
 }

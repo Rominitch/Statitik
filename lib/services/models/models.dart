@@ -5,6 +5,7 @@ import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/CardDesign.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/models/CardTitleData.dart';
 import 'package:statitikcard/services/models/Language.dart';
@@ -173,24 +174,22 @@ class StatsBooster {
       throw StatitikException('Corruption des données de tirages');
 
     var computeStatsBySet = (cardInfo, CodeDraw code) {
-      int setId=0;
-      code.countBySet.forEach((element) {
+      for(int setId=0; setId < cardInfo.sets.lenght; setId += 1) {
+        var countSet = code.countBySet(setId);
         var setCard = cardInfo.sets[setId];
         if(countBySet.containsKey(setCard))
-          countBySet[setCard] = countBySet[setCard]! + element;
+          countBySet[setCard] = countBySet[setCard]! + countSet;
         else
-          countBySet[setCard] = element;
+          countBySet[setCard] = countSet;
 
         if(!countBySetByRarity.containsKey(setCard))
           countBySetByRarity[setCard] = {};
 
         if(!countBySetByRarity[setCard]!.containsKey(cardInfo.rarity))
-          countBySetByRarity[setCard]![cardInfo.rarity] = element;
+          countBySetByRarity[setCard]![cardInfo.rarity] = countSet;
         else
-          countBySetByRarity[setCard]![cardInfo.rarity] = countBySetByRarity[setCard]![cardInfo.rarity]! + element;
-
-        setId += 1;
-      });
+          countBySetByRarity[setCard]![cardInfo.rarity] = countBySetByRarity[setCard]![cardInfo.rarity]! + countSet;
+      }
     };
 
     anomaly += anomaly;
@@ -258,16 +257,16 @@ class StatsBooster {
 
             computeStatsBySet(cardInfo, code);
           } else {
-            int setId=0;
-            code.countBySet.forEach((element) {
+            for(var setId=0; setId < code.nbSetsRegistred(); setId += 1) {
+              var countSet = code.countBySet(setId);
               var setCard = Environment.instance.collection.sets[setId];
               if(countBySet.containsKey(setCard))
-                countBySet[setCard] = countBySet[setCard]! + element;
+                countBySet[setCard] = countBySet[setCard]! + countSet;
               else
-                countBySet[setCard] = element;
+                countBySet[setCard] = countSet;
 
               setId += 1;
-            });
+            }
           }
           totalCards             += nbCard;
           count[cardsId][cardId] += nbCard;
@@ -373,6 +372,8 @@ class CardResults {
   CardStats?      stats;
   List<TypeCard>  types    = [];
   List<Rarity>    rarities = [];
+  List<CardDesign> designs = [];
+  List<ArtFormat>  arts    = [];
 
   MultiLanguageString? effectName;
 
@@ -439,6 +440,41 @@ class CardResults {
       }
     }
 
+    if(select && designs.isNotEmpty) {
+      select = false;
+      for(var subImages in card.images) {
+        if(select)
+          break;
+        for(var design in subImages) {
+          if(select)
+            break;
+          for(var designFilter in designs) {
+            if(designFilter.design == design.cardDesign.design && designFilter.pattern == design.cardDesign.pattern) {
+              select = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+    if(select && arts.isNotEmpty) {
+      select = false;
+      for(var subImages in card.images){
+        if(select)
+          break;
+        for(var design in subImages) {
+          if(select)
+            break;
+          for(var art in arts) {
+            if(art == design.cardDesign.art) {
+              select = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+
     if(select && hasAttackFilter()) {
       List<TriState> count = List.filled(4, TriState());
       List<bool> checkDescriptions = List.filled(effects.length, false);
@@ -494,7 +530,7 @@ class CardResults {
   bool isFiltered() {
     return hasMarkersFilter() || hasRegionFilter()
     || hasTypeRarityFilter() || hasGeneralityFilter()
-    || hasAttackFilter();
+    || hasAttackFilter() || hasDesignFilter();
   }
 
   bool hasStats() {
@@ -514,6 +550,15 @@ class CardResults {
     types.clear();
     rarities.clear();
   }
+
+  bool hasDesignFilter() {
+    return designs.isNotEmpty || arts.isNotEmpty;
+  }
+  void clearDesignFilter() {
+    designs.clear();
+    arts.clear();
+  }
+
   bool hasMarkersFilter() {
     return filter.markers.isNotEmpty;
   }

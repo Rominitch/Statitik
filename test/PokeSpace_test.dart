@@ -63,10 +63,10 @@ void main() {
     space.insertSideProduct(sideProducts[2], UserProductCounter.fromOpened(5));
 
     space.insertSubExtension(subExtensions[1]);
-    space.myCards[subExtensions[1]]!.cards[0][0].countBySet[1] = 3;
-    space.myCards[subExtensions[1]]!.cards[1][0].countBySet[0] = 2;
+    space.myCards[subExtensions[1]]!.cards[0][0].setCount(3,1);
+    space.myCards[subExtensions[1]]!.cards[1][0].setCount(2,0);
     space.insertSubExtension(subExtensions[2]);
-    space.myCards[subExtensions[2]]!.cards[1][0].countBySet[0] = 4;
+    space.myCards[subExtensions[2]]!.cards[1][0].setCount(4,0);
 
     // Save and restore
     var newSpace = PokeSpace.fromBytes(space.toBytes(), subExtensions, products, sideProducts);
@@ -75,20 +75,26 @@ void main() {
       expect(mKey, oKey);
 
       parseDualArray<List<CodeDraw>>(mElement.cards, oElement.cards, (mElement, oElement){
-        parseDualArray<CodeDraw>(mElement, oElement, (mElement, oElement) {
-          parseDualArray<int>(mElement.countBySet, oElement.countBySet, (mElement, oElement) {
-            expect(mElement, oElement);
+        parseDualArray<CodeDraw>(mElement, oElement, (mSetElement, oSetElement) {
+          parseDualIterator<List<int>>(mSetElement.iterator, oSetElement.iterator, (mListElement, oListElement) {
+            parseDualArray<int>(mListElement, oListElement, (mCountElement, oCountElement) {
+              expect(mCountElement, oCountElement);
+            });
           });
         });
       });
       parseDualArray<CodeDraw>(mElement.energies, oElement.energies, (mElement, oElement) {
-        parseDualArray<int>(mElement.countBySet, oElement.countBySet, (mElement, oElement) {
-          expect(mElement, oElement);
+        parseDualIterator<List<int>>(mElement.iterator, oElement.iterator, (mListElement, oListElement) {
+          parseDualArray<int>(mListElement, oListElement, (mElement, oElement) {
+            expect(mElement, oElement);
+          });
         });
       });
       parseDualArray<CodeDraw>(mElement.noNumbers, oElement.noNumbers, (mElement, oElement) {
-        parseDualArray<int>(mElement.countBySet, oElement.countBySet, (mElement, oElement) {
-          expect(mElement, oElement);
+        parseDualIterator<List<int>>(mElement.iterator, oElement.iterator, (mListElement, oListElement) {
+          parseDualArray<int>(mListElement, oListElement, (mElement, oElement) {
+            expect(mElement, oElement);
+          });
         });
       });
     });

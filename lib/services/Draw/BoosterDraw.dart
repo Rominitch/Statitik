@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/models/Language.dart';
+import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
@@ -163,14 +164,8 @@ class BoosterDraw {
       int alternativeSet  = 0; // Other than standard or standard brillant
 
       // Functor
-      var addAlternativeCard = (CodeDraw code, card) {
-        var countSet = code.countBySet.iterator;
-        card.sets.forEach((set) {
-          if(countSet.moveNext()) {
-            if(!set.isStandard)
-              alternativeSet += countSet.current;
-          }
-        });
+      var addAlternativeCard = (CodeDraw code, PokemonCardExtension card) {
+        alternativeSet += code.countAlternativeCard(card);
       };
 
       // No number

@@ -116,7 +116,7 @@ class CardSelectorProductCard extends GenericCardSelector {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text(subExtension().seCards.numberOfCard(idCard.numberId)),
-              card.isRandom ? Text("R") : Text(card.counter.countBySet.join(" | "))
+              card.isRandom ? Text("R") : Text(card.counter.allCounts().join(" | "))
             ]
         ),
       ],

@@ -187,8 +187,8 @@ class _NewProductPageState extends State<NewProductPage> {
                   // Added only new product and refresh
                   setState(() {
                     value.cards.forEach((card){
-                      var counter = CodeDraw.fromSet(card.sets.length);
-                      counter.countBySet[0] = 1;
+                      var counter = CodeDraw.fromPokeCardExtension(card);
+                      counter.setCount(1, 0);
                       product.otherCards.add(ProductCard(value.subExtension, card, AlternativeDesign.Basic, false, false, counter) );
                     });
                   });

@@ -61,7 +61,7 @@ class ProductCard {
 
   ProductCard(this.subExtension, this.card, this.design, this.jumbo, this.isRandom, this.counter);
 
-  ProductCard.fromBytes(ByteParser parser, Map mapSubExtensions):
+  ProductCard.fromBytesV1(ByteParser parser, Map mapSubExtensions):
     subExtension = mapSubExtensions[parser.extractInt16()],
     design    = AlternativeDesign.values[parser.extractInt8()],
     jumbo     = false,
@@ -77,16 +77,35 @@ class ProductCard {
     card = subExtension.cardFromId(cardId);
 
     // Restore counter
-    counter = CodeDraw.fromSet(this.card.sets.length);
+    counter = CodeDraw.fromPokeCardExtension(this.card);
     var count = parser.extractInt8();
     for(int id=0; id < count; id +=1){
       if( id < card.sets.length)
-        counter.countBySet[id] = parser.extractInt8();
+        counter.setCount(parser.extractInt8(), id);
     }
   }
 
+  ProductCard.fromBytes(ByteParser parser, Map mapSubExtensions):
+        subExtension = mapSubExtensions[parser.extractInt16()],
+        design    = AlternativeDesign.values[parser.extractInt8()],
+        jumbo     = false,
+        isRandom  = false,
+        counter   = CodeDraw.fromSet(1)
+  {
+    var code = parser.extractInt8();
+    jumbo     = mask(code, _jumboMask);
+    isRandom  = mask(code, _randomMask);
+
+    // Retrieve card
+    var cardId = CardIdentifier.fromBytes(parser);
+    card = subExtension.cardFromId(cardId);
+
+    // Restore counter
+    counter = CodeDraw.fromBytes(parser);
+  }
+
   List<int> toBytes() {
-    assert(counter.countBySet.isNotEmpty);
+    assert(counter.nbSetsRegistred() > 0);
     List<int> bytes = [];
     bytes += ByteEncoder.encodeInt16(subExtension.id);
     bytes += ByteEncoder.encodeInt8(design.index);
@@ -98,11 +117,7 @@ class ProductCard {
     bytes += id.toBytes();
 
     // Encode counter
-    bytes += ByteEncoder.encodeInt8(counter.countBySet.length);
-    counter.countBySet.forEach((count) {
-      assert(count <= 255);
-      bytes += ByteEncoder.encodeInt8(count);
-    });
+    bytes += counter.toBytes();
     return bytes;
   }
 }
@@ -116,7 +131,7 @@ class Product extends ProductGeneric
   Map<ProductSide, int>    sideProducts = {};
   List<ProductCard>        otherCards   = [];
   int                      nbRandomPerProduct = 0;
-  static const int version = 2;
+  static const int version = 3;
 
   Product.empty():
     this.boosters = [],
@@ -126,9 +141,9 @@ class Product extends ProductGeneric
     super(idDB, category, name, imageURL, outDate);
 
   Product.fromBytes(idDB, this.language, name, imageURL, outDate, category,
-                    List<int> data, Map mapSubExtensions, Map productSides):
-    this.boosters = [],
-    super(idDB, category, name, imageURL, outDate)
+      List<int> data, Map mapSubExtensions, Map productSides):
+        this.boosters = [],
+        super(idDB, category, name, imageURL, outDate)
   {
     int currentVersion = data[0];
     if(!(currentVersion <= version))
@@ -156,12 +171,19 @@ class Product extends ProductGeneric
     }
 
     // Read other cards
-    var nbOtherCards = parser.extractInt8();
-    for(int id=0; id < nbOtherCards; id +=1){
-      otherCards.add(ProductCard.fromBytes(parser, mapSubExtensions));
+    if(currentVersion == 2) {
+      var nbOtherCards = parser.extractInt8();
+      for(int id=0; id < nbOtherCards; id +=1){
+        otherCards.add(ProductCard.fromBytesV1(parser, mapSubExtensions));
+      }
+    } else if(currentVersion == 3) {
+      var nbOtherCards = parser.extractInt8();
+      for(int id=0; id < nbOtherCards; id +=1) {
+        otherCards.add(ProductCard.fromBytes(parser, mapSubExtensions));
+      }
     }
 
-    if(currentVersion == 2) {
+    if(currentVersion == 2 || currentVersion == 3) {
       nbRandomPerProduct = parser.extractInt8();
     }
   }

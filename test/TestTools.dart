@@ -1,5 +1,17 @@
 import 'package:flutter_test/flutter_test.dart';
 
+void parseDualIterator<T>(Iterator main, Iterator other, Function(T mElement, T oElement) parser) {
+  bool parsing = true;
+  while(parsing){
+    var endMain  = main.moveNext();
+    var endOther = other.moveNext();
+    parsing = endMain;
+    expect(endMain, endOther);
+    if(parsing)
+      parser(main.current, other.current);
+  }
+}
+
 void parseDualArray<T>(List<T> main, List<T> other, Function(T mElement, T oElement) parser) {
   expect(main.length, other.length);
   var itOther = other.iterator;

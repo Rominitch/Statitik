@@ -13,7 +13,7 @@ import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 
 class ImageDesign {
-  CardDesign design = CardDesign();
+  CardDesign cardDesign = CardDesign();
   String     image  = "";
   int        jpDBId = 0;
 
@@ -27,7 +27,7 @@ class PokemonCardExtension {
   List<CardSet>    sets=[];
   bool             isSecret = false;
 
-  List<List<ImageDesign>> images = [];
+  List<List<ImageDesign>> images = []; /// All images for this card
 
   String numberOfCard(int id) {
     return specialID.isNotEmpty ? specialID : (id + 1).toString();
@@ -41,11 +41,20 @@ class PokemonCardExtension {
     images.add([ImageDesign()]);
   }
 
-  PokemonCardExtension.creation(this.data, this.rarity, Map allSets, {jpDBId=0, this.specialID="", this.isSecret=false}) {
+  PokemonCardExtension.creation(this.data, this.rarity, Map allSets, {jpDBId=0, this.specialID="", this.isSecret=false, bool isJapanese=false}) {
     var image = ImageDesign();
     if(jpDBId != 0) {
       image.jpDBId = jpDBId;
     }
+    // Automatic fill base on current database ID
+    if(isJapanese) {
+      // Auto art
+      image.cardDesign.art = this.rarity == Environment.instance.collection.rarities[16] ? ArtFormat.FullArt
+          : this.rarity == Environment.instance.collection.rarities[14] ? ArtFormat.HalfArt :  ArtFormat.Normal;
+      image.cardDesign.design = this.rarity == Environment.instance.collection.rarities[16] ? Design.Full
+          : this.rarity == Environment.instance.collection.rarities[14] ? Design.Full :  Design.Mat;
+    }
+
     images.add([image]);
     computeDefaultSet(allSets);
   }
@@ -199,7 +208,7 @@ class PokemonCardExtension {
         var image = ImageDesign();
         image.image  = parser.decodeString16();
         image.jpDBId = parser.extractInt32();
-        image.design = CardDesign.fromBytesV1(parser);
+        image.cardDesign = CardDesign.fromBytesV1(parser);
         imageSets.add(image);
       }
       images.add(imageSets);
@@ -236,7 +245,7 @@ class PokemonCardExtension {
         var image = ImageDesign();
         image.image  = parser.decodeString16();
         image.jpDBId = parser.extractInt32();
-        image.design = CardDesign.fromBytes(parser);
+        image.cardDesign = CardDesign.fromBytes(parser);
         imageSets.add(image);
       }
       images.add(imageSets);
@@ -250,7 +259,7 @@ class PokemonCardExtension {
     }
     isSecret = parser.extractInt8() == 1;
 
-    assert(images.length == sets.length);
+    assert(images.length >= sets.length);
     assert(images.isNotEmpty && images[0].isNotEmpty);
   }
 
@@ -272,7 +281,7 @@ class PokemonCardExtension {
       for(var image in imageBySets) {
         imagesBytes += ByteEncoder.encodeString16(image.image.codeUnits);
         imagesBytes += ByteEncoder.encodeInt32(image.jpDBId);
-        imagesBytes += image.design.toBytes();
+        imagesBytes += image.cardDesign.toBytes();
       }
     }
 

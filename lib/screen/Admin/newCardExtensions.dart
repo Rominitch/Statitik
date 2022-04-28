@@ -64,7 +64,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
 
       // Create new card
       var newItem = PokemonCardExtension.creation(PokemonCardData([], data.data.level, data.data.type, CardMarkers.from([])),
-          data.rarity, Environment.instance.collection.sets);
+          data.rarity, Environment.instance.collection.sets, isJapanese: widget.se.extension.language.isJapanese());
 
       // Added
       if(listId == 1) {
@@ -89,6 +89,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
           widget.se.seCards.cards.insert(pos, [newItem]);
         }
       }
+
 
       updateCardList(listId);
     });

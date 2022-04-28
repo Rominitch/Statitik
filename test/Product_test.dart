@@ -76,7 +76,7 @@ void main() {
     p.sideProducts[sideProduct[1]] = 1;
     p.sideProducts[sideProduct[2]] = 5;
     var code = CodeDraw.fromSet(2);
-    code.countBySet[0] = 1;
+    code.setCount(1, 0);
     p.otherCards.add(ProductCard(se, cards[1], AlternativeDesign.Basic, false, false, code));
 
     var newP = Product.fromBytes(idP, prodL, name, img, date, cat,
@@ -101,7 +101,7 @@ void main() {
       expect(ref.design,  card.design);
       expect(ref.jumbo,  card.jumbo);
       expect(ref.subExtension,  card.subExtension);
-      expect(ref.counter.countBySet[0], card.counter.countBySet[0]);
+      expect(ref.counter.countBySet(0), card.counter.countBySet(0));
     });
   });
 

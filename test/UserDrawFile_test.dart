@@ -94,15 +94,15 @@ void main() {
     Map subExtensions  = { se.id: se };
 
     ExtensionDrawCards edc = ExtensionDrawCards.fromSubExtension(se);
-    edc.drawCards[0][0].countBySet[0] = 2;
-    edc.drawCards[0][0].countBySet[1] = 3;
-    edc.drawCards[0][1].countBySet[0] = 1;
-    edc.drawCards[2][0].countBySet[0] = 4;
-    edc.drawCards[2][0].countBySet[1] = 0;
-
-    edc.drawEnergies[0].countBySet[0] = 3;
-    edc.drawEnergies[0].countBySet[1] = 2;
-    edc.drawEnergies[2].countBySet[0] = 1;
+    edc.drawCards[0][0].setCount(2, 0);
+    edc.drawCards[0][0].setCount(3, 1);
+    edc.drawCards[0][1].setCount(1, 0);
+    edc.drawCards[2][0].setCount(4, 0);
+    edc.drawCards[2][0].setCount(0, 1);
+    
+    edc.drawEnergies[0].setCount(3, 0);
+    edc.drawEnergies[0].setCount(2, 1);
+    edc.drawEnergies[2].setCount(1, 0);
 
     SessionDraw sd = SessionDraw(p, l);
     sd.boosterDraws[0].fill(se, true, edc);

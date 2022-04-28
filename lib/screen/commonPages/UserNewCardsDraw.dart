@@ -13,8 +13,9 @@ class UserNewCardDraw extends StatelessWidget {
     reports.forEach((cardReport) {
       var card = subExtension.cardFromId(cardReport.idCard);
       var itSet = card.sets.iterator;
-      cardReport.state.countBySet.forEach((element) {
+      for(int idSet=0; idSet < cardReport.state.nbSetsRegistred(); idSet +=1 ) {
         if(itSet.moveNext()) {
+          var element = cardReport.state.countBySet(idSet);
           if(element > 0) {
             list.add(Card(
               margin: EdgeInsets.all(2.0),
@@ -23,7 +24,7 @@ class UserNewCardDraw extends StatelessWidget {
             ));
           }
         }
-      });
+      }
     });
     return list;
   }

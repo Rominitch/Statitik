@@ -5,6 +5,7 @@ import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/screen/widgets/SliderWithText.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/CardDesign.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 import 'package:statitikcard/services/models/models.dart';
@@ -37,6 +38,8 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
   List<Widget> regionsWidget    = [];
   List<Widget> typesWidget      = [];
   List<Widget> raritiesWidget   = [];
+  List<Widget> designWidget     = [];
+  List<Widget> artsWidget       = [];
 
   List<Widget> weaknessTypeWidget     = [];
   List<Widget> resistanceTypeWidget   = [];
@@ -100,6 +103,13 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
       weaknessTypeWidget.add(CustomRadio(value: element, controller: weaknessController, widget: getImageType(element), widthBox: typeSize,));
       resistanceTypeWidget.add(CustomRadio(value: element, controller: resistanceController, widget: getImageType(element), widthBox: typeSize));
       attackTypeEnergyWidget.add(CustomRadio(value: element, controller: energyAttackController, widget: getImageType(element), widthBox: typeSize));
+    });
+
+    validDesigns.forEach((design) {
+      designWidget.add(DesignButtonCheck(widget.language, widget.result.designs, design, controller: refreshController));
+    });
+    ArtFormat.values.forEach((art) {
+      artsWidget.add(ArtButtonCheck(widget.language, widget.result.arts, art, controller: refreshController));
     });
 
     DescriptionEffect.values.forEach((effect) {
@@ -357,6 +367,36 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                           ]
                       ),
                     )
+                ),
+                ExpansionPanelRadio(
+                  backgroundColor: widget.result.hasDesignFilter() ? selectFilter : normalFilter,
+                  value: 5,
+                  canTapOnHeader: true,
+                  headerBuilder: (context, isExpanded) {
+                    return createHeader(context, 'TUTO_CAPTION_T0', () {
+                      widget.result.clearDesignFilter();
+                      refreshController.refresh();
+                    });
+                  },
+                  body: Column(
+                    children: [
+                      Text(StatitikLocale.of(context).read('TUTO_CAPTION_T1'), style: Theme.of(context).textTheme.headline6),
+                      GridView.count(
+                        crossAxisCount: 3,
+                        childAspectRatio: 3.0,
+                        primary: false,
+                        shrinkWrap: true,
+                        children: artsWidget,
+                      ),
+                      Text(StatitikLocale.of(context).read('TUTO_CAPTION_T2'), style: Theme.of(context).textTheme.headline6),
+                      GridView.count(
+                        crossAxisCount: 5,
+                        primary: false,
+                        shrinkWrap: true,
+                        children: designWidget,
+                      ),
+                    ],
+                  ),
                 ),
               ]
             ),

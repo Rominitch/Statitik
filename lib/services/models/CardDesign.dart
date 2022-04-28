@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/models/BytesCoder.dart';
 
+// WARNING: Never changed order
 enum Design {
   Mat,
   Holographic,
   Reverse,
-  Full,
   ArcEnCiel,
   Gold,
   GoldBlack,
   Shiny,
+  Full,
   K,
 }
 
@@ -179,6 +180,11 @@ class CardDesign {
 
   @override
   int get hashCode => design.index * 100 + pattern.index;
+
+  void copyFrom(CardDesign selectedDesign) {
+    design  = selectedDesign.design;
+    pattern = selectedDesign.pattern;
+  }
 }
 
 List<CardDesign> validDesigns = [
