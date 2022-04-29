@@ -24,10 +24,12 @@ class PokemonCardExtension {
   PokemonCardData  data;
   Rarity           rarity;
   String           specialID = ""; /// For card without number or special (like energy, celebration card, ...)
-  List<CardSet>    sets=[];
   bool             isSecret = false;
 
+  /// Refactor
+  List<CardSet>           sets   = [];
   List<List<ImageDesign>> images = []; /// All images for this card
+  ///Migrate to Map<CardSet, List<ImageDesign>> setInfo = {};
 
   String numberOfCard(int id) {
     return specialID.isNotEmpty ? specialID : (id + 1).toString();

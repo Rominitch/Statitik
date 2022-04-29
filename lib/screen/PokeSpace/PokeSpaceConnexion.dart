@@ -109,7 +109,9 @@ class _DrawHomePageState extends State<DrawHomePage> {
                     ],
                   ),
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceSavedDraw(userDraw)));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceSavedDraw(userDraw))).then((value) {
+                      setState((){});
+                    });
                   },
                 )
               ),
@@ -325,7 +327,9 @@ class _DrawHomePageState extends State<DrawHomePage> {
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => PokeSpaceDrawResume())).then( (value)
     {
-      setState(() {});
+      setState(() {
+
+      });
     });
   }
 }

@@ -13,6 +13,7 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/Marker.dart';
+import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
@@ -134,12 +135,12 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
     List<Widget> tabPages   = [];
 
     if(widget.stats.isSpecific() || widget.stats.isFiltered()) {
-      var subExtOrdered = List.from(Environment.instance.collection.subExtensions.values)
+      var subExtOrdered = List<SubExtension>.from(Environment.instance.collection.subExtensions.values)
         ..sort((a, b) => b.out.compareTo(a.out) );
 
       var s = widget.stats.stats!;
       // parse sub extension by order
-      subExtOrdered.forEach((subExtension) {
+      subExtOrdered.forEach((SubExtension subExtension) {
         var listCards = s.countSubExtension[subExtension];
         if(listCards != null) {
           tabHeaders.add(
@@ -182,7 +183,7 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
                       margin: EdgeInsets.zero,
                       child: TextButton(child: Text(name, style: TextStyle(fontSize: name.length > 2 ? (name.length > 3 ? 9 : 12) : 14)),
                         onPressed: (){
-                          var card = subExtension.seCards.cards[idCard][0];
+                          var card = subExtension.seCards.cardFromId(idCard);
                           Navigator.push(context,
                             MaterialPageRoute(builder: (context) => CardViewer(subExtension, idCard, card)),
                           );

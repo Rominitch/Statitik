@@ -249,6 +249,7 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
 
     // Compute basic info and search invalid data
     for(CardSet s in setSelected) {
+      assert(widget.data.stats!.countBySetByRarity[s] != null, "${s.names.defaultName()} is not inside widget.data.stats");
       var mapRarityStat    = widget.data.stats!.countBySetByRarity[s]!;
       var mapRarityExt     = statsExtension.countBySetByRarity[s]!;
       var raritiesSelected = statsExtension.allRarityPerSets[s]!;

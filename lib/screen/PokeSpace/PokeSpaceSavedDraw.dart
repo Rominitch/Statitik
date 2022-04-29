@@ -20,9 +20,12 @@ class _PokeSpaceSavedDrawState extends State<PokeSpaceSavedDraw> {
   Future<void> extractData() async {
     allSavedDraw = {};
     for(final element in widget.localDraws) {
-      var sd = await element.read(Environment.instance.collection.languages,
-           Environment.instance.collection.products, Environment.instance.collection.subExtensions);
-      allSavedDraw[element] = sd;
+      if(element.exists()) {
+        var sd = await element.read(Environment.instance.collection.languages,
+            Environment.instance.collection.products,
+            Environment.instance.collection.subExtensions);
+        allSavedDraw[element] = sd;
+      }
     }
   }
 

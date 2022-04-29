@@ -46,6 +46,10 @@ class UserDrawFile {
 
   UserDrawFile(this.filePath);
 
+  bool exists() {
+   return File(filePath).existsSync();
+  }
+
   Future<SessionDraw> read(Map language, Map products, Map subExtensions) async {
     var file = File(filePath);
     var bytes = await file.readAsBytes();
