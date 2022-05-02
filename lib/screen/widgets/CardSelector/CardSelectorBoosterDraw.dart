@@ -36,19 +36,24 @@ class CardSelectorBoosterDraw extends GenericCardSelector {
   }
 
   @override
-  void increase(int idSet)
+  CardIdentifier cardIdentifier() {
+    return idCard;
+  }
+
+  @override
+  void increase(int idSet, [int idImage=0])
   {
     boosterDraw.increase(counter, idSet);
   }
 
   @override
-  void decrease(int idSet)
+  void decrease(int idSet, [int idImage=0])
   {
     boosterDraw.decrease(counter, idSet);
   }
 
   @override
-  void setOnly(int idSet)
+  void setOnly(int idSet, [int idImage=0])
   {
     boosterDraw.setOtherRendering(counter, idSet);
   }

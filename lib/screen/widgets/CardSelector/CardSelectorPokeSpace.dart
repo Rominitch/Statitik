@@ -23,7 +23,10 @@ class CardSelectorPokeSpace extends GenericCardSelector {
     this.card   = subExt.cardFromId(idCard),
     this.idCard = idCard,
     this.code   = pokeSpace.cardCounter(subExt, idCard),
-    super();
+    super()
+  {
+    fullSetsImages = true;
+  }
 
   @override
   CodeDraw codeDraw(){
@@ -41,19 +44,19 @@ class CardSelectorPokeSpace extends GenericCardSelector {
   }
 
   @override
-  void increase(int idSet) {
-    code.increase(idSet, limitSet);
+  void increase(int idSet, [int idImage=0]) {
+    code.increase(idSet, limitSet, idImage);
   }
 
   @override
-  void decrease(int idSet) {
-    code.decrease(idSet);
+  void decrease(int idSet, [int idImage=0]) {
+    code.decrease(idSet, idImage);
   }
 
   @override
-  void setOnly(int idSet) {
+  void setOnly(int idSet, [int idImage=0]) {
     //code.reset();
-    code.increase(idSet, limitSet);
+    code.increase(idSet, limitSet, idImage);
   }
 
   @override
@@ -113,22 +116,26 @@ class CardSelectorPokeSpace extends GenericCardSelector {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(height: 15,
-            child: Row( children: [
-              card.imageType(generate: true, sizeIcon: 14.0),
-              if(extendedType != null) extendedType,
-            ] + getImageRarity(card.rarity, subExt.extension.language, iconSize: 14.0, fontSize: 12.0, generate: true) + [
-              Expanded(child: Text( cardName, textAlign: TextAlign.right, style: TextStyle(fontSize: cardName.length > 3 ? 9.0: 12.0))),
-            ]
-            )
+          child: Row( children: [
+            card.imageType(generate: true, sizeIcon: 14.0),
+            if(extendedType != null) extendedType,
+          ] + getImageRarity(card.rarity, subExt.extension.language, iconSize: 14.0, fontSize: 12.0, generate: true) + [
+            Expanded(child: Text( cardName, textAlign: TextAlign.right, style: TextStyle(fontSize: cardName.length > 3 ? 9.0: 12.0))),
+          ]
+          )
         ),
         SizedBox(height:3),
         Expanded(child: genericCardWidget(subExt, idCard, CardImageIdentifier(), height: 150, language: subExt.extension.language)),
         if(count > 0)
           SizedBox(height:3),
         if(count > 0)
-          Row(
-            children: countBySet),
+          Row(children: countBySet),
       ],
     );
+  }
+
+  @override
+  CardIdentifier cardIdentifier() {
+    return idCard;
   }
 }

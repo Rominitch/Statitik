@@ -37,17 +37,31 @@ class _PokemonCardState extends State<PokemonCard> {
   }
 
   void showSelectorDialog() {
-    // Show more info if many rendering of more cards
-    showDialog(
+    if(widget.selector.fullSetsImages) {
+      showModalBottomSheet(
         context: context,
         builder: (BuildContext context) {
           return CardSelector(widget.selector, refresh: update, readOnly: widget.readOnly);
         }
-    ).then((value) {
-      if(widget.afterOpenSelector != null)
-        widget.afterOpenSelector!();
-      widget.refresh();
-    });
+      ).then((value) {
+        if (widget.afterOpenSelector != null)
+          widget.afterOpenSelector!();
+        widget.refresh();
+      });
+    } else {
+      // Show more info if many rendering of more cards
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return CardSelector(
+              widget.selector, refresh: update, readOnly: widget.readOnly);
+        }
+      ).then((value) {
+        if (widget.afterOpenSelector != null)
+          widget.afterOpenSelector!();
+        widget.refresh();
+      });
+    }
   }
 
   @override

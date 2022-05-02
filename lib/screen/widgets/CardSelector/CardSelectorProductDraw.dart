@@ -27,19 +27,19 @@ class CardSelectorProductDraw extends CardSelectorProductCard {
   }
 
   @override
-  void increase(int idSet)
+  void increase(int idSet, [int idImage=0])
   {
     draw.increase(card, idSet);
   }
 
   @override
-  void decrease(int idSet)
+  void decrease(int idSet, [int idImage=0])
   {
     draw.decrease(card, idSet);
   }
 
   @override
-  void setOnly(int idSet)
+  void setOnly(int idSet, [int idImage=0])
   {
     draw.setOnly(card, idSet);
   }

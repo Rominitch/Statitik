@@ -1,22 +1,28 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/widgets/CardImage.dart';
 
 import 'package:statitikcard/services/CardSet.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 
 abstract class GenericCardSelector {
+  bool fullSetsImages=false;
 
   GenericCardSelector();
 
   SubExtension         subExtension();
+  CardIdentifier       cardIdentifier();
   PokemonCardExtension cardExtension();
   CodeDraw             codeDraw();
 
-  void increase(int idSet);
-  void decrease(int idSet);
-  void setOnly(int idSet);
+  void increase(int idSet, [int idImage=0]);
+  void decrease(int idSet, [int idImage=0]);
+  void setOnly(int idSet, [int idImage=0]);
 
   Widget? advancedWidget(BuildContext context, Function refresh);
 
@@ -30,7 +36,7 @@ class CardSelector extends StatefulWidget {
   final GenericCardSelector cardSelector;
 
   final Function? refresh;
-  final bool     readOnly;
+  final bool      readOnly;
 
   CardSelector(this.cardSelector, {this.refresh, this.readOnly=false});
 
@@ -46,28 +52,74 @@ class _CardSelectorState extends State<CardSelector> {
     // Create for all set each widget
     int idSet=0;
     cardModes.clear();
-    widget.cardSelector.cardExtension().sets.forEach((set) {
-      cardModes.add(IconCard(widget.cardSelector, idSet, set, refresh: widget.refresh, readOnly: widget.readOnly));
-      idSet += 1;
-    });
+    if( !widget.cardSelector.fullSetsImages ) {
+      widget.cardSelector.cardExtension().sets.forEach((set) {
+        cardModes.add(IconCard(widget.cardSelector, idSet, set, refresh: widget.refresh, readOnly: widget.readOnly));
+        idSet += 1;
+      });
+    } else {
+      var card = widget.cardSelector.cardExtension();
+      card.sets.forEach((set) {
+        List<Widget> wrapCard = [];
+        for(int idImage=0; idImage < max(1, card.images[idSet].length); idImage+=1) {
+          var cardImageId = CardImageIdentifier(idSet, idImage);
+          wrapCard.add(ImageSetCounter(widget.cardSelector, cardImageId, refresh: widget.refresh, readOnly: widget.readOnly));
+        }
+
+        cardModes.add(
+          Card(child:
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        set.imageWidget(width: 20.0),
+                        SizedBox(width: 6.0),
+                        Text(set.names.name(widget.cardSelector
+                            .subExtension()
+                            .extension
+                            .language)),
+                      ]
+                  ),
+                  SizedBox(height: 8.0),
+                  Wrap(
+                      children: wrapCard
+                  )
+                ],
+              ),
+            )
+          )
+        );
+        idSet += 1;
+      });
+    }
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget? advanced = widget.cardSelector.advancedWidget(context, () {setState(() {})} );
-    return SimpleDialog(
-      title: Text(StatitikLocale.of(context).read('V_B4')),
-      children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: cardModes
-        ),
-        if(advanced != null) advanced
-      ]
-    );
+    if(! widget.cardSelector.fullSetsImages) {
+      Widget? advanced = widget.cardSelector.advancedWidget(context, () {setState(() {});} );
+      return SimpleDialog(
+        title: Text(StatitikLocale.of(context).read('V_B4')),
+        children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: cardModes
+          ),
+          if(advanced != null) advanced
+        ]
+      );
+    } else {
+      return Wrap(
+        children: cardModes
+      );
+    }
   }
 }
 
@@ -157,3 +209,80 @@ class _IconCardState extends State<IconCard> {
       );
   }
 }
+
+class ImageSetCounter extends StatefulWidget {
+  final GenericCardSelector cardSelector;
+  final CardImageIdentifier imageId;
+
+  final Function?     refresh;
+  final bool          readOnly;
+
+  const ImageSetCounter(this.cardSelector, this.imageId, {required this.refresh, required this.readOnly});
+
+  @override
+  State<ImageSetCounter> createState() => _ImageSetCounterState();
+}
+
+class _ImageSetCounterState extends State<ImageSetCounter> {
+  late CardImageIdentifier designId;
+
+  @override
+  void initState() {
+    var card = widget.cardSelector.cardExtension();
+    designId = card.images[widget.imageId.idSet].isEmpty
+        ? CardImageIdentifier(0, 0) // Show always first valid image
+        : CardImageIdentifier(widget.imageId.idSet, widget.imageId.idImage);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const splashRadius = 14.0;
+    const iconPadding  = 2.0;
+    var card  = widget.cardSelector.cardExtension();
+    var count = widget.cardSelector.codeDraw().getCountFrom(widget.imageId.idSet, widget.imageId.idImage);
+    return Container(
+      width: 100,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CardImage(widget.cardSelector.subExtension(), card, widget.cardSelector.cardIdentifier(), designId, height: 110),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              IconButton(
+                padding: const EdgeInsets.all(iconPadding),
+                constraints: const BoxConstraints(),
+                icon: const Icon(Icons.remove_circle_outline),
+                onPressed: (){
+                  setState(() {
+                    widget.cardSelector.decrease(widget.imageId.idSet, widget.imageId.idImage);
+                  });
+                },
+                splashRadius: splashRadius,
+              ),
+              Expanded(child:
+                Text(count.toString(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: count > 199 ? 26 : 27, fontWeight: FontWeight.bold,
+                    color: count > 0 ? Colors.green.shade300 : Colors.white)
+                )
+              ),
+              IconButton(icon: const Icon(Icons.add_circle_outline),
+                padding: const EdgeInsets.all(iconPadding),
+                constraints: const BoxConstraints(),
+                onPressed: (){
+                  setState(() {
+                    widget.cardSelector.increase(widget.imageId.idSet, widget.imageId.idImage);
+                  });
+                },
+                splashRadius: splashRadius,
+              )
+            ]
+          ),
+        ]
+      ),
+    );
+  }
+}
+

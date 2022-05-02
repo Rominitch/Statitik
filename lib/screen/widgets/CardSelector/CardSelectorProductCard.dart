@@ -34,20 +34,25 @@ class CardSelectorProductCard extends GenericCardSelector {
   }
 
   @override
-  void increase(int idSet) {
-    card.counter.increase(idSet, _limitSet);
+  CardIdentifier cardIdentifier() {
+    return idCard;
   }
 
   @override
-  void decrease(int idSet) {
-    card.counter.decrease(idSet);
+  void increase(int idSet, [int idImage=0]) {
+    card.counter.increase(idSet, _limitSet, idImage);
   }
 
   @override
-  void setOnly(int idSet)
+  void decrease(int idSet, [int idImage=0]) {
+    card.counter.decrease(idSet, idImage);
+  }
+
+  @override
+  void setOnly(int idSet, [int idImage=0])
   {
     card.counter.reset();
-    card.counter.increase(idSet, _limitSet);
+    card.counter.increase(idSet, _limitSet, idImage);
   }
 
   @override
