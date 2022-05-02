@@ -240,8 +240,10 @@ class CardImage extends StatefulWidget {
             codeType = "E";
           String codeImage = defaultImage.jpDBId.toString().padLeft(6, '0');
 
-          if( cardId.listId == 1 )
+          if( cardId.listId == 1 ) {
             images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/ENE/${codeImage}_${codeType}_$romajiName.jpg"));
+            images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large//${codeImage}_${codeType}_$romajiName.jpg"));
+          }
 
           se.seCode.forEach((seFolder) {
             // Official image source

@@ -36,9 +36,9 @@ class CardCreator extends StatefulWidget {
   final List?                 secondTypes;
   final CardEditorOptions     options;
 
-  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, bool isWorldCard, [options]):
+  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, [options]):
     editor=true, onAppendCard=null, onChangeList=null,
-    listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity)
+    listRarity = (se.extension.language.isWorld() ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity)
       ..removeWhere((element) => element == Environment.instance.collection.unknownRarity),
     secondTypes = [TypeCard.Unknown] + energies,
     this.options = options;
@@ -151,7 +151,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => CardImageCreator(
-                    widget.se, widget.card, widget.idCard, localIdImg, widget.activeLanguage)),
+                    widget.se, widget.card, widget.idCard, localIdImg, widget.activeLanguage, widget.options)),
                 ).then((value) {
                   setState(() {});
                 });
@@ -701,7 +701,9 @@ class CardImageCreator extends StatefulWidget {
   final CardIdentifier       idCard;
   final CardImageIdentifier  idImage;
   final Language             activeLanguage;
-  const CardImageCreator(this.se, this.card, this.idCard, this.idImage, this.activeLanguage, {Key? key}) : super(key: key);
+  final CardEditorOptions    options;
+
+  const CardImageCreator(this.se, this.card, this.idCard, this.idImage, this.activeLanguage, this.options, {Key? key}) : super(key: key);
 
   static void computeJPCardID(SubExtension se, PokemonCardExtension card, CardIdentifier idCard, CardImageIdentifier idImage) {
     try {
@@ -791,9 +793,36 @@ class _CardImageCreatorState extends State<CardImageCreator> {
   @override
   Widget build(BuildContext context) {
     var imageDesign = widget.card.image(widget.idImage)!;
+    var nextCardId = widget.se.seCards.nextId(widget.idCard);
     return Scaffold(
       appBar: AppBar(
         title: Text(StatitikLocale.of(context).read('CA_B41')),
+        actions: [
+          if(nextCardId != null)
+            Card(
+                color: Colors.grey[800],
+                child: TextButton(
+                  child: Text(StatitikLocale.of(context).read('NCE_B6')),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => CardEditor(widget.se, nextCardId, widget.options)),
+                    );
+
+                    // WARNING: refresh issue (don't known how to refresh new popped CardEditor page)
+                    var nextCard = widget.se.cardFromId(nextCardId);
+                    if(nextCard.images.length >= widget.idImage.idSet
+                        && nextCard.images[widget.idImage.idSet].length >= widget.idImage.idImage) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CardImageCreator(
+                            widget.se, nextCard, nextCardId, widget.idImage, widget.activeLanguage, widget.options)),
+                      );
+                    }
+                  }
+                )
+            ),
+        ],
       ),
       body: Column(
         mainAxisSize: MainAxisSize.min,

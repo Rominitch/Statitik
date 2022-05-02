@@ -209,7 +209,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => CardEditor(widget.language.isWorld(), widget.se, idCard, options)),
+            MaterialPageRoute(builder: (context) => CardEditor(widget.se, idCard, options)),
           ).then((value) {
             setState(() {
               updateCardList(localListId);
