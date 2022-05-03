@@ -40,8 +40,12 @@ class _PokemonCardState extends State<PokemonCard> {
     if(widget.selector.fullSetsImages) {
       showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
         builder: (BuildContext context) {
-          return CardSelector(widget.selector, refresh: update, readOnly: widget.readOnly);
+          return Padding(
+            padding: MediaQuery.of(context).viewInsets,//const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
+            child: CardSelector(widget.selector, refresh: update, readOnly: widget.readOnly),
+          );
         }
       ).then((value) {
         if (widget.afterOpenSelector != null)

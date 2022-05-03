@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
 
 import 'package:statitikcard/services/CardSet.dart';
@@ -57,51 +58,7 @@ class _CardSelectorState extends State<CardSelector> {
         cardModes.add(IconCard(widget.cardSelector, idSet, set, refresh: widget.refresh, readOnly: widget.readOnly));
         idSet += 1;
       });
-    } else {
-      var card = widget.cardSelector.cardExtension();
-      card.sets.forEach((set) {
-        List<Widget> wrapCard = [];
-        for(int idImage=0; idImage < max(1, card.images[idSet].length); idImage+=1) {
-          var cardImageId = CardImageIdentifier(idSet, idImage);
-          wrapCard.add(ImageSetCounter(widget.cardSelector, cardImageId, refresh: widget.refresh, readOnly: widget.readOnly));
-        }
-
-        cardModes.add(
-          Card(child:
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            set.imageWidget(width: 20.0),
-                            SizedBox(width: 6.0),
-                            Text(set.names.name(widget.cardSelector
-                                .subExtension()
-                                .extension
-                                .language)),
-                          ]
-                      ),
-                      SizedBox(height: 8.0),
-                      Wrap(
-                          children: wrapCard
-                      )
-                    ],
-                  ),
-                ],
-              ),
-            )
-          )
-        );
-        idSet += 1;
-      });
     }
-
     super.initState();
   }
 
@@ -121,7 +78,57 @@ class _CardSelectorState extends State<CardSelector> {
         ]
       );
     } else {
+      const spacing = 2.0;
+      cardModes = [];
+
+      int idSet=0;
+      var card = widget.cardSelector.cardExtension();
+      card.sets.forEach((set) {
+        List<Widget> wrapCard = [];
+        for(int idImage=0; idImage < max(1, card.images[idSet].length); idImage+=1) {
+          var cardImageId = CardImageIdentifier(idSet, idImage);
+          wrapCard.add(ImageSetCounter(widget.cardSelector, cardImageId, refresh: widget.refresh, readOnly: widget.readOnly));
+        }
+        var setName = set.names.name(widget.cardSelector.subExtension().extension.language);
+        cardModes.add(
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          set.imageWidget(width: 18.0),
+                          SizedBox(width: 6.0),
+                          Text(setName, maxLines: 2, softWrap: true, style: TextStyle(fontSize: setName.length > 10 ? 12 : 16)),
+                        ]
+                      ),
+                      SizedBox(height: 8.0),
+                      Wrap(
+                        spacing: spacing,
+                        runSpacing: spacing,
+                        children: wrapCard
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            )
+          )
+        );
+        idSet += 1;
+      });
+
       return Wrap(
+        spacing: spacing,
+        runSpacing: spacing,
         alignment: WrapAlignment.center,
         children: cardModes
       );
@@ -149,71 +156,71 @@ class _IconCardState extends State<IconCard> {
   @override
   Widget build(BuildContext context) {
     int count = widget.cardSelector.codeDraw().getCountFrom(widget.setId);
-    return  Card(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Card(
-                color: count > 0 ? widget.set.color : background,
-                child: TextButton(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [widget.set.imageWidget(width: 75.0),
-                      SizedBox(height: 6.0),
-                      Text(widget.set.names.name(widget.cardSelector.subExtension().extension.language)),
-                    ]
-                  ),
-                  style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
-                  onPressed: widget.readOnly ? null : () {
-                    widget.cardSelector.setOnly(widget.setId);
+    return Card(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Card(
+            color: count > 0 ? widget.set.color : background,
+            child: TextButton(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [widget.set.imageWidget(width: 75.0),
+                  SizedBox(height: 6.0),
+                  Text(widget.set.names.name(widget.cardSelector.subExtension().extension.language)),
+                ]
+              ),
+              style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
+              onPressed: widget.readOnly ? null : () {
+                widget.cardSelector.setOnly(widget.setId);
 
-                    Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                if(widget.refresh!=null)
+                  widget.refresh!();
+              },
+            ),
+          ),
+          SizedBox(width: 10),
+          Column(
+            children: [
+              ElevatedButton(
+                onPressed: widget.readOnly ? null : () {
+                  setState(() {
+                    widget.cardSelector.increase(widget.setId);
+                  });
+                  if(widget.refresh!=null)
+                    widget.refresh!();
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: background, // background
+                ),
+                child: Container(
+                  child: Text('+', style: TextStyle(fontSize: 20)),
+                )
+              ),
+              Container(
+                  child: Text('$count', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),)
+              ),
+              ElevatedButton(
+                  onPressed: widget.readOnly ? null : () {
+                    setState(() {
+                      widget.cardSelector.decrease(widget.setId);
+                    });
                     if(widget.refresh!=null)
                       widget.refresh!();
                   },
-                ),
+                  style: ElevatedButton.styleFrom(
+                    primary: background, // background
+                  ),
+                  child: Container(
+                    child: Text('-', style: TextStyle(fontSize: 20)),
+                  )
               ),
-              SizedBox(width: 10),
-              Column(
-                children: [
-                  ElevatedButton(
-                      onPressed: widget.readOnly ? null : () {
-                        setState(() {
-                          widget.cardSelector.increase(widget.setId);
-                        });
-                        if(widget.refresh!=null)
-                          widget.refresh!();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: background, // background
-                      ),
-                      child: Container(
-                        child: Text('+', style: TextStyle(fontSize: 20)),
-                      )
-                  ),
-                  Container(
-                      child: Text('$count', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),)
-                  ),
-                  ElevatedButton(
-                      onPressed: widget.readOnly ? null : () {
-                        setState(() {
-                          widget.cardSelector.decrease(widget.setId);
-                        });
-                        if(widget.refresh!=null)
-                          widget.refresh!();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: background, // background
-                      ),
-                      child: Container(
-                        child: Text('-', style: TextStyle(fontSize: 20)),
-                      )
-                  ),
-                ],
-              )
             ],
           )
-      );
+        ],
+      )
+    );
   }
 }
 
@@ -230,8 +237,31 @@ class ImageSetCounter extends StatefulWidget {
   State<ImageSetCounter> createState() => _ImageSetCounterState();
 }
 
+class NumericalRangeFormatter extends TextInputFormatter {
+  final double min;
+  final double max;
+
+  NumericalRangeFormatter({required this.min, required this.max});
+
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue,
+      TextEditingValue newValue,
+      ) {
+
+    if (newValue.text == '') {
+      return newValue;
+    } else if (int.parse(newValue.text) < min) {
+      return TextEditingValue().copyWith(text: min.toStringAsFixed(2));
+    } else {
+      return int.parse(newValue.text) > max ? oldValue : newValue;
+    }
+  }
+}
+
 class _ImageSetCounterState extends State<ImageSetCounter> {
   late CardImageIdentifier designId;
+  late TextEditingController textController;
 
   @override
   void initState() {
@@ -239,7 +269,13 @@ class _ImageSetCounterState extends State<ImageSetCounter> {
     designId = card.images[widget.imageId.idSet].isEmpty
         ? CardImageIdentifier(0, 0) // Show always first valid image
         : CardImageIdentifier(widget.imageId.idSet, widget.imageId.idImage);
+    var count = widget.cardSelector.codeDraw().getCountFrom(widget.imageId.idSet, widget.imageId.idImage);
+    textController = TextEditingController(text: count.toString());
     super.initState();
+  }
+
+  int countCard() {
+    return widget.cardSelector.codeDraw().getCountFrom(widget.imageId.idSet, widget.imageId.idImage);
   }
 
   @override
@@ -248,17 +284,24 @@ class _ImageSetCounterState extends State<ImageSetCounter> {
     const iconPadding  = 2.0;
     const iconSize  = 20.0;
     var card  = widget.cardSelector.cardExtension();
-    var count = widget.cardSelector.codeDraw().getCountFrom(widget.imageId.idSet, widget.imageId.idImage);
+    var count = countCard();
+
     return Container(
       width: 100.0,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CardImage(widget.cardSelector.subExtension(), card, widget.cardSelector.cardIdentifier(), designId, height: 110),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              card.tryGetImage(designId).cardDesign.icon(width: iconSize, height: iconSize),
+              card.tryGetImage(designId).cardDesign.icon(width: iconSize, height: iconSize)
+            ]
+          ),
+          SizedBox(height: 3.0),
+          genericCardWidget( widget.cardSelector.subExtension(), widget.cardSelector.cardIdentifier(), designId, height: 110, language: widget.cardSelector.subExtension().extension.language ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
               IconButton(
                 padding: const EdgeInsets.all(iconPadding),
                 constraints: const BoxConstraints(),
@@ -266,15 +309,32 @@ class _ImageSetCounterState extends State<ImageSetCounter> {
                 onPressed: (){
                   setState(() {
                     widget.cardSelector.decrease(widget.imageId.idSet, widget.imageId.idImage);
+                    textController.text = countCard().toString();
                   });
                 },
                 splashRadius: splashRadius,
               ),
               Expanded(child:
-                Text(count.toString(),
+                TextField(
+                  controller: textController,
+                  inputFormatters: [
+                    NumericalRangeFormatter(min: 0, max: 255),
+                  ],
+                  keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: count > 199 ? 26 : 27, fontWeight: FontWeight.bold,
-                    color: count > 0 ? Colors.green.shade300 : Colors.white)
+                  maxLength: 3,
+                  onSubmitted: (String value) {
+                    var finalValue = max(0, min(int.parse(value.isEmpty ? "0" : value), 255));
+                    widget.cardSelector.codeDraw().setCount(finalValue, widget.imageId.idSet, widget.imageId.idImage);
+                  },
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,
+                      color: count > 0 ? Colors.green.shade300 : Colors.white
+                  ),
+                  decoration: InputDecoration(border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    counterText: "",
+                  ),
                 )
               ),
               IconButton(icon: const Icon(Icons.add_circle_outline),
@@ -283,6 +343,7 @@ class _ImageSetCounterState extends State<ImageSetCounter> {
                 onPressed: (){
                   setState(() {
                     widget.cardSelector.increase(widget.imageId.idSet, widget.imageId.idImage);
+                    textController.text = countCard().toString();
                   });
                 },
                 splashRadius: splashRadius,
