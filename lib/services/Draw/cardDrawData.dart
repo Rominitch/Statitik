@@ -224,7 +224,9 @@ class CodeDraw {
     assert(card.sets.length == card.images.length);
     card.images.forEach((images) {
       _countBySetByImage.add(List<int>.generate(max(1, images.length), (id) => 0));
+      assert(_countBySetByImage.last.length == images.length || _countBySetByImage.last.length == 1);
     });
+    assert(_countBySetByImage.length == card.images.length);
 
     if(code != null) {
       setCode(code);
@@ -326,6 +328,9 @@ class CodeDraw {
   }
 
   int getCountFrom(int set, [int image=0]) {
+    assert(set < _countBySetByImage.length, "Set is not valid: $set >= ${_countBySetByImage.length}");
+    assert(image < _countBySetByImage[set].length, "Image is not valid: $set $image >= ${_countBySetByImage[set].length}");
+
     return _countBySetByImage[set][image];
   }
 

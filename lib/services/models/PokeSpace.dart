@@ -99,7 +99,7 @@ class UserCardCounter
         var code = CodeDraw.fromBytes(parser);
         // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
         if(idCards < cards.length && idSubCards < cards[idCards].length)
-          cards[idCards][idSubCards] = code;
+          cards[idCards][idSubCards].add(code);
       }
     }
 
@@ -108,7 +108,7 @@ class UserCardCounter
       var code = CodeDraw.fromBytes(parser);
       // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
       if(idCards < energies.length )
-        energies[idCards] = code;
+        energies[idCards].add(code);
     }
 
     var countNCards = parser.extractInt16();
@@ -116,7 +116,7 @@ class UserCardCounter
       var code = CodeDraw.fromBytes(parser);
       // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
       if(idCards < noNumbers.length )
-        noNumbers[idCards] = code;
+        noNumbers[idCards].add(code);
     }
   }
 
@@ -128,7 +128,7 @@ class UserCardCounter
         var code = CodeDraw.fromBytesV1(parser);
         // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
         if(idCards < cards.length && idSubCards < cards[idCards].length)
-          cards[idCards][idSubCards] = code;
+          cards[idCards][idSubCards].add(code);
       }
     }
 
@@ -137,7 +137,7 @@ class UserCardCounter
       var code = CodeDraw.fromBytesV1(parser);
       // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
       if(idCards < energies.length )
-        energies[idCards] = code;
+        energies[idCards].add(code);
     }
 
     var countNCards = parser.extractInt16();
@@ -145,7 +145,7 @@ class UserCardCounter
       var code = CodeDraw.fromBytesV1(parser);
       // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
       if(idCards < noNumbers.length )
-        noNumbers[idCards] = code;
+        noNumbers[idCards].add(code);
     }
   }
 

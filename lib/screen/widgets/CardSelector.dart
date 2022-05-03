@@ -70,24 +70,29 @@ class _CardSelectorState extends State<CardSelector> {
           Card(child:
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Column(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        set.imageWidget(width: 20.0),
-                        SizedBox(width: 6.0),
-                        Text(set.names.name(widget.cardSelector
-                            .subExtension()
-                            .extension
-                            .language)),
-                      ]
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            set.imageWidget(width: 20.0),
+                            SizedBox(width: 6.0),
+                            Text(set.names.name(widget.cardSelector
+                                .subExtension()
+                                .extension
+                                .language)),
+                          ]
+                      ),
+                      SizedBox(height: 8.0),
+                      Wrap(
+                          children: wrapCard
+                      )
+                    ],
                   ),
-                  SizedBox(height: 8.0),
-                  Wrap(
-                      children: wrapCard
-                  )
                 ],
               ),
             )
@@ -117,6 +122,7 @@ class _CardSelectorState extends State<CardSelector> {
       );
     } else {
       return Wrap(
+        alignment: WrapAlignment.center,
         children: cardModes
       );
     }
@@ -151,11 +157,12 @@ class _IconCardState extends State<IconCard> {
                 color: count > 0 ? widget.set.color : background,
                 child: TextButton(
                   child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [widget.set.imageWidget(width: 75.0),
-                        SizedBox(height: 6.0),
-                        Text(widget.set.names.name(widget.cardSelector.subExtension().extension.language)),
-                      ]),
+                    mainAxisSize: MainAxisSize.min,
+                    children: [widget.set.imageWidget(width: 75.0),
+                      SizedBox(height: 6.0),
+                      Text(widget.set.names.name(widget.cardSelector.subExtension().extension.language)),
+                    ]
+                  ),
                   style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
                   onPressed: widget.readOnly ? null : () {
                     widget.cardSelector.setOnly(widget.setId);
@@ -239,10 +246,11 @@ class _ImageSetCounterState extends State<ImageSetCounter> {
   Widget build(BuildContext context) {
     const splashRadius = 14.0;
     const iconPadding  = 2.0;
+    const iconSize  = 20.0;
     var card  = widget.cardSelector.cardExtension();
     var count = widget.cardSelector.codeDraw().getCountFrom(widget.imageId.idSet, widget.imageId.idImage);
     return Container(
-      width: 100,
+      width: 100.0,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -250,6 +258,7 @@ class _ImageSetCounterState extends State<ImageSetCounter> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              card.tryGetImage(designId).cardDesign.icon(width: iconSize, height: iconSize),
               IconButton(
                 padding: const EdgeInsets.all(iconPadding),
                 constraints: const BoxConstraints(),

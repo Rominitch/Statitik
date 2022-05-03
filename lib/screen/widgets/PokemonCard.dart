@@ -69,21 +69,21 @@ class _PokemonCardState extends State<PokemonCard> {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: TextButton(
-          child: widget.selector.cardWidget(),
-          style: TextButton.styleFrom(
-              backgroundColor: widget.selector.backgroundColor(),
-              padding: const EdgeInsets.all(2.0)
-          ),
-          onLongPress: showSelectorDialog,
-          onPressed: widget.readOnly ? null : (widget.singlePress ? showSelectorDialog :
-            () {
-              setState(() {
-                // WARNING: default press is always on first set
-                widget.selector.toggle();
+        child: widget.selector.cardWidget(),
+        style: TextButton.styleFrom(
+          backgroundColor: widget.selector.backgroundColor(),
+          padding: const EdgeInsets.all(2.0)
+        ),
+        onLongPress: showSelectorDialog,
+        onPressed: widget.readOnly ? null : (widget.singlePress ? showSelectorDialog :
+          () {
+            setState(() {
+              // WARNING: default press is always on first set
+              widget.selector.toggle();
 
-                widget.refresh();
-              });
-          })
+              widget.refresh();
+            });
+        })
       ),
     );
   }

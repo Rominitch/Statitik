@@ -305,8 +305,8 @@ class _CardImageState extends State<CardImage> {
       );
     } else {
       return widget.language != null
-          ? Center(child: Text(widget.se.seCards.readTitleOfCard(widget.language!, widget.idCard)))
-          : Icon(Icons.help_outline);
+        ? Center(child: Text(widget.se.seCards.readTitleOfCard(widget.language!, widget.idCard)))
+        : Icon(Icons.help_outline);
     }
   }
   @override

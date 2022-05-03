@@ -158,7 +158,7 @@ class Environment
                             (readPokeSpace()).whenComplete( () async {
 
                                 SharedPreferences.getInstance().then((prefs) {
-                                    storeImageLocally = prefs.getBool("storeImageLocaly") ?? false;
+                                    storeImageLocally = prefs.getBool("storeImageLocaly") ?? storeImageLocally;
                                 }).whenComplete(() {
                                     isInitialized = true;
                                     onInitialize.add(isInitialized);
