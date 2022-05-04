@@ -168,8 +168,8 @@ class _StatsPageState extends State<StatsPage> {
       Card(
         margin: EdgeInsets.all(2.0),
         color: Colors.grey.shade800,
-        child: Container(height:160,
-          padding: const EdgeInsets.all(6.0),
+        child: Container(height:165,
+          padding: const EdgeInsets.all(4.0),
           child: Column(children: [
             drawImagePress(context, image, 40.0),
             Text(StatitikLocale.of(context).read(title), textAlign: TextAlign.center, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
