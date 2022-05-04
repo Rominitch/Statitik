@@ -16,6 +16,7 @@ class CardSelectorProductCard extends GenericCardSelector {
 
   CardSelectorProductCard(this.card): super() {
     idCard = subExtension().seCards.computeIdCard(card.card)!;
+    fullSetsImages = true;
   }
 
   @override

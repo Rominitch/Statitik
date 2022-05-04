@@ -16,8 +16,9 @@ class ImageStoredLocally extends StatefulWidget {
   final double?      height;
   final Widget?      alternativeRendering;
   final bool         reloader;
+  final BoxFit?      fit;
 
-  const ImageStoredLocally(this.path, this.imageName, this.webAddress, {this.quality, this.width, this.height, this.alternativeRendering, this.reloader=false});
+  const ImageStoredLocally(this.path, this.imageName, this.webAddress, {this.quality, this.width, this.height, this.alternativeRendering, this.reloader=false, this.fit});
 
   @override
   State<ImageStoredLocally> createState() => _ImageStoredLocallyState();
@@ -44,6 +45,7 @@ class _ImageStoredLocallyState extends State<ImageStoredLocally> {
                       snapshot.data!,
                       width: widget.width, height: widget.height,
                       filterQuality: widget.quality ?? FilterQuality.medium,
+                      fit: widget.fit,
                       errorBuilder: (context, error, stackTrace) {
                         printOutput("ImageStored: Error ${error.toString()}\n$stackTrace");
                         try {

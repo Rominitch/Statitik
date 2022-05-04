@@ -13,7 +13,7 @@ import 'package:statitikcard/services/models/PokemonCardExtension.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 
-Widget genericCardWidget(SubExtension se, CardIdentifier idCard, CardImageIdentifier idImage, {FilterQuality? quality, double? width, double? height, Language? language, bool reloader=false}) {
+Widget genericCardWidget(SubExtension se, CardIdentifier idCard, CardImageIdentifier idImage, {FilterQuality? quality, double? width, double? height, Language? language, bool reloader=false, BoxFit? fit}) {
   if( Environment.instance.storeImageLocally ) {
     Widget? alternative;
     if( language != null ) {
@@ -21,7 +21,7 @@ Widget genericCardWidget(SubExtension se, CardIdentifier idCard, CardImageIdenti
     }
     var nameDiskImage = "${idCard.toString()}_${idImage.toString()}";
     return ImageStoredLocally(["images", "card", se.extension.language.image, se.icon],
-      nameDiskImage, CardImage.computeImageURI(se, idCard, idImage), quality: quality, width: width, height: height, alternativeRendering: alternative, reloader: reloader);
+      nameDiskImage, CardImage.computeImageURI(se, idCard, idImage), quality: quality, width: width, height: height, alternativeRendering: alternative, reloader: reloader, fit: fit);
   } else {
     return CardImage(se, se.cardFromId(idCard), idCard, idImage, height: height ?? 400, language: language);
   }
