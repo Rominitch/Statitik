@@ -9,6 +9,11 @@ class CardIdentifier {
     assert(cardId.length >= 2);
   }
 
+  CardIdentifier.copy(CardIdentifier idCard) :
+    this.cardId = List<int>.generate(idCard.cardId.length, (index) => idCard.cardId[index]){
+    assert(cardId.length >= 2);
+  }
+
   CardIdentifier.fromBytes(ByteParser parser) : this.cardId = []{
     cardId = [parser.extractInt8(), parser.extractInt16()];
     if(cardId[0] == 0)

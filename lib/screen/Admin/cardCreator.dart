@@ -170,7 +170,21 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           child: IconButton(icon: Icon(Icons.add_circle_outline),
             onPressed: () {
               setState(() {
-                widget.card.images[index].add(ImageDesign());
+                var imageDesign = ImageDesign();
+                // Search ancestor
+                var idImage = widget.card.images[index].length;
+                for(int id=widget.idCard.numberId-1; id >= 0; id-=1) {
+                  var oldId = CardIdentifier.copy(widget.idCard);
+                  oldId.cardId[1] = id;
+                  var oldCard = widget.se.cardFromId(oldId);
+                  if(index < oldCard.images.length) {
+                    if( idImage < oldCard.images[index].length) {
+                      imageDesign.cardDesign.copyFrom(oldCard.images[index][idImage].cardDesign);
+                      break;
+                    }
+                  }
+                }
+                widget.card.images[index].add(imageDesign);
               });
             }
           ),
@@ -812,7 +826,7 @@ class _CardImageCreatorState extends State<CardImageCreator> {
                     // WARNING: refresh issue (don't known how to refresh new popped CardEditor page)
                     var nextCard = widget.se.cardFromId(nextCardId);
                     if(nextCard.images.length >= widget.idImage.idSet
-                        && nextCard.images[widget.idImage.idSet].length >= widget.idImage.idImage) {
+                        && nextCard.images[widget.idImage.idSet].length > widget.idImage.idImage) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => CardImageCreator(

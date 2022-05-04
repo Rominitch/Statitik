@@ -12,18 +12,21 @@ enum Design {
   Shiny,
   Full,
   K,
+  Unknown,
 }
 
 enum ShiningPattern {
   None,
   Alternative,
   Alternative2,
+  Alternative3,
 }
 
 enum ArtFormat {
   Normal,
   HalfArt,
   FullArt,
+  Unknown,
 }
 
 Widget iconArt(ArtFormat design, [double? width, double? height]) {
@@ -85,14 +88,36 @@ class CardDesign {
   CardDesign([this.design = Design.Mat, this.pattern = ShiningPattern.None, this.art = ArtFormat.Normal]);
 
   CardDesign.fromBytesV1(ByteParser parser):
-    this.design  = Design.values[parser.extractInt8()],
-    this.pattern = ShiningPattern.values[parser.extractInt8()],
-    this.art     = ArtFormat.Normal;
+    this.design  = Design.Unknown,
+    this.pattern = ShiningPattern.None,
+    this.art     = ArtFormat.Normal
+  {
+    int idDesign = parser.extractInt8();
+    if(idDesign < Design.values.length)
+      this.design  = Design.values[idDesign];
+
+    int idPattern = parser.extractInt8();
+    if(idPattern < ShiningPattern.values.length)
+      this.pattern = ShiningPattern.values[idPattern];
+  }
 
   CardDesign.fromBytes(ByteParser parser):
-        this.design  = Design.values[parser.extractInt8()],
-        this.pattern = ShiningPattern.values[parser.extractInt8()],
-        this.art     = ArtFormat.values[parser.extractInt8()];
+    this.design  = Design.Unknown,
+    this.pattern = ShiningPattern.None,
+    this.art     = ArtFormat.Unknown
+  {
+    int idDesign = parser.extractInt8();
+    if(idDesign < Design.values.length)
+      this.design  = Design.values[idDesign];
+
+    int idPattern = parser.extractInt8();
+    if(idPattern < ShiningPattern.values.length)
+      this.pattern = ShiningPattern.values[idPattern];
+
+    int idArt = parser.extractInt8();
+    if(idArt < ArtFormat.values.length)
+      this.art     = ArtFormat.values[idArt];
+  }
 
   List<int> toBytes() {
     return  ByteEncoder.encodeInt8(design.index) +
@@ -109,6 +134,8 @@ class CardDesign {
             return "DESIGN_H1";
           case ShiningPattern.Alternative2:
             return "DESIGN_H2";
+          case ShiningPattern.Alternative3:
+            return "DESIGN_H3";
           default:
             return "DESIGN_H0";
         }
@@ -120,6 +147,8 @@ class CardDesign {
             return "DESIGN_R1";
           case ShiningPattern.Alternative2:
             return "DESIGN_R2";
+          case ShiningPattern.Alternative3:
+            return "DESIGN_R3";
           default:
             return "DESIGN_R0";
         }
@@ -160,6 +189,14 @@ class CardDesign {
           return Image.asset("assets/design/DesignReversePoke.png", width: width, height: height);
         default:
       }
+    else if(pattern == ShiningPattern.Alternative3)
+      switch(design) {
+        case Design.Holographic:
+          return Image.asset("assets/design/DesignHoloMosaic.png", width: width, height: height);
+        case Design.Reverse:
+          return Image.asset("assets/design/DesignReverseEnergy.png", width: width, height: height);
+        default:
+      }
     return Icon(Icons.help_outline);
   }
 
@@ -192,9 +229,11 @@ List<CardDesign> validDesigns = [
   CardDesign(Design.Holographic),
   CardDesign(Design.Holographic, ShiningPattern.Alternative),
   CardDesign(Design.Holographic, ShiningPattern.Alternative2),
+  CardDesign(Design.Holographic, ShiningPattern.Alternative3),
   CardDesign(Design.Reverse),
   CardDesign(Design.Reverse, ShiningPattern.Alternative),
   CardDesign(Design.Reverse, ShiningPattern.Alternative2),
+  CardDesign(Design.Reverse, ShiningPattern.Alternative3),
   CardDesign(Design.Full),
   CardDesign(Design.ArcEnCiel),
   CardDesign(Design.Gold),
