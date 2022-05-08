@@ -55,6 +55,7 @@ class CardImage extends StatefulWidget {
       "[":    "", // Remove [
       "]":    "", // Remove ]
       // Kanji Convertion
+      "野盗三姉妹": "NOTOUSANSHIMAI",
       "地底探険隊": "CHITEITANKENTAI",
       "財団職員" : "ZAIDANSHOKUIN",
       "一発勝負": "IPPATSUSHOUBU",
@@ -121,6 +122,9 @@ class CardImage extends StatefulWidget {
       "谷":     "TANI",
       "虚":     "UTSU",
       "海":     "UMI",
+      "災":     "WAZAWA",
+      "箱":     "HAKO",
+      "湖":     "KO",
     };
     const kanaKit = KanaKit();
     var val = "";
