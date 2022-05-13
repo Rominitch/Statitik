@@ -30,8 +30,8 @@ class ScreenPrint
            var file = File("$myImagePath/$title.png");
            file.writeAsBytesSync(image!);
 
-           var result = await PhotoManager.requestPermission();
-           if (result) {
+           PermissionState result = await PhotoManager.requestPermissionExtend();
+           if (result == PermissionState.authorized || result == PermissionState.limited) {
              await PhotoManager.editor.saveImageWithPath(
                  file.path, title: title);
 

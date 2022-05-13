@@ -105,7 +105,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
       attackTypeEnergyWidget.add(CustomRadio(value: element, controller: energyAttackController, widget: getImageType(element), widthBox: typeSize));
     });
 
-    validDesigns.forEach((design) {
+    Environment.instance.collection.validDesigns.forEach((design) {
       designWidget.add(DesignButtonCheck(widget.language, widget.result.designs, design, controller: refreshController));
     });
     ArtFormat.values.forEach((art) {

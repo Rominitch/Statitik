@@ -40,92 +40,6 @@ class CardImage extends StatefulWidget {
     cardImage = computeImageLabel(se, card, idCard, idImage), this.card = card, this.se = se;
 
   static String convertRomaji(String name) {
-    const Map<String, String> conversions = const {
-      "FYI":  "FI",
-      "RY":   "RI",
-      "TCH":  "CCH",
-      "&":    "TO",
-      "CHE":  "CHIE",
-      "BYI":  "BII",
-      //"JI":   "DI",
-      "'":    "", // Remove '
-      ".":    "", // Remove .
-      " ":    "", // Remove space
-      "/":    "", // Remove /
-      "[":    "", // Remove [
-      "]":    "", // Remove ]
-      // Kanji Convertion
-      "野盗三姉妹": "NOTOUSANSHIMAI",
-      "地底探険隊": "CHITEITANKENTAI",
-      "財団職員" : "ZAIDANSHOKUIN",
-      "一発勝負": "IPPATSUSHOUBU",
-      "溶接工": "YOUSETSUKOU",
-      "火打石": "HIDAISHI",
-      "保護区": "HOGOKU",
-      "活力剤": "KATSURYOKUZAI",
-      "基本":   "KIHON",
-      "回収":   "KAISHUU",
-      "博士":   "HAKASE",
-      "研究":   "KENKYUU",
-      "通信":   "TSUUSHIN",
-      "探索":   "TANSAKU",
-      "加速":   "KASOKU",
-      "転送":   "TENSOU",
-      "指令":   "SHIREI",
-      "無色":   "MUSHOKU",
-      "電磁":   "DENJI",
-      "隠密":   "ONMITSU",
-      "特性":   "KUSEI",
-      "作戦":   "SAKUSEN",
-      "改造":   "KAIZOU",
-      "暗示":   "ANJI",
-      "大口":   "OOGUCHI",
-      "化石":   "KASEKI",
-      "活気":   "KAKKI",
-      "神殿":   "SHINDEN",
-      "覇気":   "HAKI",
-      "道場":   "DOUJOU",
-      "巨大":   "KYODAI",
-      "月輪":   "GATSUWA",
-      "祭壇":   "SAIDAN",
-      "原野":   "GENYA",
-      "決断":   "KETSUDAN",
-      "職人":   "SHOKUNIN",
-      "鉤爪":   "KOUTSUME",
-      "炸裂":   "SAKURETSU",
-      "闘魂":   "TOUKON",
-      "大海":   "TAIKAI",
-      "植物":   "SHOKUBUTSU",
-      "次元":   "JIGEN",
-      "日輪":   "NICHIRIN",
-      "姉":     "NEE",
-      "水":     "MIZU",
-      "団":     "DAN",
-      "雷":     "KAMINARI",
-      "超":     "CHOU",
-      "草":     "KUSA",
-      "悪":     "AKU",
-      "闘":     "TOU",
-      "炎":     "HONOO",
-      "鋼":     "KOU",
-      "罠":     "WANA",
-      "気":     "KI",
-      "沼":     "NUMA",
-      "戒":     "IMASHI",
-      "祠":     "SHI",
-      "格":     "KAKU",
-      "山":     "YAMA",
-      "森":     "MORI",
-      "喰":     "KU",
-      "丘":     "OKA",
-      "竜":     "RYUU",
-      "谷":     "TANI",
-      "虚":     "UTSU",
-      "海":     "UMI",
-      "災":     "WAZAWA",
-      "箱":     "HAKO",
-      "湖":     "KO",
-    };
     const kanaKit = KanaKit();
     var val = "";
     try {
@@ -137,7 +51,7 @@ class CardImage extends StatefulWidget {
       val = val.toUpperCase();
 
       // Finish by clean converter
-      conversions.forEach((key, value) {
+      Environment.instance.collection.convertKanji.forEach((key, value) {
         val = val.replaceAll(key, value);
       });
     } catch(e) {

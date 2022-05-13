@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.9.5+248
+version: 2.0.0+249
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -25,22 +25,22 @@ dependencies:
     sdk: flutter
 
   intl: ^0.17.0
-  firebase_core: ^1.7.0
-  firebase_auth_web: ^3.0.0
-  firebase_auth: ^3.1.2
+  firebase_core: ^1.16.0
+  firebase_auth_web: ^3.3.14
+  firebase_auth: ^3.3.17
   provider: ^6.0.0
   mysql1: ^0.19.2
-  cached_network_image: ^3.1.0
+  cached_network_image: ^3.2.0
   google_sign_in: ^5.0.5
-  percent_indicator: ^3.0.1
-  fl_chart: ^0.41.0
+  percent_indicator: ^4.2.0
+  fl_chart: ^0.50.1
   shared_preferences: ^2.0.6
   url_launcher: ^6.0.8
   sprintf: ^6.0.0
   flutter_spinbox: ^0.8.0
   permission_handler: ^8.2.2
   path_provider: ^2.0.2
-  photo_manager: ^1.2.8
+  photo_manager: ^2.1.0+1
   screenshot: ^1.2.3
   carousel_slider: ^4.0.0
   kana_kit: ^2.0.0
@@ -101,21 +101,6 @@ flutter:
     - assets/design/ArtNormal.png
     - assets/design/ArtHalf.png
     - assets/design/ArtFull.png
-    - assets/design/DesignGold.png
-    - assets/design/DesignGoldBlack.png
-    - assets/design/DesignHoloDot.png
-    - assets/design/DesignHoloVertical.png
-    - assets/design/DesignNormal.png
-    - assets/design/DesignRainbow.png
-    - assets/design/DesignReverse0.png
-    - assets/design/DesignReverse1.png
-    - assets/design/DesignShiny.png
-    - assets/design/DesignHoloLight.png
-    - assets/design/DesignFullArt.png
-    - assets/design/DesignReversePoke.png
-    - assets/design/DesignHoloMosaic.png
-    - assets/design/DesignReverseEnergy.png
-    - assets/design/DesignK.png
     - assets/energie/plante.png
     - assets/energie/feu.png
     - assets/energie/electrique.png

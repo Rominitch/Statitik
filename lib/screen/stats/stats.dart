@@ -256,7 +256,7 @@ class _StatsPageState extends State<StatsPage> {
               splashColor: Colors.orangeAccent,
               tooltip: StatitikLocale.of(context).read('S_TOOL_T4'),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => TutorialCaption()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => TutorialCaption(widget.info.statsData.subExt!.extension.language)));
               },
             ),
           ],

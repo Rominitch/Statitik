@@ -29,7 +29,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       SharedPreferences.getInstance().then((prefs) {
         var latestId = prefs.getInt('LatestNews') ?? 0;
         News.readFromDB(StatitikLocale

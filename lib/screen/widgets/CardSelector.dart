@@ -64,8 +64,8 @@ class _CardSelectorState extends State<CardSelector> {
 
   @override
   Widget build(BuildContext context) {
+    Widget? advanced = widget.cardSelector.advancedWidget(context, () {setState(() {});} );
     if(! widget.cardSelector.fullSetsImages) {
-      Widget? advanced = widget.cardSelector.advancedWidget(context, () {setState(() {});} );
       return SimpleDialog(
         title: Text(StatitikLocale.of(context).read('V_B4')),
         children: [
@@ -126,11 +126,17 @@ class _CardSelectorState extends State<CardSelector> {
         idSet += 1;
       });
 
-      return Wrap(
-        spacing: spacing,
-        runSpacing: spacing,
-        alignment: WrapAlignment.center,
-        children: cardModes
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Wrap(
+            spacing: spacing,
+            runSpacing: spacing,
+            alignment: WrapAlignment.center,
+            children: cardModes
+          ),
+          if(advanced != null) advanced
+        ],
       );
     }
   }

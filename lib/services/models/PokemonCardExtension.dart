@@ -53,8 +53,8 @@ class PokemonCardExtension {
       // Auto art
       image.cardDesign.art = this.rarity == Environment.instance.collection.rarities[16] ? ArtFormat.FullArt
           : this.rarity == Environment.instance.collection.rarities[14] ? ArtFormat.HalfArt :  ArtFormat.Normal;
-      image.cardDesign.design = this.rarity == Environment.instance.collection.rarities[16] ? Design.Full
-          : this.rarity == Environment.instance.collection.rarities[14] ? Design.Full :  Design.Mat;
+      image.cardDesign.design = this.rarity == Environment.instance.collection.rarities[16] ? Design.Full.index
+          : this.rarity == Environment.instance.collection.rarities[14] ? Design.Full.index :  0;
     }
 
     images.add([image]);

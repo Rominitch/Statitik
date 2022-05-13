@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/CardDesign.dart';
+import 'package:statitikcard/services/models/Language.dart';
 
 class TutorialCaption extends StatelessWidget {
-  const TutorialCaption({Key? key}) : super(key: key);
+  final Language l;
+  const TutorialCaption(this.l, {Key? key}) : super(key: key);
 
   Widget createIconDescribe(String text, Widget icon) {
     return Padding(
@@ -12,15 +15,16 @@ class TutorialCaption extends StatelessWidget {
           icon,
           SizedBox(width: 5.0),
           Flexible(child: Text(text, style: TextStyle(fontSize: text.length > 10  ? 12.0 : 14.0)))
-          ]),
+        ]
+      )
     );
   }
   @override
   Widget build(BuildContext context) {
     const iconSize = 50.0;
     var designWidget = <Widget>[];
-    validDesigns.forEach((element) {
-      designWidget.add( createIconDescribe(StatitikLocale.of(context).read(element.nameCode()), element.icon(height: iconSize)));
+    Environment.instance.collection.validDesigns.forEach((element) {
+      designWidget.add( createIconDescribe(element.name(l), element.icon(height: iconSize)));
     });
 
     var artWidgets = <Widget>[];

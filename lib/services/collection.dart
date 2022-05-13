@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import 'package:mysql1/mysql1.dart';
+import 'package:statitikcard/services/models/CardDesign.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
 
 import 'package:statitikcard/services/CardEffect.dart';
@@ -48,7 +49,9 @@ class Collection
   Map rarities        = {};
   Map markers         = {};
   Map products        = {};
-  Map productSides   = {};
+  Map productSides    = {};
+  Map designs         = {};
+  Map convertKanji    = {};
 
   // Rarity Information
   static const int idUnknownRarity = 28;
@@ -69,6 +72,8 @@ class Collection
   // Markers
   Map<CardMarker, Widget?> cachedMarkers = {};
   List<CardMarker>         longMarkers   = [];
+
+  List<CardDesign>         validDesigns = [];
 
   // Admin part
   Map rIllustrators    = {};
@@ -101,6 +106,8 @@ class Collection
     otherNames.clear();
     descriptions.clear();
     categories.clear();
+    designs.clear();
+    convertKanji.clear();
 
     unknownRarity = null;
     orderedRarity.clear();
@@ -112,6 +119,7 @@ class Collection
 
     cachedMarkers.clear();
     longMarkers.clear();
+    validDesigns.clear();
 
     rIllustrators.clear();
     rRegions.clear();
@@ -316,6 +324,28 @@ class Collection
       }
       time.tick("Formes");
       assert(formes.isNotEmpty);
+
+      var designRes = await connection.query("SELECT * FROM `Design`");
+      for (var row in designRes) {
+        if(!designs.containsKey(row[0]))
+          designs[row[0]] = {};
+
+        var cardDesign = CardDesignData(row[5], MultiLanguageString([row[2], row[3], row[4]]));
+        designs[row[0]][row[1]] = cardDesign;
+
+        if(cardDesign.image.isNotEmpty)
+          validDesigns.add(CardDesign(row[0], row[1]));
+      }
+
+      time.tick("Design");
+      assert(designs.isNotEmpty);
+
+      var kanjiRes = await connection.query("SELECT * FROM `KanjiConvert`");
+      for (var row in kanjiRes) {
+        convertKanji[row[0]] = row[1];
+      }
+      time.tick("Kanji");
+      assert(convertKanji.isNotEmpty);
 
       var illustratorRes = await connection.query("SELECT * FROM `Illustrateur`");
       for (var row in illustratorRes) {

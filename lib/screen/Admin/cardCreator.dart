@@ -845,11 +845,11 @@ class _CardImageCreatorState extends State<CardImageCreator> {
           GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.0),
-            itemCount: validDesigns.length,
+            itemCount: Environment.instance.collection.validDesigns.length,
             primary: false,
             shrinkWrap: true,
             itemBuilder: (BuildContext context, int index) {
-              var element = validDesigns[index];
+              var element = Environment.instance.collection.validDesigns[index];
               return CustomRadio(value: element, controller: designController, widget: element.icon() );
             }
           ),
