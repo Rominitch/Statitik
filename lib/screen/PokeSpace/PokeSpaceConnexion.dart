@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:statitikcard/screen/PokeSpace/PokeSpaceMyDecks.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
 import 'package:statitikcard/screen/commonPages/productPage.dart';
@@ -10,6 +11,7 @@ import 'package:statitikcard/screen/PokeSpace/PokeSpaceSavedDraw.dart';
 import 'package:statitikcard/screen/PokeSpace/PokeSpaceDrawResume.dart';
 import 'package:statitikcard/screen/tutorial/drawTuto.dart';
 import 'package:statitikcard/screen/view.dart';
+import 'package:statitikcard/screen/widgets/GradientButton.dart';
 import 'package:statitikcard/services/Draw/SessionDraw.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/UserDrawFile.dart';
@@ -31,7 +33,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
   String? message;
   List<UserDrawFile> userDraw = [];
 
-  Widget createButton( List<Widget> info, Function onpress, {color}) {
+  Widget createButton( List<Widget> info, Function() onpress, {color}) {
     return Card(
       color: color,
       child: TextButton(
@@ -41,10 +43,25 @@ class _DrawHomePageState extends State<DrawHomePage> {
               children: info,
             )
         ),
-        onPressed: () {
-          onpress();
-        }
+        onPressed: onpress
       )
+    );
+  }
+  Widget createButtonGradient( List<Widget> info, Function() onpress, {color}) {
+    return GradientButton(
+      Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: info,
+        )
+      ),
+      onpress,
+      gradient:
+        RadialGradient(center: Alignment(0.0, 7.0),
+        radius: 5.0,
+        colors: [color, Colors.grey.shade700, Colors.grey.shade800],
+        stops: [0.5, 0.75, 1.0],
+      ),
     );
   }
 
@@ -123,30 +140,33 @@ class _DrawHomePageState extends State<DrawHomePage> {
 
   Widget myProfilePanel() {
     var buttons = [
-      createButton([
-        Text(StatitikLocale.of(context).read('DC_B16'), style: Theme.of(context).textTheme.headline5)
+      createButtonGradient([
+        Text(StatitikLocale.of(context).read('DC_B16'),
+          style: Theme.of(context).textTheme.headline5)
         ],(){
         if(Environment.instance.isLogged())
           Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyCards()));
-      }),
-      createButton([
+      },
+        color: cardMenuColor
+      ),
+      createButtonGradient([
         Text(StatitikLocale.of(context).read('DC_B17'),
-            style: Theme.of(context).textTheme.headline5),
+          style: Theme.of(context).textTheme.headline5),
         ],(){
         if(Environment.instance.isLogged())
           Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyProducts()));
-      }),
-      createButton([
-        Column(
-          children: [
-            Text(StatitikLocale.of(context).read('DC_B18'),
-                style: Theme.of(context).textTheme.headline5),
-            Text(StatitikLocale.of(context).read('devSoon'),
-                style: TextStyle(fontSize: 10)),
-          ],
-        )
+      },
+        color: productMenuColor
+      ),
+      createButtonGradient([
+        Text(StatitikLocale.of(context).read('DC_B18'),
+          style: Theme.of(context).textTheme.headline5),
       ],(){
-      }, color: Colors.black54),
+        if(Environment.instance.isLogged())
+          Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyDeck()));
+      },
+        color: deckMenuColor
+      ),
       createButton([
         Text(StatitikLocale.of(context).read('DC_B11'), style: Theme.of(context).textTheme.headline5),
       ], () {

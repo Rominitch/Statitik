@@ -6,6 +6,7 @@ import 'package:statitikcard/services/Draw/SessionDraw.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/BytesCoder.dart';
+import 'package:statitikcard/services/models/Deck.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/NewCardsReport.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
@@ -282,9 +283,10 @@ class PokeSpace
   Map<SubExtension, UserCardCounter>    myCards        = {};
   Map<Product,      UserProductCounter> myProducts     = {};
   Map<ProductSide,  UserProductCounter> mySideProducts = {};
+  List<Deck>                            myDecks        = [];
 
   bool outOfDate = false;
-  static const int version = 2;
+  static const int version = 3;
 
   PokeSpace();
 
@@ -322,8 +324,19 @@ class PokeSpace
     return languages;
   }
 
+  static PokeSpace fromBytes(List<int> data, Map subExtensions, Map products, Map sideProducts)
+  {
+    int localVersion = data[0];
+    if(localVersion == 2)
+      return PokeSpace.fromBytesV2(data, subExtensions, products, sideProducts);
+    else if(localVersion == 3)
+      return PokeSpace.fromBytesV3(data, subExtensions, products, sideProducts);
+    else
+      throw StatitikException("Unknown Product version: ${data[0]}");
+  }
+
   /// Build space from database
-  PokeSpace.fromBytes(List<int> data, Map subExtensions, Map products, Map sideProducts)
+  PokeSpace.fromBytesV2(List<int> data, Map subExtensions, Map products, Map sideProducts)
   {
     int localVersion = data[0];
     if(localVersion > version)
@@ -361,6 +374,51 @@ class PokeSpace
     computeStats();
   }
 
+  /// Build space from database
+  PokeSpace.fromBytesV3(List<int> data, Map subExtensions, Map products, Map sideProducts)
+  {
+    int localVersion = data[0];
+    if(localVersion > version)
+      throw StatitikException("Unknown Product version: ${data[0]}");
+
+    // Is Zip ?
+    List<int> bytes = (data[1] == 1) ? gzip.decode(data.sublist(2)) : data.sublist(2);
+    ByteParser parser = ByteParser(bytes);
+
+    int nbSubExtensions = parser.extractInt16();
+    for(var id=0; id < nbSubExtensions; id +=1) {
+      int idSE = parser.extractInt16();
+      assert(subExtensions[idSE] != null, "Impossible to find SE: $idSE");
+      var subExtension = subExtensions[idSE]!;
+      insertSubExtension(subExtension);
+      if(localVersion == 2)
+        myCards[subExtension]!.fromByte(parser);
+      else
+        myCards[subExtension]!.fromByteV1(parser);
+    }
+
+    int nbProducts = parser.extractInt16();
+    for(var id=0; id < nbProducts; id +=1) {
+      var product = products[parser.extractInt16()]!;
+      insertProduct(product, UserProductCounter.fromBytes(parser), addCardAndMore: false);
+    }
+
+    int nbSideProducts = parser.extractInt16();
+    for(var id=0; id < nbSideProducts; id +=1) {
+      var product = sideProducts[parser.extractInt16()]!;
+      insertSideProduct(product, UserProductCounter.fromBytes(parser));
+    }
+
+    // Extract deck
+    int nbDecks = parser.extractInt8();
+    for(var id=0; id < nbDecks; id +=1) {
+      myDecks.add(Deck.fromBytes(parser, subExtensions));
+    }
+
+    // Finally compute all stats
+    computeStats();
+  }
+
   // Save in binary
   List<int> toBytes() {
     List<int> bytes = [];
@@ -382,6 +440,12 @@ class PokeSpace
     mySideProducts.forEach((product, counter) {
       bytes += ByteEncoder.encodeInt16(product.idDB);
       bytes += counter.toBytes();
+    });
+
+    // My decks
+    bytes += ByteEncoder.encodeInt16(myDecks.length);
+    myDecks.forEach((deck) {
+      bytes += deck.toBytes();
     });
 
     // Save final data

@@ -110,9 +110,9 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
         appBar: AppBar(
           title: Text(StatitikLocale.of(context).read('DC_B17'), style: Theme.of(context).textTheme.headline3),
           actions: [
-            FloatingActionButton(
+            FloatingActionButton.small(
               child: Icon(Icons.add_shopping_cart, color: Colors.white,),
-              backgroundColor: Colors.deepOrange,
+              backgroundColor: productMenuColor,
               onPressed: (){
                 Navigator.push(context, MaterialPageRoute(builder:
                   (context) => LanguageSelector((BuildContext c, Language l)

@@ -15,6 +15,10 @@ import 'package:statitikcard/services/models/SubExtension.dart';
 
 import 'connection.dart';
 
+Color cardMenuColor    = Colors.blueAccent.shade200;
+const Color productMenuColor = Colors.deepOrange;
+const Color deckMenuColor    = Colors.deepPurpleAccent;
+
 Widget drawCachedImage(folder, image, {double? width, double? height, alternativeRendering}){
   if(Environment.instance.storeImageLocally) {
     return ImageStoredLocally(["images", folder], '$image',
