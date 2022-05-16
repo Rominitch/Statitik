@@ -40,7 +40,7 @@ dependencies:
   flutter_spinbox: ^0.8.0
   permission_handler: ^8.2.2
   path_provider: ^2.0.2
-  photo_manager: ^2.1.0+1
+  photo_manager: ^2.1.1
   screenshot: ^1.2.3
   carousel_slider: ^4.0.0
   kana_kit: ^2.0.0

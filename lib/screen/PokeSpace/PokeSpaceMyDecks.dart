@@ -69,7 +69,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(2.0),
+          padding: const EdgeInsets.all(4.0),
           child: myDecks.isEmpty ?
             Padding(
               padding: const EdgeInsets.all(6.0),
@@ -89,7 +89,9 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
                   drawNothing(context, 'PSMD_B0')
                 ]
               ),
-            ) : ListView.builder(
+            ) : GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 0.8),
               itemCount: myDecks.length,
               itemBuilder: (BuildContext context, int id) {
                 var deck = myDecks[id];
