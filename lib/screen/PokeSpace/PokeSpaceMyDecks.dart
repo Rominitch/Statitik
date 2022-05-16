@@ -6,7 +6,6 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Deck.dart';
 import 'package:statitikcard/services/models/Language.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/Tools.dart';
 
 class PokeSpaceMyDeck extends StatefulWidget {
@@ -18,17 +17,34 @@ class PokeSpaceMyDeck extends StatefulWidget {
 
 class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
   void goToDeckSelector(Deck deck) {
-    var mySpace = Environment.instance.user!.pokeSpace;
 
-    Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyDecksCreator(deck))).then(
-      (value) {
-        setState(() {
-          if(value!) {
-            Environment.instance.savePokeSpace(context, mySpace);
-          }
-        });
-      }
-    );
+    if(deck.cards.isEmpty) {
+      var afterSelectLanguage = (BuildContext context, Language language) {
+        Navigator.pop(context);
+        Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyDecksCreator(language, deck))).then(
+                (value) {
+              setState(() {
+                if(value!) {
+                  var mySpace = Environment.instance.user!.pokeSpace;
+                  Environment.instance.savePokeSpace(context, mySpace);
+                }
+              });
+            }
+        );
+      };
+      Navigator.push(context, MaterialPageRoute(builder: (context) => LanguageSelector(afterSelectLanguage)));
+    } else {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyDecksCreator(deck.cards.first.se.extension.language, deck))).then(
+        (value) {
+          setState(() {
+            if(value!) {
+              var mySpace = Environment.instance.user!.pokeSpace;
+              Environment.instance.savePokeSpace(context, mySpace);
+            }
+          });
+        }
+      );
+    }
   }
 
   @override
@@ -44,21 +60,9 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
             child: Icon(Icons.add_circle_outline, color: Colors.white),
             backgroundColor: deckMenuColor,
             onPressed: (){
-              Navigator.push(context, MaterialPageRoute(builder:
-                  (context) => LanguagePage(afterSelected: (BuildContext c, Language l, SubExtension s)
-              {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(s);
-              }, addMode: false)))
-                  .then((subExtension) {
-                if(subExtension != null) {
-                  setState(() {
-                    var deck = Deck(StatitikLocale.of(context).read('PSMD_B2'));
-                    mySpace.myDecks.add(deck);
-                    goToDeckSelector(deck);
-                  });
-                }
-              });
+              var deck = Deck(StatitikLocale.of(context).read('PSMD_B2'));
+              mySpace.myDecks.add(deck);
+              goToDeckSelector(deck);
             },
           ),
         ],

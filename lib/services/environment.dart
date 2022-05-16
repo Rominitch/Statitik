@@ -243,13 +243,25 @@ class Environment
                     for (var row in reqCountUser) {
                         idNewID = row[0] + 1;
                     }
-
-                    await connection.query('INSERT INTO `Utilisateur` (idUtilisateur, identifiant, ban) VALUES ($idNewID, \'$uid\', 0);');
+                    var nowDate = DateFormat('yyyy-MM-dd 00:00:00').format(DateTime.now());
+                    await connection.query("'INSERT INTO `Utilisateur` (idUtilisateur, identifiant, dernierConnexion) VALUES ($idNewID, '$uid', '$nowDate');");
                     user = UserPoke(idNewID);
                 }
                 user!.uid = uid;
             });
             time.tick("My User");
+        }
+    }
+
+    Future<void> tryChangeUserConnexionDate(String uid) async {
+        if (user == null) {
+            var time = TimeReport();
+            await db.transactionR( (connection) async {
+                var nowDate = DateFormat('yyyy-MM-dd 00:00:00').format(DateTime.now());
+                String query = "'UPDATE `Utilisateur` SET `dernierConnexion` = '$nowDate' WHERE (`identifiant` = '$uid');";
+                await connection.query(query);
+            });
+            time.tick("Update connexion time");
         }
     }
 
@@ -472,6 +484,13 @@ class Environment
                 registerUser(uid).then((value){
                     if(afterLogOrError != null)
                         afterLogOrError();
+
+                    // Try to update latest connexion time (but not critical)
+                    try {
+                        tryChangeUserConnexionDate(uid);
+                    } catch(e) {
+
+                    }
                 });
             });
         };
