@@ -7,6 +7,7 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Deck.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 
 class PokeSpaceMyDeck extends StatefulWidget {
   const PokeSpaceMyDeck() : super();
@@ -22,14 +23,14 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
       var afterSelectLanguage = (BuildContext context, Language language) {
         Navigator.pop(context);
         Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyDecksCreator(language, deck))).then(
-                (value) {
-              setState(() {
-                if(value!) {
-                  var mySpace = Environment.instance.user!.pokeSpace;
-                  Environment.instance.savePokeSpace(context, mySpace);
-                }
-              });
-            }
+          (value) {
+            setState(() {
+              if(value!) {
+                var mySpace = Environment.instance.user!.pokeSpace;
+                Environment.instance.savePokeSpace(context, mySpace);
+              }
+            });
+          }
         );
       };
       Navigator.push(context, MaterialPageRoute(builder: (context) => LanguageSelector(afterSelectLanguage)));
@@ -91,16 +92,26 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
               ),
             ) : GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 0.8),
+                  crossAxisCount: 2, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.8),
               itemCount: myDecks.length,
               itemBuilder: (BuildContext context, int id) {
                 var deck = myDecks[id];
+                List<Widget> energies = [];
+                deck.stats.energyTypes.forEach((type) {
+                  energies.add(getImageType(type));
+                });
+
                 return Card(
                   margin: EdgeInsets.all(2.0),
                   child: TextButton(
                       child: Column(
                         children: [
-                          Text(deck.name)
+                          Text(deck.name, style: Theme.of(context).textTheme.headline6),
+                          Row(children: [
+                            Text("Card: ${deck.cards.length}"),
+                            Text("Poke: ${deck.stats.countPokemon.length}"),
+                          ]),
+                          Row(children: energies),
                         ],
                       ),
                       onPressed: () { goToDeckSelector(deck); }

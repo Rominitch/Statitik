@@ -62,9 +62,10 @@ enum Level {
   Base,
   Level1,
   Level2,
+  Unknown,
 }
 
-const List<String> levelString = ['LEVEL_0', 'LEVEL_1', 'LEVEL_2'];
+const List<String> levelString = ['LEVEL_0', 'LEVEL_1', 'LEVEL_2', 'LEVEL_3'];
 String getLevelText(context, Level element) {
   return StatitikLocale.of(context).read(levelString[element.index]);
 }

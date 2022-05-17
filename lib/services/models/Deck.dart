@@ -1,8 +1,10 @@
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/BytesCoder.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
+import 'package:statitikcard/services/models/CardTitleData.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 class DeckCardInfo {
   SubExtension   se;
@@ -58,7 +60,7 @@ class Deck
   }
 
   void computeStats() {
-
+    stats = DeckStats.from(cards);
   }
 }
 
@@ -66,6 +68,40 @@ class DeckStats
 {
   List<int>          countByLevel = [];
   Map<TypeCard, int> countByType  = {};
+  List<TypeCard>     energyTypes  = [];
+  Map<int, int>      countPokemon = {};
 
   DeckStats();
+
+  DeckStats.from(List<DeckCardInfo> cards) {
+    countByLevel = List<int>.generate(Level.values.length, (index) => 0);
+    // Parse cards
+    for(var cardInfo in cards) {
+      var card = cardInfo.se.cardFromId(cardInfo.idCard);
+      // Check energy
+      if(card.data.type == TypeCard.Energy && card.data.typeExtended != null) {
+        if(!energyTypes.contains(card.data.typeExtended))
+          energyTypes.add(card.data.typeExtended!);
+      }
+      // Check pokemon level
+      if(card.data.level != Level.Unknown) {
+        countByLevel[card.data.level.index] += cardInfo.count;
+      }
+
+      // check pokemon
+      if(card.data.type.index <= TypeCard.Incolore.index) {
+        var info = card.data.title[0].name as PokemonInfo;
+        if( countPokemon.containsKey(info.idPokedex) )
+          countPokemon[info.idPokedex] = countPokemon[info.idPokedex]! + cardInfo.count;
+        else
+          countPokemon[info.idPokedex] = cardInfo.count;
+      }
+
+      if(countByType.containsKey(card.data.type)) {
+        countByType[card.data.type] = countByType[card.data.type]! + cardInfo.count;
+      } else {
+        countByType[card.data.type] = cardInfo.count;
+      }
+    }
+  }
 }

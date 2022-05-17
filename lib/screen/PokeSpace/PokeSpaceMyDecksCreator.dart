@@ -124,10 +124,13 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
                             if(value != null) {
                               // Added only new product and refresh
                               setState(() {
+                                // Insert new card
                                 for(var cEx in value.cards) {
                                   DeckCardInfo cardInfo = DeckCardInfo(value.subExtension, value.subExtension.seCards.computeIdCard(cEx), 1);
                                   widget.deck.cards.add(cardInfo);
                                 }
+                                // Update stats
+                                widget.deck.computeStats();
 
                                 computeFilteredCards();
                               });

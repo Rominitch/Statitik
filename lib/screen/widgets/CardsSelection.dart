@@ -49,15 +49,24 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
   Widget createCardButton(PokemonCardExtension card, CardIdentifier cardId, CardImageIdentifier imageId) {
     return Card(
       color: selection.cards.contains(card) ? Colors.green : Colors.grey.shade700,
-      margin: EdgeInsets.all(3.0),
+      margin: EdgeInsets.all(1.5),
       child: TextButton(
-        child: modeVisu == CardVisualization.Name ? Column(
-          children: [
-            card.imageType(),
-            SizedBox(height: 5),
-            widget.subExtension.cardInfo(cardId),
-          ],
-        ) : CardImage(widget.subExtension, card, cardId, imageId),
+        child: modeVisu == CardVisualization.Name ?
+          cardId.listId == 1 ?
+          Row(
+            children: [
+              card.imageType(),
+              SizedBox(width: 4.0),
+              widget.subExtension.cardInfo(cardId),
+          ])
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+              card.imageType(),
+              widget.subExtension.cardInfo(cardId),
+            ]
+          )
+        : CardImage(widget.subExtension, card, cardId, imageId),
         onPressed: (){
           setState(() {
             if(selection.cards.contains(card))
@@ -75,7 +84,7 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
       padding: EdgeInsets.all(1.0),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: modeVisu == CardVisualization.Name ? 5 : 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
-          childAspectRatio: modeVisu == CardVisualization.Name ? 1.1 : 0.7),
+          childAspectRatio: modeVisu == CardVisualization.Name ? 1.25 : 0.7),
       itemCount: listCard.length,
       shrinkWrap: true,
       primary: false,
