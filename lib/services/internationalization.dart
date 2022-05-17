@@ -410,6 +410,7 @@ Images and illustrations used are the property of their respective authors.\n
       'PSMDC_B6':  'Tools and others',
       'PSMDC_B7':  'Add by expansion',
       'PSMDC_B8':  'Add by search',
+      'PSMDC_B9':  'Please add card inside deck before',
     },
     'fr': {
       'H_T0': 'PokéSpace',
@@ -816,6 +817,7 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'PSMDC_B6':  'Outils et autres',
       'PSMDC_B7':  'Ajouter par extension',
       'PSMDC_B8':  'Ajouter recherche',
+      'PSMDC_B9':  'Aucune carte dans le deck',
     },
   };
 

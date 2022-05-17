@@ -1,3 +1,4 @@
+import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/BytesCoder.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
@@ -9,7 +10,7 @@ import 'package:statitikcard/services/models/models.dart';
 class DeckCardInfo {
   SubExtension   se;
   CardIdentifier idCard;
-  int            count;
+  CodeDraw       count;
 
   DeckCardInfo(this.se, this.idCard, this.count);
 }
@@ -39,7 +40,7 @@ class Deck
       cards.add(
         DeckCardInfo(subExtensions[idSe],
           idCard,
-          parser.extractInt8()
+          CodeDraw.fromBytes(parser)
       ));
     }
 
@@ -54,7 +55,7 @@ class Deck
     cards.forEach((card) {
       bytes += ByteEncoder.encodeInt16(card.se.id);
       bytes += card.idCard.toBytes();
-      bytes += ByteEncoder.encodeInt16(card.count);
+      bytes += card.count.toBytes();
     });
     return bytes;
   }
@@ -66,6 +67,7 @@ class Deck
 
 class DeckStats
 {
+  int                nbCards=0;
   List<int>          countByLevel = [];
   Map<TypeCard, int> countByType  = {};
   List<TypeCard>     energyTypes  = [];
@@ -77,6 +79,8 @@ class DeckStats
     countByLevel = List<int>.generate(Level.values.length, (index) => 0);
     // Parse cards
     for(var cardInfo in cards) {
+      var count = cardInfo.count.count();
+      nbCards += count;
       var card = cardInfo.se.cardFromId(cardInfo.idCard);
       // Check energy
       if(card.data.type == TypeCard.Energy && card.data.typeExtended != null) {
@@ -85,22 +89,22 @@ class DeckStats
       }
       // Check pokemon level
       if(card.data.level != Level.Unknown) {
-        countByLevel[card.data.level.index] += cardInfo.count;
+        countByLevel[card.data.level.index] += count;
       }
 
       // check pokemon
       if(card.data.type.index <= TypeCard.Incolore.index) {
         var info = card.data.title[0].name as PokemonInfo;
         if( countPokemon.containsKey(info.idPokedex) )
-          countPokemon[info.idPokedex] = countPokemon[info.idPokedex]! + cardInfo.count;
+          countPokemon[info.idPokedex] = countPokemon[info.idPokedex]! + count;
         else
-          countPokemon[info.idPokedex] = cardInfo.count;
+          countPokemon[info.idPokedex] = count;
       }
 
       if(countByType.containsKey(card.data.type)) {
-        countByType[card.data.type] = countByType[card.data.type]! + cardInfo.count;
+        countByType[card.data.type] = countByType[card.data.type]! + count;
       } else {
-        countByType[card.data.type] = cardInfo.count;
+        countByType[card.data.type] = count;
       }
     }
   }

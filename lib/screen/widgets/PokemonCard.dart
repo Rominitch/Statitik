@@ -48,9 +48,13 @@ class _PokemonCardState extends State<PokemonCard> {
           );
         }
       ).then((value) {
-        if (widget.afterOpenSelector != null)
-          widget.afterOpenSelector!();
-        widget.refresh();
+        // Refresh card info
+        setState(()
+        {
+          if(widget.afterOpenSelector != null)
+            widget.afterOpenSelector!();
+          widget.refresh();
+        });
       });
     } else {
       // Show more info if many rendering of more cards
@@ -58,7 +62,7 @@ class _PokemonCardState extends State<PokemonCard> {
         context: context,
         builder: (BuildContext context) {
           return CardSelector(
-              widget.selector, refresh: update, readOnly: widget.readOnly);
+            widget.selector, refresh: update, readOnly: widget.readOnly);
         }
       ).then((value) {
         if (widget.afterOpenSelector != null)

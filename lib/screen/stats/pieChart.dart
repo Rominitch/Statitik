@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:statitikcard/services/models/Deck.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
@@ -146,6 +147,104 @@ class _PieExtensionState extends State<PieExtension> {
         }
       });
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    //createPie();
+    return Container(
+      child: AspectRatio(
+        aspectRatio: 1.0,
+        child: PieChart(
+          PieChartData(
+              borderData: FlBorderData(
+                show: false,
+              ),
+              sectionsSpace: 2,
+              centerSpaceRadius: 50,
+              sections: sections),
+        ),
+      ),
+    );
+  }
+}
+
+class PieDeckType extends StatefulWidget {
+  final DeckStats stats;
+
+  PieDeckType(this.stats);
+
+  @override
+  _PieDeckTypeState createState() => _PieDeckTypeState();
+}
+
+class _PieDeckTypeState extends State<PieDeckType> {
+  int touchedIndex=-1;
+  List<PieChartSectionData> sections = [];
+
+  @override
+  void initState() {
+    createPie();
+    super.initState();
+  }
+
+  void createPie() {
+    assert(widget.stats.nbCards > 0);
+    sections.clear();
+
+    bool odd=false;
+    final double ratio = 100.0 / widget.stats.nbCards;
+    for(var type in TypeCard.values) {
+      final isTouched = type.index == touchedIndex;
+      final double radius = isTouched ? 130 : 100;
+      int count = widget.stats.countByType[type] ?? 0;
+      if (count > 0) {
+        var percent = count * ratio;
+        sections.add(PieChartSectionData(
+          color: typeColors[type.index],
+          value: count.toDouble(),
+          title: "$count (${percent.toStringAsFixed(2)}%)",
+          radius: radius,
+          titlePositionPercentageOffset: odd ? 0.7 : 0.4,
+          titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
+          badgeWidget: getImageType(type),
+          badgePositionPercentageOffset: 1.15,
+          )
+        );
+        odd = !odd;
+      }
+    }
+      /*
+    } else {
+      final smallValue = 3.5;
+      bool oldSmall = false;
+      widget.subExtension.stats.rarities.forEach( (rarity) {
+        var isSmall = false;
+        final isTouched = rarity.id == touchedIndex;
+        final double radius = isTouched ? 110 : 90;
+        int count = widget.subExtension.stats.countByRarity[rarity] ?? 0;
+        if (count > 0) {
+          var percent = count * ratio;
+          isSmall = percent < smallValue;
+
+          sections.add(PieChartSectionData(
+            color: rarity.color,
+            value: count.toDouble(),
+            title: "$count (${percent.toStringAsFixed(2)}%)",
+            radius: radius,
+            titlePositionPercentageOffset: odd ? 0.75 : 0.5,
+            titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
+            badgeWidget: Row( mainAxisSize: MainAxisSize.min,  children: getImageRarity(rarity, widget.subExtension.extension.language), ),
+            badgePositionPercentageOffset: isSmall ? (oldSmall ? 1.35 : 1.15) : 1.2,
+          )
+          );
+          odd = !odd;
+          oldSmall = !oldSmall && isSmall;
+        }
+      });
+    }
+
+       */
   }
 
   @override

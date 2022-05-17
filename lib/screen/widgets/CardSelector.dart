@@ -313,10 +313,8 @@ class _ImageSetCounterState extends State<ImageSetCounter> {
                 constraints: const BoxConstraints(),
                 icon: const Icon(Icons.remove_circle_outline),
                 onPressed: (){
-                  setState(() {
-                    widget.cardSelector.decrease(widget.imageId.idSet, widget.imageId.idImage);
-                    textController.text = countCard().toString();
-                  });
+                  widget.cardSelector.decrease(widget.imageId.idSet, widget.imageId.idImage);
+                  textController.text = countCard().toString();
                 },
                 splashRadius: splashRadius,
               ),
@@ -347,10 +345,8 @@ class _ImageSetCounterState extends State<ImageSetCounter> {
                 padding: const EdgeInsets.all(iconPadding),
                 constraints: const BoxConstraints(),
                 onPressed: (){
-                  setState(() {
-                    widget.cardSelector.increase(widget.imageId.idSet, widget.imageId.idImage);
-                    textController.text = countCard().toString();
-                  });
+                  widget.cardSelector.increase(widget.imageId.idSet, widget.imageId.idImage);
+                  textController.text = countCard().toString();
                 },
                 splashRadius: splashRadius,
               )

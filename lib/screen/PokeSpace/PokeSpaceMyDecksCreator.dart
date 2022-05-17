@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
+import 'package:statitikcard/screen/stats/pieChart.dart';
 import 'package:statitikcard/screen/widgets/CardImage.dart';
+import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorDeck.dart';
 import 'package:statitikcard/screen/widgets/CardsSelection.dart';
+import 'package:statitikcard/screen/widgets/PokemonCard.dart';
+import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
 
@@ -71,19 +75,32 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
           shrinkWrap: true,
           itemBuilder: (context, index) {
             var cardInfo = myFilteredCards[code][index];
-            return Card(
-              margin: EdgeInsets.all(1.0),
-              child: Padding(
-                padding: const EdgeInsets.all(2.0),
-                child: genericCardWidget(cardInfo.se, cardInfo.idCard, CardImageIdentifier()),
-              )
-            );
+            var selector = CardSelectorDeck(cardInfo);
+            return PokemonCard(selector, readOnly: false, singlePress: true, refresh: (){
+              // Update stats
+              widget.deck.computeStats();
+              // Check if data need to remove
+              if( cardInfo.count.count() == 0 ) {
+                // Remove card if not used anymore
+                widget.deck.cards.remove(cardInfo);
+                // Refresh full parent GUI
+                setState((){
+                  computeFilteredCards();
+                });
+              }
+              //
+            });
           }
         )
       );
       list.add(SizedBox(height: 4.0));
     }
     return list;
+  }
+
+  Future<bool> returnTo() async {
+    Navigator.of(context).pop(true);
+    return true;
   }
 
   @override
@@ -94,9 +111,7 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
     ];
 
     List<Widget> tabPages = [
-      // Fill data
-
-      // Stats
+      // Deck data
       SingleChildScrollView(
         child: Column(
           children: <Widget>[
@@ -126,7 +141,9 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
                               setState(() {
                                 // Insert new card
                                 for(var cEx in value.cards) {
-                                  DeckCardInfo cardInfo = DeckCardInfo(value.subExtension, value.subExtension.seCards.computeIdCard(cEx), 1);
+                                  var count = CodeDraw.fromPokeCardExtension(cEx);
+                                  count.setCount(1, 0);
+                                  DeckCardInfo cardInfo = DeckCardInfo(value.subExtension, value.subExtension.seCards.computeIdCard(cEx), count);
                                   widget.deck.cards.add(cardInfo);
                                 }
                                 // Update stats
@@ -139,6 +156,7 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
                         },
                       )
                     ),
+                    /*
                     Card(
                       color: Colors.grey,
                       child: TextButton(
@@ -154,6 +172,7 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
                         },
                       )
                     )
+                    */
                   ],
                 ),
               )
@@ -165,64 +184,71 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
           + showCards(3, 'PSMDC_B6')
         )
       ),
+      // Stats
       SingleChildScrollView(
         child: Column(
-          children: [
+          children:
+          widget.deck.cards.isEmpty ? [ Text(StatitikLocale.of(context).read('PSMDC_B9'), style: Theme.of(context).textTheme.headline4) ] :
+          [
+            PieDeckType(widget.deck.stats)
           ]
         )
       )
     ];
 
-    return Scaffold(
-      appBar: AppBar(
-        title:
-        (nameEdition) ? TextField(
-            controller: nameController,
-            onSubmitted: (String value) {
-              setState(() {
-                widget.deck.name = value;
-                nameEdition = false;
-              });
-            }
-        )
-        : Text(widget.deck.name, style: Theme.of(context).textTheme.headline4),
-        actions: [
-          IconButton(onPressed: () {
-              setState(()
-              {
-                nameEdition=true;
-              });
-            },
-            icon: Icon(Icons.edit)
+    return WillPopScope(
+      onWillPop: returnTo,
+      child:Scaffold(
+        appBar: AppBar(
+          title:
+          (nameEdition) ? TextField(
+              controller: nameController,
+              onSubmitted: (String value) {
+                setState(() {
+                  widget.deck.name = value;
+                  nameEdition = false;
+                });
+              }
           )
-        ],
-      ),
-      body: SafeArea(
-        child: Padding(
-            padding: const EdgeInsets.all(6.0),
-            child: Column(
-              children: [
-                TabBar(
-                    controller: tabController,
-                    isScrollable: false,
-                    indicatorPadding: const EdgeInsets.all(1),
-                    indicator: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: Colors.green,
-                    ),
-                    tabs: tabHeader
-                ),
-                Expanded(
-                  child: TabBarView(
-                    controller: tabController,
-                    physics: NeverScrollableScrollPhysics(),
-                    children: tabPages
-                  )
-                )
-              ],
+          : Text(widget.deck.name, style: Theme.of(context).textTheme.headline4),
+          actions: [
+            IconButton(onPressed: () {
+                setState(()
+                {
+                  nameEdition=true;
+                });
+              },
+              icon: Icon(Icons.edit)
             )
+          ],
         ),
-      ),
+        body: SafeArea(
+          child: Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Column(
+                children: [
+                  TabBar(
+                      controller: tabController,
+                      isScrollable: false,
+                      indicatorPadding: const EdgeInsets.all(1),
+                      indicator: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.green,
+                      ),
+                      tabs: tabHeader
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      controller: tabController,
+                      physics: NeverScrollableScrollPhysics(),
+                      children: tabPages
+                    )
+                  )
+                ],
+              )
+          )
+        )
+      )
     );
   }
 }

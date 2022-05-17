@@ -254,11 +254,11 @@ class Environment
     }
 
     Future<void> tryChangeUserConnexionDate(String uid) async {
-        if (user == null) {
+        if (user != null) {
             var time = TimeReport();
             await db.transactionR( (connection) async {
-                var nowDate = DateFormat('yyyy-MM-dd 00:00:00').format(DateTime.now());
-                String query = "'UPDATE `Utilisateur` SET `dernierConnexion` = '$nowDate' WHERE (`identifiant` = '$uid');";
+                var nowDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+                String query = "UPDATE `Utilisateur` SET `dernierConnexion` = '$nowDate' WHERE (`identifiant` = '$uid');";
                 await connection.query(query);
             });
             time.tick("Update connexion time");
@@ -489,7 +489,7 @@ class Environment
                     try {
                         tryChangeUserConnexionDate(uid);
                     } catch(e) {
-
+                        printOutput(e.toString());
                     }
                 });
             });

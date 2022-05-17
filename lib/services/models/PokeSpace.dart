@@ -391,7 +391,7 @@ class PokeSpace
       assert(subExtensions[idSE] != null, "Impossible to find SE: $idSE");
       var subExtension = subExtensions[idSE]!;
       insertSubExtension(subExtension);
-      if(localVersion == 2)
+      if(localVersion >= 2)
         myCards[subExtension]!.fromByte(parser);
       else
         myCards[subExtension]!.fromByteV1(parser);
@@ -410,7 +410,7 @@ class PokeSpace
     }
 
     // Extract deck
-    int nbDecks = parser.extractInt8();
+    int nbDecks = parser.extractInt16();
     for(var id=0; id < nbDecks; id +=1) {
       myDecks.add(Deck.fromBytes(parser, subExtensions));
     }

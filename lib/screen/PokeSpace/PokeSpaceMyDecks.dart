@@ -8,6 +8,7 @@ import 'package:statitikcard/services/models/Deck.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/statitik_font_icons.dart';
 
 class PokeSpaceMyDeck extends StatefulWidget {
   const PokeSpaceMyDeck() : super();
@@ -105,13 +106,34 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
                   margin: EdgeInsets.all(2.0),
                   child: TextButton(
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text(deck.name, style: Theme.of(context).textTheme.headline6),
-                          Row(children: [
-                            Text("Card: ${deck.cards.length}"),
-                            Text("Poke: ${deck.stats.countPokemon.length}"),
+                          Spacer(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(Icons.image_outlined),
+                              Text("${deck.stats.nbCards}"),
+                              Spacer(),
+                              Icon(StatitikFont.font_01_pokecard),
+                              Text("${deck.stats.countPokemon.length}"),
+                              Spacer(),
+                              getImageType(TypeCard.Objet),
+                              Text("${deck.stats.countByType[TypeCard.Objet] ?? 0}"),
+                              Spacer(),
+                              getImageType(TypeCard.Supporter),
+                              Text("${deck.stats.countByType[TypeCard.Supporter] ?? 0}"),
+
                           ]),
-                          Row(children: energies),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              getImageType(TypeCard.Energy),
+                              Text("${deck.stats.countByType[TypeCard.Energy] ?? 0}"),
+                              Spacer()
+                            ] + energies
+                          )
                         ],
                       ),
                       onPressed: () { goToDeckSelector(deck); }

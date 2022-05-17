@@ -159,8 +159,14 @@ class _DrawHomePageState extends State<DrawHomePage> {
         color: productMenuColor
       ),
       createButtonGradient([
-        Text(StatitikLocale.of(context).read('DC_B18'),
-          style: Theme.of(context).textTheme.headline5),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(StatitikLocale.of(context).read('DC_B18'),
+              style: Theme.of(context).textTheme.headline5),
+            Text(StatitikLocale.of(context).read('devBeta'), style: TextStyle(color: Colors.grey.shade300)),
+          ]
+        )
       ],(){
         if(Environment.instance.isLogged())
           Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyDeck()));
