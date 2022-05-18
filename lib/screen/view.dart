@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/screen/widgets/CustomRadio.dart';
 import 'package:statitikcard/services/Draw/BoosterDraw.dart';
 import 'package:statitikcard/services/Draw/SessionDraw.dart';
+import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -139,7 +140,7 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
 
 
 
-Widget signInButton(String nameId, CredentialMode mode, Function([String?]) press, BuildContext context) {
+Widget signInButton(String nameId, CredentialMode mode, Function(String) showMessageError, Function refresh, BuildContext context) {
   return  Card(
     color: Colors.grey.shade600,
     child: TextButton(
@@ -147,22 +148,27 @@ Widget signInButton(String nameId, CredentialMode mode, Function([String?]) pres
           try {
             // Login
             Environment.instance.login(mode, context,
-              afterLogOrError: ([String? messageError]) {
+              afterLog: () {
                 // Try to restore PokeSpace if exists
                 if(Environment.instance.user != null) {
                   EasyLoading.show();
                   Environment.instance.readPokeSpace().then((value) {
                   }).whenComplete(() {
+                    // Try to update latest connexion time (but not critical)
+                    try {
+                      Environment.instance.tryChangeUserConnexionDate(Environment.instance.user!.uid);
+                    } catch(e) {
+                      printOutput(e.toString());
+                    }
                     EasyLoading.dismiss();
-
-                    // Show error and refresh
-                    press(messageError);
+                    refresh();
                   });
                 }
-                else
-                  // Show error and refresh
-                  press(messageError);
-              }
+                else {
+                  showMessageError(StatitikLocale.of(context).read('LOG_4'));
+                }
+              },
+              afterError: showMessageError
             );
           }
           catch (e) {

@@ -222,6 +222,8 @@ class Environment
         await readPokeSpace();
     }
 
+
+
     Future<void> registerUser(String uid) async {
         if (user == null) {
             var time = TimeReport();
@@ -243,8 +245,8 @@ class Environment
                     for (var row in reqCountUser) {
                         idNewID = row[0] + 1;
                     }
-                    var nowDate = DateFormat('yyyy-MM-dd 00:00:00').format(DateTime.now());
-                    await connection.query("'INSERT INTO `Utilisateur` (idUtilisateur, identifiant, dernierConnexion) VALUES ($idNewID, '$uid', '$nowDate');");
+                    var nowDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+                    await connection.query("INSERT INTO `Utilisateur` (idUtilisateur, identifiant, dernierConnexion) VALUES ($idNewID, '$uid', '$nowDate');");
                     user = UserPoke(idNewID);
                 }
                 user!.uid = uid;
@@ -472,7 +474,7 @@ class Environment
         });
     }
 
-    void login(CredentialMode mode, context, {Function([String?])? afterLogOrError}) async {
+    void login(CredentialMode mode, context, {Function()? afterLog, Function(String)? afterError}) async {
         var onSuccess = (uid) {
             //printOutput("Credential Success: "+uid);
             SharedPreferences.getInstance().then((prefs) {
@@ -482,15 +484,8 @@ class Environment
                 // Register and check access
                 assert(uid != null);
                 registerUser(uid).then((value){
-                    if(afterLogOrError != null)
-                        afterLogOrError();
-
-                    // Try to update latest connexion time (but not critical)
-                    try {
-                        tryChangeUserConnexionDate(uid);
-                    } catch(e) {
-                        printOutput(e.toString());
-                    }
+                    if(afterLog != null)
+                        afterLog();
                 });
             });
         };
@@ -499,8 +494,8 @@ class Environment
             var message = sprintf(StatitikLocale.of(context).read(codeMessage), [code]);
             Environment.instance.user = null;
 
-            if(afterLogOrError != null)
-                afterLogOrError(message);
+            if(afterError != null)
+                afterError(message);
         };
         try {
             // Log system

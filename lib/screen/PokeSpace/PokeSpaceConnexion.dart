@@ -283,10 +283,13 @@ class _DrawHomePageState extends State<DrawHomePage> {
         ),
       );
     } else {
-      var refresh = ([String? message]) {
+      var refreshWithError = (String message) {
         setState( () {
           this.message = message;
         } );
+      };
+      var refresh = () {
+        setState( () {} );
       };
       return Scaffold(
         appBar: AppBar(
@@ -316,10 +319,10 @@ class _DrawHomePageState extends State<DrawHomePage> {
               textBullet(StatitikLocale.of(context).read('DC_B22')),
               SizedBox(height: 30),
               Container(
-                child: signInButton('V_B5', CredentialMode.Google, refresh, context)
+                child: signInButton('V_B5', CredentialMode.Google, refreshWithError, refresh, context)
               ),
               Container(
-                child: signInButton('V_B6', CredentialMode.Phone, refresh, context)
+                child: signInButton('V_B6', CredentialMode.Phone, refreshWithError, refresh, context)
               ),
               SizedBox(height: 30),
               if(message != null) Container( child: Center( child: Text(message!, style: TextStyle(color: Colors.red)))),

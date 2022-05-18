@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
-import 'package:statitikcard/screen/widgets/CardImage.dart';
 import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorDeck.dart';
 import 'package:statitikcard/screen/widgets/CardsSelection.dart';
 import 'package:statitikcard/screen/widgets/PokemonCard.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/CardIdentifier.dart';
 
 import 'package:statitikcard/services/models/Deck.dart';
 import 'package:statitikcard/services/models/Language.dart';

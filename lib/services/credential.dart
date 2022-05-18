@@ -64,8 +64,8 @@ class Credential
       showDialog(
           context: context!,
           barrierDismissible: false, // user must tap button!
-          builder: (BuildContext context) { return enterPhone(context); })
-          .then( (myPhoneNumber) {
+          builder: (BuildContext context) { return enterPhone(context); }
+      ).then( (myPhoneNumber) {
         if(myPhoneNumber != "") {
           auth.verifyPhoneNumber(
             phoneNumber: myPhoneNumber,
@@ -81,7 +81,7 @@ class Credential
                   onError('LOG_5', myPhoneNumber));
             },
             verificationFailed: (FirebaseAuthException e) {
-              onError('LOG_5', myPhoneNumber);
+              onError('LOG_5', "${e.message}: $myPhoneNumber");
             },
             codeSent: (String verificationId,
                 int? resendToken) async {
@@ -107,8 +107,10 @@ class Credential
                     String uid = "telephone-" +
                         authResult.user!.uid;
                     onSuccess(uid);
-                  }).onError((error, stackTrace) =>
-                      onError('LOG_5', myPhoneNumber));
+                  }).onError((error, stackTrace) {
+                      onError('LOG_5', myPhoneNumber);
+                    }
+                  );
                 } else {
                   onError('LOG_8', null);
                 }
@@ -117,7 +119,6 @@ class Credential
             timeout: const Duration(seconds: 2 * 60),
             codeAutoRetrievalTimeout: (
                 String verificationId) {},
-          ).then((value) {}
           ).onError((error, stackTrace) =>
               onError('LOG_5', error));
         } else {
