@@ -164,7 +164,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
           children: [
             Text(StatitikLocale.of(context).read('DC_B18'),
               style: Theme.of(context).textTheme.headline5),
-            Text(StatitikLocale.of(context).read('devBeta'), style: TextStyle(color: Colors.grey.shade300)),
+            Text(StatitikLocale.of(context).read('devBeta'), style: TextStyle(color: Colors.grey.shade300, fontSize: 12.0)),
           ]
         )
       ],(){
