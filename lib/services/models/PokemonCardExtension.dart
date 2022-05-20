@@ -11,6 +11,7 @@ import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/Marker.dart';
 import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/models/models.dart';
 
 class ImageDesign {
   CardDesign cardDesign = CardDesign();
@@ -59,6 +60,10 @@ class PokemonCardExtension {
 
     images.add([image]);
     computeDefaultSet(allSets);
+    // Set default level
+    if(!isPokemonCard(data.type)) {
+      data.level = Level.WithoutLevel;
+    }
   }
 
   void computeDefaultSet(Map allSets) {

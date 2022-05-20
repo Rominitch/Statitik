@@ -129,6 +129,8 @@ class CardImage extends StatefulWidget {
             images += [
               Uri.https("www.pokecardex.com", "assets/images/sets_fr/${seFolder.toUpperCase()}/HD/$tcgId.jpg"),
               Uri.https("www.pokecardex.com", "assets/images/sets/${seFolder.toUpperCase()}/HD/$tcgId.jpg"),
+              Uri.https("www.pokecardex.com", "assets/images/sets_fr/${seFolder.toUpperCase()}/HD/${cardId.numberId+1}.jpg"),
+              Uri.https("www.pokecardex.com", "assets/images/sets/${seFolder.toUpperCase()}/HD/${cardId.numberId+1}.jpg"),
             ];
           });
         }

@@ -7,7 +7,9 @@ import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/models/PokemonCardExtension.dart';
+import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/SubExtension.dart';
+import 'package:statitikcard/services/models/TypeCard.dart';
 
 class CardEditorOptions {
   int tabIndex = 0;
@@ -31,12 +33,12 @@ class CardEditor extends StatefulWidget {
     var cardId = id.numberId;
     var l = Language(id: 1, image: "");
     if( id.listId == 0 )
-      return sprintf("%s %s",
+      return sprintf("%s - %s",
           [ se.seCards.numberOfCard(cardId),
             se.seCards.titleOfCard(l, cardId, id.alternativeId)
           ]);
     else {
-      return sprintf("%s %s",
+      return sprintf("%s - %s",
           [ card.numberOfCard(cardId),
             card.data.titleOfCard(l)
           ]);
@@ -57,12 +59,12 @@ class _CardEditorState extends State<CardEditor> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child:Scaffold(
         appBar: AppBar(
-          title: Container(
-            child: Text(sprintf("%s: %s", [ StatitikLocale.of(context).read('CE_T0'), title]),
-              style: Theme.of(context).textTheme.headline6,
-              softWrap: true,
-              maxLines: 2,
-            ),
+          title: Row(
+            children:
+            [
+              Expanded(child: Text("$title", style: Theme.of(context).textTheme.headline6, softWrap: true, maxLines: 2)),
+              getImageType(widget.card.data.type),
+            ] + getImageRarity(widget.card.rarity, widget.se.extension.language)
           ),
           actions: [
             if(nextCardId != null)

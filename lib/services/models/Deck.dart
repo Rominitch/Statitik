@@ -88,7 +88,7 @@ class DeckStats
           energyTypes.add(card.data.typeExtended!);
       }
       // Check pokemon level
-      if(card.data.level != Level.Unknown) {
+      if(card.data.level != Level.WithoutLevel) {
         countByLevel[card.data.level.index] += count;
       }
 

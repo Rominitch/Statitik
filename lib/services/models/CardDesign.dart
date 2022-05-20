@@ -24,6 +24,10 @@ enum ShiningPattern {
   Alternative,
   Alternative2,
   Alternative3,
+  Alternative4,
+  Alternative5,
+  Alternative6,
+  Alternative7,
 }
 
 enum ArtFormat {
@@ -59,31 +63,6 @@ String codeArt(ArtFormat design) {
   }
 }
 
-Widget iconDesign(Design design, [double? width, double? height]) {
-  switch(design) {
-    case Design.Mat:
-      return Image.asset("assets/design/DesignNormal.png", width: width, height: height);
-    case Design.Holographic:
-      return Image.asset("assets/design/DesignHoloVertical.png", width: width, height: height);
-    case Design.Reverse:
-      return Image.asset("assets/design/DesignReverse0.png", width: width, height: height);
-    case Design.ArcEnCiel:
-      return Image.asset("assets/design/DesignRainbow.png", width: width, height: height);
-    case Design.Gold:
-      return Image.asset("assets/design/DesignGold.png", width: width, height: height);
-    case Design.GoldBlack:
-      return Image.asset("assets/design/DesignGoldBlack.png", width: width, height: height);
-    case Design.Shiny:
-      return Image.asset("assets/design/DesignShiny.png", width: width, height: height);
-    case Design.Full:
-      return Image.asset("assets/design/DesignFullArt.png", width: width, height: height);
-    case Design.K:
-      return Image.asset("assets/design/DesignK.png", width: width, height: height);
-    default:
-      return Icon(Icons.help_outline);
-  }
-}
-
 class CardDesign {
   int         design;
   int         pattern;
@@ -111,12 +90,10 @@ class CardDesign {
     this.art     = ArtFormat.Unknown
   {
     int idDesign = parser.extractInt8();
-    if(idDesign < Design.values.length)
-      this.design  = idDesign;
+    this.design  = idDesign;
 
     int idPattern = parser.extractInt8();
-    if(idPattern < ShiningPattern.values.length)
-      this.pattern = idPattern;
+    this.pattern = idPattern;
 
     int idArt = parser.extractInt8();
     if(idArt < ArtFormat.values.length)

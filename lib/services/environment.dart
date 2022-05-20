@@ -84,7 +84,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '2.0.0';
+    final String version = '2.0.1';
 
     // State
     bool isInitialized          = false;
@@ -160,6 +160,13 @@ class Environment
                                 SharedPreferences.getInstance().then((prefs) {
                                     storeImageLocally = prefs.getBool("storeImageLocaly") ?? storeImageLocally;
                                 }).whenComplete(() {
+
+                                    try {
+                                        Environment.instance.tryChangeUserConnexionDate(Environment.instance.user!.uid);
+                                    } catch(e) {
+                                        printOutput(e.toString());
+                                    }
+
                                     isInitialized = true;
                                     onInitialize.add(isInitialized);
                                 });
@@ -256,7 +263,7 @@ class Environment
     }
 
     Future<void> tryChangeUserConnexionDate(String uid) async {
-        if (user != null) {
+        if (uid.isNotEmpty) {
             var time = TimeReport();
             await db.transactionR( (connection) async {
                 var nowDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());

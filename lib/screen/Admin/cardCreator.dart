@@ -218,8 +218,6 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
       }
 
       levelController.afterPress(widget.card.data.level);
-      //designController.afterPress(widget.card.data.design);
-
       int? databaseCardId = Environment.instance.collection.pokemonCards.containsValue(widget.card.data)
                           ? Environment.instance.collection.rPokemonCards[widget.card.data]
                           : null;
@@ -236,7 +234,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
         cardInfo += [
           GridView.builder(
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 3.2),
+                crossAxisCount: 4, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.0),
             itemCount: Level.values.length,
             primary: false,
             shrinkWrap: true,
