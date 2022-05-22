@@ -133,6 +133,71 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
     specialIDController.text = widget.card.specialID;
   }
 
+  void automaticFill() {
+    widget.se.seCards.cards.forEach((extCards) {
+      var extCard = extCards.first;
+      // Automatic add missing design
+      extCard.images.forEach((imageCard) {
+        if(imageCard.isEmpty) {
+          addBestDesign(widget.se.seCards.computeIdCard(extCard)!, imageCard, extCard.images.indexOf(imageCard));
+        }
+      });
+
+      // Automatic first design
+      if(extCard.images.isNotEmpty) {
+        var basicDesign = extCard.images.first;
+        if(basicDesign.isNotEmpty) {
+          var cardDesign = basicDesign.first;
+          if( widget.se.extension.language.isWorld() && cardDesign.cardDesign.design == 0) {
+            if( extCard.rarity.id == 37) {
+              cardDesign.cardDesign.design  = Design.ArcEnCiel.index;
+              cardDesign.cardDesign.pattern = 0;
+              cardDesign.cardDesign.art     = ArtFormat.FullArt;
+              extCard.isSecret = true;
+            } else if( extCard.rarity.id == 36) {
+              cardDesign.cardDesign.design  = Design.Gold.index;
+              cardDesign.cardDesign.pattern = 0;
+              cardDesign.cardDesign.art     = ArtFormat.FullArt;
+              extCard.isSecret = true;
+            } else if( extCard.rarity.id == 13) {
+              cardDesign.cardDesign.design  = Design.Full.index;
+              cardDesign.cardDesign.pattern = 0;
+              cardDesign.cardDesign.art     = ArtFormat.HalfArt;
+            } else if( extCard.rarity.id == 18) {
+              cardDesign.cardDesign.design  = Design.Full.index;
+              cardDesign.cardDesign.pattern = 0;
+              cardDesign.cardDesign.art     = ArtFormat.FullArt;
+            } else if( extCard.rarity.id == 6) {
+              cardDesign.cardDesign.design  = Design.Holographic.index;
+              if(widget.se.extension.id == 3)
+                cardDesign.cardDesign.pattern = 0;
+              else
+                cardDesign.cardDesign.pattern = 2;
+            }
+          }
+        }
+      }
+    });
+  }
+
+  void addBestDesign(CardIdentifier idCard, List images, int index) {
+    var imageDesign = ImageDesign();
+    // Search ancestor
+    var idImage = images.length;
+    for(int id=idCard.numberId-1; id >= 0; id-=1) {
+      var oldId = CardIdentifier.copy(idCard);
+      oldId.cardId[1] = id;
+      var oldCard = widget.se.cardFromId(oldId);
+      if(index < oldCard.images.length) {
+        if( idImage < oldCard.images[index].length) {
+          imageDesign.cardDesign.copyFrom(oldCard.images[index][idImage].cardDesign);
+          break;
+        }
+      }
+    }
+    images.add(imageDesign);
+  }
+
   Widget createImageFieldWidget() {
     const iconSize = 30.0;
     return ListView.builder(
@@ -170,21 +235,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           child: IconButton(icon: Icon(Icons.add_circle_outline),
             onPressed: () {
               setState(() {
-                var imageDesign = ImageDesign();
-                // Search ancestor
-                var idImage = widget.card.images[index].length;
-                for(int id=widget.idCard.numberId-1; id >= 0; id-=1) {
-                  var oldId = CardIdentifier.copy(widget.idCard);
-                  oldId.cardId[1] = id;
-                  var oldCard = widget.se.cardFromId(oldId);
-                  if(index < oldCard.images.length) {
-                    if( idImage < oldCard.images[index].length) {
-                      imageDesign.cardDesign.copyFrom(oldCard.images[index][idImage].cardDesign);
-                      break;
-                    }
-                  }
-                }
-                widget.card.images[index].add(imageDesign);
+                addBestDesign(widget.idCard, widget.card.images[index], index);
               });
             }
           ),
@@ -507,28 +558,43 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             CustomRadio(value: 0, controller: listChooserController, widget: Text("Normal")),
             CustomRadio(value: 1, controller: listChooserController, widget: Text("Energie")),
             CustomRadio(value: 2, controller: listChooserController, widget: Text("Special")),
-            Spacer(),
-            Card(
-              color: Colors.grey[800],
-              child: TextButton(
-                child: Text(StatitikLocale.of(context).read('NCE_B0')),
-                onPressed: (){
-                  widget.onAppendCard!(listChooserController.currentValue, null);
-                },
-              )
-            ),
-            Card(
-              color: _auto ? Colors.green : Colors.grey[800],
-              child: TextButton(
-                  child: Text(StatitikLocale.of(context).read('NCE_B2')),
+          ]
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+              Card(
+                color: Colors.grey[800],
+                child: TextButton(
+                  child: Icon(Icons.add_circle_outline),
+                  onPressed: (){
+                    widget.onAppendCard!(listChooserController.currentValue, null);
+                  },
+                )
+              ),
+              Card(
+                color: _auto ? Colors.green : Colors.grey[800],
+                child: TextButton(
+                    child: Text(StatitikLocale.of(context).read('NCE_B2')),
+                    onPressed: () {
+                      setState((){
+                        _auto = !_auto;
+                      });
+                    }
+                )
+              ),
+              Card(
+                color: _auto ? Colors.green : Colors.grey[800],
+                child: TextButton(
+                  child: Icon(Icons.format_color_fill),
                   onPressed: () {
                     setState((){
-                      _auto = !_auto;
+                      automaticFill();
                     });
                   }
-              )
-            ),
-          ]
+                )
+              ),
+            ]
         ),
       ];
       return Card( child: Column(children: others) );
