@@ -411,6 +411,12 @@ Images and illustrations used are the property of their respective authors.\n
       'PSMDC_B7':  'Add by expansion',
       'PSMDC_B8':  'Add by search',
       'PSMDC_B9':  'Please add card inside deck before',
+      'PSMDC_B10':  'Pokémon Card',
+      'PSMDC_B11':  'HP',
+      'PSMDC_B12':  'Power',
+      'PSMDC_B13':  'min',
+      'PSMDC_B14':  'mean',
+      'PSMDC_B15':  'max',
     },
     'fr': {
       'H_T0': 'PokéSpace',
@@ -818,6 +824,12 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'PSMDC_B7':  'Ajouter par extension',
       'PSMDC_B8':  'Ajouter recherche',
       'PSMDC_B9':  'Aucune carte dans le deck',
+      'PSMDC_B10':  'Cartes Pokémon',
+      'PSMDC_B11':  'PV',
+      'PSMDC_B12':  'Puissance',
+      'PSMDC_B13':  'min',
+      'PSMDC_B14':  'moyenne',
+      'PSMDC_B15':  'max',
     },
   };
 

@@ -72,6 +72,9 @@ class DeckStats
   Map<TypeCard, int> countByType  = {};
   List<TypeCard>     energyTypes  = [];
   Map<int, int>      countPokemon = {};
+  int                nbCardsPokemon=0;
+
+  List<TypeCard>     powerEnergies = [];
 
   DeckStats();
 
@@ -95,6 +98,7 @@ class DeckStats
       // check pokemon
       if(card.data.type.index <= TypeCard.Incolore.index) {
         var info = card.data.title[0].name as PokemonInfo;
+        nbCardsPokemon += count;
         if( countPokemon.containsKey(info.idPokedex) )
           countPokemon[info.idPokedex] = countPokemon[info.idPokedex]! + count;
         else
