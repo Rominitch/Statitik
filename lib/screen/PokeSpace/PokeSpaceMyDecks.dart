@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/PokeSpace/PokeSpaceMyDecksCreator.dart';
 
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
+import 'package:statitikcard/screen/widgets/DeckWidget.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Deck.dart';
@@ -97,44 +98,12 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
               itemCount: myDecks.length,
               itemBuilder: (BuildContext context, int id) {
                 var deck = myDecks[id];
-                List<Widget> energies = [];
-                deck.stats.energyTypes.forEach((type) {
-                  energies.add(getImageType(type));
-                });
-
                 return Card(
                   margin: EdgeInsets.all(2.0),
                   child: TextButton(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(deck.name, style: Theme.of(context).textTheme.headline6),
-                          Spacer(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.image_outlined),
-                              Text("${deck.stats.nbCards}"),
-                              Spacer(),
-                              Icon(StatitikFont.font_01_pokecard),
-                              Text("${deck.stats.countPokemon.length}"),
-                              Spacer(),
-                              getImageType(TypeCard.Objet),
-                              Text("${deck.stats.countByType[TypeCard.Objet] ?? 0}"),
-                              Spacer(),
-                              getImageType(TypeCard.Supporter),
-                              Text("${deck.stats.countByType[TypeCard.Supporter] ?? 0}"),
-
-                          ]),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              getImageType(TypeCard.Energy),
-                              Text("${deck.stats.countByType[TypeCard.Energy] ?? 0}"),
-                              Spacer()
-                            ] + energies
-                          )
-                        ],
+                        children: computeDeckInfo(deck, context),
                       ),
                       onPressed: () { goToDeckSelector(deck); }
                   )

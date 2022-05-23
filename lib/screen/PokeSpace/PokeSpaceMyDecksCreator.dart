@@ -3,6 +3,7 @@ import 'package:statitikcard/screen/commonPages/extensionPage.dart';
 import 'package:statitikcard/screen/stats/pieChart.dart';
 import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorDeck.dart';
 import 'package:statitikcard/screen/widgets/CardsSelection.dart';
+import 'package:statitikcard/screen/widgets/DeckWidget.dart';
 import 'package:statitikcard/screen/widgets/PokemonCard.dart';
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -183,15 +184,7 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
         )
       ),
       // Stats
-      SingleChildScrollView(
-        child: Column(
-          children:
-          widget.deck.cards.isEmpty ? [ Text(StatitikLocale.of(context).read('PSMDC_B9'), style: Theme.of(context).textTheme.headline4) ] :
-          [
-            PieDeckType(widget.deck.stats)
-          ]
-        )
-      )
+      DeckStatisticWidget(widget.deck)
     ];
 
     return WillPopScope(
