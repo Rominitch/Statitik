@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/BytesCoder.dart';
@@ -65,6 +67,25 @@ class Deck
   }
 }
 
+
+class MMMState
+{
+  int minV;
+  int sum;
+  int count;
+  int maxV;
+
+  MMMState(int value) :
+    this.minV = value, this.sum = value, this.maxV = value, this.count =1;
+
+  void add(int value) {
+    this.minV = min(minV, value);
+    this.maxV = max(maxV, value);
+    sum += value;
+    count += 1;
+  }
+}
+
 class DeckStats
 {
   int                nbCards=0;
@@ -74,7 +95,11 @@ class DeckStats
   Map<int, int>      countPokemon = {};
   int                nbCardsPokemon=0;
 
+  MMMState?          hpStats;
+  MMMState?          retreatStats;
   List<TypeCard>     powerEnergies = [];
+  Map<TypeCard, int> countWeakness = {};
+  Map<TypeCard, int> countResistance = {};
 
   DeckStats();
 
@@ -103,6 +128,47 @@ class DeckStats
           countPokemon[info.idPokedex] = countPokemon[info.idPokedex]! + count;
         else
           countPokemon[info.idPokedex] = count;
+
+        // HP
+        if(hpStats == null) {
+          hpStats = MMMState(card.data.life);
+        } else {
+          hpStats!.add(card.data.life);
+        }
+
+        // Retreat
+        if(retreatStats == null) {
+          retreatStats = MMMState(card.data.retreat);
+        } else {
+          retreatStats!.add(card.data.retreat);
+        }
+
+        // Weakness
+        if(card.data.weakness != null) {
+          if( !countWeakness.containsKey(card.data.weakness!) ) {
+            countWeakness[card.data.weakness!.energy] = 1;
+          } else {
+            countWeakness[card.data.weakness!.energy] = countWeakness[card.data.weakness!.energy]! + 1;
+          }
+        }
+
+        // Resistance
+        if(card.data.resistance != null) {
+          if( !countResistance.containsKey(card.data.resistance!) ) {
+            countResistance[card.data.resistance!.energy] = 1;
+          } else {
+            countResistance[card.data.resistance!.energy] = countResistance[card.data.resistance!.energy]! + 1;
+          }
+        }
+
+        // Count energy in power
+        card.data.cardEffects.effects.forEach((effect) {
+          effect.attack.forEach((energy) {
+            if( !powerEnergies.contains(energy) ) {
+              powerEnergies.add(energy);
+            }
+          });
+        });
       }
 
       if(countByType.containsKey(card.data.type)) {

@@ -66,19 +66,24 @@ class DeckStatisticWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> energies = [];
-    deck.stats.energyTypes.forEach((type) {
-      energies.add(getImageType(type));
-    });
-    List<Widget> powerEnergies = [];
-    deck.stats.energyTypes.forEach((type) {
-      powerEnergies.add(getImageType(type));
-    });
-
+    if(deck.cards.isEmpty) {
     return SingleChildScrollView(
+        child: Text(StatitikLocale.of(context).read('PSMDC_B9'), style: Theme.of(context).textTheme.headline4)
+      );
+    } else {
+      var firstColWidth = 200.0;
+      List<Widget> energies = [];
+      deck.stats.energyTypes.forEach((type) {
+        energies.add(getImageType(type));
+      });
+      List<Widget> powerEnergies = [];
+      deck.stats.energyTypes.forEach((type) {
+        powerEnergies.add(getImageType(type));
+      });
+
+      return SingleChildScrollView(
         child: Column(
           children:
-          deck.cards.isEmpty ? [ Text(StatitikLocale.of(context).read('PSMDC_B9'), style: Theme.of(context).textTheme.headline4) ] :
           [
             Row(children:[
               miniBox(Icon(Icons.image_outlined),          deck.stats.nbCards),
@@ -96,33 +101,70 @@ class DeckStatisticWidget extends StatelessWidget {
                 children: energies ),
             ),
             PieDeckType(deck.stats),
-            Text(StatitikLocale.of(context).read('PSMDC_B10'), style: Theme.of(context).textTheme.headline4),
-            Card( child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            Card( child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(StatitikLocale.of(context).read('PSMDC_B10'), style: Theme.of(context).textTheme.headline6),
+                  Table(
                     children: [
-                      Text(StatitikLocale.of(context).read('PSMDC_B11'), style: Theme.of(context).textTheme.headline4),
-                      Text(StatitikLocale.of(context).read('PSMDC_B13'), style: Theme.of(context).textTheme.headline4),
-                      Text(StatitikLocale.of(context).read('PSMDC_B14'), style: Theme.of(context).textTheme.headline4),
-                      Text(StatitikLocale.of(context).read('PSMDC_B15'), style: Theme.of(context).textTheme.headline4)
+                      TableRow(
+                        children: [
+                          Container(
+                            width: firstColWidth,
+                          ),
+                          Text(StatitikLocale.of(context).read('PSMDC_B13'), style: Theme.of(context).textTheme.headline6),
+                          Text(StatitikLocale.of(context).read('PSMDC_B14'), style: Theme.of(context).textTheme.headline6),
+                          Text(StatitikLocale.of(context).read('PSMDC_B15'), style: Theme.of(context).textTheme.headline6)
+                        ]
+                      ),
+                      if(deck.stats.hpStats != null)
+                        TableRow(
+                          children: [
+                            Container(
+                              width: firstColWidth,
+                              child:Text(StatitikLocale.of(context).read('PSMDC_B11'), style: Theme.of(context).textTheme.headline6),
+                            ),
+                            Text("${deck.stats.hpStats!.minV}"),
+                            Text("${deck.stats.hpStats!.sum/deck.stats.hpStats!.count}"),
+                            Text("${deck.stats.hpStats!.maxV}"),
+                          ]
+                        ),
+                      if(deck.stats.retreatStats != null)
+                        TableRow(
+                          children: [
+                            Container(
+                              width: firstColWidth,
+                              child: Text(StatitikLocale.of(context).read('PSMDC_B16'), style: Theme.of(context).textTheme.headline6),
+                            ),
+                            Text("${deck.stats.retreatStats!.minV}"),
+                            Text("${deck.stats.retreatStats!.sum/deck.stats.retreatStats!.count}"),
+                            Text("${deck.stats.retreatStats!.maxV}"),
+                          ]
+                        ),
                     ]
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[ Text(StatitikLocale.of(context).read('PSMDC_B11'), style: Theme.of(context).textTheme.headline4) ] +
-                      powerEnergies
+                  Table(
+                    children: [
+                      TableRow(
+                        children: [
+                          Container(
+                            width: firstColWidth,
+                              child: Text(StatitikLocale.of(context).read('PSMDC_B12'), style: Theme.of(context).textTheme.headline6),
+                          ),
+                          Row(children: powerEnergies)
+                        ]
+                      ),
+
+                    ]
                   ),
-                )
-              ]
+                ]
+              ),
             )),
           ]
         )
-    );
+      );
+    }
   }
 }

@@ -417,6 +417,7 @@ Images and illustrations used are the property of their respective authors.\n
       'PSMDC_B13':  'min',
       'PSMDC_B14':  'mean',
       'PSMDC_B15':  'max',
+      'PSMDC_B16':  'Retreat',
     },
     'fr': {
       'H_T0': 'PokéSpace',
@@ -830,6 +831,7 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'PSMDC_B13':  'min',
       'PSMDC_B14':  'moyenne',
       'PSMDC_B15':  'max',
+      'PSMDC_B16':  'Retraite',
     },
   };
 
