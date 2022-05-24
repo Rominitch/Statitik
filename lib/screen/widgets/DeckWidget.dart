@@ -63,6 +63,21 @@ class DeckStatisticWidget extends StatelessWidget {
       ),
     );
   }
+  Widget createEnergyInfo(TypeCard type, int count) {
+    return Card(
+      color: Colors.grey.shade800,
+      child: Padding(
+        padding: const EdgeInsets.all(2.0),
+        child: Row(
+          children: [
+            getImageType(type),
+            SizedBox(width: 4.0),
+            Text("$count")
+          ]
+        ),
+      )
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,8 +92,16 @@ class DeckStatisticWidget extends StatelessWidget {
         energies.add(getImageType(type));
       });
       List<Widget> powerEnergies = [];
-      deck.stats.energyTypes.forEach((type) {
+      deck.stats.powerEnergies.forEach((type) {
         powerEnergies.add(getImageType(type));
+      });
+      List<Widget> weaknessType = [];
+      deck.stats.countWeakness.forEach((type, count) {
+        weaknessType.add(createEnergyInfo(type, count));
+      });
+      List<Widget> resistanceType = [];
+      deck.stats.countResistance.forEach((type, count) {
+        resistanceType.add(createEnergyInfo(type, count));
       });
 
       return SingleChildScrollView(
@@ -153,10 +176,27 @@ class DeckStatisticWidget extends StatelessWidget {
                             width: firstColWidth,
                               child: Text(StatitikLocale.of(context).read('PSMDC_B12'), style: Theme.of(context).textTheme.headline6),
                           ),
-                          Row(children: powerEnergies)
+                          powerEnergies.isEmpty ? Text(StatitikLocale.of(context).read('PSMDC_B19')) : Row(children: powerEnergies)
                         ]
                       ),
-
+                      TableRow(
+                          children: [
+                            Container(
+                              width: firstColWidth,
+                              child: Text(StatitikLocale.of(context).read('PSMDC_B17'), style: Theme.of(context).textTheme.headline6),
+                            ),
+                            Row(children: weaknessType)
+                          ]
+                      ),
+                      TableRow(
+                          children: [
+                            Container(
+                              width: firstColWidth,
+                              child: Text(StatitikLocale.of(context).read('PSMDC_B18'), style: Theme.of(context).textTheme.headline6),
+                            ),
+                            Row(children: resistanceType)
+                          ]
+                      ),
                     ]
                   ),
                 ]
