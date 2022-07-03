@@ -584,7 +584,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                 )
               ),
               Card(
-                color: _auto ? Colors.green : Colors.grey[800],
+                color: Colors.grey[800],
                 child: TextButton(
                   child: Icon(Icons.format_color_fill),
                   onPressed: () {

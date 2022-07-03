@@ -361,6 +361,7 @@ Images and illustrations used are the property of their respective authors.\n
       'ADMIN_B5':  'New demands',
       'ADMIN_B6':  'Add side product',
       'ADMIN_B7':  'Add expansion products',
+      'ADMIN_B8':  'Rarities editor',
       'SPS_T0':    'Select product',
       'PSMC_B0':   'Add cards',
       'PSMC_B1':   'Standard cards',
@@ -421,6 +422,10 @@ Images and illustrations used are the property of their respective authors.\n
       'PSMDC_B17':  'Weakness',
       'PSMDC_B18':  'Resistance',
       'PSMDC_B19':  'Data missing',
+      'RARE_B0': 'Asian',
+      'RARE_B1': 'World',
+      'RARE_B2': 'Replace reverse',
+      'RARE_B3': 'Good Card',
     },
     'fr': {
       'H_T0': 'PokéSpace',
@@ -778,6 +783,7 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'ADMIN_B5':  'Nouvelles demandes',
       'ADMIN_B6':  'Ajout de produit annexe',
       'ADMIN_B7':  'Ajout de produit d\'extension',
+      'ADMIN_B8':  'Edition des raretés',
       'SPS_T0':    'Selection de produit',
       'PSMC_B0':   'Ajouter des cartes',
       'PSMC_B1':   'Cartes standards',
@@ -838,6 +844,10 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'PSMDC_B17':  'Faiblesse',
       'PSMDC_B18':  'Résistance',
       'PSMDC_B19': 'Données manquantes',
+      'RARE_B0': 'Asie',
+      'RARE_B1': 'Monde',
+      'RARE_B2': 'Remplace reverse',
+      'RARE_B3': 'Bonne carte',
     },
   };
 

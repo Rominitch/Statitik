@@ -24,12 +24,14 @@ class TutorialCaption extends StatelessWidget {
     const iconSize = 50.0;
     var designWidget = <Widget>[];
     Environment.instance.collection.validDesigns.forEach((element) {
+
       designWidget.add( createIconDescribe(element.name(l), element.icon(height: iconSize)));
     });
 
     var artWidgets = <Widget>[];
     ArtFormat.values.forEach((art) {
-      artWidgets.add( createIconDescribe(StatitikLocale.of(context).read(codeArt(art)), iconArt(art, iconSize, iconSize)));
+      if(art != ArtFormat.Unknown)
+        artWidgets.add( createIconDescribe(StatitikLocale.of(context).read(codeArt(art)), iconArt(art, iconSize, iconSize)));
     });
 
     return Scaffold(

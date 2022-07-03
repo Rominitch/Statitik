@@ -165,7 +165,7 @@ class BoosterDraw {
 
       // Functor
       var addAlternativeCard = (CodeDraw code, PokemonCardExtension card) {
-        alternativeSet += code.countAlternativeCard(card);
+        alternativeSet += code.countBoosterReversePosition(card);
       };
 
       // No number

@@ -4,8 +4,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/screen/Admin/ExtensionProductsCreator.dart';
+import 'package:statitikcard/screen/Admin/RarityEditor.dart';
 import 'package:statitikcard/screen/Admin/SideProductCreator.dart';
-
 import 'package:statitikcard/screen/Admin/newCardExtensions.dart';
 import 'package:statitikcard/screen/Admin/newProduct.dart';
 import 'package:statitikcard/screen/commonPages/languagePage.dart';
@@ -147,7 +147,11 @@ class _AdminPageState extends State<AdminPage> {
     buttons.add(createButton('ADMIN_B3', Icons.remove_red_eye_rounded, Colors.blueAccent, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory(true)));
     }));
+    buttons.add(createButton('ADMIN_B8', Icons.diamond_outlined, Colors.deepPurpleAccent, () {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => RarityEditor()));
+    }));
     buttons.add(createButton('ADMIN_B4', Icons.delete_forever, Colors.orangeAccent, cleanOrphan));
+
     return Scaffold(
         appBar: AppBar(
           title: Center(child: Text( StatitikLocale.of(context).read('H_T4'), style: Theme.of(context).textTheme.headline3 )),

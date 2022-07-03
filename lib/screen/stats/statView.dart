@@ -210,6 +210,15 @@ class ProbaResult {
   ProbaResult(this.minimum, this.mean);
 }
 
+class ResultProbability {
+  Map<Rarity, double> info = {};
+  bool                valid = false;
+
+  bool isValid() {
+    return valid && info.isNotEmpty;
+  }
+}
+
 class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
   ProbaResult full = ProbaResult(0,0);
   Map<CardSet, ProbaResult> bySets = {};
@@ -225,22 +234,26 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
     statsExtension.allSets.remove(Environment.instance.collection.sets[8]);
 
     // Compute full expansion
-    Map<Rarity, double> info = computeProbabilities(statsExtension, statsExtension.allSets);
-    adminControlData(info);
-    full = computeCompletion(statsExtension, info);
+    ResultProbability result = computeProbabilities(statsExtension, statsExtension.allSets);
+    if( result.isValid() ) {
+      adminControlData(result.info);
+      full = computeCompletion(statsExtension, result.info);
+    }
 
     // Compute by important set of expansion
     statsExtension.allSets.forEach((set) {
-      Map<Rarity, double> infoSet = computeProbabilities(statsExtension, [set]);
-      bySets[set] = computeCompletion(statsExtension, infoSet);
+      ResultProbability resultSet = computeProbabilities(statsExtension, [set]);
+      if( resultSet.isValid() ) {
+        bySets[set] = computeCompletion(statsExtension, resultSet.info);
+      }
     });
 
     super.initState();
   }
 
-  Map<Rarity, double> computeProbabilities(StatsExtension statsExtension, List<CardSet> setSelected) {
+  ResultProbability computeProbabilities(StatsExtension statsExtension, List<CardSet> setSelected) {
     assert(widget.data.stats != null);
-    Map<Rarity, double> info = {};
+    var result = ResultProbability();
     int     countZero = 0;
     int?    minRarity;
     Rarity  idMinRarity = Environment.instance.collection.unknownRarity!;
@@ -249,31 +262,32 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
 
     // Compute basic info and search invalid data
     for(CardSet s in setSelected) {
-      assert(widget.data.stats!.countBySetByRarity[s] != null, "${s.names.defaultName()} is not inside widget.data.stats");
-      var mapRarityStat    = widget.data.stats!.countBySetByRarity[s]!;
-      var mapRarityExt     = statsExtension.countBySetByRarity[s]!;
-      var raritiesSelected = statsExtension.allRarityPerSets[s]!;
-      for(Rarity r in raritiesSelected) {
-        int validRarity = mapRarityStat[r] ?? 0;
-        if(validRarity == 0) {
-          countZero += 1;
-          findEmpty.add(r);
-          countEmpty += mapRarityExt[r]!;
-        } else {
-          if( minRarity != null) {
-            if(validRarity < minRarity) {
-              minRarity   = min(minRarity, validRarity);
+      if(widget.data.stats!.countBySetByRarity[s] != null) {
+        var mapRarityStat = widget.data.stats!.countBySetByRarity[s]!;
+        var mapRarityExt = statsExtension.countBySetByRarity[s]!;
+        var raritiesSelected = statsExtension.allRarityPerSets[s]!;
+        for (Rarity r in raritiesSelected) {
+          int validRarity = mapRarityStat[r] ?? 0;
+          if (validRarity == 0) {
+            countZero += 1;
+            findEmpty.add(r);
+            countEmpty += mapRarityExt[r]!;
+          } else {
+            if (minRarity != null) {
+              if (validRarity < minRarity) {
+                minRarity = min(minRarity, validRarity);
+                idMinRarity = r;
+              }
+            } else {
+              minRarity = validRarity;
               idMinRarity = r;
             }
-          } else {
-            minRarity   = validRarity;
-            idMinRarity = r;
           }
+          if (result.info.containsKey(r))
+            result.info[r] = result.info[r]! + validRarity.toDouble();
+          else
+            result.info[r] = validRarity.toDouble();
         }
-        if(info.containsKey(r))
-          info[r] = info[r]! + validRarity.toDouble();
-        else
-          info[r] = validRarity.toDouble();
       }
     }
 
@@ -284,21 +298,22 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
       double unityProbability = 1.0;
       if(statsExtension.countByRarity[idMinRarity]! <= 1){
         unityProbability = 0.5;
-        info[idMinRarity] = statsExtension.countByRarity[idMinRarity]! / 2;
+        result.info[idMinRarity] = statsExtension.countByRarity[idMinRarity]! / 2;
       } else {
-        info[idMinRarity] = statsExtension.countByRarity[idMinRarity]!-1;
+        result.info[idMinRarity] = statsExtension.countByRarity[idMinRarity]!-1;
       }
-      assert(info[idMinRarity]! > 0.0);
+      assert(result.info[idMinRarity]! > 0.0);
       unityProbability = unityProbability / countEmpty.toDouble();
 
       // Fill invalid data
       findEmpty.forEach((r) {
         var proba = unityProbability * statsExtension.countByRarity[r]!;
-        info[r] = proba;
+        result.info[r] = proba;
         assert(proba > 0.0);
       });
     }
-    return info;
+    result.valid = minRarity != null;
+    return result;
   }
 
   void adminControlData(info) {

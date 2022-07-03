@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/commonPages/extensionPage.dart';
-import 'package:statitikcard/screen/stats/pieChart.dart';
 import 'package:statitikcard/screen/widgets/CardSelector/CardSelectorDeck.dart';
 import 'package:statitikcard/screen/widgets/CardsSelection.dart';
 import 'package:statitikcard/screen/widgets/DeckWidget.dart';

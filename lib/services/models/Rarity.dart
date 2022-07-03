@@ -19,6 +19,7 @@ class Rarity {
   const Rarity.fromImage(this.id, this.image, this.color) : this.iconId = null, this.value = null, this.rotate = false;
 
   List<Widget> icon(Language l, {iconSize, fontSize=12.0, textureSize=20.0}) {
+    var text = (value != null) ? value!.name(l) : "";
     return [
       if(image.isNotEmpty)
         textureSize != null ? drawCachedImage('logo', image, height: textureSize)
@@ -26,7 +27,8 @@ class Rarity {
       if(iconId != null)
         rotate ? Transform.rotate(angle: pi / 4.0, child: Icon(iconId, size: iconSize))
                : Icon(iconId, size: iconSize),
-      if(value != null)  Text(value!.name(l), style: TextStyle(fontSize: fontSize)),
+      if(value != null)
+        Text(text, style: TextStyle(fontSize: text.length > 2 ? fontSize-3 : fontSize)),
     ];
   }
 

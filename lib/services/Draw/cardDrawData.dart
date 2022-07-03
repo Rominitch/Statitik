@@ -58,9 +58,12 @@ class ExtensionDrawCards {
     int nbNoNumberCards = parser.extractInt16();
     for(int id=0; id < nbNoNumberCards; id +=1) {
       var code = parser.extractInt8();
-      if(!noNumberCardList.moveNext())
-        throw StatitikException("Unknown Card");
-      drawNoNumber.add(CodeDraw.fromPokeCardExtension(noNumberCardList.current, code));
+      if(noNumberCardList.moveNext()) {
+        drawNoNumber.add(CodeDraw.fromPokeCardExtension(noNumberCardList.current, code));
+      } else {
+        printOutput("Error into User CardDrawData: More nonumber cards");
+        break;
+      }
     }
     return parser;
   }
@@ -72,20 +75,22 @@ class ExtensionDrawCards {
 
     int nbCards = parser.extractInt16();
     for(int id=0; id < nbCards; id +=1) {
-      if(!cardsList.moveNext())
-        throw StatitikException("Unknown Cards");
-
-      int count = parser.extractInt8();
-      List<CodeDraw> cardCode = [];
-      var cardEx = cardsList.current.iterator;
-      for(int idCard=0; idCard < count; idCard +=1) {
-        var code = parser.extractInt8();
-        if(!cardEx.moveNext())
-          throw StatitikException("Unknown Card");
-        cardCode.add(CodeDraw.fromPokeCardExtension(cardEx.current, code));
+      if(cardsList.moveNext()) {
+        int count = parser.extractInt8();
+        List<CodeDraw> cardCode = [];
+        var cardEx = cardsList.current.iterator;
+        for (int idCard = 0; idCard < count; idCard += 1) {
+          var code = parser.extractInt8();
+          if (!cardEx.moveNext())
+            throw StatitikException("Unknown Card");
+          cardCode.add(CodeDraw.fromPokeCardExtension(cardEx.current, code));
+        }
+        assert(cardCode.isNotEmpty);
+        drawCards.add(cardCode);
+      } else {
+        printOutput("Error into User CardDrawData: More cards");
+        break;
       }
-      assert(cardCode.isNotEmpty);
-      drawCards.add(cardCode);
     }
 
     // Extract Energy card
@@ -93,9 +98,13 @@ class ExtensionDrawCards {
     int nbEnergiesCards = parser.extractInt16();
     for(int id=0; id < nbEnergiesCards; id +=1) {
       var code = parser.extractInt8();
-      if(!energiesList.moveNext())
-        throw StatitikException("Unknown Card");
-      drawEnergies.add(CodeDraw.fromPokeCardExtension(energiesList.current, code));
+      if(energiesList.moveNext()) {
+        drawEnergies.add(
+            CodeDraw.fromPokeCardExtension(energiesList.current, code));
+      } else {
+        printOutput("Error into User CardDrawData: More energy");
+        break;
+      }
     }
     return parser;
   }
@@ -424,16 +433,26 @@ class CodeDraw {
     return newResult ? newCards: null;
   }
 
-  int countAlternativeCard(PokemonCardExtension card) {
-    int alternativeSet = 0;
-    var countSet = _countBySetByImage.iterator;
-    card.sets.forEach((set) {
-      if(countSet.moveNext()) {
-        if(set.isParallel)
-          alternativeSet += countSet.current.reduce((value, currentItem) => value + currentItem);
-      }
-    });
-    return alternativeSet;
+  /// Check if card is in reverse position
+  int countBoosterReversePosition(PokemonCardExtension card) {
+    // Check global rarity
+    if( Environment.instance.collection.otherThanReverse.contains(card.rarity) ) {
+      return count();
+    } else {
+      int alternativeSet = 0;
+      var countSet = _countBySetByImage.iterator;
+      // or for each set, check reverse
+      card.sets.forEach((set) {
+        if (countSet.moveNext()) {
+          if (set.isParallel || set.replaceRevertIntoBooster) {
+            alternativeSet +=
+                countSet.current.reduce((value, currentItem) => value +
+                    currentItem);
+          }
+        }
+      });
+      return alternativeSet;
+    }
   }
 
   List<int> allCounts() {

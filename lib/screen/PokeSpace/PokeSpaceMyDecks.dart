@@ -8,8 +8,6 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/Deck.dart';
 import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/Tools.dart';
-import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/statitik_font_icons.dart';
 
 class PokeSpaceMyDeck extends StatefulWidget {
   const PokeSpaceMyDeck() : super();

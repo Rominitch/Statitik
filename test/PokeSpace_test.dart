@@ -25,8 +25,8 @@ void main() {
     var r  = Rarity.fromText(0, MultiLanguageString(["S0","S0","S0"]), Colors.green);
     var defaultCard = PokemonCardData.empty();
     var sets = [
-      CardSet(MultiLanguageString(["S0","S0","S0"]), Colors.green, "normal", false, false),
-      CardSet(MultiLanguageString(["S1","S1","S1"]), Colors.blue, "normal", false, false),
+      CardSet(MultiLanguageString(["S0","S0","S0"]), Colors.green, "normal", false, false, false),
+      CardSet(MultiLanguageString(["S1","S1","S1"]), Colors.blue, "normal", false, false, false),
     ];
     Map cards = {
       0: PokemonCardExtension.empty(defaultCard, r),
