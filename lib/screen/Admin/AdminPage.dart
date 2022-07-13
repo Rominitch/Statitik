@@ -34,7 +34,7 @@ class _AdminPageState extends State<AdminPage> {
     Environment.instance.db.transactionR( (connection) async {
         String query = "SELECT `idDemande` FROM Demande;";
         var exts = await connection.query(query);
-        for(var _ in exts) {
+        for(var ext in exts) {
           demanded = true;
         }
       }
@@ -49,8 +49,8 @@ class _AdminPageState extends State<AdminPage> {
     var orphans = Environment.instance.collection.searchOrphanCard();
     showDialog(
         context: context,
-        builder: (_) => new AlertDialog(
-            title: new Text(StatitikLocale.of(context).read('warning')),
+        builder: (_) => AlertDialog(
+            title: Text(StatitikLocale.of(context).read('warning')),
             content: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -111,6 +111,7 @@ class _AdminPageState extends State<AdminPage> {
     return Card(
       color: colorBox,
       child: TextButton(
+        onPressed: action,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -121,7 +122,6 @@ class _AdminPageState extends State<AdminPage> {
             Text(StatitikLocale.of(context).read(codeText)),
           ],
         ),
-        onPressed: action,
       ),
     );
   }
@@ -148,7 +148,7 @@ class _AdminPageState extends State<AdminPage> {
       Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory(true)));
     }));
     buttons.add(createButton('ADMIN_B8', Icons.diamond_outlined, Colors.deepPurpleAccent, () {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => RarityEditor()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const RarityEditor()));
     }));
     buttons.add(createButton('ADMIN_B4', Icons.delete_forever, Colors.orangeAccent, cleanOrphan));
 
@@ -168,7 +168,7 @@ class _AdminPageState extends State<AdminPage> {
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
                         children: [
-                          Icon(Icons.warning_amber_rounded),
+                          const Icon(Icons.warning_amber_rounded),
                           Text(StatitikLocale.of(context).read('ADMIN_B5'), style: Theme.of(context).textTheme.headline5)
                         ]
                       )
@@ -207,9 +207,9 @@ class _AdminPageState extends State<AdminPage> {
                 )),
 
                 GridView.count(crossAxisCount: 3,
-                  children: buttons,
                   primary: false,
                   shrinkWrap: true,
+                  children: buttons,
                 ),
               ],
             )

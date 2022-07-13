@@ -25,7 +25,7 @@ class NewProductPage extends StatefulWidget {
   final Product? editProduct;
 
   NewProductPage([this.editProduct, Language? l]) :
-    activeLanguage = (l != null ? l : Environment.instance.collection.languages[1]!);
+    activeLanguage = (l ?? Environment.instance.collection.languages[1]!);
 
   @override
   _NewProductPageState createState() => _NewProductPageState();
@@ -49,8 +49,9 @@ class _NewProductPageState extends State<NewProductPage> {
 
   @override
   void initState() {
-    if(widget.editProduct != null)
+    if(widget.editProduct != null) {
       product = widget.editProduct!;
+    }
 
     radioLangue.clear();
     for( Language l in Environment.instance.collection.languages.values)
@@ -100,10 +101,11 @@ class _NewProductPageState extends State<NewProductPage> {
         initialDatePickerMode: DatePickerMode.day,
         firstDate: DateTime(1998),
         lastDate: DateTime(2101));
-    if (picked != null)
+    if (picked != null) {
       setState(() {
         product.releaseDate = picked;
       });
+    }
   }
 
   void sendProduct() {
@@ -117,8 +119,9 @@ class _NewProductPageState extends State<NewProductPage> {
 
           EasyLoading.dismiss();
           Navigator.popUntil(context, ModalRoute.withName('/'));
-        } else
+        } else {
           EasyLoading.showError("Erreur produit");
+        }
 
       }).onError((errorInfo, stackTrace) {
         error = errorInfo.toString();
@@ -138,7 +141,7 @@ class _NewProductPageState extends State<NewProductPage> {
       Card(
         color: Colors.blueAccent,
         child: TextButton(
-          child: Center( child: Icon(Icons.add_shopping_cart) ),
+          child: const Center( child: Icon(Icons.add_shopping_cart) ),
           onPressed: () {
             // Go to product selector
             Navigator.push(context, MaterialPageRoute(builder: (context) => SideProductSelection(product.language!))).then((value) {
@@ -165,8 +168,9 @@ class _NewProductPageState extends State<NewProductPage> {
       var selector = CardSelectorProductCard(otherCard);
       cardsWidget.add(PokemonCard(selector,
         refresh: (){ setState(() {
-          if( otherCard.counter.count() == 0 )
+          if( otherCard.counter.count() == 0 ) {
             product.otherCards.remove(otherCard);
+          }
             });
         },
         readOnly: false, singlePress: true));
@@ -176,7 +180,7 @@ class _NewProductPageState extends State<NewProductPage> {
         Card(
           color: Colors.deepOrange.shade300,
           child: TextButton(
-            child: Center( child: Icon(Icons.add_photo_alternate_outlined) ),
+            child: const Center( child: const Icon(Icons.add_photo_alternate_outlined) ),
             onPressed: () {
               // Go to product selector
               Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: product.language!,
@@ -204,14 +208,16 @@ class _NewProductPageState extends State<NewProductPage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> formular = [];
-    if(product.language == null)
+    if(product.language == null) {
       formular.add(Card( child: Row( children: radioLangue) ));
-    if(product.category == null)
+    }
+    if(product.category == null) {
       formular.add(Card( child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-        Text(''),
+        const Text(''),
       ]+radioCat) ));
+    }
     if(product.category != null && product.language != null) {
       List<Widget> bs=[];
       for(ProductBooster booster in product.boosters) {
@@ -231,7 +237,7 @@ class _NewProductPageState extends State<NewProductPage> {
           ))),
         ]),
         TextFormField(
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
               labelText: 'Nom du produit'
           ),
           initialValue: product.name,
@@ -244,7 +250,7 @@ class _NewProductPageState extends State<NewProductPage> {
           },
         ),
         TextFormField(
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
               labelText: 'Image'
           ),
           initialValue: product.imageURL,
@@ -271,7 +277,7 @@ class _NewProductPageState extends State<NewProductPage> {
           value: product.nbRandomPerProduct.toDouble(),
           min: 0,
           max: 5,
-          decoration: InputDecoration(labelText: 'Nombre de cartes aléatoires'),
+          decoration: const InputDecoration(labelText: 'Nombre de cartes aléatoires'),
           onChanged: (value) {
             product.nbRandomPerProduct = value.toInt();
           },
@@ -291,16 +297,14 @@ class _NewProductPageState extends State<NewProductPage> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child:Scaffold(
         appBar: AppBar(
-          title: Container(
-            child: Text(StatitikLocale.of(context).read('NP_T0')),
-          ),
+          title: Text(StatitikLocale.of(context).read('NP_T0')),
           actions: [
             if(product.category != null && product.language != null)
               Card(
                 color: Colors.green,
                 child: TextButton(
                   onPressed: sendProduct,
-                  child: Text('Envoyer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: const Text('Envoyer', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               )
           ],
@@ -325,7 +329,7 @@ class BoostersInfo extends StatefulWidget {
   final ProductBooster? newProd;
   final Language        l;
 
-  BoostersInfo(this.productAdd, this.newProd, this.l);
+  const BoostersInfo(this.productAdd, this.newProd, this.l);
 
   @override
   _BoostersInfoState createState() => _BoostersInfoState();
@@ -346,8 +350,8 @@ class _BoostersInfoState extends State<BoostersInfo> {
       return Card(
           child: Row(children: [
             TextButton(
-              style: TextButton.styleFrom(minimumSize: Size(0.0, 40.0)),
-              child: (widget.newProd!.subExtension != null) ? widget.newProd!.subExtension!.image(hSize: iconSize) : Icon(Icons.add_to_photos),
+              style: TextButton.styleFrom(minimumSize: const Size(0.0, 40.0)),
+              child: (widget.newProd!.subExtension != null) ? widget.newProd!.subExtension!.image(hSize: iconSize) : const Icon(Icons.add_to_photos),
               onPressed: (){
                 setState(() {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: widget.l, afterSelected: afterSelected, addMode: false)));
@@ -359,7 +363,7 @@ class _BoostersInfoState extends State<BoostersInfo> {
                 value: widget.newProd!.nbBoosters.toDouble(),
                 min: 1,
                 max: 50,
-                decoration: InputDecoration(labelText: 'Boosters'),
+                decoration: const InputDecoration(labelText: 'Boosters'),
                 onChanged: (value) {
                   widget.newProd!.nbBoosters = value.toInt();
                 },
@@ -370,7 +374,7 @@ class _BoostersInfoState extends State<BoostersInfo> {
                 value: widget.newProd!.nbCardsPerBooster.toDouble(),
                 min: 1,
                 max: 15,
-                decoration: InputDecoration(labelText: 'Cartes'),
+                decoration: const InputDecoration(labelText: 'Cartes'),
                 onChanged: (value) {
                   widget.newProd!.nbCardsPerBooster = value.toInt();
                 },
@@ -381,7 +385,7 @@ class _BoostersInfoState extends State<BoostersInfo> {
     } else {
       return Card(
         child: TextButton(
-          child: Center( child: Icon(Icons.add_to_photos) ),
+          child: const Center( child: Icon(Icons.add_to_photos) ),
           onPressed: () {
             widget.productAdd();
           },
@@ -416,14 +420,15 @@ class _SideProductCountState extends State<SideProductCount> {
             value: widget.product.sideProducts[widget.productSide]!.toDouble(),
             min: 0,
             max: 255,
-            textStyle: TextStyle(fontSize: 13),
+            textStyle: const TextStyle(fontSize: 13),
             onChanged: (value) {
               if(value.toInt() == 0) {
                 widget.product.sideProducts.remove(widget.productSide);
                 widget.refresh();
               }
-              else
+              else {
                 widget.product.sideProducts[widget.productSide] = value.toInt();
+              }
             },
           ),
         ]

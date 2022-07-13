@@ -31,10 +31,12 @@ class _RarityEditorState extends State<RarityEditor> {
               Rarity r = item.value;
 
               var worldAsian = [];
-              if(Environment.instance.collection.worldRarity.contains(r))
+              if(Environment.instance.collection.worldRarity.contains(r)) {
                 worldAsian.add(StatitikLocale.of(context).read( 'RARE_B1'));
-              if(Environment.instance.collection.japanRarity.contains(r))
+              }
+              if(Environment.instance.collection.japanRarity.contains(r)) {
                 worldAsian.add(StatitikLocale.of(context).read( 'RARE_B0'));
+              }
 
               return Card(
                 child: Container(
@@ -52,7 +54,7 @@ class _RarityEditorState extends State<RarityEditor> {
                             children: getImageRarity(r, language, generate: true)),
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       Card(
                         color: Colors.grey,
                         child:

@@ -1,20 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:statitikcard/screen/Cartes/CardStatistic.dart';
 
+// Import the firebase_app_check plugin
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+
+import 'package:statitikcard/screen/Cartes/CardStatistic.dart';
 import 'package:statitikcard/screen/Wrapper.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/support.dart';
 import 'package:statitikcard/screen/thanks.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
-void main() {
+Future<void> main() async {
+  // Enable AppCheck : API Integrity
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await FirebaseAppCheck.instance.activate(
+    webRecaptchaSiteKey: 'recaptcha-v3-site-key',
+  );
+
   // Build instance for first time
-  runApp(StatitikApp());
+  runApp(const StatitikApp());
 }
 
 class StatitikApp extends StatelessWidget {
+  const StatitikApp({Key? key}) : super(key: key);
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -37,7 +50,7 @@ class StatitikApp extends StatelessWidget {
         sliderTheme: SliderThemeData(activeTrackColor: Colors.orange[300], inactiveTickMarkColor: Colors.orange[300], thumbColor: Colors.orange[300],
                                      activeTickMarkColor: Colors.grey[900], inactiveTrackColor: Colors.grey[900]  ),
         //disabledColor: Colors.orange[200],
-        textTheme: TextTheme(
+        textTheme: const TextTheme(
           headline1: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 50.0,),
           headline3: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 30.0,),
           headline4: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 25.0,),
@@ -65,7 +78,7 @@ class StatitikApp extends StatelessWidget {
         ),
         inputDecorationTheme: InputDecorationTheme(
           labelStyle: TextStyle(color: Colors.orange[300]),
-          focusedBorder: UnderlineInputBorder(
+          focusedBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: Colors.white),
           ),
           border: UnderlineInputBorder(
@@ -75,22 +88,22 @@ class StatitikApp extends StatelessWidget {
       ),
       title: 'StatitikCard',
       initialRoute: '/',
-      localizationsDelegates: [
-        const StatitikLocaleDelegate(),
+      localizationsDelegates: const [
+        StatitikLocaleDelegate(),
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [
-        const Locale('en', ''),
-        const Locale('fr', ''),
+      supportedLocales: const [
+        Locale('en', ''),
+        Locale('fr', ''),
       ],
       builder: EasyLoading.init(),
       routes: {
         '/': (context) => ApplicationWidget(),
         '/home': (context) => ApplicationWidget(),
         '/stats': (context) => StatsPage(),
-        '/cards': (context) => CardStatisticPage(),
+        '/cards': (context) => const CardStatisticPage(),
         '/support': (context) => SupportPage(),
         '/thanks': (context) => ThanksPage(),
       }

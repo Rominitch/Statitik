@@ -152,21 +152,6 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: TextButton(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Row( mainAxisAlignment: MainAxisAlignment.center,
-                  children: [card.imageType()]+card.imageRarity(widget.language)),
-              Row(mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(numberCard, style: TextStyle(fontSize: numberCard.length > 3 ? 10 : 12)),
-                  if(widget.language.isJapanese() && card.tryGetImage(CardImageIdentifier()).jpDBId == 0) Icon(Icons.broken_image, color: Colors.deepOrange, size: 11),
-                  if(card.data.missingMainData())           Icon(Icons.text_format, color: Colors.red, size: 10),
-                  if(card.data.cardEffects.effects.isEmpty) Icon(Icons.filter_vintage_outlined, color: Colors.red, size: 10),
-              ])
-            ]
-        ),
         style: TextButton.styleFrom(
             backgroundColor: colorCard,
             padding: const EdgeInsets.all(2.0)
@@ -217,6 +202,21 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
             });
           });
         },
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row( mainAxisAlignment: MainAxisAlignment.center,
+                  children: [card.imageType()]+card.imageRarity(widget.language)),
+              Row(mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(numberCard, style: TextStyle(fontSize: numberCard.length > 3 ? 10 : 12)),
+                  if(widget.language.isJapanese() && card.tryGetImage(CardImageIdentifier()).jpDBId == 0) const Icon(Icons.broken_image, color: Colors.deepOrange, size: 11),
+                  if(card.data.missingMainData())           const Icon(Icons.text_format, color: Colors.red, size: 10),
+                  if(card.data.cardEffects.effects.isEmpty) const Icon(Icons.filter_vintage_outlined, color: Colors.red, size: 10),
+              ])
+            ]
+        ),
       ),
     );
   }
@@ -369,24 +369,24 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
             ),
             if(widget.se.seCards.cards.isNotEmpty && idList == 0) GridView.count(
                 primary: false,
-                children: _cardInfo,
                 shrinkWrap: true,
                 childAspectRatio: 1.35,
                 crossAxisCount: 5,
+                children: _cardInfo,
             ),
             if(widget.se.seCards.energyCard.isNotEmpty && idList == 1) GridView.count(
               primary: false,
-              children: _cardEnergyInfo,
               shrinkWrap: true,
               childAspectRatio: 1.35,
               crossAxisCount: 5,
+              children: _cardEnergyInfo,
             ),
             if(widget.se.seCards.noNumberedCard.isNotEmpty && idList == 2) GridView.count(
               primary: false,
-              children: _cardNoNumberInfo,
               shrinkWrap: true,
               childAspectRatio: 1.35,
               crossAxisCount: 5,
+              children: _cardNoNumberInfo,
             ),
           ],
         )

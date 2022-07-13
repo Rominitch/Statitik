@@ -36,17 +36,16 @@ class CardCreator extends StatefulWidget {
   final List?                 secondTypes;
   final CardEditorOptions     options;
 
-  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, [options]):
+  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, this.options, {Key? key}):
     editor=true, onAppendCard=null, onChangeList=null,
     listRarity = (se.extension.language.isWorld() ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity)
       ..removeWhere((element) => element == Environment.instance.collection.unknownRarity),
     secondTypes = [TypeCard.Unknown] + energies,
-    this.options = options;
+    super(key: key);
 
-
-  CardCreator.quick(this.activeLanguage, this.se, this.card, this.idCard, this.onAppendCard, bool isWorldCard, {this.onChangeList}):
+  CardCreator.quick(this.activeLanguage, this.se, this.card, this.idCard, this.onAppendCard, bool isWorldCard, {Key? key, this.onChangeList}):
     editor=false, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity), title="",
-    secondTypes=null, options = CardEditorOptions();
+    secondTypes=null, options = CardEditorOptions(), super(key: key);
 
   @override
   _CardCreatorState createState() => _CardCreatorState();
@@ -89,16 +88,18 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
     widget.card.data.level = value;
   }
   void onTypeExtChanged(value) {
-    if(value == TypeCard.Unknown)
+    if(value == TypeCard.Unknown) {
       widget.card.data.typeExtended = null;
-    else
+    } else {
       widget.card.data.typeExtended = value;
+    }
   }
 
   void onRarityChanged(value) {
     widget.card.rarity = value;
-    if(_auto)
+    if(_auto) {
       widget.onAppendCard!(listChooserController.currentValue, null);
+    }
   }
 
   @override
@@ -113,8 +114,9 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
       for(int idSet=0; idSet < widget.card.images.length; idSet+=1) {
         for(int idImage=0; idImage < widget.card.images[idSet].length; idImage+=1) {
           var id = CardImageIdentifier(idSet,idImage);
-          if(widget.card.image(id)!.jpDBId == 0)
+          if(widget.card.image(id)!.jpDBId == 0) {
             CardImageCreator.computeJPCardID(widget.se, widget.card, widget.idCard, id);
+          }
         }
       }
     }
@@ -169,10 +171,11 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
               cardDesign.cardDesign.art     = ArtFormat.FullArt;
             } else if( extCard.rarity.id == 6) {
               cardDesign.cardDesign.design  = Design.Holographic.index;
-              if(widget.se.extension.id == 3)
+              if(widget.se.extension.id == 3) {
                 cardDesign.cardDesign.pattern = 0;
-              else
+              } else {
                 cardDesign.cardDesign.pattern = 2;
+              }
             }
           }
         }
@@ -232,7 +235,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
         });
 
         images.add(Card(
-          child: IconButton(icon: Icon(Icons.add_circle_outline),
+          child: IconButton(icon: const Icon(Icons.add_circle_outline),
             onPressed: () {
               setState(() {
                 addBestDesign(widget.idCard, widget.card.images[index], index);
@@ -261,12 +264,8 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
 
       typeExtController.afterPress(widget.card.data.typeExtended != null ? widget.card.data.typeExtended! : TypeCard.Unknown);
 
-      if( widget.card.data.weakness == null ) {
-        widget.card.data.weakness = EnergyValue(TypeCard.Unknown, 0);
-      }
-      if( widget.card.data.resistance == null ) {
-        widget.card.data.resistance = EnergyValue(TypeCard.Unknown, 0);
-      }
+      widget.card.data.weakness   ??= EnergyValue(TypeCard.Unknown, 0);
+      widget.card.data.resistance ??= EnergyValue(TypeCard.Unknown, 0);
 
       levelController.afterPress(widget.card.data.level);
       int? databaseCardId = Environment.instance.collection.pokemonCards.containsValue(widget.card.data)
@@ -277,7 +276,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                  ? databaseCardId.toString()
                  : StatitikLocale.of(context).read('CA_B29');
 
-      final newResistances = const<int>[3, 6, 9];
+      const newResistances = <int>[3, 6, 9];
       int defaultResistance = newResistances.contains(widget.se.extension.id) ? 30 : 20;
 
       List<Widget> cardInfo = [];
@@ -295,7 +294,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             }
           ),
           Row(children: [
-            Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B25'), style: TextStyle(fontSize: 12))),
+            Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B25'), style: const TextStyle(fontSize: 12))),
             Expanded(
               child: SliderInfo( SliderInfoController(() {
                 return widget.card.data.life.toDouble();
@@ -309,7 +308,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           ]),
           // Retreat
           Row(children: [
-            Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B26'), style: TextStyle(fontSize: 12))),
+            Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B26'), style: const TextStyle(fontSize: 12))),
             Expanded(
               child: SliderInfo( SliderInfoController(() {
                 return widget.card.data.retreat.toDouble();
@@ -324,14 +323,14 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(StatitikLocale.of(context).read('CA_B28'), style: TextStyle(fontSize: 12)),
+              Text(StatitikLocale.of(context).read('CA_B28'), style: const TextStyle(fontSize: 12)),
               EnergySlider(widget.card.data.weakness!, 2, minWeakness, maxWeakness, division: 5)
             ],
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(StatitikLocale.of(context).read('CA_B27'), style: TextStyle(fontSize: 12)),
+              Text(StatitikLocale.of(context).read('CA_B27'), style: const TextStyle(fontSize: 12)),
               EnergySlider(widget.card.data.resistance!, defaultResistance, minResistance, maxResistance, division: 6)
             ],
           )
@@ -339,12 +338,12 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
       }
 
       List<Widget> tabHeaders = [
-        Text(StatitikLocale.of(context).read('CA_B22'), style: TextStyle(fontSize: 12)),
-        Icon(Icons.info_outline, size: 28),                 //Text(StatitikLocale.of(context).read('CA_B18'), style: TextStyle(fontSize: 10)),
-        Icon(Icons.add_photo_alternate_outlined, size: 28), // Text(StatitikLocale.of(context).read('CA_B39'), style: TextStyle(fontSize: 10)),
-        Icon(Icons.bookmark_border_outlined, size: 28),     //Text(StatitikLocale.of(context).read('CA_B16'), style: TextStyle(fontSize: 10)),
-        Text(StatitikLocale.of(context).read('CA_B17'), style: TextStyle(fontSize: 12)),
-        Text(StatitikLocale.of(context).read('CA_B15'), style: TextStyle(fontSize: 10)),
+        Text(StatitikLocale.of(context).read('CA_B22'), style: const TextStyle(fontSize: 12)),
+        const Icon(Icons.info_outline, size: 28),                 //Text(StatitikLocale.of(context).read('CA_B18'), style: TextStyle(fontSize: 10)),
+        const Icon(Icons.add_photo_alternate_outlined, size: 28), // Text(StatitikLocale.of(context).read('CA_B39'), style: TextStyle(fontSize: 10)),
+        const Icon(Icons.bookmark_border_outlined, size: 28),     //Text(StatitikLocale.of(context).read('CA_B16'), style: TextStyle(fontSize: 10)),
+        Text(StatitikLocale.of(context).read('CA_B17'), style: const TextStyle(fontSize: 12)),
+        Text(StatitikLocale.of(context).read('CA_B15'), style: const TextStyle(fontSize: 10)),
       ];
 
       List<Widget> tabPages = [
@@ -377,7 +376,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             children: [
               Row(
                 children: [
-                  Text("Carte secrète: "),
+                  const Text("Carte secrète: "),
                   Checkbox(value: widget.card.isSecret, onChanged: (value) {
                     setState(() {
                       widget.card.isSecret = value!;
@@ -400,7 +399,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
               Row(
                 children:[
                   Text(StatitikLocale.of(context).read('CA_B38')),
-                  SizedBox(width: 15),
+                  const SizedBox(width: 15),
                   Expanded(
                     child: TextField(
                       controller: specialIDController,
@@ -468,7 +467,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           ),
         ]),
       ];
-      final imageSize = 270.0;
+      const imageSize = 270.0;
 
       return Column(children:
         [
@@ -477,8 +476,8 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             child: Row(
             children: [
               Container(child: genericCardWidget(widget.se, widget.idCard, CardImageIdentifier(), height: imageSize, reloader: true), height: imageSize),
-              SizedBox(width:8),
-              Expanded(child: Text(StatitikLocale.of(context).read('CA_B30')+ " " + codeDB, style: Theme.of(context).textTheme.headline5)),
+              const SizedBox(width:8),
+              Expanded(child: Text("${StatitikLocale.of(context).read('CA_B30')} $codeDB", style: Theme.of(context).textTheme.headline5)),
               Card(
                 color: widget.card.data.title.isNotEmpty ? Colors.grey.shade500 : Colors.grey.shade900,
                 child: TextButton(
@@ -555,9 +554,9 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CustomRadio(value: 0, controller: listChooserController, widget: Text("Normal")),
-            CustomRadio(value: 1, controller: listChooserController, widget: Text("Energie")),
-            CustomRadio(value: 2, controller: listChooserController, widget: Text("Special")),
+            CustomRadio(value: 0, controller: listChooserController, widget: const Text("Normal")),
+            CustomRadio(value: 1, controller: listChooserController, widget: const Text("Energie")),
+            CustomRadio(value: 2, controller: listChooserController, widget: const Text("Special")),
           ]
         ),
         Row(
@@ -566,7 +565,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
               Card(
                 color: Colors.grey[800],
                 child: TextButton(
-                  child: Icon(Icons.add_circle_outline),
+                  child: const Icon(Icons.add_circle_outline),
                   onPressed: (){
                     widget.onAppendCard!(listChooserController.currentValue, null);
                   },
@@ -586,7 +585,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
               Card(
                 color: Colors.grey[800],
                 child: TextButton(
-                  child: Icon(Icons.format_color_fill),
+                  child: const Icon(Icons.format_color_fill),
                   onPressed: () {
                     setState((){
                       automaticFill();
@@ -605,9 +604,9 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
 Widget buildTitle(BuildContext context, Language language, PokemonCardExtension card, CardIdentifier idCard) {
   return Row(
     children:
-      [ getImageType(card.data.type, generate: false), SizedBox(width: 8.0) ] +
+      [ getImageType(card.data.type, generate: false), const SizedBox(width: 8.0) ] +
       card.rarity.icon(language) +
-      [ SizedBox(width: 8.0), Text( "- ${idCard.numberId+1}: ${card.data.titleOfCard(language)}", style: Theme.of(context).textTheme.headline6?..copyWith(fontSize: 10.0)) ],
+      [ const SizedBox(width: 8.0), Text( "- ${idCard.numberId+1}: ${card.data.titleOfCard(language)}", style: Theme.of(context).textTheme.headline6?..copyWith(fontSize: 10.0)) ],
   );
 }
 
@@ -702,7 +701,7 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
       Card(
         color: Colors.grey[700],
         child: TextButton(
-          child: Text((name.name.isPokemon()) ? name.name.defaultName() : "", style: TextStyle(fontSize: 9.0)),
+          child: Text((name.name.isPokemon()) ? name.name.defaultName() : "", style: const TextStyle(fontSize: 9.0)),
           onPressed: (){
             Navigator.push(
               context,
@@ -719,7 +718,7 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
       ) : Card(
         color: Colors.grey[700],
         child: TextButton(
-          child: Text((!name.name.isPokemon()) ? name.name.defaultName() : "", style: TextStyle(fontSize: 9.0)),
+          child: Text((!name.name.isPokemon()) ? name.name.defaultName() : "", style: const TextStyle(fontSize: 9.0)),
           onPressed: (){
             Navigator.push(
               context,
@@ -749,7 +748,7 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
                     widget.card.data.title.remove(widget.nameInfo());
                   });
                 },
-                icon: Icon(Icons.delete)
+                icon: const Icon(Icons.delete)
               ),
             ],
           ),
@@ -787,7 +786,7 @@ class CardImageCreator extends StatefulWidget {
     try {
       int idFind = 0;
       // Search list of card
-      var ancestorCard;
+      PokemonCardExtension ancestorCard;
       switch(idCard.listId) {
         case 0:
           ancestorCard = se.seCards.cards.sublist(0, idCard.numberId).reversed.firstWhere((element) {
@@ -815,18 +814,18 @@ class CardImageCreator extends StatefulWidget {
       }
 
       // Zero propagation or next number
-      if(ancestorCard != null) {
-        var jpDB = ancestorCard
-            .image(idImage)
-            .jpDBId;
-        if (jpDB != 0)
-          card.image(idImage)!.jpDBId = jpDB + idFind;
+      var jpDB = ancestorCard
+          .image(idImage)!
+          .jpDBId;
+      if (jpDB != 0) {
+        card.image(idImage)!.jpDBId = jpDB + idFind;
       }
 
       // Copy name of parent
       var name = card.tryGetImage(CardImageIdentifier()).image;
-      if(name.isNotEmpty)
+      if(name.isNotEmpty) {
         card.image(idImage)!.image = name;
+      }
     } catch(e) {
       // Nothing found !
       printOutput("ComputeJCard: impossible to find $e");
@@ -928,7 +927,7 @@ class _CardImageCreatorState extends State<CardImageCreator> {
               return CustomRadio(value: element, controller: artController, widget: iconArt(element) );
             }
           ),
-          Text(StatitikLocale.of(context).read('CA_B34'), style: TextStyle(fontSize: 12)),
+          Text(StatitikLocale.of(context).read('CA_B34'), style: const TextStyle(fontSize: 12)),
           TextField(
             controller: imageController,
             decoration: InputDecoration(
@@ -946,16 +945,17 @@ class _CardImageCreatorState extends State<CardImageCreator> {
                   controller: jpCodeController,
                   onChanged: (data) {
                     setState(() {
-                      if(data.isNotEmpty)
+                      if(data.isNotEmpty) {
                         imageDesign.jpDBId = int.parse(data);
-                      else
+                      } else {
                         imageDesign.jpDBId = 0;
+                      }
                     });
                   }
                 ),
               ),
               Card( child: IconButton(
-                icon: Icon(Icons.upgrade),
+                icon: const Icon(Icons.upgrade),
                 onPressed: () async {
                   // Clean all data
                   imageDesign.finalImage = "";
@@ -972,7 +972,7 @@ class _CardImageCreatorState extends State<CardImageCreator> {
           ),
           Card(
             child: IconButton(
-              icon: Icon(Icons.refresh),
+              icon: const Icon(Icons.refresh),
               onPressed: () async {
                 // Clean all data
                 imageDesign.finalImage = "";

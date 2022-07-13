@@ -44,7 +44,7 @@ class _CardEffectsPanelState extends State<CardEffectsPanel> {
           child: Text( StatitikLocale.of(context).read('CA_B14') ),
           onPressed: (){
             setState(() {
-              var newEffect = new CardEffect();
+              var newEffect = CardEffect();
               widget.card.data.cardEffects.effects.add(newEffect);
               effectsWidget.add(CardEffectPanel(widget, newEffect));
             });

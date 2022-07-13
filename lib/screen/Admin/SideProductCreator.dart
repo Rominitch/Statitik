@@ -26,17 +26,18 @@ class _SideProductCreatorState extends State<SideProductCreator> {
     super.initState();
   }
 
-  Future<Null> _selectDate(BuildContext context) async {
+  Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: product.releaseDate,
         initialDatePickerMode: DatePickerMode.day,
         firstDate: DateTime(1998),
         lastDate: DateTime(2101));
-    if (picked != null)
+    if (picked != null) {
       setState(() {
         product.releaseDate = picked;
       });
+    }
   }
 
   bool isValid() {
@@ -54,8 +55,9 @@ class _SideProductCreatorState extends State<SideProductCreator> {
         EasyLoading.dismiss();
 
         Navigator.of(context).pop();
-      } else
+      } else {
         EasyLoading.showError("Error");
+      }
     }).onError((error, stackTrace)
     {
       EasyLoading.showError("Error");
@@ -68,16 +70,14 @@ class _SideProductCreatorState extends State<SideProductCreator> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: Container(
-            child: Text(StatitikLocale.of(context).read('NP_T0')),
-          ),
+          title: Text(StatitikLocale.of(context).read('NP_T0')),
           actions: [
             if(isValid())
               Card(
                 color: Colors.green,
                 child: TextButton(
                   onPressed: sendSideProduct,
-                  child: Text('Envoyer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: const Text('Envoyer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               )
           ],
@@ -109,7 +109,7 @@ class _SideProductCreatorState extends State<SideProductCreator> {
                   }
                 ),
                 TextFormField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       labelText: 'Name'
                   ),
                   initialValue: product.name,
@@ -120,7 +120,7 @@ class _SideProductCreatorState extends State<SideProductCreator> {
                   },
                 ),
                 TextFormField(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       labelText: 'Image'
                   ),
                   initialValue: product.imageURL,

@@ -34,9 +34,9 @@ enum ProductKind {
   TriPack,
 }
 
-const List<String> _languageCode = const["FR", "EN", "JP"];
-const List<String> _productCode  = const["Booster", "Display", "BB", "BBS", "ETB", "ETB_Center", "ETB2", "", ""];
-const List<int>    _categoryCode = const[1,1,1,1,6,6,6,2,2];
+const List<String> _languageCode = ["FR", "EN", "JP"];
+const List<String> _productCode  = ["Booster", "Display", "BB", "BBS", "ETB", "ETB_Center", "ETB2", "", ""];
+const List<int>    _categoryCode = [1,1,1,1,6,6,6,2,2];
 
 class PackInfo
 {
@@ -59,8 +59,9 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
 
   bool isValid() {
     bool valid = true;
-    if(hasRandomCard())
+    if(hasRandomCard()) {
       valid = selection != null;
+    }
     simplePacks.forEach((element) { valid &= element.selection != null; });
     triPacks.forEach((element) { valid &= element.selection != null; });
     return valid;
@@ -102,10 +103,10 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
               Row(
                 children: [
                   Text(StatitikLocale.of(context).read('PROD_KIND_${kind.index}'), style: Theme.of(context).textTheme.headline5),
-                  Spacer(),
+                  const Spacer(),
                   Card(
                     color: Colors.grey,
-                    child: IconButton(icon: Icon(Icons.add_box_outlined), onPressed: (){
+                    child: IconButton(icon: const Icon(Icons.add_box_outlined), onPressed: (){
                       setState(() {
                         infoArray.add(PackInfo());
                       });
@@ -126,7 +127,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
                         child: Row(
                           children: [
                             Text(StatitikLocale.of(context).read('EPC_B1')),
-                            SizedBox(width: 5),
+                            const SizedBox(width: 5),
                             Expanded(
                               child: TextFormField(
                                 initialValue: infoArray[index].name,
@@ -226,8 +227,9 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
         EasyLoading.dismiss();
 
         Navigator.of(context).pop();
-      } else
+      } else {
         EasyLoading.showError("Error");
+      }
     }).onError((error, stackTrace)
     {
       EasyLoading.showError("Error");
@@ -242,7 +244,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
         appBar: AppBar(
           title: Row(children: [
             widget.subExtension.image(wSize: 30),
-            SizedBox(width: 5),
+            const SizedBox(width: 5),
             Text(StatitikLocale.of(context).read('ADMIN_B7'), style: Theme.of(context).textTheme.headline6),
           ]),
           actions: [
@@ -250,7 +252,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
               Card(
                 color: Colors.green,
                 child: IconButton(
-                  icon: Icon(Icons.add_box_outlined),
+                  icon: const Icon(Icons.add_box_outlined),
                   onPressed: createProducts,
                 )
               )
@@ -288,7 +290,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
                       child: Row(
                         children: [
                           Text(StatitikLocale.of(context).read('EPC_B0'), style: Theme.of(context).textTheme.headline5),
-                          Spacer(),
+                          const Spacer(),
                           buttonSelectCards(this)
                         ],
                       ),

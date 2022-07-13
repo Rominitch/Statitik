@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:sprintf/sprintf.dart';
-
 import 'package:statitikcard/screen/Admin/cardCreator.dart';
 import 'package:statitikcard/services/models/CardIdentifier.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -23,25 +21,16 @@ class CardEditor extends StatefulWidget {
   final PokemonCardExtension card;
   final CardEditorOptions    options;
 
-  CardEditor(SubExtension se, CardIdentifier id, [options]) :
-    this.se   = se,
-    this.id   = id,
-    this.card = se.cardFromId(id),
-    this.options = options ?? CardEditorOptions();
+  CardEditor(this.se, this.id, this.options) :
+    card = se.cardFromId(id);
 
   String titleCard() {
     var cardId = id.numberId;
     var l = Language(id: 1, image: "");
-    if( id.listId == 0 )
-      return sprintf("%s - %s",
-          [ se.seCards.numberOfCard(cardId),
-            se.seCards.titleOfCard(l, cardId, id.alternativeId)
-          ]);
-    else {
-      return sprintf("%s - %s",
-          [ card.numberOfCard(cardId),
-            card.data.titleOfCard(l)
-          ]);
+    if( id.listId == 0 ) {
+      return "${se.seCards.numberOfCard(cardId)} - ${se.seCards.titleOfCard(l, cardId, id.alternativeId)}";
+    } else {
+      return "${card.numberOfCard(cardId)} - ${card.data.titleOfCard(l)}";
     }
   }
 
