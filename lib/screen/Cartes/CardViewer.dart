@@ -72,7 +72,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               result.se.image(wSize: 25.0, hSize: 25.0),
-              Text(result.se.seCards.numberOfCard(result.idCard.numberId), style: TextStyle(fontSize: 11), textAlign: TextAlign.center, softWrap: true)
+              Text(result.se.seCards.numberOfCard(result.idCard.numberId), style: const TextStyle(fontSize: 11), textAlign: TextAlign.center, softWrap: true)
             ]
           )
         )
@@ -144,7 +144,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
           ),
           Expanded(
             child: TabBarView(
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 controller: languageController,
                 children: imageTabPages
             ),
@@ -175,7 +175,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
                         Row(children: [
                           Container(width: CardViewerBody.labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B0'))),
                           Container(width: CardViewerBody.valueSpace, child: Text(widget.card.data.life.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
-                          SizedBox(width: 10.0),
+                          const SizedBox(width: 10.0),
                           Expanded(child: LinearPercentIndicator(
                             lineHeight: CardViewerBody.lineHeight,
                             percent: (widget.card.data.life.toDouble() / CardViewerBody.maxHP).clamp(0.0, 1.0),
@@ -186,7 +186,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
                         Row(children: [
                           Container(width: CardViewerBody.labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B1'))),
                           Container(width: CardViewerBody.valueSpace, child: Text(widget.card.data.retreat.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
-                          SizedBox(width: 10.0),
+                          const SizedBox(width: 10.0),
                           Expanded(child: LinearPercentIndicator(
                             lineHeight: CardViewerBody.lineHeight,
                             percent: (widget.card.data.retreat.toDouble() / CardViewerBody.maxRetreat).clamp(0.0, 1.0),
@@ -197,17 +197,17 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
                         Row(children: [
                           Container(width: CardViewerBody.labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B2'))),
                           Container(width: CardViewerBody.valueSpace, child: Text(widget.card.data.resistance!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
-                          SizedBox(width: 10.0),
+                          const SizedBox(width: 10.0),
                           energyImage(widget.card.data.resistance!.energy),
-                          Expanded(child: SizedBox()),
+                          const Expanded(child: SizedBox()),
                         ]),
                       if( widget.card.data.weakness != null && widget.card.data.weakness!.energy != TypeCard.Unknown )
                         Row(children: [
                           Container(width: CardViewerBody.labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B3'))),
                           Container(width: CardViewerBody.valueSpace, child: Text(widget.card.data.weakness!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
-                          SizedBox(width: 10.0),
+                          const SizedBox(width: 10.0),
                           energyImage(widget.card.data.weakness!.energy),
-                          Expanded(child: SizedBox()),
+                          const Expanded(child: SizedBox()),
                         ]),
                       ]
                   ),
@@ -261,7 +261,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
         ),
         Expanded(
           child: TabBarView(
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             controller: pageController,
             children: tabPages
           ),
@@ -293,7 +293,7 @@ class EffectViewer extends StatelessWidget {
       attackPanel = Row(
         children: <Widget>[
           Text(Environment.instance.collection.effects[effect.title!].name(l), style: Theme.of(context).textTheme.headline5,),
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
           if(attackType.isNotEmpty)
             Expanded(child: Row( children: attackType)),
           if(attackType.isNotEmpty)
@@ -325,7 +325,7 @@ class EffectViewer extends StatelessWidget {
               Row(
                 children: [
                   Column(children: descriptionMarkerWidgets),
-                  SizedBox(width: 5),
+                  const SizedBox(width: 5),
                   Expanded(child: descriptionPanel),
                 ],
               ),
@@ -340,7 +340,8 @@ class CardViewer extends StatelessWidget {
   final SubExtension   se;
   final CardIdentifier id;
   final PokemonCardExtension card;
-  const CardViewer(this.se, this.id, this.card);
+
+  const CardViewer(this.se, this.id, this.card, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -360,7 +361,7 @@ class CardSEViewer extends StatefulWidget {
   final SubExtension se;
   final CardIdentifier idCard;
 
-  const CardSEViewer(this.se, this.idCard);
+  const CardSEViewer(this.se, this.idCard, {Key? key}) : super(key: key);
 
   @override
   _CardSEViewerState createState() => _CardSEViewerState();
@@ -441,7 +442,7 @@ class _CardImageViewerState extends State<CardImageViewer> with TickerProviderSt
         Row(
           children: [
             image.se.image(wSize: 40, hSize: 40),
-            SizedBox(width: 2),
+            const SizedBox(width: 2),
             card.tryGetImage(image.idImage).cardDesign.iconFullDesign(height: 26)
           ]
         )
@@ -467,7 +468,7 @@ class _CardImageViewerState extends State<CardImageViewer> with TickerProviderSt
         ),
         Expanded(
           child: TabBarView(
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             controller: imagesController,
             children: imageTabPages
           ),

@@ -145,7 +145,7 @@ class _AdminPageState extends State<AdminPage> {
       launchEditionCards();
     }));
     buttons.add(createButton('ADMIN_B3', Icons.remove_red_eye_rounded, Colors.blueAccent, () {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory(true)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const DrawHistory(true)));
     }));
     buttons.add(createButton('ADMIN_B8', Icons.diamond_outlined, Colors.deepPurpleAccent, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => const RarityEditor()));

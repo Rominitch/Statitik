@@ -15,7 +15,7 @@ class CardFilterSelector extends StatefulWidget {
   final CardResults result;
   final Language    language;
 
-  CardFilterSelector(this.language, this.result);
+  const CardFilterSelector(this.language, this.result, {Key? key}) : super(key: key);
 
   @override
   _CardFilterSelectorState createState() => _CardFilterSelectorState();
@@ -82,16 +82,18 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
 
     // Build static card marker
     Environment.instance.collection.markers.values.forEach((element) {
-      if (!Environment.instance.collection.longMarkers.contains(element))
+      if (!Environment.instance.collection.longMarkers.contains(element)) {
         widgetMarkers.add(MarkerButtonCheck(widget.language, widget.result.filter, element, controller: refreshController));
+      }
     });
     Environment.instance.collection.longMarkers.forEach((element) {
       longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.language, widget.result.filter, element, controller: refreshController)));
     });
 
     orderedType.forEach((type) {
-      if( type != TypeCard.Unknown )
+      if( type != TypeCard.Unknown ) {
         typesWidget.add(TypeButtonCheck(widget.result.types, type, controller: refreshController));
+      }
     });
 
     var rarities = widget.language.isWorld() ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity;
@@ -113,8 +115,9 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
     });
 
     DescriptionEffect.values.forEach((effect) {
-      if( effect != DescriptionEffect.Unknown)
+      if( effect != DescriptionEffect.Unknown) {
         effectsAttackWidget.add(DescriptionEffectButtonCheck(widget.result.effects, effect, controller: descriptionController));
+      }
     });
 
     // Set default value
@@ -274,14 +277,14 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                         Row(
                           children: [
                             Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B3'), style: Theme.of(context).textTheme.headline6)),
-                            Expanded(child: Container(height: typeSize, child: ListView(children: weaknessTypeWidget, scrollDirection: Axis.horizontal, primary: false)))
+                            Expanded(child: Container(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: weaknessTypeWidget)))
                           ],
                         ),
 
                         Row(
                           children: [
                             Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B2'), style: Theme.of(context).textTheme.headline6)),
-                            Expanded(child: Container(height: typeSize, child: ListView(children: resistanceTypeWidget, scrollDirection: Axis.horizontal, primary: false)))
+                            Expanded(child: Container(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: resistanceTypeWidget)))
                           ],
                         )
                       ]
@@ -361,9 +364,9 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                               ],
                             ),
                             Text(StatitikLocale.of(context).read('CAVIEW_B9'), style: Theme.of(context).textTheme.headline6),
-                            Container(height: typeSize, child: ListView(children: effectsAttackWidget, scrollDirection: Axis.horizontal, primary: false)),
+                            Container(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: effectsAttackWidget)),
                             Text(StatitikLocale.of(context).read('CAVIEW_B10'), style: Theme.of(context).textTheme.headline6),
-                            Container(height: typeSize, child: ListView(children: attackTypeEnergyWidget, scrollDirection: Axis.horizontal, primary: false)),
+                            Container(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: attackTypeEnergyWidget)),
                           ]
                       ),
                     )

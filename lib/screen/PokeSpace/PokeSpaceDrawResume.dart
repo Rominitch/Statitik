@@ -28,13 +28,14 @@ class PokeSpaceDrawResume extends StatefulWidget {
   _PokeSpaceDrawResumeState createState() => _PokeSpaceDrawResumeState();
 
   PokeSpaceDrawResume([activeSession]) :
-    this._file = null,
-    this._readOnly      = activeSession != null,
-    this._activeSession = activeSession != null ? activeSession! : Environment.instance.currentDraw;
+    _file = null,
+    _readOnly      = activeSession != null,
+    _activeSession = activeSession != null ? activeSession! : Environment.instance.currentDraw;
 
-  PokeSpaceDrawResume.fromSave(SessionDraw session, this._file) :
-        this._readOnly      = false,
-        this._activeSession = session
+  PokeSpaceDrawResume.fromSave(SessionDraw session, this._file, {Key? key}) :
+    _readOnly      = false,
+    _activeSession = session,
+    super(key: key)
   {
     Environment.instance.currentDraw = session;
   }
@@ -43,9 +44,9 @@ class PokeSpaceDrawResume extends StatefulWidget {
 class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
   @override
   void initState() {
-    if( widget._activeSession.boosterDraws.length <= 0 )
+    if( widget._activeSession.boosterDraws.isEmpty ) {
       throw StatitikException(StatitikLocale.of(context).read('TR_B0'));
-
+    }
     super.initState();
   }
 
@@ -57,10 +58,12 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
           context: context,
           barrierDismissible: false, // user must tap button!
           builder: (BuildContext context) { return showExit(context); });
-      if(exit)
+      if(exit) {
         Navigator.of(context).pop(true);
-      else
+      }
+      else {
         return false;
+      }
     }
     return true;
   }
@@ -122,8 +125,9 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
       var isFinished = boosterDraw.isFinished();
       atLeastOne  |= isFinished;
       allFinished &= isFinished;
-      if( widget._activeSession.boosterDraws.first.subExtension != null && boosterDraw.subExtension != null)
+      if( widget._activeSession.boosterDraws.first.subExtension != null && boosterDraw.subExtension != null) {
         sameExt &= (widget._activeSession.boosterDraws.first.subExtension!.extension == boosterDraw.subExtension!.extension);
+      }
       allFinished &= widget._activeSession.productDraw.count == widget._activeSession.product.nbRandomPerProduct;
     }
 
@@ -132,8 +136,8 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
       boosters.add(Card(
           color: Colors.grey[900],
           child: TextButton(
-              child: Center(
-                child: Icon(Icons.add_circle_outline, size: 30.0,),
+              child: const Center(
+                child: Icon(Icons.add_circle_outline, size: 30.0),
               ),
             onPressed: () {
               setState(() {
@@ -183,7 +187,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(StatitikLocale.of(context).read('TR_B2')),
-                                SizedBox(height: 10),
+                                const SizedBox(height: 10),
                                 Card(
                                   color: Colors.green,
                                   child: TextButton(
@@ -193,9 +197,9 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                                     },
                                   )
                                 ),
-                                SizedBox(height: 30),
+                                const SizedBox(height: 30),
                                 Text(StatitikLocale.of(context).read( report.result.isNotEmpty ? 'TR_B14': 'TR_B13')),
-                                SizedBox(height: 10),
+                                const SizedBox(height: 10),
                                 if(report.result.isNotEmpty)
                                   Container(
                                       width: 2 * MediaQuery.of(context).size.width / 3,
@@ -293,10 +297,10 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
       onWillPop: () { return backAction(context); },
       child: Scaffold(
       appBar: AppBar(
-        title: Text(widget._activeSession.product.name, style: TextStyle(fontSize: 15)),
+        title: Text(widget._activeSession.product.name, style: const TextStyle(fontSize: 15)),
         actions: actions,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             backAction(context);
           },
@@ -310,14 +314,14 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                 visible: !sameExt,
                 child:Row(
                     children: [
-                      Icon(Icons.warning),
+                      const Icon(Icons.warning),
                       Text(StatitikLocale.of(context).read('TR_B4')),
                     ],
                   ),
               ),
               CheckboxListTile(
                 title: Text(StatitikLocale.of(context).read('TR_B5')),
-                subtitle: Text(StatitikLocale.of(context).read('TR_B6'), style: TextStyle(fontSize: 12)),
+                subtitle: Text(StatitikLocale.of(context).read('TR_B6'), style: const TextStyle(fontSize: 12)),
                 value: widget._activeSession.productAnomaly,
                 onChanged: widget._readOnly ? null : (newValue) async {
                     if(widget._activeSession.productAnomaly && widget._activeSession.needReset())
@@ -360,7 +364,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                         ),
                       ),
                       GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 4, crossAxisSpacing: 2, mainAxisSpacing: 2,
                           childAspectRatio: 1.2),
                         padding: const EdgeInsets.all(2.0),

@@ -475,7 +475,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             padding: const EdgeInsets.all(8.0),
             child: Row(
             children: [
-              Container(child: genericCardWidget(widget.se, widget.idCard, CardImageIdentifier(), height: imageSize, reloader: true), height: imageSize),
+              Container(height: imageSize, child: genericCardWidget(widget.se, widget.idCard, CardImageIdentifier(), height: imageSize, reloader: true)),
               const SizedBox(width:8),
               Expanded(child: Text("${StatitikLocale.of(context).read('CA_B30')} $codeDB", style: Theme.of(context).textTheme.headline5)),
               Card(
@@ -615,7 +615,8 @@ class PokeCardNaming extends StatefulWidget {
   final PokemonCardExtension  card;
   final CardIdentifier        idCard;
   final int                   idName;
-  const PokeCardNaming(this.language, this.idCard, this.card, this.idName);
+
+  const PokeCardNaming(this.language, this.idCard, this.card, this.idName, {Key? key}) : super(key: key);
 
   Pokemon nameInfo() {
     return card.data.title[idName];

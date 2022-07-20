@@ -8,14 +8,14 @@ import 'package:statitikcard/services/models/TypeCard.dart';
 
 class CardNameSelector extends StatefulWidget {
   final Language language;
-  const CardNameSelector(this.language);
+  const CardNameSelector(this.language, {Key? key}) : super(key: key);
 
   @override
   _CardNameSelectorState createState() => _CardNameSelectorState();
 }
 
 class _CardNameSelectorState extends State<CardNameSelector> {
-  TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
   late CustomRadioController cardController = CustomRadioController(
       onChange: (value)
       { setState(() {
@@ -31,8 +31,9 @@ class _CardNameSelectorState extends State<CardNameSelector> {
       _filterered.clear();
       cardController.currentValue.forEach(
         (info) {
-          if( info.name(widget.language).toLowerCase().contains(_controller.text.toLowerCase()) )
+          if( info.name(widget.language).toLowerCase().contains(_controller.text.toLowerCase()) ) {
             _filterered.add(info);
+          }
         });
     } else {
       _filterered = List.from(cardController.currentValue);
@@ -76,7 +77,7 @@ class _CardNameSelectorState extends State<CardNameSelector> {
             TextField(
               controller: _controller,
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 labelText: StatitikLocale.of(context).read('CA_B5')
               ),
               onChanged: (value) {

@@ -24,7 +24,7 @@ class CardStatisticOptions {
   bool showByRegion = true;
   bool showBySubEx  = true;
 
-  CardStatisticOptions({showByRarity: true, showBySubEx: true, showTitle: true, showByType: true});
+  CardStatisticOptions({showByRarity = true, showBySubEx = true, showTitle = true, showByType = true});
 }
 
 class CardStatisticPage extends StatefulWidget {
@@ -121,7 +121,7 @@ class CardFilteredReport extends StatefulWidget {
 }
 
 class _CardFilteredReportState extends State<CardFilteredReport> {
-  CardResults  _filterData = CardResults();
+  final CardResults _filterData = CardResults();
 
   @override
   Widget build(BuildContext context) {
@@ -185,11 +185,13 @@ class _CardFilteredReportState extends State<CardFilteredReport> {
               ]
             );
           }
-          else
+          else {
             return drawLoading(context);
+          }
         }
-        else 
+        else {
           return drawLoading(context);
+        }
       }
     );
   }

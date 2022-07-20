@@ -7,7 +7,7 @@ import 'package:statitikcard/services/internationalization.dart';
 
 class DrawHistory extends StatefulWidget {
   final bool isAdmin;
-  DrawHistory([this.isAdmin=false]);
+  const DrawHistory([this.isAdmin=false]);
 
   @override
   _DrawHistoryState createState() => _DrawHistoryState();
@@ -25,21 +25,6 @@ class _DrawHistoryState extends State<DrawHistory> {
         for(var draw in myDraw) {
           myDrawWidgets!.add(Card(
               child: TextButton(
-                child:Row(
-                  children:[
-                    draw.language.barIcon(),
-                    SizedBox(width: 15),
-                    draw.product.image(),
-                    SizedBox(width: 15),
-                    Flexible(
-                      child: Text(draw.product.name,
-                        softWrap: true,
-                        maxLines: 3,
-                        style: draw.product.name.length > 10
-                            ? Theme.of(context).textTheme.headline6
-                            : Theme.of(context).textTheme.headline5),
-                    )
-                  ]),
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceDrawResume(draw)));
                 },
@@ -49,7 +34,7 @@ class _DrawHistoryState extends State<DrawHistory> {
                       context: context,
                       builder: (BuildContext context) {
                         return SimpleDialog(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                           children: [
                             Card(
                               color: Colors.red,
@@ -70,6 +55,21 @@ class _DrawHistoryState extends State<DrawHistory> {
                     );
                   });
                 } : () {},
+                child:Row(
+                  children:[
+                    draw.language.barIcon(),
+                    const SizedBox(width: 15),
+                    draw.product.image(),
+                    const SizedBox(width: 15),
+                    Flexible(
+                      child: Text(draw.product.name,
+                        softWrap: true,
+                        maxLines: 3,
+                        style: draw.product.name.length > 10
+                            ? Theme.of(context).textTheme.headline6
+                            : Theme.of(context).textTheme.headline5),
+                    )
+                  ]),
               )
           ));
         }
@@ -93,7 +93,7 @@ class _DrawHistoryState extends State<DrawHistory> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: myDrawWidgets != null ?
-              (myDrawWidgets!.length > 0 ?
+              (myDrawWidgets!.isNotEmpty ?
                 ListView(
                   children: myDrawWidgets!,
                 ) :

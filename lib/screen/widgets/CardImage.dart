@@ -39,35 +39,50 @@ class CardImage extends StatefulWidget {
   CardImage(SubExtension se, PokemonCardExtension card, this.idCard, this.idImage, {this.height=400, this.language}) :
     cardImage = computeImageLabel(se, card, idCard, idImage), this.card = card, this.se = se;
 
-  static String convertRomaji(String name) {
+  static String convertRomaji(String name, bool alternative) {
     const kanaKit = KanaKit();
     var val = "";
     try {
       // Remove no translate symbol
-      name = name.replaceAll("ー", ""); // ー is not translated
+      val = name.replaceAll("ー", ""); // ー is not translated
+
+      for(var key in Environment.instance.collection.orderedKanji.reversed) {
+        var value = Environment.instance.collection.convertKanji[key];
+        val = val.replaceAll(key, value);
+      }
+      if( alternative ) {
+        val = val.replaceAll("ャ", "XYA");
+        val = val.replaceAll("ュ", "XYU");
+        val = val.replaceAll("ョ", "XYO");
+        val = val.replaceAll("ゃ", "XYA");
+        val = val.replaceAll("ゅ", "XYU");
+        val = val.replaceAll("ょ", "XYO");
+      }
 
       // Convert kana
-      val = kanaKit.copyWithConfig(upcaseKatakana: true).toRomaji(name);
+      val = kanaKit.copyWithConfig(upcaseKatakana: true).toRomaji(val);
       val = val.toUpperCase();
 
       // Finish by clean converter
-      Environment.instance.collection.convertKanji.forEach((key, value) {
+      for(var key in Environment.instance.collection.orderedKanji.reversed) {
+        var value = Environment.instance.collection.convertKanji[key];
         val = val.replaceAll(key, value);
-      });
+      }
     } catch(e) {
 
     }
     return val;
   }
 
-  static String computeJPPokemonName(SubExtension se, PokemonCardExtension card) {
+  static String computeJPPokemonName(SubExtension se, PokemonCardExtension card, [bool alternative=false]) {
     String romajiName = "";
     try {
-      romajiName = convertRomaji(card.data.titleOfCard(se.extension.language));
+      romajiName = convertRomaji(card.data.titleOfCard(se.extension.language), alternative);
 
       card.data.markers.markers.firstWhere((element) {
-        if(element.toTitle)
+        if(element.toTitle) {
           romajiName += element.name.name(se.extension.language).toUpperCase();
+        }
         return element.toTitle;
       });
     } catch(e) {
@@ -152,7 +167,11 @@ class CardImage extends StatefulWidget {
         if(defaultImage.image.startsWith("https://"))
           images += [Uri.parse(defaultImage.image)];
         else {
-          String romajiName = defaultImage.image.isEmpty ? computeJPPokemonName(se, card) : defaultImage.image;
+          var romajiNames = [
+            defaultImage.image.isEmpty ? computeJPPokemonName(se, card)       : defaultImage.image,
+            defaultImage.image.isEmpty ? computeJPPokemonName(se, card, true) : defaultImage.image,
+          ];
+
           String codeType = "P";
           if(card.data.type == TypeCard.Supporter || card.data.type == TypeCard.Stade || card.data.type == TypeCard.Objet)
             codeType = "T";
@@ -160,18 +179,21 @@ class CardImage extends StatefulWidget {
             codeType = "E";
           String codeImage = defaultImage.jpDBId.toString().padLeft(6, '0');
 
-          if( cardId.listId == 1 ) {
-            images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/ENE/${codeImage}_${codeType}_$romajiName.jpg"));
-            images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large//${codeImage}_${codeType}_$romajiName.jpg"));
-          }
+          for( var romajiName in romajiNames )
+          {
+            if( cardId.listId == 1 ) {
+              images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/ENE/${codeImage}_${codeType}_$romajiName.jpg"));
+              images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large//${codeImage}_${codeType}_$romajiName.jpg"));
+            }
 
-          se.seCode.forEach((seFolder) {
-            // Official image source
-            images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_${romajiName}_m.jpg"));
-            images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_$romajiName.jpg"));
-            // Reliable alternative source
-            images.add(Uri.https("www.pokecardex.com", "assets/images/sets_jp/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(cardId.numberId)}.jpg"));
-          });
+            se.seCode.forEach((seFolder) {
+              // Official image source
+              images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_${romajiName}_m.jpg"));
+              images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_$romajiName.jpg"));
+              // Reliable alternative source
+              images.add(Uri.https("www.pokecardex.com", "assets/images/sets_jp/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(cardId.numberId)}.jpg"));
+            });
+          }
         }
       }
       return images;

@@ -24,7 +24,7 @@ class PokeSpaceCardExplorer extends StatefulWidget {
   final SubExtension subExtension;
   final PokeSpace    pokeSpace;
 
-  const PokeSpaceCardExplorer(this.subExtension, this.pokeSpace);
+  const PokeSpaceCardExplorer(this.subExtension, this.pokeSpace, {Key? key}) : super(key: key);
 
   @override
   _PokeSpaceCardExplorerState createState() => _PokeSpaceCardExplorerState();
@@ -75,24 +75,27 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
     var card = [];
     for(int id=0; id < widget.subExtension.seCards.cards.length; id +=1) {
       var notUser = widget.pokeSpace.cardCounter(widget.subExtension, CardIdentifier.from([0, id, 0])).count() == 0;
-      if( checkVisible(notUser) )
+      if( checkVisible(notUser) ) {
         card.add(id);
+      }
     }
     cards.add(card);
 
     card = [];
     for(int id=0; id < widget.subExtension.seCards.energyCard.length; id +=1) {
       var notUser = widget.pokeSpace.cardCounter(widget.subExtension, CardIdentifier.from([1, id])).count() == 0;
-      if( checkVisible(notUser) )
+      if( checkVisible(notUser) ) {
         card.add(id);
+      }
     }
     cards.add(card);
 
     card = [];
     for(int id=0; id < widget.subExtension.seCards.noNumberedCard.length; id +=1) {
       var notUser = widget.pokeSpace.cardCounter(widget.subExtension, CardIdentifier.from([2, id])).count() == 0;
-      if( checkVisible(notUser) )
+      if( checkVisible(notUser) ) {
         card.add(id);
+      }
     }
     cards.add(card);
   }

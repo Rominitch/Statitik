@@ -158,7 +158,7 @@ void main() {
 
     // Random booster
     {
-      var afterTime = refTime.add(Duration(days: 1));
+      var afterTime = refTime.add(const Duration(days: 1));
       var random1 = Product(1, languages[0], "A", "", afterTime, categories[0], [ProductBooster(null, 1, 3)]);
       var random2 = Product(2, languages[0], "A", "", afterTime, categories[0], [ProductBooster(null, 1, 3)]);
       // Mandatory filter
@@ -166,7 +166,7 @@ void main() {
       expect(true,  filter(random1, languages[0], se[1], null, {}, onlyShowRandom: true));
       expect(false, filter(random1, languages[1], se[0], null, {}, onlyShowRandom: true));
 
-      var beforeTime = refTime.add(Duration(days: -1));
+      var beforeTime = refTime.add(const Duration(days: -1));
       var random3 = Product(1, languages[0], "A", "", beforeTime, categories[0], [ProductBooster(null, 1, 3)]);
       expect(false, filter(random3, languages[0], se[0], null, {}, onlyShowRandom: true));
       expect(false, filter(random3, languages[0], se[1], null, {}, onlyShowRandom: true));

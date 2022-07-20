@@ -32,7 +32,7 @@ class StatsCard extends StatefulWidget {
   final CardResults          stats;
   final CardStatisticOptions options;
 
-  StatsCard(this.l, this.stats, this.options);
+  const StatsCard(this.l, this.stats, this.options, {Key? key}) : super(key: key);
 
   @override
   _StatsCardState createState() => _StatsCardState();
@@ -91,7 +91,7 @@ class _StatsCardState extends State<StatsCard> with TickerProviderStateMixin {
         Expanded(
           child: TabBarView(
             controller: tabController,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             children: tabPages
           )
         )
@@ -149,8 +149,8 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
           if( widget.options.showImage ) {
             tabPages.add(
               GridView.builder(
-                  padding: EdgeInsets.all(2),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  padding: const EdgeInsets.all(2),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3, crossAxisSpacing: 2, mainAxisSpacing: 2, childAspectRatio: 0.8),
                   itemCount: listCards.length,
                   itemBuilder: (context, index){
@@ -172,8 +172,8 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
           } else {
             tabPages.add(
               GridView.builder(
-                padding: EdgeInsets.all(2),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                padding: const EdgeInsets.all(2),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 7, crossAxisSpacing: 2, mainAxisSpacing: 2),
                 itemCount: listCards.length,
                 itemBuilder: (context, index){
@@ -200,7 +200,7 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
 
     return Column(
       children: [
-        SizedBox(height: 5.0),
+        const SizedBox(height: 5.0),
         TabBar(
           controller: tabController,
           indicatorPadding: const EdgeInsets.all(1),
@@ -211,7 +211,7 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
           isScrollable: true,
           tabs: tabHeaders
         ),
-        SizedBox(height: 5.0),
+        const SizedBox(height: 5.0),
         Expanded(
           child: TabBarView(
             //physics: NeverScrollableScrollPhysics(),
@@ -229,19 +229,18 @@ class CardStatisticReport extends StatefulWidget {
   final CardResults stats;
   final CardStatisticOptions options;
 
-  const CardStatisticReport(this.language, this.stats, this.options);
+  const CardStatisticReport(this.language, this.stats, this.options, {Key? key}) : super(key: key);
 
   @override
   State<CardStatisticReport> createState() => _CardStatisticReportState();
 }
 
 class _CardStatisticReportState extends State<CardStatisticReport> {
-  double _spaceBefore = 50.0;
-  double _spaceAfter  = 30.0;
+  final double _spaceBefore = 50.0;
+  final double _spaceAfter  = 30.0;
 
   Widget createCountWidget(int value) {
-    return Container(child: Text(value.toString(), style: TextStyle(fontSize: ((value >= 1000) ? 10.0 : 14.0))),
-      width: _spaceAfter,
+    return Container(width: _spaceAfter,child: Text(value.toString(), style: TextStyle(fontSize: ((value >= 1000) ? 10.0 : 14.0))),
     );
   }
 
@@ -250,20 +249,22 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
     var s = widget.stats.stats!;
     double count = s.nbCards().toDouble();
 
-    const List<Color> regionColors = const [
+    const List<Color> regionColors = [
       Colors.blue, Colors.red, Colors.green, Colors.brown,
       Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal
     ];
 
     var filteredRarities = [];
     Environment.instance.collection.orderedRarity.forEach((rarity){
-      if(s.countRarity[rarity] != null)
+      if(s.countRarity[rarity] != null) {
         filteredRarities.add(rarity);
+      }
     });
     var filteredType = [];
     orderedType.forEach((type) {
-      if(s.countType[type] != null)
+      if(s.countType[type] != null) {
         filteredType.add(type);
+      }
     });
 
     return Column(
@@ -281,11 +282,11 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
               children: [
                 Container(
                   height: 23.0,
+                  alignment: Alignment.centerLeft,
+                  width: _spaceBefore,
                   child: Row(
                     children: getImageRarity(rarity, widget.language)
-                  ),
-                  alignment: Alignment.centerLeft,
-                  width: _spaceBefore
+                  )
                 ),
                 Expanded(child:
                   LinearPercentIndicator(
@@ -299,7 +300,7 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
             );
           }
         ),
-        if(widget.options.showByType) SizedBox(height: 10.0),
+        if(widget.options.showByType) const SizedBox(height: 10.0),
         if(widget.options.showByType) Text(StatitikLocale.of(context).read('CA_B9'), style: Theme.of(context).textTheme.headline5),
         if(widget.options.showByType) ListView.builder(
           primary:    false,
@@ -311,7 +312,7 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
             var r = value.toDouble();
             return Row(
               children: [
-                Container(child: getImageType(type), alignment: Alignment.centerLeft, width: _spaceBefore, height: 25.0),
+                Container(alignment: Alignment.centerLeft, width: _spaceBefore, height: 25.0, child: getImageType(type)),
                 Expanded(child: LinearPercentIndicator(
                   lineHeight: 8.0,
                   percent: ( r / count).clamp(0.0, 1.0),
@@ -323,7 +324,7 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
           }
         ),
 
-        if(widget.options.showByMarker && s.countMarker.isNotEmpty) SizedBox(height: 10.0),
+        if(widget.options.showByMarker && s.countMarker.isNotEmpty) const SizedBox(height: 10.0),
         if(widget.options.showByMarker && s.countMarker.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B7'), style: Theme.of(context).textTheme.headline5),
         if(widget.options.showByMarker && s.countMarker.isNotEmpty) ListView.builder(
             primary:    false,
@@ -333,7 +334,7 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
               var item = s.countMarker.entries.elementAt(index);
               var r = item.value.toDouble();
               return Row(
-                children: [ Container(child: pokeMarker(widget.language, item.key, height: 15.0, generate: true), alignment: Alignment.centerLeft, width: _spaceBefore),
+                children: [ Container(alignment: Alignment.centerLeft, width: _spaceBefore, child: pokeMarker(widget.language, item.key, height: 15.0, generate: true)),
                   Expanded(child: LinearPercentIndicator(
                     lineHeight: 8.0,
                     percent: ( r / count).clamp(0.0, 1.0),
@@ -344,7 +345,7 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
               );
             }
           ),
-        if(widget.options.showByRegion && s.countRegion.isNotEmpty) SizedBox(height: 10.0),
+        if(widget.options.showByRegion && s.countRegion.isNotEmpty) const SizedBox(height: 10.0),
         if(widget.options.showByRegion && s.countRegion.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B8'), style: Theme.of(context).textTheme.headline5),
         if(widget.options.showByRegion && s.countRegion.isNotEmpty) ListView.builder(
           primary: false,
@@ -355,7 +356,7 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
             var region = info.key;
             var stat   = info.value;
             return Row(
-              children: [ Container(child: Text(region.name(widget.language), style: TextStyle(fontSize: 10.0)), width: _spaceBefore),
+              children: [ Container(width: _spaceBefore, child: Text(region.name(widget.language), style: const TextStyle(fontSize: 10.0))),
                 Expanded(child: LinearPercentIndicator(
                   lineHeight: 8.0,
                   percent: (stat / count).clamp(0.0, 1.0),

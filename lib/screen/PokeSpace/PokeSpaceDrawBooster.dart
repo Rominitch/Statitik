@@ -70,24 +70,25 @@ class _BoosterPageState extends State<BoosterPage> {
       {
         case Validator.ErrorEnergy:
           buttonColor = Colors.deepOrange;
-          buttonLabel = Row(children:[Icon(Icons.warning_amber_outlined), Icon(Icons.battery_charging_full)]);
+          buttonLabel = Row(children:const [Icon(Icons.warning_amber_outlined), Icon(Icons.battery_charging_full)]);
           break;
         case Validator.ErrorReverse:
           buttonColor = Colors.deepOrange;
-          buttonLabel = Row(children:[Icon(Icons.warning_amber_outlined), Image(image: AssetImage('assets/carte/set_parallel.png'), height: 30.0)]);
+          buttonLabel = Row(children:const [Icon(Icons.warning_amber_outlined), Image(image: AssetImage('assets/carte/set_parallel.png'), height: 30.0)]);
           break;
         case Validator.ErrorTooManyGood:
           buttonColor = Colors.deepOrange;
-          buttonLabel = Row(children:[Icon(Icons.warning_amber_outlined), Icon(Icons.star_border)]);
+          buttonLabel = Row(children:const [Icon(Icons.warning_amber_outlined), Icon(Icons.star_border)]);
           break;
-        default:
+        case Validator.Valid:
+          break;
       }
     }
 
     return Scaffold(
         appBar: AppBar(
-          leading: new IconButton(
-            icon: new Icon(Icons.arrow_back),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.of(context).pop(true);
             },

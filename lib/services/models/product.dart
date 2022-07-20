@@ -33,6 +33,7 @@ class ProductSide extends ProductGeneric
 
   ProductSide(idDB, category, name, imageURL, releaseDate) : super(idDB, category, name, imageURL, releaseDate);
 
+  @override
   Widget image()
   {
     return drawCachedImage('sideProducts', imageURL, height: 70);
@@ -80,8 +81,9 @@ class ProductCard {
     counter = CodeDraw.fromPokeCardExtension(this.card);
     var count = parser.extractInt8();
     for(int id=0; id < count; id +=1){
-      if( id < card.sets.length)
+      if( id < card.sets.length) {
         counter.setCount(parser.extractInt8(), id);
+      }
     }
   }
 
@@ -146,8 +148,9 @@ class Product extends ProductGeneric
         super(idDB, category, name, imageURL, outDate)
   {
     int currentVersion = data[0];
-    if(!(currentVersion <= version))
+    if(!(currentVersion <= version)) {
       throw StatitikException("Unknown Product version: ${data[0]}");
+    }
 
     // Is Zip ?
     List<int> bytes = (data[1] == 1) ? gzip.decode(data.sublist(2)) : data.sublist(2);
@@ -250,7 +253,7 @@ class Product extends ProductGeneric
     int id=1;
     boosters.forEach((value) {
       for( int i=0; i < value.nbBoosters; i+=1) {
-        list.add(new BoosterDraw(creation: value.subExtension, id: id, nbCards: value.nbCardsPerBooster));
+        list.add( BoosterDraw(creation: value.subExtension, id: id, nbCards: value.nbCardsPerBooster) );
         id += 1;
       }
     });
@@ -259,7 +262,7 @@ class Product extends ProductGeneric
 
   /// Validate before send request
   bool validate() {
-    return boosters.length > 0 && language != null && category != null;
+    return boosters.isNotEmpty && language != null && category != null;
   }
 }
 
@@ -289,8 +292,9 @@ bool filter(Product product, Language l, SubExtension se, ProductCategory? categ
       if(!onlyShowRandom) {
         // Keep product of extension
         keep = booster.subExtension == se;
-        if(keep)
+        if(keep) {
           break;
+        }
       } else {
         if(se.seCards.notInsideRandom()) {
           keep = false;
@@ -303,18 +307,21 @@ bool filter(Product product, Language l, SubExtension se, ProductCategory? categ
                 break;
               }
             }
-            if (keep)
+            if (keep) {
               break;
+            }
           } else {
             // Search product with random
             for (var booster in product.boosters) {
               keep = booster.subExtension == null;
-              if (keep)
+              if (keep) {
                 break;
+              }
             }
             // Keep product if after extension
-            if (keep)
+            if (keep) {
               keep = (product.releaseDate.compareTo(se.out) >= 0);
+            }
           }
         }
       }
@@ -345,14 +352,16 @@ Future<Map> filterProducts(Language l, SubExtension se, ProductCategory? categor
       String query = "SELECT DISTINCT `idProduit`, `idSousExtension`"
       " FROM `UtilisateurProduit`, `TirageBooster`"
       " WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat`";
-      if(onlyLocalUser)
+      if(onlyLocalUser) {
         query += " AND `UtilisateurProduit`.`idUtilisateur` = ${Environment.instance.user!.idDB};";
+      }
 
       var exts = await connection.query(query);
       for(var row in exts) {
         var p = Environment.instance.collection.products[row[0]]!;
-        if( !userExtension.containsKey(p))
+        if( !userExtension.containsKey(p)) {
           userExtension[p] = [];
+        }
 
         userExtension[p]!.add( Environment.instance.collection.subExtensions[row[1]]! );
       }
@@ -379,12 +388,14 @@ Future<Map> filterProducts(Language l, SubExtension se, ProductCategory? categor
         bool find = false;
         for(var p in products[product.category]!) {
           find = (p.product == product);
-          if(find)
+          if(find) {
             break;
+          }
         }
         // Add if missing
-        if(!find)
+        if(!find) {
           products[product.category]!.add(ProductRequested(product, Colors.deepOrange.shade700, userCounts[product] ?? 0));
+        }
       }
     });
   }

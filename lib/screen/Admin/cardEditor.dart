@@ -21,8 +21,8 @@ class CardEditor extends StatefulWidget {
   final PokemonCardExtension card;
   final CardEditorOptions    options;
 
-  CardEditor(this.se, this.id, this.options) :
-    card = se.cardFromId(id);
+  CardEditor(this.se, this.id, this.options, {Key? key}) :
+    card = se.cardFromId(id), super(key: key);
 
   String titleCard() {
     var cardId = id.numberId;
@@ -51,7 +51,7 @@ class _CardEditorState extends State<CardEditor> {
           title: Row(
             children:
             [
-              Expanded(child: Text("$title", style: Theme.of(context).textTheme.headline6, softWrap: true, maxLines: 2)),
+              Expanded(child: Text(title, style: Theme.of(context).textTheme.headline6, softWrap: true, maxLines: 2)),
               getImageType(widget.card.data.type),
             ] + getImageRarity(widget.card.rarity, widget.se.extension.language)
           ),

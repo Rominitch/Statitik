@@ -44,12 +44,13 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   }
 
   void updateCardList(int listId) {
-    if(listId == 1)
+    if(listId == 1) {
       _cardEnergyInfo   = _cardsEnergy();
-    else if(listId == 2)
+    } else if(listId == 2) {
       _cardNoNumberInfo = _cardsNoNumber();
-    else
+    } else {
       _cardInfo = _cards();
+    }
   }
 
   void onAddCard(int listId, int? pos) {
@@ -98,12 +99,13 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   void removeCard(int listId,int localId) {
     setState(() {
       var cardList;
-      if(listId == 1)
+      if(listId == 1) {
         cardList = widget.se.seCards.energyCard;
-      else if(listId == 2)
+      } else if(listId == 2) {
         cardList = widget.se.seCards.noNumberedCard;
-      else
+      } else {
         cardList = widget.se.seCards.cards;
+      }
 
       _modify = true;
       cardList.removeAt(localId);
@@ -123,7 +125,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
 
   Widget cardBuilder(PokemonCardExtension card, int id, int listId) {
     // Search if Jap Card link exist
-    var colorCard = Color(0xFF5D9070);
+    var colorCard = const Color(0xFF5D9070);
     if( Environment.instance.collection.pokemonCards.containsValue(card.data) ) {
       var subEx = Environment.instance.collection
           .searchCardIntoAllSubExtension(card.data);
@@ -163,7 +165,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
               builder: (BuildContext context) {
                 return SimpleDialog(
                   title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.headline3)),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                   children: [
                     Card(
                       color: Colors.grey[700],
@@ -298,9 +300,9 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
           child: Row(
             children: [
               Image(image: widget.language.create(), height: 30),
-              SizedBox(width: 4.0),
+              const SizedBox(width: 4.0),
               widget.se.image(hSize: 30),
-              SizedBox(width: 4.0),
+              const SizedBox(width: 4.0),
               Flexible(
                 child:Text(widget.se.name, softWrap: true,
                   style: Theme.of(context).textTheme.headline6?..copyWith(
@@ -311,8 +313,8 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
             ]
           ),
         ),
-        leading: new IconButton(
-          icon: new Icon(Icons.arrow_back),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
           onPressed: () {
             backAction(context);
           },
@@ -330,10 +332,11 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
               })
               .then( (isValid) {
                 EasyLoading.dismiss();
-                if(isValid)
+                if(isValid) {
                   Navigator.of(context).pop();
-                else
+                } else {
                   EasyLoading.showError('Invalid');
+                }
             });
           },
         )) ],
@@ -349,9 +352,9 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                   canTapOnHeader: true,
                   headerBuilder: (context, isOpen) {
                     return Row(children:[
-                      Icon(Icons.add_box_outlined),
-                      SizedBox(width: 4),
-                      Text("Quick Creator")
+                      const Icon(Icons.add_box_outlined),
+                      const SizedBox(width: 4),
+                      const Text("Quick Creator")
                       ]
                     );
                   },

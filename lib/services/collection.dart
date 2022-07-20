@@ -52,6 +52,7 @@ class Collection
   Map productSides    = {};
   Map designs         = {};
   Map convertKanji    = {};
+  List orderedKanji   = [];
 
   // Rarity Information
   static const int idUnknownRarity = 28;
@@ -108,6 +109,7 @@ class Collection
     categories.clear();
     designs.clear();
     convertKanji.clear();
+    orderedKanji.clear();
 
     unknownRarity = null;
     orderedRarity.clear();
@@ -347,6 +349,11 @@ class Collection
       for (var row in kanjiRes) {
         convertKanji[row[0]] = row[1];
       }
+      orderedKanji = convertKanji.keys.toList();
+      orderedKanji.sort((a, b){
+        return a.length.compareTo(b.length);
+      });
+
       time.tick("Kanji");
       assert(convertKanji.isNotEmpty);
 

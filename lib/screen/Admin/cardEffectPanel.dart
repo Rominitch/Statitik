@@ -37,7 +37,7 @@ class _CardEffectsPanelState extends State<CardEffectsPanel> {
   @override
   Widget build(BuildContext context) {
 
-    return Column(children: effectsWidget + <Widget>[
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: effectsWidget + <Widget>[
       Card(
         color: Colors.greenAccent,
         child: TextButton(
@@ -51,8 +51,7 @@ class _CardEffectsPanelState extends State<CardEffectsPanel> {
           }
         )
       ),
-    ],
-    crossAxisAlignment: CrossAxisAlignment.stretch);
+    ]);
   }
 }
 
@@ -106,8 +105,9 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
       int id = 0;
       while( id < nbParameters) {
         // Create parameter if needed
-        if( id >= widget.effect.description!.parameters.length)
+        if( id >= widget.effect.description!.parameters.length) {
           widget.effect.description!.parameters.add(0);
+        }
 
         int localId = id;
         parameterWidgets.add(
@@ -118,10 +118,11 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
                 child: SpinBox(value: widget.effect.description!.parameters[localId].toDouble(), max: maxParam,
                     onChanged: (value){
                       setState(() {
-                        if (widget.effect.description!.parameters.isEmpty)
+                        if (widget.effect.description!.parameters.isEmpty) {
                           widget.effect.description!.parameters.add(value.toInt());
-                        else
+                        } else {
                           widget.effect.description!.parameters[localId] = value.toInt();
+                        }
                       });
                     }),
               )
@@ -147,8 +148,9 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
                     MaterialPageRoute(builder: (context) => ListSelector(Text(StatitikLocale.of(context).read('CA_T3'), style: Theme.of(context).textTheme.headline3), widget.parent.l, Environment.instance.collection.effects)),
                   ).then((value) {
                     setState(() {
-                      if(value != null)
+                      if(value != null) {
                         widget.effect.title = value;
+                      }
                     });
                   });
                 });
@@ -202,7 +204,9 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
                         if(widget.effect.description == null) {
                           widget.effect.description = CardDescription(value);
                         }
-                        else widget.effect.description!.idDescription = value;
+                        else {
+                          widget.effect.description!.idDescription = value;
+                        }
                       }
                     });
                   });

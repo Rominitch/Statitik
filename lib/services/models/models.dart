@@ -164,32 +164,35 @@ class StatsBooster {
 
   bool hasEnergy() {
     for(int e in countEnergy ) {
-      if(e > 0)
+      if(e > 0) {
         return true;
+      }
     }
     return false;
   }
 
   void addBoosterDraw(ExtensionDrawCards edc, int anomaly) {
-    if( edc.drawCards.length > subExt.seCards.cards.length)
+    if( edc.drawCards.length > subExt.seCards.cards.length) {
       throw StatitikException('Corruption des données de tirages');
+    }
 
     var computeStatsBySet = (PokemonCardExtension cardInfo, CodeDraw code) {
       for(int setId=0; setId < cardInfo.sets.length; setId += 1) {
         var countSet = code.countBySet(setId);
         var setCard = cardInfo.sets[setId];
-        if(countBySet.containsKey(setCard))
+        if(countBySet.containsKey(setCard)) {
           countBySet[setCard] = countBySet[setCard]! + countSet;
-        else
-          countBySet[setCard] = countSet;
+        } else {
+          countBySet[setCard] = countSet;}
 
-        if(!countBySetByRarity.containsKey(setCard))
+        if(!countBySetByRarity.containsKey(setCard)) {
           countBySetByRarity[setCard] = {};
-
-        if(!countBySetByRarity[setCard]!.containsKey(cardInfo.rarity))
+        }
+        if(!countBySetByRarity[setCard]!.containsKey(cardInfo.rarity)) {
           countBySetByRarity[setCard]![cardInfo.rarity] = countSet;
-        else
+        } else {
           countBySetByRarity[setCard]![cardInfo.rarity] = countBySetByRarity[setCard]![cardInfo.rarity]! + countSet;
+        }
       }
     };
 
@@ -209,11 +212,11 @@ class StatsBooster {
           countEnergy[idEnergy]                 += count;
           countByType[cardInfo.data.type.index] += count;
 
-          if(countByRarity.containsKey(cardInfo.rarity))
+          if(countByRarity.containsKey(cardInfo.rarity)) {
             countByRarity[cardInfo.rarity] = countByRarity[cardInfo.rarity]! + count;
-          else
+          } else {
             countByRarity[cardInfo.rarity] = count;
-
+          }
           // Energy can be reversed
           computeStatsBySet(cardInfo, code);
         }
@@ -229,11 +232,11 @@ class StatsBooster {
           var cardInfo = noNumberCards.current;
           countByType[cardInfo.data.type.index] += count;
 
-          if(countByRarity.containsKey(cardInfo.rarity))
+          if(countByRarity.containsKey(cardInfo.rarity)) {
             countByRarity[cardInfo.rarity] = countByRarity[cardInfo.rarity]! + count;
-          else
+          } else {
             countByRarity[cardInfo.rarity] = count;
-
+          }
           // No Number can be reversed
           computeStatsBySet(cardInfo, code);
         }
@@ -251,21 +254,22 @@ class StatsBooster {
             var cardInfo = subExt.seCards.cards[cardsId][cardId];
             // Count
             countByType[cardInfo.data.type.index] += nbCard;
-            if(countByRarity.containsKey(cardInfo.rarity))
+            if(countByRarity.containsKey(cardInfo.rarity)) {
               countByRarity[cardInfo.rarity] = countByRarity[cardInfo.rarity]! + nbCard;
-            else
+            } else {
               countByRarity[cardInfo.rarity] = nbCard;
+            }
 
             computeStatsBySet(cardInfo, code);
           } else {
             for(var setId=0; setId < code.nbSetsRegistred(); setId += 1) {
               var countSet = code.countBySet(setId);
               var setCard = Environment.instance.collection.sets[setId];
-              if(countBySet.containsKey(setCard))
+              if(countBySet.containsKey(setCard)) {
                 countBySet[setCard] = countBySet[setCard]! + countSet;
-              else
+              } else {
                 countBySet[setCard] = countSet;
-
+              }
               setId += 1;
             }
           }
@@ -348,14 +352,16 @@ class TriState {
   bool? value;
 
   void set(bool v) {
-    if(value==null)
+    if(value==null) {
       value = v;
-    else
+    } else {
       value = value! | v;
+    }
   }
   bool isCheck() {
-    if( value == null)
+    if( value == null) {
       return true;
+    }
     return value!;
   }
 }
@@ -424,31 +430,37 @@ class CardResults {
       select = card.data.resistance != null;
       if(select) {
         var res = card.data.resistance!;
-        if(resistanceType != TypeCard.Unknown)
+        if(resistanceType != TypeCard.Unknown) {
           select = res.energy == resistanceType;
-        if(select && resistance != defaultResistance)
+        }
+        if(select && resistance != defaultResistance) {
           select = resistance.start.round() <= res.value && res.value <= resistance.end.round();
+        }
       }
     }
     if(select && (weakness != defaultWeakness || weaknessType != TypeCard.Unknown)) {
       select = card.data.weakness != null;
       if(select) {
         var weak = card.data.weakness!;
-        if(weaknessType != TypeCard.Unknown)
+        if(weaknessType != TypeCard.Unknown) {
           select = weak.energy == weaknessType;
-        if(select && weakness != defaultWeakness)
+        }
+        if(select && weakness != defaultWeakness) {
           select = weakness.start.round() <= weak.value && weak.value <= weakness.end.round();
+        }
       }
     }
 
     if(select && designs.isNotEmpty) {
       select = false;
       for(var subImages in card.images) {
-        if(select)
+        if(select) {
           break;
+        }
         for(var design in subImages) {
-          if(select)
+          if(select) {
             break;
+          }
           for(var designFilter in designs) {
             if(designFilter.design == design.cardDesign.design && designFilter.pattern == design.cardDesign.pattern) {
               select = true;
@@ -461,11 +473,13 @@ class CardResults {
     if(select && arts.isNotEmpty) {
       select = false;
       for(var subImages in card.images){
-        if(select)
+        if(select) {
           break;
+        }
         for(var design in subImages) {
-          if(select)
+          if(select) {
             break;
+          }
           for(var art in arts) {
             if(art == design.cardDesign.art) {
               select = true;
@@ -484,14 +498,16 @@ class CardResults {
         // Parse each effect to find filter item at least one time.
         //card.data.cardEffects.effects.forEach((effect) {
         for(var effect in card.data.cardEffects.effects) {
-          if(attackType != TypeCard.Unknown)
+          if(attackType != TypeCard.Unknown) {
             count[0].set(effect.attack.contains(attackType));
+          }
           if(attackEnergy != defaultEnergyAttack) {
             var attackCount = effect.attack.length;
             count[1].set(attackEnergy.start.round() <= attackCount && attackCount <= attackEnergy.end.round());
           }
-          if(attackPower != defaultAttack)
+          if(attackPower != defaultAttack) {
             count[2].set(attackPower.start.round() <= effect.power && effect.power <= attackPower.end.round());
+          }
           if(effects.isNotEmpty) {
             if(effect.description != null) {
               // Check we find at least each effect demanded (on the card).
@@ -519,7 +535,9 @@ class CardResults {
         for(var value in count) {
           select &= value.isCheck();
         }
-      } else select = false;
+      } else {
+        select = false;
+      }
     }
     return select;
   }

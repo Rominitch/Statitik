@@ -57,7 +57,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
       ),
       onpress,
       gradient:
-        RadialGradient(center: Alignment(0.0, 7.0),
+        RadialGradient(center: const Alignment(0.0, 7.0),
         radius: 5.0,
         colors: [color, Colors.grey.shade700, Colors.grey.shade800],
         stops: [0.5, 0.75, 1.0],
@@ -68,7 +68,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
   Widget drawPanel() {
     var buttons = [
       createButton([
-          Icon(Icons.add_box_outlined),
+          const Icon(Icons.add_box_outlined),
           Flexible(
             child: Text(StatitikLocale.of(context).read('DC_B1'),
                 style: Theme.of(context).textTheme.headline6,
@@ -80,12 +80,12 @@ class _DrawHomePageState extends State<DrawHomePage> {
         color: greenValid,
       ),
       createButton([
-          Icon(Icons.info_outline),
+          const Icon(Icons.info_outline),
           Text(StatitikLocale.of(context).read('DC_B10'),
               style: Theme.of(context).textTheme.headline5
           ),
         ], () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => DrawTutorial()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const DrawTutorial()));
         }
       )
     ];
@@ -100,14 +100,14 @@ class _DrawHomePageState extends State<DrawHomePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 drawImagePress(context, 'Snorlax_Pikachu_Pose', 60.0),
-                SizedBox(width: 15.0),
+                const SizedBox(width: 15.0),
                 Text(StatitikLocale.of(context).read('DC_B14'),
                     style: Theme.of(context).textTheme.headline4),
-                SizedBox(width: 15.0),
+                const SizedBox(width: 15.0),
                 drawImagePress(context, 'Snorlax_Pikachu', 60.0),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             GridView.count(
               crossAxisCount: buttons.length,
               children: buttons,
@@ -121,7 +121,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.history),
+                      const Icon(Icons.history),
                       Text(StatitikLocale.of(context).read('DC_B19'), style: Theme.of(context).textTheme.headline5),
                     ],
                   ),
@@ -145,7 +145,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
           style: Theme.of(context).textTheme.headline5)
         ],(){
         if(Environment.instance.isLogged())
-          Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyCards()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const PokeSpaceMyCards()));
       },
         color: cardMenuColor
       ),
@@ -154,7 +154,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
           style: Theme.of(context).textTheme.headline5),
         ],(){
         if(Environment.instance.isLogged())
-          Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyProducts()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const PokeSpaceMyProducts()));
       },
         color: productMenuColor
       ),
@@ -169,14 +169,14 @@ class _DrawHomePageState extends State<DrawHomePage> {
         )
       ],(){
         if(Environment.instance.isLogged())
-          Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyDeck()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const PokeSpaceMyDeck()));
       },
         color: deckMenuColor
       ),
       createButton([
         Text(StatitikLocale.of(context).read('DC_B11'), style: Theme.of(context).textTheme.headline5),
       ], () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => DrawHistory()));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const DrawHistory()));
       }),
     ];
 
@@ -193,14 +193,14 @@ class _DrawHomePageState extends State<DrawHomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       drawImagePress(context, 'CafeMix_Pikachu', 60.0),
-                      SizedBox(width: 15.0),
+                      const SizedBox(width: 15.0),
                       Text(StatitikLocale.of(context).read('DC_B15'),
                           style: Theme.of(context).textTheme.headline4),
-                      SizedBox(width: 15.0),
+                      const SizedBox(width: 15.0),
                       drawImagePress(context, 'Piplup', 60.0),
                     ],
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   GridView.count(
                     crossAxisCount: 2,
                     children: buttons,
@@ -225,7 +225,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
         var needTuto = prefs.getBool('TutorialDraw');
         if(needTuto == null || !needTuto)
         {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => DrawTutorial()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const DrawTutorial()));
           // Save to preferences (never shown)
           prefs.setBool('TutorialDraw', true);
         }
@@ -267,12 +267,12 @@ class _DrawHomePageState extends State<DrawHomePage> {
                 Padding(padding: const EdgeInsets.all(6.0),
                   child: Column(
                     children: [
-                      Text(StatitikLocale.of(context).read('DC_B2'), style: TextStyle(fontSize: 13, decoration: TextDecoration.underline, )),
-                      SizedBox(height: 8.0),
+                      Text(StatitikLocale.of(context).read('DC_B2'), style: const TextStyle(fontSize: 13, decoration: TextDecoration.underline, )),
+                      const SizedBox(height: 8.0),
                       Row(children: [
-                        Icon(Icons.help_outline),
-                        SizedBox(width: 10.0),
-                        Flexible(child: Text(StatitikLocale.of(context).read('DC_B3'), style: TextStyle(fontSize: 11))),
+                        const Icon(Icons.help_outline),
+                        const SizedBox(width: 10.0),
+                        Flexible(child: Text(StatitikLocale.of(context).read('DC_B3'), style: const TextStyle(fontSize: 11))),
                       ])
                     ]
                   )
@@ -305,27 +305,27 @@ class _DrawHomePageState extends State<DrawHomePage> {
             children: [
               Row(
                 children: [
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   drawImagePress(context, 'CafeMix_Pikachu', 50),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Text(StatitikLocale.of(context).read('DC_B4'), style: Theme.of(context).textTheme.headline3),
                 ]
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(StatitikLocale.of(context).read('DC_B5')),
               textBullet(StatitikLocale.of(context).read('DC_B6')),
               textBullet(StatitikLocale.of(context).read('DC_B7')),
               textBullet(StatitikLocale.of(context).read('DC_B21')),
               textBullet(StatitikLocale.of(context).read('DC_B22')),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               Container(
                 child: signInButton('V_B5', CredentialMode.Google, refreshWithError, refresh, context)
               ),
               Container(
                 child: signInButton('V_B6', CredentialMode.Phone, refreshWithError, refresh, context)
               ),
-              SizedBox(height: 30),
-              if(message != null) Container( child: Center( child: Text(message!, style: TextStyle(color: Colors.red)))),
+              const SizedBox(height: 30),
+              if(message != null) Container( child: Center( child: Text(message!, style: const TextStyle(color: Colors.red)))),
               Expanded(child: drawImagePress(context, 'PikaIntro', 300)),
               Container( padding: const EdgeInsets.only(left: 10),
                 child: Column(
@@ -335,7 +335,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                       textBullet(StatitikLocale.of(context).read('DC_B9')),
                     ]),
               ),
-              SizedBox(height: 10.0,),
+              const SizedBox(height: 10.0,),
             ],
             ),
           ),

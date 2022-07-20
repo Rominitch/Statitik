@@ -7,8 +7,9 @@ void parseDualIterator<T>(Iterator main, Iterator other, Function(T mElement, T 
     var endOther = other.moveNext();
     parsing = endMain;
     expect(endMain, endOther);
-    if(parsing)
+    if(parsing) {
       parser(main.current, other.current);
+    }
   }
 }
 
