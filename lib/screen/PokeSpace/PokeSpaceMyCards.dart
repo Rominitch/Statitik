@@ -59,18 +59,18 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
                 fontSize: size-1)
               ),
               if(myCard == maxCard)
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
               if(myCard == maxCard)
                 Icon(Icons.stars_rounded, color: Colors.amber.shade400, size: 14),
             ],
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           LinearPercentIndicator(
             lineHeight: size,
             percent: (myCard.toDouble()/maxCard.toDouble()).clamp(0.0, 1.0),
             progressColor: color,
             backgroundColor: Colors.black,
-            center: new Text("$myCard / $maxCard", style: TextStyle(
+            center: Text("$myCard / $maxCard", style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: size-2.0)),
           ),
@@ -110,14 +110,14 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
               children: [
                 Row(
                   children: [
-                    Spacer(),
+                    const Spacer(),
                     Text(StatitikLocale.of(context).read('PSMC_B4'), style: Theme.of(context).textTheme.headline6),
-                    SizedBox(width: 5.0),
-                    Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
-                    SizedBox(width: 15.0),
+                    const SizedBox(width: 5.0),
+                    const Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
+                    const SizedBox(width: 15.0),
                   ]
                 ),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 drawNothing(context, 'PSMC_B3')
               ]
             ),
@@ -136,7 +136,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
           validSets.removeWhere((element) => element.isSystem);
 
           return Card(
-              margin: EdgeInsets.all(2.0),
+              margin: const EdgeInsets.all(2.0),
               child: TextButton(
                   child: Row(children: <Widget>[
                     Tooltip(message: subExtension.name, child: subExtension.image(hSize: 40, wSize: 40)),
@@ -146,10 +146,10 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
                           Card(
                             color: Colors.grey.shade600,
                             child: GridView.count(crossAxisCount: global.length,
-                              children: global,
                               primary: false,
                               shrinkWrap: true,
                               childAspectRatio: global.length == 1 ? 9.0 : ratioGrid,
+                              children: global,
                             ),
                           ),
                           Card(
@@ -157,7 +157,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
                             child: GridView.builder(
                               primary: false,
                               shrinkWrap: true,
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: ratioGrid),
+                              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: ratioGrid),
                               itemCount: validSets.length,
                               itemBuilder: (context, id) {
                                 var set = validSets[id];
@@ -183,7 +183,6 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
         title: Text(StatitikLocale.of(context).read('DC_B16'), style: Theme.of(context).textTheme.headline3),
         actions: [
           FloatingActionButton.small(
-            child: Icon(Icons.add_photo_alternate_outlined, color: Colors.white,),
             backgroundColor: cardMenuColor,
             onPressed: (){
               Navigator.push(context, MaterialPageRoute(builder:
@@ -201,6 +200,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
                 }
               });
             },
+            child: const Icon(Icons.add_photo_alternate_outlined, color: Colors.white,),
           ),
         ],
       ),

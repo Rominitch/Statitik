@@ -10,7 +10,7 @@ import 'package:statitikcard/services/models/models.dart';
 class PieChartEnergies extends StatefulWidget {
   final StatsBooster allStats;
 
-  PieChartEnergies({required this.allStats});
+  const PieChartEnergies({required this.allStats, Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => PieChartEnergiesState();
@@ -51,18 +51,16 @@ class PieChartEnergiesState extends State<PieChartEnergies> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: AspectRatio(
-        aspectRatio: 1.5,
-        child: PieChart(
-          PieChartData(
-              borderData: FlBorderData(
-                show: false,
-              ),
-              sectionsSpace: 2,
-              centerSpaceRadius: 70,
-              sections: sections),
-        ),
+    return AspectRatio(
+      aspectRatio: 1.5,
+      child: PieChart(
+        PieChartData(
+          borderData: FlBorderData(
+            show: false,
+          ),
+          sectionsSpace: 2,
+          centerSpaceRadius: 70,
+          sections: sections),
       ),
     );
   }
@@ -77,10 +75,10 @@ class PieExtension extends StatefulWidget {
   final SubExtension subExtension;
   final Visualize visu;
 
-  PieExtension(this.subExtension, this.visu);
+  const PieExtension(this.subExtension, this.visu, {Key? key}) : super(key: key);
 
   @override
-  _PieExtensionState createState() => _PieExtensionState();
+  State<PieExtension> createState() => _PieExtensionState();
 }
 
 class _PieExtensionState extends State<PieExtension> {
@@ -111,7 +109,7 @@ class _PieExtensionState extends State<PieExtension> {
             title: "$count (${percent.toStringAsFixed(2)}%)",
             radius: radius,
             titlePositionPercentageOffset: odd ? 0.7 : 0.4,
-            titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
+            titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
             badgeWidget: getImageType(type),
             badgePositionPercentageOffset: 1.15,
           )
@@ -120,7 +118,7 @@ class _PieExtensionState extends State<PieExtension> {
         }
       }
     } else {
-      final smallValue = 3.5;
+      const smallValue = 3.5;
       bool oldSmall = false;
       widget.subExtension.stats.rarities.forEach( (rarity) {
         var isSmall = false;
@@ -137,7 +135,7 @@ class _PieExtensionState extends State<PieExtension> {
             title: "$count (${percent.toStringAsFixed(2)}%)",
             radius: radius,
             titlePositionPercentageOffset: odd ? 0.75 : 0.5,
-            titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
+            titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
             badgeWidget: Row( mainAxisSize: MainAxisSize.min,  children: getImageRarity(rarity, widget.subExtension.extension.language), ),
             badgePositionPercentageOffset: isSmall ? (oldSmall ? 1.35 : 1.15) : 1.2,
           )
@@ -152,18 +150,16 @@ class _PieExtensionState extends State<PieExtension> {
   @override
   Widget build(BuildContext context) {
     //createPie();
-    return Container(
-      child: AspectRatio(
-        aspectRatio: 1.0,
-        child: PieChart(
-          PieChartData(
-              borderData: FlBorderData(
-                show: false,
-              ),
-              sectionsSpace: 2,
-              centerSpaceRadius: 50,
-              sections: sections),
-        ),
+    return AspectRatio(
+      aspectRatio: 1.0,
+      child: PieChart(
+        PieChartData(
+          borderData: FlBorderData(
+            show: false,
+          ),
+          sectionsSpace: 2,
+          centerSpaceRadius: 50,
+          sections: sections),
       ),
     );
   }
@@ -172,10 +168,10 @@ class _PieExtensionState extends State<PieExtension> {
 class PieDeckType extends StatefulWidget {
   final DeckStats stats;
 
-  PieDeckType(this.stats);
+  const PieDeckType(this.stats, {Key? key}) : super(key: key);
 
   @override
-  _PieDeckTypeState createState() => _PieDeckTypeState();
+  State<PieDeckType> createState() => _PieDeckTypeState();
 }
 
 class _PieDeckTypeState extends State<PieDeckType> {
@@ -206,7 +202,7 @@ class _PieDeckTypeState extends State<PieDeckType> {
           title: "$count (${percent.toStringAsFixed(2)}%)",
           radius: radius,
           titlePositionPercentageOffset: odd ? 0.7 : 0.4,
-          titleStyle: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
+          titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
           badgeWidget: getImageType(type),
           badgePositionPercentageOffset: 1.15,
           )
@@ -250,18 +246,16 @@ class _PieDeckTypeState extends State<PieDeckType> {
   @override
   Widget build(BuildContext context) {
     //createPie();
-    return Container(
-      child: AspectRatio(
-        aspectRatio: 1.0,
-        child: PieChart(
-          PieChartData(
-              borderData: FlBorderData(
-                show: false,
-              ),
-              sectionsSpace: 2,
-              centerSpaceRadius: 50,
-              sections: sections),
-        ),
+    return AspectRatio(
+      aspectRatio: 1.0,
+      child: PieChart(
+        PieChartData(
+          borderData: FlBorderData(
+            show: false,
+          ),
+          sectionsSpace: 2,
+          centerSpaceRadius: 50,
+          sections: sections),
       ),
     );
   }

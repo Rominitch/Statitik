@@ -7,10 +7,10 @@ import 'package:statitikcard/services/internationalization.dart';
 
 class DrawHistory extends StatefulWidget {
   final bool isAdmin;
-  const DrawHistory([this.isAdmin=false]);
+  const DrawHistory([this.isAdmin=false, key]): super(key: key);
 
   @override
-  _DrawHistoryState createState() => _DrawHistoryState();
+  State<DrawHistory> createState() => _DrawHistoryState();
 }
 
 class _DrawHistoryState extends State<DrawHistory> {
@@ -26,7 +26,7 @@ class _DrawHistoryState extends State<DrawHistory> {
           myDrawWidgets!.add(Card(
               child: TextButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceDrawResume(draw)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceDrawResume(activeSession: draw)));
                 },
                 onLongPress: (widget.isAdmin) ? () {
                   setState(() {

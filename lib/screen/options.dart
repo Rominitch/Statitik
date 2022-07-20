@@ -18,8 +18,10 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 class OptionsPage extends StatefulWidget {
+  const OptionsPage({Key? key}) : super(key: key);
+
   @override
-  _OptionsPageState createState() => _OptionsPageState();
+  State<OptionsPage>  createState() => _OptionsPageState();
 }
 
 class _OptionsPageState extends State<OptionsPage> {
@@ -159,9 +161,9 @@ class _OptionsPageState extends State<OptionsPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(StatitikLocale.of(context).read('O_B10')),
-                            Flexible(child: Text(StatitikLocale.of(context).read('O_B11'), softWrap: true, textAlign: TextAlign.left, style: TextStyle(fontSize: 10))),
+                            Flexible(child: Text(StatitikLocale.of(context).read('O_B11'), softWrap: true, textAlign: TextAlign.left, style: const TextStyle(fontSize: 10))),
                             if(Environment.instance.storeImageLocally)
-                              (moSize != null) ? Text(sprintf(StatitikLocale.of(context).read('O_B12'), [moSize]), textAlign: TextAlign.left, style: TextStyle(fontSize: 10)) : CircularProgressIndicator(color: Colors.orange[300]),
+                              (moSize != null) ? Text(sprintf(StatitikLocale.of(context).read('O_B12'), [moSize]), textAlign: TextAlign.left, style: const TextStyle(fontSize: 10)) : CircularProgressIndicator(color: Colors.orange[300]),
                         ]),
                       ),
                     ],
@@ -193,7 +195,7 @@ class _OptionsPageState extends State<OptionsPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children:[
                           drawImagePress(context, 'news', 35),
-                          SizedBox(width: 5),
+                          const SizedBox(width: 5),
                           Text(StatitikLocale.of(context).read('NE_T0'))
                       ])
                   ),
@@ -244,8 +246,8 @@ class _OptionsPageState extends State<OptionsPage> {
   }
 
   Widget forgetMeDialog() {
-    return new AlertDialog(
-      title: new Text(StatitikLocale.of(context).read('warning')),
+    return AlertDialog(
+      title: Text(StatitikLocale.of(context).read('warning')),
       content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

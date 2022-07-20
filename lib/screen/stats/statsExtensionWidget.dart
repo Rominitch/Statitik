@@ -15,10 +15,10 @@ class StatsExtensionWidget extends StatefulWidget {
   final StatsConfiguration info;
   final PageController     pageController;
 
-  const StatsExtensionWidget(this.info, this.pageController);
+  const StatsExtensionWidget(this.info, this.pageController, {Key? key}) : super(key: key);
 
   @override
-  _StatsExtensionWidgetState createState() => _StatsExtensionWidgetState();
+  State<StatsExtensionWidget> createState() => _StatsExtensionWidgetState();
 }
 
 class _StatsExtensionWidgetState extends State<StatsExtensionWidget> with TickerProviderStateMixin {
@@ -75,7 +75,7 @@ class _StatsExtensionWidgetState extends State<StatsExtensionWidget> with Ticker
           Expanded(
             child: TabBarView(
               controller: tabController,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               children: [
                 StatsExtensionCards(widget.info),
                 SingleChildScrollView(child: StatsExtensionsPage(stats: sData.stats!, data: sData)),

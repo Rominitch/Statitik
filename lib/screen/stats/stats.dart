@@ -71,8 +71,10 @@ class StatsConfiguration {
 class StatsPage extends StatefulWidget {
   final StatsConfiguration info = StatsConfiguration();
 
+  StatsPage({Key? key}) : super(key: key);
+
   @override
-  _StatsPageState createState() => _StatsPageState();
+  State<StatsPage> createState() => _StatsPageState();
 }
 
 class _StatsPageState extends State<StatsPage> {
@@ -142,18 +144,18 @@ class _StatsPageState extends State<StatsPage> {
           child: widget.info.statsData.language != null ? Row(
               children: [
                 Text(StatitikLocale.of(context).read('S_B0')),
-                SizedBox(width: 8.0),
+                const SizedBox(width: 8.0),
                 Image(image: widget.info.statsData.language!.create(), height: 30),
-                SizedBox(width: 8.0),
+                const SizedBox(width: 8.0),
                 Tooltip(message: widget.info.statsData.subExt!.name,
                     child:widget.info.statsData.subExt!.image(hSize: 30)),
               ]) : Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 drawImagePress(context, 'Minccino', 40),
-                SizedBox(width: 15.0),
+                const SizedBox(width: 15.0),
                 Text(StatitikLocale.of(context).read('S_B0'), style: Theme.of(context).textTheme.headline5),
-                SizedBox(width: 15.0),
+                const SizedBox(width: 15.0),
                 drawImagePress(context, 'pika', 40),
             ]),
           onPressed: () {
@@ -166,16 +168,16 @@ class _StatsPageState extends State<StatsPage> {
   Widget buildExplain(BuildContext context, String image, String title, String explains) {
     return Expanded(child: // Rowlet
       Card(
-        margin: EdgeInsets.all(2.0),
+        margin: const EdgeInsets.all(2.0),
         color: Colors.grey.shade800,
         child: Container(height:165,
           padding: const EdgeInsets.all(4.0),
           child: Column(children: [
             drawImagePress(context, image, 40.0),
-            Text(StatitikLocale.of(context).read(title), textAlign: TextAlign.center, style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
-            SizedBox(height: 5),
-            Expanded(child: Text(StatitikLocale.of(context).read(explains), style: TextStyle(fontSize: 8.2))),
-            Icon(Icons.arrow_drop_down_circle_outlined)
+            Text(StatitikLocale.of(context).read(title), textAlign: TextAlign.center, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 5),
+            Expanded(child: Text(StatitikLocale.of(context).read(explains), style: const TextStyle(fontSize: 8.2))),
+            const Icon(Icons.arrow_drop_down_circle_outlined)
           ])
         )
       )
@@ -186,28 +188,26 @@ class _StatsPageState extends State<StatsPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children : [
-        SizedBox(height: 5.0),
+        const SizedBox(height: 5.0),
         extensionButton(context),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
-          child: Container(child:
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-              Image(image: AssetImage('assets/arrowL.png'), height: 20.0,),
-              SizedBox(width: 5.0),
-              Text(StatitikLocale.of(context).read('S_B2'), style: Theme.of(context).textTheme.headline6),
-              SizedBox(width: 5.0),
-              Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
-            ])
-          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+            const Image(image: AssetImage('assets/arrowL.png'), height: 20.0,),
+            const SizedBox(width: 5.0),
+            Text(StatitikLocale.of(context).read('S_B2'), style: Theme.of(context).textTheme.headline6),
+            const SizedBox(width: 5.0),
+            const Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
+          ]),
         ),
-        SizedBox(height: 5.0),
+        const SizedBox(height: 5.0),
         Expanded(child: MovingImageWidget(Padding(
           padding: const EdgeInsets.all(8.0),
           child: drawImagePress(context, 'Artwork', 300.0),
         ))),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         Row(
           children: [
             buildExplain(context, "Rowlet",  "S_TOOL_T0", "S_TOOL_B0"),
@@ -232,12 +232,12 @@ class _StatsPageState extends State<StatsPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Icon(Icons.menu),
-                  SizedBox(width: 8.0),
+                  const Icon(Icons.menu),
+                  const SizedBox(width: 8.0),
                   Image(image: widget.info.statsData.language!.create(), height: 30),
-                  SizedBox(width: 8.0),
+                  const SizedBox(width: 8.0),
                   widget.info.statsData.subExt!.image(hSize: 30),
-                  SizedBox(width: 8.0),
+                  const SizedBox(width: 8.0),
                   Flexible(child: Text(widget.info.statsData.subExt!.name, style: TextStyle(
                     fontFamily: Theme.of(context).textTheme.headline6!.fontFamily,
                     fontSize: widget.info.statsData.subExt!.name.length > 25 ? 10 : 16,
@@ -251,7 +251,7 @@ class _StatsPageState extends State<StatsPage> {
           actions: widget.info.se.isEmpty ? [] :
           [
             IconButton(
-              icon: Icon(Icons.info_outline),
+              icon: const Icon(Icons.info_outline),
               visualDensity: VisualDensity.comfortable,
               splashColor: Colors.orangeAccent,
               tooltip: StatitikLocale.of(context).read('S_TOOL_T4'),

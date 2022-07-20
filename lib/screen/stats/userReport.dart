@@ -15,10 +15,10 @@ import 'package:statitikcard/services/models/product.dart';
 class UserReport extends StatefulWidget {
   final StatsData data;
 
-  UserReport({required this.data});
+  const UserReport({required this.data, Key? key}) : super(key: key);
 
   @override
-  _UserReportState createState() => _UserReportState();
+  State<UserReport> createState() => _UserReportState();
 }
 
 class _UserReportState extends State<UserReport> {
@@ -59,8 +59,9 @@ class _UserReportState extends State<UserReport> {
 
       cardSort.reversed.forEach((cards) {
         for(var c in cards.entries) {
-          if (bestCards.length > 14)
+          if (bestCards.length > 14) {
             break;
+          }
 
           if(finalData.subExt!.seCards.cards.isNotEmpty) {
             String realName = c.value.data.titleOfCard(l);
@@ -74,31 +75,32 @@ class _UserReportState extends State<UserReport> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children:
                     [
-                      Container(child: Text(finalData.subExt!.seCards.numberOfCard(c.key)), width: 40),
-                      Container(child: Row(children: [c.value.imageType()] +
-                          c.value.imageRarity(l)), width: 80),
-                      SizedBox(width: 6.0),
+                      SizedBox(width: 40, child: Text(finalData.subExt!.seCards.numberOfCard(c.key))),
+                      SizedBox(width: 80, child: Row(children: [c.value.imageType()] +
+                        c.value.imageRarity(l))),
+                      const SizedBox(width: 6.0),
                       Flexible(child: Text(realName, style: TextStyle(fontSize: realName.length > 10 ? 10 : 13))),
                       if(markerInfo != null) markerInfo,
                     ]),
               ),
             )
             );
-          } else
+          } else {
             bestCards.add(Card(
               color: Colors.grey[600],
               child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children:
-                  [
-                    Row(mainAxisAlignment: MainAxisAlignment.center,
-                        children: [c.value.imageType()] + c.value.imageRarity(l)),
-                    SizedBox(height: 6.0),
-                    Text(c.key.toString()),
-                  ]),
-            )
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children:
+                [
+                  Row(mainAxisAlignment: MainAxisAlignment.center,
+                      children: [c.value.imageType()] + c.value.imageRarity(l)),
+                  const SizedBox(height: 6.0),
+                  Text(c.key.toString()),
+                ]),
+              )
             );
+          }
         }
       });
 
@@ -111,8 +113,9 @@ class _UserReportState extends State<UserReport> {
             onlyLocalUser: true, withUserCount: true, onlyWithUser: true).then((aps) {
           aps.forEach((key, ps) {
             for (ProductRequested pr in ps) {
-              if( products.length < 5 && pr.count > 0)
+              if( products.length < 5 && pr.count > 0) {
                 products.add(ProductWidget(pr, true));
+              }
             }
           });
           setState(() {compute=false;});
@@ -149,7 +152,7 @@ class _UserReportState extends State<UserReport> {
           ),
           actions: [
             IconButton(
-                icon: Icon(Icons.screen_rotation),
+                icon: const Icon(Icons.screen_rotation),
                 onPressed: (){
                   setState(() {
                     current = (current == DeviceOrientation.portraitUp)
@@ -159,7 +162,7 @@ class _UserReportState extends State<UserReport> {
                 }
             ),
             if(!compute) IconButton(
-                icon: Icon(Icons.share_outlined),
+                icon: const Icon(Icons.share_outlined),
                 onPressed: () {
                   print.shareReport(context, finalData.subExt!.seCode[0]);
                 }
@@ -173,7 +176,7 @@ class _UserReportState extends State<UserReport> {
           child: Screenshot(
             controller: print.screenshotController,
             child: Container(
-              padding: EdgeInsets.all(5.0),
+              padding: const EdgeInsets.all(5.0),
               color: Colors.grey[850],
               child: isPortrait
                 ? Column(
@@ -182,11 +185,11 @@ class _UserReportState extends State<UserReport> {
                     children: [
                       Row( children: [
                         Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headline5),
-                        Expanded(child: SizedBox(width: 1.0)),
+                        const Expanded(child: SizedBox(width: 1.0)),
                         Image(image: widget.data.language!.create(), height: 30),
-                        SizedBox(width: 6.0),
+                        const SizedBox(width: 6.0),
                         Text(widget.data.subExt!.name, style: TextStyle( fontSize: (widget.data.subExt!.name.length > 13) ? 10 : 12 )),
-                        SizedBox(width: 6.0),
+                        const SizedBox(width: 6.0),
                         widget.data.subExt!.image(hSize: 30)
                       ]),
                       StatsView(data: finalData, options: options),
@@ -199,20 +202,20 @@ class _UserReportState extends State<UserReport> {
                   children: [
                     Row( children: [
                         Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headline5),
-                        SizedBox(width: 30.0),
+                        const SizedBox(width: 30.0),
                         Image(image: widget.data.language!.create(), height: 30),
-                        SizedBox(width: 6.0),
+                        const SizedBox(width: 6.0),
                         Text(widget.data.subExt!.name, style: TextStyle( fontSize: (widget.data.subExt!.name.length > 13) ? 10 : 12 )),
-                        SizedBox(width: 6.0),
+                        const SizedBox(width: 6.0),
                         widget.data.subExt!.image(hSize: 30),
                       ]
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(width: width / 3, child: StatsView(data: finalData, options: options)),
-                        if(bestCards.isNotEmpty) Container(width: width / 3, child: buildBestCards(translator, 3)),
-                        if(products.isNotEmpty)  Container(width: width / 3, child: buildProducts(translator, 2)),
+                        SizedBox(width: width / 3, child: StatsView(data: finalData, options: options)),
+                        if(bestCards.isNotEmpty) SizedBox(width: width / 3, child: buildBestCards(translator, 3)),
+                        if(products.isNotEmpty)  SizedBox(width: width / 3, child: buildProducts(translator, 2)),
                       ],
                       )
                   ],

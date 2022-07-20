@@ -191,20 +191,23 @@ class CardEffect {
   CardEffect();
   CardEffect.fromBytes(ByteParser parser) {
     int idEffect = parser.extractInt16();
-    if(idEffect != 0)
-        title = idEffect;
+    if(idEffect != 0) {
+      title = idEffect;
+    }
 
     var newDescription = CardDescription.fromBytes(parser);
-    if(newDescription.idDescription > 0)
+    if(newDescription.idDescription > 0) {
       description = newDescription;
+    }
 
     power = parser.extractInt16();
 
     int nbAttack = parser.extractInt8();
     for(int i = 0; i < nbAttack; i +=1) {
       var t = TypeCard.values[parser.extractInt8()];
-      if(t != TypeCard.Unknown)
+      if(t != TypeCard.Unknown) {
         attack.add(t);
+      }
     }
   }
 
@@ -230,8 +233,9 @@ class CardEffects {
   CardEffects.fromEffects(this.effects);
 
   CardEffects.fromBytes(List<int> bytes) {
-    if(bytes[0] != version)
+    if(bytes[0] != version) {
       throw StatitikException('Bad CardEffects version');
+    }
 
     var parser = ByteParser(bytes.sublist(1));
     //var parser = ByteParser(gzip.decode(bytes.sublist(1)));

@@ -14,10 +14,10 @@ import 'package:statitikcard/services/Tools.dart';
 class StatsExtensionDraw extends StatefulWidget {
   final StatsConfiguration info;
 
-  const StatsExtensionDraw(this.info) : super();
+  const StatsExtensionDraw(this.info, {Key? key}) : super(key: key);
 
   @override
-  _StatsExtensionDrawState createState() => _StatsExtensionDrawState();
+  State<StatsExtensionDraw> createState() => _StatsExtensionDrawState();
 }
 
 class _StatsExtensionDrawState extends State<StatsExtensionDraw> {
@@ -56,7 +56,7 @@ class _StatsExtensionDrawState extends State<StatsExtensionDraw> {
             ),
             Card(
               child: IconButton(
-                  icon: Icon(Icons.settings),
+                  icon: const Icon(Icons.settings),
                   onPressed: () {
                     showDialog(
                         context: context,
@@ -77,8 +77,8 @@ class _StatsExtensionDrawState extends State<StatsExtensionDraw> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.account_circle),
-                    SizedBox(width: 5),
+                    const Icon(Icons.account_circle),
+                    const SizedBox(width: 5),
                     Text(StatitikLocale.of(context).read('S_B14'), style: Theme.of(context).textTheme.headline5),
                   ],
                 ),
@@ -88,10 +88,10 @@ class _StatsExtensionDrawState extends State<StatsExtensionDraw> {
               )
             )
         ] : [
-          SizedBox(height: 20.0),
-          Container( child: Center(child: Text(StatitikLocale.of(context).read('S_B1'), style: Theme.of(context).textTheme.headline1),)),
+          const SizedBox(height: 20.0),
+          Center(child: Text(StatitikLocale.of(context).read('S_B1'), style: Theme.of(context).textTheme.headline1)),
           Center(child: Text(StatitikLocale.of(context).read('S_B8'))),
-          SizedBox(height: 20.0),
+          const SizedBox(height: 20.0),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: drawImagePress(context, 'Arrozard', 250.0),

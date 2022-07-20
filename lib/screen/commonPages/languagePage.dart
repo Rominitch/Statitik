@@ -11,10 +11,10 @@ class LanguagePage extends StatefulWidget {
   final Function(BuildContext, Language, SubExtension) afterSelected;
   final bool addMode;
 
-  LanguagePage({required this.afterSelected, required this.addMode});
+  const LanguagePage({required this.afterSelected, required this.addMode, Key? key}) : super(key: key);
 
   @override
-  _LanguagePageState createState() => _LanguagePageState();
+  State<LanguagePage> createState() => _LanguagePageState();
 }
 
 class _LanguagePageState extends State<LanguagePage> {
@@ -63,14 +63,12 @@ class LanguageSelector extends StatelessWidget {
     List<Widget> widgetLanguage = [];
     for( Language l in Environment.instance.collection.languages.values)
     {
-      widgetLanguage.add(Container(
-        child: TextButton(
-          child: Image(image: l.create()),
-          onPressed: () {
-            onClickLanguage(context, l);
-          },
-        ),
-      )
+      widgetLanguage.add(TextButton(
+        child: Image(image: l.create()),
+        onPressed: () {
+          onClickLanguage(context, l);
+        },
+        )
       );
     }
 

@@ -66,10 +66,11 @@ class CardSelectorPokeSpace extends GenericCardSelector {
 
   @override
   void toggle() {
-    if(code.count() == 0)
+    if(code.count() == 0) {
       code.increase(0, limitSet);
-    else
+    } else {
       code.reset();
+    }
   }
 
   @override
@@ -97,7 +98,7 @@ class CardSelectorPokeSpace extends GenericCardSelector {
                   child: Row(
                     children: [
                       set.imageWidget(height: 20.0),
-                      SizedBox(width: 5),
+                      const SizedBox(width: 5),
                       Text("$countValue")
                     ]
                   ),
@@ -124,10 +125,10 @@ class CardSelectorPokeSpace extends GenericCardSelector {
           ]
           )
         ),
-        SizedBox(height:3),
+        const SizedBox(height:3),
         Expanded(child: genericCardWidget(subExt, idCard, CardImageIdentifier(), height: 150, language: subExt.extension.language)),
         if(count > 0)
-          SizedBox(height:3),
+          const SizedBox(height:3),
         if(count > 0)
           Row(children: countBySet),
       ],

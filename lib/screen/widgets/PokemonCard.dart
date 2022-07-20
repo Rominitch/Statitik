@@ -9,10 +9,10 @@ class PokemonCard extends StatefulWidget {
   final bool                 readOnly;
   final bool                 singlePress;   // Access to menu with single press
 
-  PokemonCard(this.selector, { required this.refresh, required this.readOnly, this.singlePress=false, this.afterOpenSelector});
+  const PokemonCard(this.selector, { required this.refresh, required this.readOnly, this.singlePress=false, this.afterOpenSelector, Key? key}) : super(key: key);
 
   @override
-  _PokemonCardState createState() => _PokemonCardState();
+  State<PokemonCard> createState() => _PokemonCardState();
 }
 
 class _PokemonCardState extends State<PokemonCard> {
@@ -26,7 +26,7 @@ class _PokemonCardState extends State<PokemonCard> {
       if(card.isValid())
         Row( mainAxisAlignment: MainAxisAlignment.center,
             children: [card.imageType()] + card.imageRarity(widget.selector.subExtension().extension.language)),
-      if(card.isValid()) SizedBox(height: 6.0),
+      if(card.isValid()) const SizedBox(height: 6.0),
     ];
     super.initState();
   }
@@ -51,8 +51,9 @@ class _PokemonCardState extends State<PokemonCard> {
         // Refresh card info
         setState(()
         {
-          if(widget.afterOpenSelector != null)
+          if(widget.afterOpenSelector != null) {
             widget.afterOpenSelector!();
+          }
           widget.refresh();
         });
       });
@@ -65,8 +66,9 @@ class _PokemonCardState extends State<PokemonCard> {
             widget.selector, refresh: update, readOnly: widget.readOnly);
         }
       ).then((value) {
-        if (widget.afterOpenSelector != null)
+        if (widget.afterOpenSelector != null) {
           widget.afterOpenSelector!();
+        }
         widget.refresh();
       });
     }
@@ -77,7 +79,6 @@ class _PokemonCardState extends State<PokemonCard> {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: TextButton(
-        child: widget.selector.cardWidget(),
         style: TextButton.styleFrom(
           backgroundColor: widget.selector.backgroundColor(),
           padding: const EdgeInsets.all(2.0)
@@ -91,7 +92,8 @@ class _PokemonCardState extends State<PokemonCard> {
 
               widget.refresh();
             });
-        })
+        }),
+        child: widget.selector.cardWidget()
       ),
     );
   }

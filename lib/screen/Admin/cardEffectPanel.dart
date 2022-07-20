@@ -20,7 +20,7 @@ class CardEffectsPanel extends StatefulWidget {
   const CardEffectsPanel(this.card, this.l, {Key? key}) : super(key: key);
 
   @override
-  _CardEffectsPanelState createState() => _CardEffectsPanelState();
+  State<CardEffectsPanel> createState() => _CardEffectsPanelState();
 }
 
 class _CardEffectsPanelState extends State<CardEffectsPanel> {
@@ -62,7 +62,7 @@ class CardEffectPanel extends StatefulWidget {
   const CardEffectPanel(this.parent, this.effect, {Key? key}) : super(key: key);
 
   @override
-  _CardEffectPanelState createState() => _CardEffectPanelState();
+  State<CardEffectPanel> createState() => _CardEffectPanelState();
 }
 
 class _CardEffectPanelState extends State<CardEffectPanel> {

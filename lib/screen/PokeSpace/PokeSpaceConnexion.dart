@@ -25,8 +25,10 @@ import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/product.dart';
 
 class DrawHomePage extends StatefulWidget {
+  const DrawHomePage({Key? key}) : super(key: key);
+
   @override
-  _DrawHomePageState createState() => _DrawHomePageState();
+  State<DrawHomePage> createState() => _DrawHomePageState();
 }
 
 class _DrawHomePageState extends State<DrawHomePage> {
@@ -37,13 +39,13 @@ class _DrawHomePageState extends State<DrawHomePage> {
     return Card(
       color: color,
       child: TextButton(
+        onPressed: onpress,
         child: Center(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: info,
             )
-        ),
-        onPressed: onpress
+        )
       )
     );
   }
@@ -60,7 +62,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
         RadialGradient(center: const Alignment(0.0, 7.0),
         radius: 5.0,
         colors: [color, Colors.grey.shade700, Colors.grey.shade800],
-        stops: [0.5, 0.75, 1.0],
+        stops: const [0.5, 0.75, 1.0],
       ),
     );
   }
@@ -110,10 +112,10 @@ class _DrawHomePageState extends State<DrawHomePage> {
             const SizedBox(height: 20),
             GridView.count(
               crossAxisCount: buttons.length,
-              children: buttons,
               primary: false,
               shrinkWrap: true,
               childAspectRatio: 2.5,
+              children: buttons,
             ),
             if(userDraw.isNotEmpty)
               Card( child:
@@ -144,8 +146,9 @@ class _DrawHomePageState extends State<DrawHomePage> {
         Text(StatitikLocale.of(context).read('DC_B16'),
           style: Theme.of(context).textTheme.headline5)
         ],(){
-        if(Environment.instance.isLogged())
+        if(Environment.instance.isLogged()) {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const PokeSpaceMyCards()));
+        }
       },
         color: cardMenuColor
       ),
@@ -153,8 +156,9 @@ class _DrawHomePageState extends State<DrawHomePage> {
         Text(StatitikLocale.of(context).read('DC_B17'),
           style: Theme.of(context).textTheme.headline5),
         ],(){
-        if(Environment.instance.isLogged())
+        if(Environment.instance.isLogged()) {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const PokeSpaceMyProducts()));
+        }
       },
         color: productMenuColor
       ),
@@ -168,8 +172,9 @@ class _DrawHomePageState extends State<DrawHomePage> {
           ]
         )
       ],(){
-        if(Environment.instance.isLogged())
+        if(Environment.instance.isLogged()) {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const PokeSpaceMyDeck()));
+        }
       },
         color: deckMenuColor
       ),
@@ -203,10 +208,10 @@ class _DrawHomePageState extends State<DrawHomePage> {
                   const SizedBox(height: 20),
                   GridView.count(
                     crossAxisCount: 2,
-                    children: buttons,
                     primary: false,
                     shrinkWrap: true,
                     childAspectRatio: 2.5,
+                    children: buttons,
                   )
                 ],
               ),
@@ -325,7 +330,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                 child: signInButton('V_B6', CredentialMode.Phone, refreshWithError, refresh, context)
               ),
               const SizedBox(height: 30),
-              if(message != null) Container( child: Center( child: Text(message!, style: const TextStyle(color: Colors.red)))),
+              if(message != null) Center( child: Text(message!, style: const TextStyle(color: Colors.red))),
               Expanded(child: drawImagePress(context, 'PikaIntro', 300)),
               Container( padding: const EdgeInsets.only(left: 10),
                 child: Column(

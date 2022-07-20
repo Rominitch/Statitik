@@ -6,7 +6,7 @@ class DrawTutorial extends StatefulWidget {
   const DrawTutorial({Key? key}) : super(key: key);
 
   @override
-  _DrawTutorialState createState() => _DrawTutorialState();
+  State<DrawTutorial> createState() => _DrawTutorialState();
 }
 
 class _DrawTutorialState extends State<DrawTutorial> {
@@ -25,7 +25,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
     return Scaffold(
         appBar: AppBar(
           title: Padding(
-            padding: EdgeInsets.all(5.0),
+            padding: const EdgeInsets.all(5.0),
             child: Text( StatitikLocale.of(context).read('TUTO0_0'),
               maxLines: 3,
               style: Theme.of(context).textTheme.headline6,
@@ -44,7 +44,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
           ]
         ),
         body: SingleChildScrollView(
-          padding: EdgeInsets.all(5.0),
+          padding: const EdgeInsets.all(5.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -61,7 +61,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
                 Text(StatitikLocale.of(context).read('TUTO0_9'), textAlign: TextAlign.justify, style: Theme.of(context).textTheme.headline5),
                 cardTutoCC(StatitikLocale.of(context).read('TUTO0_10'), <Widget>[
                   simpleText(StatitikLocale.of(context).read('TUTO0_11')),
-                  Icon(Icons.add_photo_alternate_outlined),
+                  const Icon(Icons.add_photo_alternate_outlined),
                   conseil(StatitikLocale.of(context).read('TUTO0_12'), Colors.grey[400]!),
                   simpleText(StatitikLocale.of(context).read('TUTO0_13')),
                   imageTuto("tuto4", 40),
@@ -132,14 +132,14 @@ class _DrawTutorialState extends State<DrawTutorial> {
   Widget cardTutoImage(String text, String image, [bool imageRight=true])
   {
     var content = imageRight ? <Widget>[
-      Container(
+      SizedBox(
         width: w2_3,
         child: simpleText(text),
       ),
       imageTuto(image, 150),
     ] : [
       imageTuto(image, 150),
-      Container(
+      SizedBox(
         width: w2_3,
         child: simpleText(text),
       ),
@@ -150,7 +150,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
   Widget cardTutoTitleImage(String title, String image, List<Widget> subContent, [bool imageRight=true, double imageHeight=150])
   {
     var content = imageRight ? <Widget>[
-      Container(
+      SizedBox(
         width: w2_3,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -162,7 +162,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
       imageTuto(image, imageHeight),
     ] : [
       imageTuto(image, imageHeight),
-      Container(
+      SizedBox(
         width: w2_3,
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -179,7 +179,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
   {
     return Card(
       child: Container(
-        padding: EdgeInsets.all(5.0),
+        padding: const EdgeInsets.all(5.0),
         width: width,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -192,7 +192,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
   {
     return Card(
       child: Container(
-        padding: EdgeInsets.all(5.0),
+        padding: const EdgeInsets.all(5.0),
         width: width,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -206,7 +206,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
   {
     return Card(
       child: Container(
-        padding: EdgeInsets.all(5.0),
+        padding: const EdgeInsets.all(5.0),
         color: color,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

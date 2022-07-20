@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 class CustomRadioController {
-  List<CustomRadio> _radios = [];
+  final List<CustomRadio> _radios = [];
   Function  onChange;
   dynamic   currentValue;
 
@@ -43,7 +43,7 @@ class CustomRadio extends StatefulWidget {
   final StreamController<dynamic> afterChange = StreamController<dynamic>();
   final double? widthBox;
 
-  CustomRadio({required this.value, required this.controller, required this.widget, this.widthBox}) {
+  CustomRadio({required this.value, required this.controller, required this.widget, this.widthBox, Key? key}) : super(key: key) {
     controller.register(this);
   }
 
@@ -52,7 +52,7 @@ class CustomRadio extends StatefulWidget {
   }
 
   @override
-  _CustomRadioState createState() => _CustomRadioState();
+  State<CustomRadio> createState() => _CustomRadioState();
 }
 
 class _CustomRadioState extends State<CustomRadio> {

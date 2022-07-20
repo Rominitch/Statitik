@@ -10,7 +10,7 @@ import 'package:statitikcard/services/models/Language.dart';
 import 'package:statitikcard/services/Tools.dart';
 
 class PokeSpaceMyDeck extends StatefulWidget {
-  const PokeSpaceMyDeck() : super();
+  const PokeSpaceMyDeck({Key? key}) : super(key: key);
 
   @override
   State<PokeSpaceMyDeck> createState() => _PokeSpaceMyCardsState();
@@ -58,13 +58,13 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
         title: Text(StatitikLocale.of(context).read('DC_B18'), style: Theme.of(context).textTheme.headline3),
         actions: [
           FloatingActionButton.small(
-            child: Icon(Icons.add_circle_outline, color: Colors.white),
             backgroundColor: deckMenuColor,
             onPressed: (){
               var deck = Deck(StatitikLocale.of(context).read('PSMD_B2'));
               mySpace.myDecks.add(deck);
               goToDeckSelector(deck);
             },
+            child: const Icon(Icons.add_circle_outline, color: Colors.white),
           ),
         ],
       ),
@@ -79,14 +79,14 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
                 children: [
                   Row(
                     children: [
-                      Spacer(),
+                      const Spacer(),
                       Text(StatitikLocale.of(context).read('PSMD_B1'), style: Theme.of(context).textTheme.headline6),
-                      SizedBox(width: 5.0),
-                      Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
-                      SizedBox(width: 15.0),
+                      const SizedBox(width: 5.0),
+                      const Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
+                      const SizedBox(width: 15.0),
                     ]
                   ),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   drawNothing(context, 'PSMD_B0')
                 ]
               ),
@@ -97,7 +97,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
               itemBuilder: (BuildContext context, int id) {
                 var deck = myDecks[id];
                 return Card(
-                  margin: EdgeInsets.all(2.0),
+                  margin: const EdgeInsets.all(2.0),
                   child: TextButton(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

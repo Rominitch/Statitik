@@ -48,7 +48,7 @@ class CardCreator extends StatefulWidget {
     secondTypes=null, options = CardEditorOptions(), super(key: key);
 
   @override
-  _CardCreatorState createState() => _CardCreatorState();
+  State<CardCreator> createState() => _CardCreatorState();
 }
 
 class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin {
@@ -294,7 +294,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             }
           ),
           Row(children: [
-            Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B25'), style: const TextStyle(fontSize: 12))),
+            SizedBox(width: 60, child: Text(StatitikLocale.of(context).read('CA_B25'), style: const TextStyle(fontSize: 12))),
             Expanded(
               child: SliderInfo( SliderInfoController(() {
                 return widget.card.data.life.toDouble();
@@ -308,7 +308,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           ]),
           // Retreat
           Row(children: [
-            Container(width: 60, child: Text(StatitikLocale.of(context).read('CA_B26'), style: const TextStyle(fontSize: 12))),
+            SizedBox(width: 60, child: Text(StatitikLocale.of(context).read('CA_B26'), style: const TextStyle(fontSize: 12))),
             Expanded(
               child: SliderInfo( SliderInfoController(() {
                 return widget.card.data.retreat.toDouble();
@@ -475,7 +475,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             padding: const EdgeInsets.all(8.0),
             child: Row(
             children: [
-              Container(height: imageSize, child: genericCardWidget(widget.se, widget.idCard, CardImageIdentifier(), height: imageSize, reloader: true)),
+              SizedBox(height: imageSize, child: genericCardWidget(widget.se, widget.idCard, CardImageIdentifier(), height: imageSize, reloader: true)),
               const SizedBox(width:8),
               Expanded(child: Text("${StatitikLocale.of(context).read('CA_B30')} $codeDB", style: Theme.of(context).textTheme.headline5)),
               Card(
@@ -623,7 +623,7 @@ class PokeCardNaming extends StatefulWidget {
   }
 
   @override
-  _PokeCardNamingState createState() => _PokeCardNamingState();
+  State<PokeCardNaming> createState() => _PokeCardNamingState();
 
   static Future selectPokemonName(BuildContext context, Language language, CardIdentifier id, PokemonCardExtension card, int idName) {
 

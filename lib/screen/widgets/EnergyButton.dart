@@ -35,8 +35,9 @@ class EBEnergyValueController extends EnergyButtonController {
 
   @override
   void setValue(TypeCard type) {
-    if(energyValue.energy == TypeCard.Unknown && energyValue.value == 0)
+    if(energyValue.energy == TypeCard.Unknown && energyValue.value == 0) {
       energyValue.value = autoValue;
+    }
     energyValue.energy = type;
     afterEdit();
   }
@@ -50,10 +51,10 @@ class EBEnergyValueController extends EnergyButtonController {
 class EnergyButton extends StatefulWidget {
   final EnergyButtonController controller;
 
-  const EnergyButton(this.controller);
+  const EnergyButton(this.controller, {Key? key}) : super(key: key);
 
   @override
-  _EnergyButtonState createState() => _EnergyButtonState();
+  State<EnergyButton> createState() => _EnergyButtonState();
 }
 
 class _EnergyButtonState extends State<EnergyButton> {
@@ -63,12 +64,12 @@ class _EnergyButtonState extends State<EnergyButton> {
     return SimpleDialog(
       titlePadding: EdgeInsets.zero,
       contentPadding: EdgeInsets.zero,
-      insetPadding: EdgeInsets.symmetric(horizontal: 0),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 0),
       children: <Widget>[
-        Container(
+        SizedBox(
           width: MediaQuery.of(context).size.width / 2,
           child: GridView.builder(
-            padding: EdgeInsets.all(2),
+            padding: const EdgeInsets.all(2),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4, crossAxisSpacing: 2, mainAxisSpacing: 2),
             itemCount: types.length,

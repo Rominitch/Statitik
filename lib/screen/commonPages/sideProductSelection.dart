@@ -37,9 +37,9 @@ class _SideProductSelectionState extends State<SideProductSelection> {
 
     return GridView.count(
       crossAxisCount: 3,
-      children: widgets,
       primary: false,
       shrinkWrap: true,
+      children: widgets,
     );
   }
 
@@ -68,9 +68,9 @@ class _SideProductSelectionState extends State<SideProductSelection> {
 
     return GridView.count(
       crossAxisCount: 3,
-      children: widgets,
       primary: false,
       shrinkWrap: true,
+      children: widgets,
     );
   }
 

@@ -39,14 +39,14 @@ class _RarityEditorState extends State<RarityEditor> {
               }
 
               return Card(
-                child: Container(
+                child: SizedBox(
                   height: 50,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Card(
                         color: r.color,
-                        child: Container(
+                        child: SizedBox(
                           width: 50,
                           height: 50,
                           child: Row(
@@ -58,7 +58,7 @@ class _RarityEditorState extends State<RarityEditor> {
                       Card(
                         color: Colors.grey,
                         child:
-                        Container(
+                        SizedBox(
                           width: 80,
                           child: Text( worldAsian.join(" "),
                               textAlign: TextAlign.center
@@ -67,14 +67,14 @@ class _RarityEditorState extends State<RarityEditor> {
                       ),
                       Card(
                         color: Environment.instance.collection.otherThanReverse.contains(r) ? Colors.green : Colors.grey,
-                        child: Container(
+                        child: SizedBox(
                           width: 80,
                           child: Text( StatitikLocale.of(context).read('RARE_B2'), softWrap: true, textAlign: TextAlign.center)
                         )
                       ),
                       Card(
                         color: Environment.instance.collection.goodCard.contains(r) ? Colors.green : Colors.grey,
-                        child: Container(
+                        child: SizedBox(
                           width: 80,
                           child: Text( StatitikLocale.of(context).read('RARE_B3'), softWrap: true, textAlign: TextAlign.center)
                         )

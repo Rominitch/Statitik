@@ -92,8 +92,8 @@ class RangeSliderWithTextThumb extends RangeSliderThumbShape {
     canvas.drawPath(innerPath, innerPathColor);
 
     // Paint text
-    TextSpan span = new TextSpan(
-      style: new TextStyle(
+    TextSpan span = TextSpan(
+      style: TextStyle(
         fontSize: thumbRadius,
         fontWeight: FontWeight.w700,
         color: Colors.white,
@@ -101,7 +101,7 @@ class RangeSliderWithTextThumb extends RangeSliderThumbShape {
       text: thumb == Thumb.start ? sliderMinValue.round().toString() : sliderMaxValue.round().toString(),
     );
 
-    TextPainter tp = new TextPainter(
+    TextPainter tp = TextPainter(
       text: span,
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
@@ -208,8 +208,8 @@ class SliderWithTextThumb extends SliderComponentShape {
     canvas.drawPath(innerPath, innerPathColor);
 
     // Paint text
-    TextSpan span = new TextSpan(
-      style: new TextStyle(
+    TextSpan span = TextSpan(
+      style: TextStyle(
         fontSize: thumbRadius,
         fontWeight: FontWeight.w700,
         color: Colors.white,
@@ -217,7 +217,7 @@ class SliderWithTextThumb extends SliderComponentShape {
       text: sliderValue.round().toString(),
     );
 
-    TextPainter tp = new TextPainter(
+    TextPainter tp = TextPainter(
       text: span,
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
@@ -246,10 +246,10 @@ class SliderInfo extends StatefulWidget {
   final dynamic minValue;
   final dynamic maxValue;
   final int? division;
-  const SliderInfo(this.controller, this.minValue, this.maxValue, {this.division});
+  const SliderInfo(this.controller, this.minValue, this.maxValue, {this.division, Key? key}) : super(key: key);
 
   @override
-  _SliderInfoState createState() => _SliderInfoState();
+  State<SliderInfo> createState() => _SliderInfoState();
 }
 
 class _SliderInfoState extends State<SliderInfo> {

@@ -60,15 +60,15 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
             child: TextButton(
               child: Row(
                 children: [
-                  Icon(Icons.add_circle_outline),
-                  SizedBox(width: 5),
+                  const Icon(Icons.add_circle_outline),
+                  const SizedBox(width: 5),
                   Text(StatitikLocale.of(context).read('PS_B2')),
                 ]
               ),
               onPressed: () async {
                 var code;
 
-                if(selection.computeProductWithOtherStuff())
+                if(selection.computeProductWithOtherStuff()) {
                   code = await showDialog(
                     context: context,
                     builder: (BuildContext context) => AlertDialog(
@@ -100,8 +100,9 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
                       ],
                     ),
                   );
-                else
+                } else {
                   code = false;
+                }
 
                 if(code != null) {
                   selection.withSubProducts = code;
@@ -136,7 +137,7 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(StatitikLocale.of(context).read('PS_B1')),
-                        Text(StatitikLocale.of(context).read('PS_B3'), style: TextStyle(fontSize: 10)),
+                        Text(StatitikLocale.of(context).read('PS_B3'), style: const TextStyle(fontSize: 10)),
                       ],
                     )),
                   ),
@@ -145,7 +146,7 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
             Expanded(
               child: TabBarView(
                 controller: tabController,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
                   ProductPerYearSelector(selection.products,     products),
                   ProductPerYearSelector(selection.sideProducts, Environment.instance.collection.productSides.values.toList(growable: false)),
@@ -203,7 +204,7 @@ class _ProductPerYearSelectorState extends State<ProductPerYearSelector> with Si
       List filteredProduct = List.from(widget.productList)..removeWhere((product) => product.releaseDate.year != year);
 
       Widget page = GridView.builder(
-        padding: EdgeInsets.all(2),
+        padding: const EdgeInsets.all(2),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
           childAspectRatio: 0.7,
@@ -224,8 +225,9 @@ class _ProductPerYearSelectorState extends State<ProductPerYearSelector> with Si
               ),
               onPressed: (){
                 // Add new
-                if( !widget.selection.containsKey(product) )
+                if( !widget.selection.containsKey(product) ) {
                   widget.selection[product] = UserProductCounter.fromOpened(0);
+                }
 
                 var info = widget.selection[product];
                 // Configure
@@ -236,8 +238,9 @@ class _ProductPerYearSelectorState extends State<ProductPerYearSelector> with Si
                     }
                 ).then((value) {
                   setState(() {
-                    if(info.opened+info.seal == 0)
+                    if(info.opened+info.seal == 0) {
                       widget.selection.remove(product);
+                    }
                   });
                 });
               },
@@ -291,7 +294,7 @@ SimpleDialog createProductCounterSelection(BuildContext context, product, counte
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(children: [
-                      Icon(Icons.lock_open, size: 60),
+                      const Icon(Icons.lock_open, size: 60),
                       Text(StatitikLocale.of(context).read('PSPE_B1')),
                     ]),
                   )),
@@ -299,7 +302,7 @@ SimpleDialog createProductCounterSelection(BuildContext context, product, counte
                 value: counter.opened.toDouble(),
                 min: 0,
                 max: 255,
-                textStyle: TextStyle(fontSize: 13),
+                textStyle: const TextStyle(fontSize: 13),
                 onChanged: (value) {
                   counter.opened = value.toInt();
                 },
@@ -318,7 +321,7 @@ SimpleDialog createProductCounterSelection(BuildContext context, product, counte
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(children: [
-                      Icon(Icons.lock_outline, size: 60),
+                      const Icon(Icons.lock_outline, size: 60),
                       Text(StatitikLocale.of(context).read('PSPE_B2')),
                     ]),
                   )),
@@ -326,7 +329,7 @@ SimpleDialog createProductCounterSelection(BuildContext context, product, counte
                 value: counter.seal.toDouble(),
                 min: 0,
                 max: 255,
-                textStyle: TextStyle(fontSize: 13),
+                textStyle: const TextStyle(fontSize: 13),
                 onChanged: (value) {
                   counter.seal = value.toInt();
                 },

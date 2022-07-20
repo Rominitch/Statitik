@@ -13,10 +13,10 @@ import 'package:statitikcard/services/internationalization.dart';
 class StatsExtensionCards extends StatefulWidget {
   final StatsConfiguration info;
 
-  const StatsExtensionCards(this.info);
+  const StatsExtensionCards(this.info, {Key? key}) : super(key: key);
 
   @override
-  _StatsExtensionCardsState createState() => _StatsExtensionCardsState();
+  State<StatsExtensionCards> createState() => _StatsExtensionCardsState();
 }
 
 class StatsPerCard {
@@ -99,7 +99,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> with SingleTi
   Widget createCardWidget(CardIdentifier id, PokemonCardExtension cardData, String cardName, StatsPerCard? statsOfCard, int listId) {
     Widget? extendedType = cardData.imageTypeExtended(generate: true, sizeIcon: 14.0);
     return Card(
-      margin: EdgeInsets.all(2.0),
+      margin: const EdgeInsets.all(2.0),
       child: TextButton(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -114,7 +114,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> with SingleTi
                   ]
                   )
               ),
-              SizedBox(height:5),
+              const SizedBox(height:5),
               Expanded(child: genericCardWidget(widget.info.statsData.subExt!, id, CardImageIdentifier(), height: 150, language: widget.info.statsData.language!,)),
               if(statsOfCard != null)
                 textStats(statsOfCard)
@@ -166,11 +166,11 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> with SingleTi
           Expanded(
             child: TabBarView(
               controller: tabController,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               children:[
                 if(widget.info.statsData.subExt!.seCards.cards.isNotEmpty)
                   GridView.builder(
-                    padding: EdgeInsets.all(1.0),
+                    padding: const EdgeInsets.all(1.0),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
                       childAspectRatio: 0.7),
@@ -184,7 +184,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> with SingleTi
                   ),
                 if(widget.info.statsData.subExt!.seCards.energyCard.isNotEmpty)
                   GridView.builder(
-                    padding: EdgeInsets.all(1.0),
+                    padding: const EdgeInsets.all(1.0),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
                       childAspectRatio: 0.7),
@@ -198,7 +198,7 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> with SingleTi
                   ),
                 if(widget.info.statsData.subExt!.seCards.noNumberedCard.isNotEmpty)
                   GridView.builder(
-                    padding: EdgeInsets.all(1.0),
+                    padding: const EdgeInsets.all(1.0),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
                         childAspectRatio: 0.7),

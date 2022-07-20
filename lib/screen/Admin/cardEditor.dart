@@ -35,7 +35,7 @@ class CardEditor extends StatefulWidget {
   }
 
   @override
-  _CardEditorState createState() => _CardEditorState();
+  State<CardEditor> createState() => _CardEditorState();
 }
 
 class _CardEditorState extends State<CardEditor> {

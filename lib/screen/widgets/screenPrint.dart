@@ -24,7 +24,7 @@ class ScreenPrint
              .then((Uint8List? image) async {
            final myImagePath = (await getApplicationSupportDirectory()).path;
 
-           var now = new DateTime.now();
+           var now = DateTime.now();
            final title = 'Statitik_${extIcon}_${DateFormat(
                'yyyyMMdd_kk_mm').format(now)}';
            var file = File("$myImagePath/$title.png");
@@ -38,8 +38,8 @@ class ScreenPrint
              showDialog(
                  context: context,
                  builder: (_) =>
-                 new AlertDialog(
-                   title: new Text(StatitikLocale.of(context).read('RE_B1')),
+                 AlertDialog(
+                   title: Text(StatitikLocale.of(context).read('RE_B1')),
                    content: Text(StatitikLocale.of(context).read('RE_B2')),
                  )
              );

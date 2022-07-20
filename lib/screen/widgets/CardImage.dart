@@ -36,8 +36,8 @@ class CardImage extends StatefulWidget {
   final Language? language;
   final CardImageIdentifier idImage;
 
-  CardImage(SubExtension se, PokemonCardExtension card, this.idCard, this.idImage, {this.height=400, this.language}) :
-    cardImage = computeImageLabel(se, card, idCard, idImage), this.card = card, this.se = se;
+  CardImage(SubExtension se, PokemonCardExtension card, this.idCard, this.idImage, {this.height=400, this.language, Key? key}) :
+    cardImage = computeImageLabel(se, card, idCard, idImage), this.card = card, this.se = se, super(key: key);
 
   static String convertRomaji(String name, bool alternative) {
     const kanaKit = KanaKit();
@@ -68,9 +68,7 @@ class CardImage extends StatefulWidget {
         var value = Environment.instance.collection.convertKanji[key];
         val = val.replaceAll(key, value);
       }
-    } catch(e) {
-
-    }
+    } catch(_) {}
     return val;
   }
 
@@ -85,9 +83,7 @@ class CardImage extends StatefulWidget {
         }
         return element.toTitle;
       });
-    } catch(e) {
-
-    }
+    } catch(_) {}
     return romajiName;
   }
 
@@ -99,8 +95,9 @@ class CardImage extends StatefulWidget {
     if(Environment.instance.showTCGImages){
       ImageDesign defaultImage = card.image(idImage)!;
 
-      if(defaultImage.finalImage.isNotEmpty)
+      if(defaultImage.finalImage.isNotEmpty) {
         return [Uri.parse(defaultImage.finalImage)];
+      }
 
 
       List<Uri> images = [];
@@ -128,55 +125,70 @@ class CardImage extends StatefulWidget {
       }
 
       //
-      if( se.extension.language.id == 1 )
-        if(defaultImage.image.startsWith("https://"))
+      if( se.extension.language.id == 1 ) {
+        if (defaultImage.image.startsWith("https://")) {
           images += [Uri.parse(defaultImage.image)];
-        else {
+        } else {
           int addAt = cardId.listId != 0 ? images.length : 0;
           se.seCode.forEach((seFolder) {
             String tcgId = se.seCards.tcgImage(cardId.numberId);
             // Official image source
-            if( cardId.listId == 1 )
-              images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2-fr-fr/img/cards/web/NRG/NRG_FR_${defaultImage.image}.png") );
+            if (cardId.listId == 1) {
+              images.insert(addAt, Uri.https("assets.pokemon.com",
+                  "assets/cms2-fr-fr/img/cards/web/NRG/NRG_FR_${defaultImage
+                      .image}.png"));
+            }
 
-            images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2-fr-fr/img/cards/web/$seFolder/${seFolder}_FR_$tcgId.png"));
+            images.insert(addAt, Uri.https("assets.pokemon.com",
+                "assets/cms2-fr-fr/img/cards/web/$seFolder/${seFolder}_FR_$tcgId.png"));
             // Reliable alternative source
             images += [
-              Uri.https("www.pokecardex.com", "assets/images/sets_fr/${seFolder.toUpperCase()}/HD/$tcgId.jpg"),
-              Uri.https("www.pokecardex.com", "assets/images/sets/${seFolder.toUpperCase()}/HD/$tcgId.jpg"),
-              Uri.https("www.pokecardex.com", "assets/images/sets_fr/${seFolder.toUpperCase()}/HD/${cardId.numberId+1}.jpg"),
-              Uri.https("www.pokecardex.com", "assets/images/sets/${seFolder.toUpperCase()}/HD/${cardId.numberId+1}.jpg"),
+              Uri.https("www.pokecardex.com", "assets/images/sets_fr/${seFolder
+                  .toUpperCase()}/HD/$tcgId.jpg"),
+              Uri.https("www.pokecardex.com",
+                  "assets/images/sets/${seFolder.toUpperCase()}/HD/$tcgId.jpg"),
+              Uri.https("www.pokecardex.com",
+                  "assets/images/sets_fr/${seFolder.toUpperCase()}/HD/${cardId
+                      .numberId + 1}.jpg"),
+              Uri.https("www.pokecardex.com",
+                  "assets/images/sets/${seFolder.toUpperCase()}/HD/${cardId
+                      .numberId + 1}.jpg"),
             ];
           });
         }
-      else if( se.extension.language.id == 2 )
-        if(defaultImage.image.startsWith("https://"))
+      } else if( se.extension.language.id == 2 ) {
+        if (defaultImage.image.startsWith("https://")) {
           images += [Uri.parse(defaultImage.image)];
-        else
-        {
+        } else {
           int addAt = cardId.listId != 0 ? images.length : 0;
-          if( cardId.listId == 1 )
-            images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/NRG/NRG_EN_${defaultImage.image}.png") );
+          if (cardId.listId == 1) {
+            images.insert(addAt, Uri.https("assets.pokemon.com",
+                "assets/cms2/img/cards/web/NRG/NRG_EN_${defaultImage
+                    .image}.png"));
+          }
 
           // Official image source
           se.seCode.forEach((seFolder) {
-            images.insert(addAt, Uri.https("assets.pokemon.com", "assets/cms2/img/cards/web/$seFolder/${seFolder}_EN_${se.seCards.tcgImage(cardId.numberId)}.png"));
+            images.insert(addAt, Uri.https("assets.pokemon.com",
+                "assets/cms2/img/cards/web/$seFolder/${seFolder}_EN_${se.seCards
+                    .tcgImage(cardId.numberId)}.png"));
           });
         }
-      else if( se.extension.language.id == 3 ) {
-        if(defaultImage.image.startsWith("https://"))
+      } else if( se.extension.language.id == 3 ) {
+        if(defaultImage.image.startsWith("https://")) {
           images += [Uri.parse(defaultImage.image)];
-        else {
+        } else {
           var romajiNames = [
             defaultImage.image.isEmpty ? computeJPPokemonName(se, card)       : defaultImage.image,
             defaultImage.image.isEmpty ? computeJPPokemonName(se, card, true) : defaultImage.image,
           ];
 
           String codeType = "P";
-          if(card.data.type == TypeCard.Supporter || card.data.type == TypeCard.Stade || card.data.type == TypeCard.Objet)
+          if(card.data.type == TypeCard.Supporter || card.data.type == TypeCard.Stade || card.data.type == TypeCard.Objet) {
             codeType = "T";
-          else if(card.data.type == TypeCard.Energy)
+          } else if(card.data.type == TypeCard.Energy) {
             codeType = "E";
+          }
           String codeImage = defaultImage.jpDBId.toString().padLeft(6, '0');
 
           for( var romajiName in romajiNames )
@@ -239,7 +251,7 @@ class _CardImageState extends State<CardImage> {
             widget.card.tryGetImage(widget.idImage).jpDBId = 0;
           }
           onURLError.add(0);
-          return Icon(Icons.help_outline);
+          return const Icon(Icons.help_outline);
         },
         filterQuality: widget.height > 300 ? FilterQuality.low : FilterQuality.medium,
         placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
@@ -248,7 +260,7 @@ class _CardImageState extends State<CardImage> {
     } else {
       return widget.language != null
         ? Center(child: Text(widget.se.seCards.readTitleOfCard(widget.language!, widget.idCard)))
-        : Icon(Icons.help_outline);
+        : const Icon(Icons.help_outline);
     }
   }
   @override
@@ -259,7 +271,8 @@ class _CardImageState extends State<CardImage> {
         message: img.finalImage.isNotEmpty ? img.finalImage : widget.cardImage.join("\n"),
         child: buildCachedImage(true)
       );
-    } else
+    } else {
       return buildCachedImage();
+    }
   }
 }

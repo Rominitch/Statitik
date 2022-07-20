@@ -25,12 +25,13 @@ class PokeSpaceDrawResume extends StatefulWidget {
   final UserDrawFile? _file;
 
   @override
-  _PokeSpaceDrawResumeState createState() => _PokeSpaceDrawResumeState();
+  State<PokeSpaceDrawResume> createState() => _PokeSpaceDrawResumeState();
 
-  PokeSpaceDrawResume([activeSession]) :
+  PokeSpaceDrawResume({activeSession, Key? key}) :
     _file = null,
     _readOnly      = activeSession != null,
-    _activeSession = activeSession != null ? activeSession! : Environment.instance.currentDraw;
+    _activeSession = activeSession != null ? activeSession! : Environment.instance.currentDraw,
+    super(key: key);
 
   PokeSpaceDrawResume.fromSave(SessionDraw session, this._file, {Key? key}) :
     _readOnly      = false,
@@ -50,20 +51,22 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
     super.initState();
   }
 
-  Future<bool> backAction(BuildContext context) async {
+  bool backAction(BuildContext context) {
     if( widget._readOnly ) {
       Navigator.of(context).pop(true);
     } else {
-     var exit = await showDialog(
-          context: context,
-          barrierDismissible: false, // user must tap button!
-          builder: (BuildContext context) { return showExit(context); });
-      if(exit) {
-        Navigator.of(context).pop(true);
-      }
-      else {
-        return false;
-      }
+     showDialog(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) { return showExit(context); })
+     .then((exit) {
+       if(exit) {
+         Navigator.of(context).pop(true);
+       }
+       else {
+         return false;
+       }
+     });
     }
     return true;
   }
@@ -181,7 +184,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                       showDialog(
                           context: context,
                           barrierDismissible: false,
-                          builder: (_) => new AlertDialog(
+                          builder: (_) => AlertDialog(
                             title: Center(child: Text(StatitikLocale.of(context).read('TR_B1'), style: Theme.of(context).textTheme.headline4)),
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -201,7 +204,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                                 Text(StatitikLocale.of(context).read( report.result.isNotEmpty ? 'TR_B14': 'TR_B13')),
                                 const SizedBox(height: 10),
                                 if(report.result.isNotEmpty)
-                                  Container(
+                                  SizedBox(
                                       width: 2 * MediaQuery.of(context).size.width / 3,
                                       height: MediaQuery.of(context).size.height / 2,
                                     child: UserNewCardDraw(report)),
@@ -222,8 +225,8 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                     } else {
                       showDialog(
                         context: context,
-                        builder: (_) => new AlertDialog(
-                        title: new Text(StatitikLocale.of(context).read('error')),
+                        builder: (_) => AlertDialog(
+                        title: Text(StatitikLocale.of(context).read('error')),
                         content: Text(StatitikLocale.of(context).read('TR_B3')),
                         )
                       );
@@ -243,9 +246,8 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
           EasyLoading.dismiss();
           showDialog(
               context: context,
-              builder: (_) =>
-              new AlertDialog(
-                title: new Text(
+              builder: (_) => AlertDialog(
+                title: Text(
                     StatitikLocale.of(context).read('error')),
                 content: Text(
                     StatitikLocale.of(context).read('TR_B9')),
@@ -272,9 +274,8 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                       EasyLoading.dismiss();
                       showDialog(
                           context: context,
-                          builder: (_) =>
-                          new AlertDialog(
-                            title: new Text(StatitikLocale.of(context).read('TR_B11'), style: Theme.of(context).textTheme.headline4),
+                          builder: (_) => AlertDialog(
+                            title: Text(StatitikLocale.of(context).read('TR_B11'), style: Theme.of(context).textTheme.headline4),
                             content: Text(
                                 StatitikLocale.of(context).read('TR_B10')),
                           )
@@ -294,7 +295,10 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
     }
 
     return WillPopScope(
-      onWillPop: () { return backAction(context); },
+      onWillPop: () {
+        bool exit = backAction(context);
+        return Future.value(exit);
+        },
       child: Scaffold(
       appBar: AppBar(
         title: Text(widget._activeSession.product.name, style: const TextStyle(fontSize: 15)),

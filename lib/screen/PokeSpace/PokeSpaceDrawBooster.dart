@@ -15,10 +15,10 @@ class BoosterPage extends StatefulWidget {
   final Language    language;
   final bool        readOnly;
 
-  BoosterPage({required this.language, required this.boosterDraw, required this.readOnly});
+  const BoosterPage({required this.language, required this.boosterDraw, required this.readOnly, Key? key}) : super(key: key);
 
   @override
-  _BoosterPageState createState() => _BoosterPageState();
+  State<BoosterPage> createState() => _BoosterPageState();
 }
 
 class _BoosterPageState extends State<BoosterPage> {
@@ -88,23 +88,21 @@ class _BoosterPageState extends State<BoosterPage> {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-            icon: Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.of(context).pop(true);
             },
           ),
-          title: Container(
-            child: Row(
-              children:[
-                Text(StatitikLocale.of(context).read('S_B4')+' ${widget.boosterDraw.id}'),
-                SizedBox(width: 10.0),
-                widget.boosterDraw.subExtension!.image(hSize: iconSize),
-                SizedBox(width: 10.0),
-                widget.boosterDraw.abnormal
-                ? Text('${widget.boosterDraw.count}')
-                : Text('${widget.boosterDraw.count}/${widget.boosterDraw.nbCards}'),
-              ],
-            ),
+          title: Row(
+            children:[
+              Text('${StatitikLocale.of(context).read('S_B4')} ${widget.boosterDraw.id}'),
+              const SizedBox(width: 10.0),
+              widget.boosterDraw.subExtension!.image(hSize: iconSize),
+              const SizedBox(width: 10.0),
+              widget.boosterDraw.abnormal
+              ? Text('${widget.boosterDraw.count}')
+              : Text('${widget.boosterDraw.count}/${widget.boosterDraw.nbCards}'),
+            ],
           ),
           actions: [
             if(widget.boosterDraw.isFinished()) Card(
@@ -131,7 +129,7 @@ class _BoosterPageState extends State<BoosterPage> {
                 ),
               CheckboxListTile(
                 title: Text(StatitikLocale.of(context).read('TB_B0')),
-                subtitle: Text(StatitikLocale.of(context).read('TB_B1'), style: TextStyle(fontSize: 12)),
+                subtitle: Text(StatitikLocale.of(context).read('TB_B1'), style: const TextStyle(fontSize: 12)),
                 value: widget.boosterDraw.abnormal,
                 onChanged: widget.readOnly ? null : (newValue) async {
                     if(widget.boosterDraw.abnormal && widget.boosterDraw.needReset())

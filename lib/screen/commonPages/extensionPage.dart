@@ -14,10 +14,10 @@ class ExtensionPage extends StatefulWidget {
   final Function afterSelected;
   final bool     addMode;
 
-  ExtensionPage({ required this.language, required this.afterSelected, required this.addMode });
+  const ExtensionPage({ required this.language, required this.afterSelected, required this.addMode, Key? key}) : super(key: key);
 
   @override
-  _ExtensionPageState createState() => _ExtensionPageState();
+  State<ExtensionPage> createState() => _ExtensionPageState();
 }
 
 class _ExtensionPageState extends State<ExtensionPage> {
@@ -50,33 +50,34 @@ class _ExtensionPageState extends State<ExtensionPage> {
           subExtensions.add(ExtensionButton(subExtension: se, press: press));
         }
       }
-      if(subExtensions.isNotEmpty)
-      ext.add(Container(
-        color: Colors.grey[800],
-        padding: EdgeInsets.all(5.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(6.0),
-              child: Text(e.name,
-                style: Theme
-                    .of(context)
-                    .textTheme
-                    .headline5,
+      if(subExtensions.isNotEmpty) {
+        ext.add(Container(
+          color: Colors.grey[800],
+          padding: const EdgeInsets.all(5.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: Text(e.name,
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .headline5,
+                ),
               ),
+              GridView.count(
+                  crossAxisCount: Environment.instance.showExtensionName ? 3 : 5,
+                  shrinkWrap: true,
+                  primary: false,
+                  children: subExtensions,
+                ),
+              ],
             ),
-            GridView.count(
-                crossAxisCount: Environment.instance.showExtensionName ? 3 : 5,
-                shrinkWrap: true,
-                children: subExtensions,
-                primary: false,
-              ),
-          ],
-        ),
-      ),
-      );
+          ),
+        );
+      }
     }
     return ext;
   }
@@ -93,41 +94,37 @@ class _ExtensionPageState extends State<ExtensionPage> {
     }
     List<Widget> ext = buildExts();
 
-    return Container(
-        child: Scaffold(
-          appBar: AppBar(
-            title: Container(
-              child: Row(
-                children:[
-                  Text(StatitikLocale.of(context).read('S_B0')),
-                  SizedBox(width: 10.0),
-                  widget.language.barIcon(),
-                ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          children:[
+            Text(StatitikLocale.of(context).read('S_B0')),
+            const SizedBox(width: 10.0),
+            widget.language.barIcon(),
+          ],
+        ),
+      ),
+      body: SingleChildScrollView(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              widget.addMode ? Text(StatitikLocale.of(context).read('EP_B0'))
+              : Row( children: filters,
               ),
-            ),
-          ),
-          body: SingleChildScrollView(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  widget.addMode ? Text(StatitikLocale.of(context).read('EP_B0'))
-                  : Row( children: filters,
-                  ),
-                  CheckboxListTile(
-                    title: Text(StatitikLocale.of(context).read('EP_B1')),
-                    value: Environment.instance.showExtensionName,
-                    onChanged: (newValue) {
-                      setState(() {
-                        Environment.instance.toggleShowExtensionName();
-                      });
-                    },
-                  ),
-                  Column( children: ext ),
-                ],
-              )
-          ),
-        )
+              CheckboxListTile(
+                title: Text(StatitikLocale.of(context).read('EP_B1')),
+                value: Environment.instance.showExtensionName,
+                onChanged: (newValue) {
+                  setState(() {
+                    Environment.instance.toggleShowExtensionName();
+                  });
+                },
+              ),
+              Column( children: ext ),
+            ],
+          )
+      ),
     );
   }
 }

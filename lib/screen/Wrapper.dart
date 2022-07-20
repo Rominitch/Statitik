@@ -6,10 +6,10 @@ import 'package:statitikcard/services/Tools.dart';
 import 'package:statitikcard/services/environment.dart';
 
 class ApplicationWidget extends StatefulWidget {
-  // This widget is the root of your application.
+  const ApplicationWidget({Key? key}) : super(key: key);
 
   @override
-  _ApplicationWidgetState createState() => _ApplicationWidgetState();
+  State<ApplicationWidget> createState() => _ApplicationWidgetState();
 }
 
 class _ApplicationWidgetState extends State<ApplicationWidget> {
@@ -27,7 +27,7 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
   @override
   Widget build(BuildContext context) {
     EasyLoading.instance
-      ..indicatorWidget = drawLoading(context);
+      .indicatorWidget = drawLoading(context);
     
     if( Environment.instance.isInitialized ) {
       return Home();

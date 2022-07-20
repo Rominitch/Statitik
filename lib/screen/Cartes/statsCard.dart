@@ -35,7 +35,7 @@ class StatsCard extends StatefulWidget {
   const StatsCard(this.l, this.stats, this.options, {Key? key}) : super(key: key);
 
   @override
-  _StatsCardState createState() => _StatsCardState();
+  State<StatsCard> createState() => _StatsCardState();
 }
 
 class _StatsCardState extends State<StatsCard> with TickerProviderStateMixin {
@@ -240,7 +240,7 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
   final double _spaceAfter  = 30.0;
 
   Widget createCountWidget(int value) {
-    return Container(width: _spaceAfter,child: Text(value.toString(), style: TextStyle(fontSize: ((value >= 1000) ? 10.0 : 14.0))),
+    return SizedBox(width: _spaceAfter,child: Text(value.toString(), style: TextStyle(fontSize: ((value >= 1000) ? 10.0 : 14.0))),
     );
   }
 
@@ -356,7 +356,7 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
             var region = info.key;
             var stat   = info.value;
             return Row(
-              children: [ Container(width: _spaceBefore, child: Text(region.name(widget.language), style: const TextStyle(fontSize: 10.0))),
+              children: [ SizedBox(width: _spaceBefore, child: Text(region.name(widget.language), style: const TextStyle(fontSize: 10.0))),
                 Expanded(child: LinearPercentIndicator(
                   lineHeight: 8.0,
                   percent: (stat / count).clamp(0.0, 1.0),

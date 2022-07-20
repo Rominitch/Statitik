@@ -58,10 +58,11 @@ class CardSelectorProductCard extends GenericCardSelector {
 
   @override
   void toggle() {
-    if(card.counter.count() == 0)
+    if(card.counter.count() == 0) {
       card.counter.increase(0, _limitSet);
-    else
+    } else {
       card.counter.reset();
+    }
   }
 
   @override
@@ -122,7 +123,7 @@ class CardSelectorProductCard extends GenericCardSelector {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text(subExtension().seCards.numberOfCard(idCard.numberId)),
-              card.isRandom ? Text("R") : Text(card.counter.allCounts().join(" | "))
+              card.isRandom ? const Text("R") : Text(card.counter.allCounts().join(" | "))
             ]
         ),
       ],

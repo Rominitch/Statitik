@@ -24,11 +24,12 @@ class NewProductPage extends StatefulWidget {
   final Language activeLanguage;
   final Product? editProduct;
 
-  NewProductPage([this.editProduct, Language? l]) :
-    activeLanguage = (l ?? Environment.instance.collection.languages[1]!);
+  NewProductPage([this.editProduct, Language? l, key]) :
+    activeLanguage = (l ?? Environment.instance.collection.languages[1]!),
+    super(key: key);
 
   @override
-  _NewProductPageState createState() => _NewProductPageState();
+  State<NewProductPage> createState() => _NewProductPageState();
 }
 
 class _NewProductPageState extends State<NewProductPage> {
@@ -58,17 +59,15 @@ class _NewProductPageState extends State<NewProductPage> {
     {
       radioLangue.add(
         Expanded(
-          child: Container(
-            child: TextButton(
-              child: Image(
-                image: AssetImage('assets/langue/${l.image}.png'),
-              ),
-              onPressed: () {
-                setState(() {
-                  product.language = l;
-                });
-              },
+          child: TextButton(
+            child: Image(
+              image: AssetImage('assets/langue/${l.image}.png'),
             ),
+            onPressed: () {
+              setState(() {
+                product.language = l;
+              });
+            },
           )
         )
       );
@@ -94,7 +93,7 @@ class _NewProductPageState extends State<NewProductPage> {
     super.initState();
   }
 
-  Future<Null> _selectDate(BuildContext context) async {
+  Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: product.releaseDate,
@@ -180,7 +179,7 @@ class _NewProductPageState extends State<NewProductPage> {
         Card(
           color: Colors.deepOrange.shade300,
           child: TextButton(
-            child: const Center( child: const Icon(Icons.add_photo_alternate_outlined) ),
+            child: const Center( child: Icon(Icons.add_photo_alternate_outlined) ),
             onPressed: () {
               // Go to product selector
               Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: product.language!,
@@ -269,9 +268,9 @@ class _NewProductPageState extends State<NewProductPage> {
         GridView.count(
           crossAxisCount: 3,
           childAspectRatio: 0.7,
-          children: sideProductWidget,
           primary: false,
           shrinkWrap: true,
+          children: sideProductWidget,
         ),
         SpinBox(
           value: product.nbRandomPerProduct.toDouble(),
@@ -284,10 +283,10 @@ class _NewProductPageState extends State<NewProductPage> {
         ),
         GridView.count(
           crossAxisCount: 3,
-          children: cardsWidget,
           childAspectRatio: 1.5,
           primary: false,
           shrinkWrap: true,
+          children: cardsWidget,
         ),
         if(error != null)
           Text(error!),
@@ -304,7 +303,7 @@ class _NewProductPageState extends State<NewProductPage> {
                 color: Colors.green,
                 child: TextButton(
                   onPressed: sendProduct,
-                  child: const Text('Envoyer', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: const Text('Envoyer', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
               )
           ],
@@ -329,10 +328,10 @@ class BoostersInfo extends StatefulWidget {
   final ProductBooster? newProd;
   final Language        l;
 
-  const BoostersInfo(this.productAdd, this.newProd, this.l);
+  const BoostersInfo(this.productAdd, this.newProd, this.l, {Key? key}) : super(key: key);
 
   @override
-  _BoostersInfoState createState() => _BoostersInfoState();
+  State<BoostersInfo> createState() => _BoostersInfoState();
 }
 
 class _BoostersInfoState extends State<BoostersInfo> {

@@ -49,14 +49,14 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
   Widget createCardButton(PokemonCardExtension card, CardIdentifier cardId, CardImageIdentifier imageId) {
     return Card(
       color: selection.cards.contains(card) ? Colors.green : Colors.grey.shade700,
-      margin: EdgeInsets.all(1.5),
+      margin: const EdgeInsets.all(1.5),
       child: TextButton(
         child: modeVisu == CardVisualization.Name ?
           cardId.listId == 1 ?
           Row(
             children: [
               card.imageType(),
-              SizedBox(width: 4.0),
+              const SizedBox(width: 4.0),
               widget.subExtension.cardInfo(cardId),
           ])
           : Column(
@@ -69,10 +69,11 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
         : CardImage(widget.subExtension, card, cardId, imageId),
         onPressed: (){
           setState(() {
-            if(selection.cards.contains(card))
+            if(selection.cards.contains(card)) {
               selection.cards.remove(card);
-            else
+            } else {
               selection.cards.add(card);
+            }
           });
         },
       )
@@ -81,7 +82,7 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
 
   Widget createGridCard(listCard, int idList) {
     return GridView.builder(
-      padding: EdgeInsets.all(1.0),
+      padding: const EdgeInsets.all(1.0),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: modeVisu == CardVisualization.Name ? 5 : 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
           childAspectRatio: modeVisu == CardVisualization.Name ? 1.25 : 0.7),
@@ -90,8 +91,9 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
       primary: false,
       itemBuilder: (context, id) {
         var cardListId = [idList, id];
-        if(idList == 0)
+        if(idList == 0) {
           cardListId.add(0);
+        }
         var cardId = CardIdentifier.from(cardListId);
         return createCardButton(widget.subExtension.cardFromId(cardId), cardId, CardImageIdentifier());
       },
@@ -112,19 +114,20 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
         title: Row(
           children: [
             widget.subExtension.extension.language.barIcon(),
-            SizedBox(width: 5),
+            const SizedBox(width: 5),
             widget.subExtension.image(hSize: iconSize),
-            SizedBox(width: 5),
+            const SizedBox(width: 5),
             Text(widget.subExtension.name, softWrap: true, style: TextStyle(fontSize: widget.subExtension.name.length > 8 ? 10 : 12)),
           ]
         ),
         actions: [
           IconButton(onPressed: (){
               setState(() {
-                if(modeVisu == CardVisualization.Name)
+                if(modeVisu == CardVisualization.Name) {
                   modeVisu = CardVisualization.Image;
-                else
+                } else {
                   modeVisu = CardVisualization.Name;
+                }
               });
             },
             icon: Icon((modeVisu == CardVisualization.Name)
@@ -163,7 +166,7 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
                 Expanded(
                     child: TabBarView(
                         controller: tabController,
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         children:[
                           if(widget.subExtension.seCards.cards.isNotEmpty)
                             createGridCard(widget.subExtension.seCards.cards, 0),

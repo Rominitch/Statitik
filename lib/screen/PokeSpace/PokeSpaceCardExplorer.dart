@@ -27,7 +27,7 @@ class PokeSpaceCardExplorer extends StatefulWidget {
   const PokeSpaceCardExplorer(this.subExtension, this.pokeSpace, {Key? key}) : super(key: key);
 
   @override
-  _PokeSpaceCardExplorerState createState() => _PokeSpaceCardExplorerState();
+  State<PokeSpaceCardExplorer> createState() => _PokeSpaceCardExplorerState();
 }
 
 class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with SingleTickerProviderStateMixin {
@@ -121,9 +121,9 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
           title: Row(
             children: [
               widget.subExtension.extension.language.barIcon(),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               widget.subExtension.image(wSize: 40, hSize: 40),
-              SizedBox(width: 5),
+              const SizedBox(width: 5),
               Text(widget.subExtension.name, style: Theme.of(context).textTheme.headline5?.copyWith(
                 fontSize: widget.subExtension.name.length > 9 ? 10 : 7
               )),
@@ -165,7 +165,7 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
                   children: [
                     if(widget.subExtension.seCards.cards.isNotEmpty)
                       GridView.builder(
-                        padding: EdgeInsets.all(1.0),
+                        padding: const EdgeInsets.all(1.0),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
                             childAspectRatio: 0.7),
@@ -177,7 +177,7 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
                       ),
                     if(widget.subExtension.seCards.energyCard.isNotEmpty)
                       GridView.builder(
-                        padding: EdgeInsets.all(1.0),
+                        padding: const EdgeInsets.all(1.0),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
                             childAspectRatio: 0.7),
@@ -189,7 +189,7 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
                       ),
                     if(widget.subExtension.seCards.noNumberedCard.isNotEmpty)
                       GridView.builder(
-                        padding: EdgeInsets.all(1.0),
+                        padding: const EdgeInsets.all(1.0),
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
                             childAspectRatio: 0.7),

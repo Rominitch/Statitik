@@ -18,7 +18,9 @@ class ImageStoredLocally extends StatefulWidget {
   final bool         reloader;
   final BoxFit?      fit;
 
-  const ImageStoredLocally(this.path, this.imageName, this.webAddress, {this.quality, this.width, this.height, this.alternativeRendering, this.reloader=false, this.fit});
+  const ImageStoredLocally(this.path, this.imageName, this.webAddress, {
+    this.quality, this.width, this.height, this.alternativeRendering, this.reloader=false, this.fit, Key? key
+  }) : super(key: key);
 
   @override
   State<ImageStoredLocally> createState() => _ImageStoredLocallyState();
@@ -37,10 +39,10 @@ class _ImageStoredLocallyState extends State<ImageStoredLocally> {
           try {
             if(snapshot.connectionState == ConnectionState.done) {
               if(snapshot.hasData ) {
-                if (snapshot.data == null)
+                if (snapshot.data == null) {
                   return widget.alternativeRendering != null ? widget
-                      .alternativeRendering! : Icon(Icons.help_outline);
-                else {
+                      .alternativeRendering! : const Icon(Icons.help_outline);
+                } else {
                   var cardWidget = Image.file(
                       snapshot.data!,
                       width: widget.width, height: widget.height,
@@ -55,11 +57,11 @@ class _ImageStoredLocallyState extends State<ImageStoredLocally> {
                             onPressed: () {
                               setState(() {});
                             },
-                            icon: Icon(Icons.rotate_left),
+                            icon: const Icon(Icons.rotate_left),
                           ) );
                         }
                         catch(error) {
-                          return Icon(Icons.bug_report_outlined);
+                          return const Icon(Icons.bug_report_outlined);
                         }
                       }
                   );
@@ -74,11 +76,14 @@ class _ImageStoredLocallyState extends State<ImageStoredLocally> {
                     ) : cardWidget;
                 }
               }
-              else
+              else {
                 return widget.alternativeRendering != null ? widget
-                    .alternativeRendering! : Icon(Icons.help_outline);
+                    .alternativeRendering! : const Icon(Icons.help_outline);
+              }
             }
-            else return CircularProgressIndicator(color: Colors.orange[300]);
+            else {
+              return CircularProgressIndicator(color: Colors.orange[300]);
+            }
           }
           catch(error) {
             return CircularProgressIndicator(color: Colors.orange[300]);

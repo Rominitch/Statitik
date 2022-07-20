@@ -29,11 +29,10 @@ class StatsViewOptions {
 }
 
 class StatsView extends StatelessWidget {
-
   final StatsData data;
   final StatsViewOptions options;
 
-  StatsView({required this.data, required this.options});
+  const StatsView({required this.data, required this.options, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -99,12 +98,12 @@ class StatsView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(children: [Text(translator.read('S_B4'), style: Theme.of(context).textTheme.headline5 ),
-                Expanded(child: SizedBox()),
+                const Spacer(),
                 data.stats!.anomaly > 0 ? Text(sprintf(translator.read('S_B5'), [data.stats!.nbBoosters, data.stats!.anomaly]))
                     : Text(sprintf(translator.read('S_B13'), [data.stats!.nbBoosters]))
               ]),
               if(!options.print && options.showOption == OptionShowState.BoosterLuck) Text(sprintf(translator.read('S_B6'), [divider.toInt()])),
-              if(!options.print && options.showOption == OptionShowState.BoosterLuck) SizedBox(height: 8.0,),
+              if(!options.print && options.showOption == OptionShowState.BoosterLuck) const SizedBox(height: 8.0,),
               Text(translator.read('S_B21'), style: Theme.of(context).textTheme.headline6 ),
               ListView(
                 shrinkWrap: true,
@@ -140,20 +139,20 @@ class StatsView extends StatelessWidget {
       final String value = (deltaUserLuck > 0 && options.delta ? '+' : '') + (options.delta ? deltaUserLuck.toStringAsFixed(3) : userLuck.toStringAsFixed(3) );
       userInfo = [
         Icon(icon, color: color),
-        Container(child:Text(value, style: TextStyle(fontSize: 9, color: color)), width: 30),
+        SizedBox(width: 30, child:Text(value, style: TextStyle(fontSize: 9, color: color))),
       ];
     }
 
     return Row(
         children: [
-          Container(child: Row( children: label), width: 50,),
+          SizedBox(width: 50,child: Row( children: label)),
           Expanded(child: LinearPercentIndicator(
             lineHeight: 8.0,
             percent: (luck / divider).clamp(0.0, 1.0),
             progressColor: color,
           )),
-          if(options.showOption == OptionShowState.BoosterLuck) Container(child: Text('${luck.toStringAsFixed(3)}'), width: 45),
-          if(options.showOption == OptionShowState.RealCount)   Container(child: Text(sum.toString()), width: 45),
+          if(options.showOption == OptionShowState.BoosterLuck) SizedBox(width: 45, child: Text('${luck.toStringAsFixed(3)}')),
+          if(options.showOption == OptionShowState.RealCount)   SizedBox(width: 45, child: Text(sum.toString())),
         ] + userInfo);
   }
 }
@@ -162,7 +161,7 @@ class ProductWidget extends StatelessWidget {
   final ProductRequested  pr;
   final bool              showCount;
 
-  ProductWidget(this.pr, this.showCount);
+  const ProductWidget(this.pr, this.showCount, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -197,7 +196,7 @@ class ProductWidget extends StatelessWidget {
 class StatsCompletionBooster extends StatefulWidget {
   final StatsData data;
 
-  StatsCompletionBooster(this.data);
+  const StatsCompletionBooster(this.data, {Key? key}) : super(key: key);
 
   @override
   State<StatsCompletionBooster> createState() => _StatsCompletionBoosterState();
@@ -283,10 +282,11 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
               idMinRarity = r;
             }
           }
-          if (result.info.containsKey(r))
+          if (result.info.containsKey(r)) {
             result.info[r] = result.info[r]! + validRarity.toDouble();
-          else
+          } else {
             result.info[r] = validRarity.toDouble();
+          }
         }
       }
     }
@@ -325,8 +325,9 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
 
         printOutput("${key.id.toString().padRight(15)}: $value");
 
-        if(value == 0)
+        if(value == 0) {
           throw StatitikException("Control error");
+        }
       });
 
       printOutput("Compare count: ${widget.data.stats!.totalCards.round()} == ${count.round()}");
@@ -369,11 +370,11 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
             children: [
               s0,
               if(d0.isNotEmpty)
-                Text(d0, style: TextStyle(fontSize: 8)),
+                Text(d0, style: const TextStyle(fontSize: 8)),
             ],
           )),
-          Container(width: 100, child: Center(child:Text(s1))),
-          Container(width: 100, child: Center(child:Text(s2)))
+          SizedBox(width: 100, child: Center(child:Text(s1))),
+          SizedBox(width: 100, child: Center(child:Text(s2)))
         ],
       ),
     );
@@ -386,7 +387,7 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
       var name = set.names.name(widget.data.language!);
       setsInfo.add(lineResult(Row(children: [
           set.imageWidget(width: 20),
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
           Text(name, style: TextStyle(fontSize: name.length > 13 ? 11 : 14))
         ]), "",
         value.minimum.toString(), value.mean.toString()));
@@ -399,17 +400,17 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Center(child: Text(StatitikLocale.of(context).read('SCB_T0'), style: Theme.of(context).textTheme.headline5)),
-            SizedBox(height: 8),
-            Row(mainAxisAlignment: MainAxisAlignment.end, children: [Icon(Icons.warning_amber_rounded), Text(StatitikLocale.of(context).read('devBeta'), style: TextStyle(color: Colors.orange))]),
-            SizedBox(height: 8),
-            Text(StatitikLocale.of(context).read('SCB_B0'), style: TextStyle(fontSize: 12)),
+            const SizedBox(height: 8),
+            Row(mainAxisAlignment: MainAxisAlignment.end, children: [const Icon(Icons.warning_amber_rounded), Text(StatitikLocale.of(context).read('devBeta'), style: const TextStyle(color: Colors.orange))]),
+            const SizedBox(height: 8),
+            Text(StatitikLocale.of(context).read('SCB_B0'), style: const TextStyle(fontSize: 12)),
             if(approximated)
               Row(children: [
-                Icon(Icons.warning_amber_rounded),
-                Text(StatitikLocale.of(context).read('SCB_B8'), style: TextStyle(fontSize: 9)),
+                const Icon(Icons.warning_amber_rounded),
+                Text(StatitikLocale.of(context).read('SCB_B8'), style: const TextStyle(fontSize: 9)),
               ]),
-            SizedBox(height: 8),
-            lineResult(Text(""), "", StatitikLocale.of(context).read('SCB_B1'),StatitikLocale.of(context).read('SCB_B2')),
+            const SizedBox(height: 8),
+            lineResult(const Text(""), "", StatitikLocale.of(context).read('SCB_B1'),StatitikLocale.of(context).read('SCB_B2')),
             lineResult(Text(StatitikLocale.of(context).read('SCB_B5')), StatitikLocale.of(context).read('SCB_B6'), full.minimum.toString(), full.mean.toString()),
           ]+setsInfo,
         ),

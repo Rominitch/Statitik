@@ -13,7 +13,7 @@ import 'package:statitikcard/services/models/Rarity.dart';
 import 'package:statitikcard/services/models/TypeCard.dart';
 
 class CustomButtonCheckController {
-  List<ButtonCheck> _radios = [];
+  final List<ButtonCheck> _radios = [];
   final Function    afterPress;
 
   CustomButtonCheckController(this.afterPress);
@@ -38,7 +38,7 @@ abstract class ButtonCheck<ValueType> extends StatefulWidget {
 
   final StreamController<dynamic> afterChange = StreamController<dynamic>();
 
-  ButtonCheck(this.editableList, this.value, this._controller);
+  ButtonCheck(this.editableList, this.value, this._controller, {Key? key}) : super(key: key);
 
   Widget makeWidget(BuildContext context);
 
@@ -48,7 +48,7 @@ abstract class ButtonCheck<ValueType> extends StatefulWidget {
   }
 
   @override
-  _ButtonCheckState createState() => _ButtonCheckState();
+  State<ButtonCheck> createState() => _ButtonCheckState();
 }
 
 class _ButtonCheckState extends State<ButtonCheck> {
@@ -79,10 +79,9 @@ class _ButtonCheckState extends State<ButtonCheck> {
       margin: const EdgeInsets.all(2.0),
       color: widget.editableList.contains(widget.value) ? Colors.green : Colors.grey[800],
       child: TextButton(
-        child: widget.makeWidget(context),
         style: TextButton.styleFrom(
             padding: const EdgeInsets.all(2.0),
-            minimumSize: Size(0.0, 40.0)),
+            minimumSize: const Size(0.0, 40.0)),
         onPressed: (){
           setState(() {
             if( widget.editableList.contains(widget.value) ) {
@@ -90,10 +89,12 @@ class _ButtonCheckState extends State<ButtonCheck> {
             } else {
               widget.editableList.add(widget.value);
             }
-            if( widget._controller != null )
+            if( widget._controller != null ) {
               widget._controller!.afterPress();
+            }
           });
         },
+        child: widget.makeWidget(context),
       ),
     );
   }
@@ -101,16 +102,16 @@ class _ButtonCheckState extends State<ButtonCheck> {
 
 class MarkerButtonCheck extends ButtonCheck<CardMarker> {
   final Language l;
-  MarkerButtonCheck(this.l, cardMarkers, value, {controller}) : super(cardMarkers, value, controller);
+  MarkerButtonCheck(this.l, cardMarkers, value, {controller, Key? key}) : super(key: key, cardMarkers, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {
-    return pokeMarker(this.l, value, height: 15);
+    return pokeMarker(l, value, height: 15);
   }
 }
 
 class TypeButtonCheck extends ButtonCheck<TypeCard> {
-  TypeButtonCheck(typesList, value, {controller}) : super(typesList, value, controller);
+  TypeButtonCheck(typesList, value, {controller, Key? key}) : super(key: key, typesList, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {
@@ -120,7 +121,7 @@ class TypeButtonCheck extends ButtonCheck<TypeCard> {
 
 class RarityButtonCheck extends ButtonCheck<Rarity> {
   final Language l;
-  RarityButtonCheck(this.l, raritiesList, value, {controller}) : super(raritiesList, value, controller);
+  RarityButtonCheck(this.l, raritiesList, value, {controller, Key? key}) : super(key: key, raritiesList, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {
@@ -130,7 +131,7 @@ class RarityButtonCheck extends ButtonCheck<Rarity> {
 }
 
 class DescriptionEffectButtonCheck extends ButtonCheck<DescriptionEffect> {
-  DescriptionEffectButtonCheck(effectList, value, {controller}) : super(effectList, value, controller);
+  DescriptionEffectButtonCheck(effectList, value, {controller, Key? key}) : super(key: key, effectList, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {
@@ -141,7 +142,7 @@ class DescriptionEffectButtonCheck extends ButtonCheck<DescriptionEffect> {
 }
 
 class SerieTypeButtonCheck extends ButtonCheck<SerieType> {
-  SerieTypeButtonCheck(seList, value, {controller}) : super(seList, value, controller);
+  SerieTypeButtonCheck(seList, value, {controller, Key? key}) : super(key: key, seList, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {
@@ -151,7 +152,7 @@ class SerieTypeButtonCheck extends ButtonCheck<SerieType> {
 
 class CardSetButtonCheck extends ButtonCheck<CardSet> {
   final Language l;
-  CardSetButtonCheck(this.l, seList, value, {controller}) : super(seList, value, controller);
+  CardSetButtonCheck(this.l, seList, value, {controller, Key? key}) : super(key: key, seList, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {
@@ -162,7 +163,7 @@ class CardSetButtonCheck extends ButtonCheck<CardSet> {
 class DesignButtonCheck extends ButtonCheck<CardDesign> {
   final Language l;
   final double iconSize;
-  DesignButtonCheck(this.l, designsList, value, {controller, this.iconSize=30.0}) : super(designsList, value, controller);
+  DesignButtonCheck(this.l, designsList, value, {controller, this.iconSize=30.0, Key? key}) : super(key: key, designsList, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {
@@ -173,7 +174,7 @@ class DesignButtonCheck extends ButtonCheck<CardDesign> {
 class ArtButtonCheck extends ButtonCheck<ArtFormat> {
   final Language l;
   final double iconSize;
-  ArtButtonCheck(this.l, artsList, value, {controller, this.iconSize=30.0}) : super(artsList, value, controller);
+  ArtButtonCheck(this.l, artsList, value, {controller, this.iconSize=30.0, Key? key}) : super(key: key, artsList, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {

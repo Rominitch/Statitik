@@ -35,14 +35,15 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
     for(var cardDeck in widget.deck.cards) {
       var card = cardDeck.se.cardFromId(cardDeck.idCard);
       int code = 0;
-      if(card.data.type.index <= TypeCard.Incolore.index)
+      if(card.data.type.index <= TypeCard.Incolore.index) {
         code = 0;
-      else if(card.data.type == TypeCard.Supporter)
+      } else if(card.data.type == TypeCard.Supporter) {
         code = 1;
-      else if(card.data.type == TypeCard.Energy)
+      } else if(card.data.type == TypeCard.Energy) {
         code = 2;
-      else
+      } else {
         code = 3;
+      }
 
       myFilteredCards[code].add(cardDeck);
     }
@@ -64,7 +65,7 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
     if(myFilteredCards[code].isNotEmpty)
     {
       list.add(Text(StatitikLocale.of(context).read(codeName), style: Theme.of(context).textTheme.headline6));
-      list.add(SizedBox(height: 4.0));
+      list.add(const SizedBox(height: 4.0));
       list.add(GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 0.6),
@@ -91,7 +92,7 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
           }
         )
       );
-      list.add(SizedBox(height: 4.0));
+      list.add(const SizedBox(height: 4.0));
     }
     return list;
   }
@@ -124,8 +125,8 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
                       child: TextButton(
                         child: Column(
                           children: [
-                            Icon(Icons.add_circle_outline),
-                            SizedBox(height: 4.0),
+                            const Icon(Icons.add_circle_outline),
+                            const SizedBox(height: 4.0),
                             Text(StatitikLocale.of(context).read('PSMDC_B7')),
                           ]
                         ),
@@ -208,7 +209,7 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
                   nameEdition=true;
                 });
               },
-              icon: Icon(Icons.edit)
+              icon: const Icon(Icons.edit)
             )
           ],
         ),
@@ -230,7 +231,7 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
                   Expanded(
                     child: TabBarView(
                       controller: tabController,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       children: tabPages
                     )
                   )

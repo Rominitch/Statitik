@@ -20,10 +20,10 @@ class ProductPage extends StatefulWidget {
   final Function(BuildContext, Language, ProductRequested?, ProductCategory?) afterSelected;
   final ProductPageMode mode;
 
-  ProductPage({ required this.mode, required this.language, required this.subExt, required this.afterSelected });
+  const ProductPage({ required this.mode, required this.language, required this.subExt, required this.afterSelected, Key? key}) : super(key: key);
 
   @override
-  _ProductPageState createState() => _ProductPageState();
+  State<ProductPage> createState() => _ProductPageState();
 }
 
 class _ProductPageState extends State<ProductPage> {
@@ -53,10 +53,10 @@ class _ProductPageState extends State<ProductPage> {
                       .of(context)
                       .textTheme
                       .headline5),
-                  Expanded(child: SizedBox(width: 10)),
+                  const Expanded(child: SizedBox(width: 10)),
                   Text(StatitikLocale.of(context).read('TP_B2'),
-                      style: TextStyle(fontSize: 9)),
-                  Icon(Icons.arrow_right_outlined)
+                      style: const TextStyle(fontSize: 9)),
+                  const Icon(Icons.arrow_right_outlined)
                 ]),
               onPressed: () {
                 widget.afterSelected(context, widget.language, null, null);
@@ -76,8 +76,9 @@ class _ProductPageState extends State<ProductPage> {
           if(userSelection()) {
             int countP = pr.count;
             // Stop and don't show
-            if(countP == 0)
+            if(countP == 0) {
               continue;
+            }
 
             nameProduct += ' (${countP.toString()})';
           }
@@ -118,9 +119,9 @@ class _ProductPageState extends State<ProductPage> {
                     child: Row(
                     children: [
                       Text(category.name.name(widget.language), style: Theme.of(context).textTheme.headline5),
-                      Expanded(child: SizedBox(width: 10)),
-                      Text(StatitikLocale.of(context).read('TP_B2'), style: TextStyle(fontSize: 9)),
-                      Icon(Icons.arrow_right_outlined)
+                      const Expanded(child: SizedBox(width: 10)),
+                      Text(StatitikLocale.of(context).read('TP_B2'), style: const TextStyle(fontSize: 9)),
+                      const Icon(Icons.arrow_right_outlined)
                     ]),
                     onPressed: () {
                       widget.afterSelected(context, widget.language, null, category);
@@ -136,8 +137,8 @@ class _ProductPageState extends State<ProductPage> {
             crossAxisCount: 3,
             scrollDirection: Axis.vertical,
             primary: false,
-            children: productCard,
             shrinkWrap: true,
+            children: productCard,
           ));
         }
       });
@@ -156,22 +157,20 @@ class _ProductPageState extends State<ProductPage> {
   Widget build(BuildContext context) {
     return Scaffold(
             appBar: AppBar(
-              title: Container(
-                child: Row(
-                  children:[
-                    Text(StatitikLocale.of(context).read('TP_T0'), style: Theme.of(context).textTheme.headline5),
-                    SizedBox(width: 5),
-                    widget.language.barIcon(),
-                    widget.subExt.image( wSize: iconSize ),
-                  ],
-                ),
+              title: Row(
+                children:[
+                  Text(StatitikLocale.of(context).read('TP_T0'), style: Theme.of(context).textTheme.headline5),
+                  const SizedBox(width: 5),
+                  widget.language.barIcon(),
+                  widget.subExt.image( wSize: iconSize ),
+                ],
               ),
               actions: [
                 CircleAvatar(
                   backgroundColor: Colors.grey[800],
                   radius: 20,
                   child: TextButton(
-                      child: Icon(Icons.add_photo_alternate_outlined,),
+                      child: const Icon(Icons.add_photo_alternate_outlined,),
                       onPressed: () {
                         showDialog(
                             context: context,
@@ -180,17 +179,17 @@ class _ProductPageState extends State<ProductPage> {
                       },
                   ),
                 ),
-                SizedBox(width: 5),
+                const SizedBox(width: 5),
                 CircleAvatar(
                     backgroundColor: Colors.grey[800],
                     radius: 20,
                     child: TextButton(
-                      child: Icon(Icons.help_outline,),
+                      child: const Icon(Icons.help_outline,),
                       onPressed: () {
                         showDialog(
                             context: context,
-                            builder: (_) => new AlertDialog(
-                              title: new Text(StatitikLocale.of(context).read('help')),
+                            builder: (_) => AlertDialog(
+                              title: Text(StatitikLocale.of(context).read('help')),
                               content: Text( StatitikLocale.of(context).read('TP_B1'),
                                   textAlign: TextAlign.justify),
                             )
@@ -198,7 +197,7 @@ class _ProductPageState extends State<ProductPage> {
                       },
                   ),
                 ),
-                SizedBox(width: 5),
+                const SizedBox(width: 5),
               ],
             ),
             body:
@@ -206,7 +205,7 @@ class _ProductPageState extends State<ProductPage> {
                     ? drawLoading(context)
                     : (widgetProd!.isEmpty ? Center( child: Text(StatitikLocale.of(context).read('TP_B0'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
                       : SingleChildScrollView(
-                        padding: EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -221,8 +220,8 @@ class _ProductPageState extends State<ProductPage> {
   {
     String info="";
     String eac="";
-    return new AlertDialog(
-      title: new Text(StatitikLocale.of(context).read('TP_B3')),
+    return AlertDialog(
+      title: Text(StatitikLocale.of(context).read('TP_B3')),
       content: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

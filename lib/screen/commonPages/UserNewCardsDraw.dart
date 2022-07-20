@@ -18,7 +18,7 @@ class UserNewCardDraw extends StatelessWidget {
           var element = cardReport.state.countBySet(idSet);
           if(element > 0) {
             list.add(Card(
-              margin: EdgeInsets.all(2.0),
+              margin: const EdgeInsets.all(2.0),
               color: itSet.current.color,
               child: Center(child: subExtension.cardInfo(cardReport.idCard)),
             ));

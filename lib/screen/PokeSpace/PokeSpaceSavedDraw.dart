@@ -11,7 +11,7 @@ class PokeSpaceSavedDraw extends StatefulWidget {
   const PokeSpaceSavedDraw(this.localDraws, {Key? key}) : super(key: key);
 
   @override
-  _PokeSpaceSavedDrawState createState() => _PokeSpaceSavedDrawState();
+  State<PokeSpaceSavedDraw> createState() => _PokeSpaceSavedDrawState();
 }
 
 class _PokeSpaceSavedDrawState extends State<PokeSpaceSavedDraw> {
@@ -64,12 +64,12 @@ class _PokeSpaceSavedDrawState extends State<PokeSpaceSavedDraw> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Expanded(child: sd.product.image()),
-                          SizedBox(height: 15),
+                          const SizedBox(height: 15),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               sd.language.barIcon(),
-                              SizedBox(width:5),
+                              const SizedBox(width:5),
                               Text(sd.product.name, softWrap: true, style: TextStyle(fontSize: sd.product.name.length > 12 ? 10 : 12))
                             ]
                           )
@@ -87,7 +87,7 @@ class _PokeSpaceSavedDrawState extends State<PokeSpaceSavedDraw> {
                             builder: (BuildContext context) {
                               return SimpleDialog(
                                 title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.headline3)),
-                                contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                                 children: [
                                   Card(
                                     color: Colors.red,

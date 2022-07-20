@@ -39,10 +39,10 @@ class CardSelector extends StatefulWidget {
   final Function? refresh;
   final bool      readOnly;
 
-  CardSelector(this.cardSelector, {this.refresh, this.readOnly=false});
+  const CardSelector(this.cardSelector, {Key? key, this.refresh, this.readOnly=false}) : super(key: key);
 
   @override
-  _CardSelectorState createState() => _CardSelectorState();
+  State<CardSelector> createState() => _CardSelectorState();
 }
 
 class _CardSelectorState extends State<CardSelector> {
@@ -106,11 +106,11 @@ class _CardSelectorState extends State<CardSelector> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           set.imageWidget(width: 18.0),
-                          SizedBox(width: 6.0),
+                          const SizedBox(width: 6.0),
                           Text(setName, maxLines: 2, softWrap: true, style: TextStyle(fontSize: setName.length > 10 ? 12 : 16)),
                         ]
                       ),
-                      SizedBox(height: 8.0),
+                      const SizedBox(height: 8.0),
                       Wrap(
                         spacing: spacing,
                         runSpacing: spacing,
@@ -150,10 +150,10 @@ class IconCard extends StatefulWidget {
   final Function?     refresh;
   final bool          readOnly;
 
-  IconCard(this.cardSelector, this.setId, this.set, {required this.refresh, required this.readOnly});
+  const IconCard(this.cardSelector, this.setId, this.set, {Key? key, required this.refresh, required this.readOnly}) : super(key: key);
 
   @override
-  _IconCardState createState() => _IconCardState();
+  State<IconCard> createState() => _IconCardState();
 }
 
 class _IconCardState extends State<IconCard> {
@@ -169,24 +169,25 @@ class _IconCardState extends State<IconCard> {
           Card(
             color: count > 0 ? widget.set.color : background,
             child: TextButton(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [widget.set.imageWidget(width: 75.0),
-                  SizedBox(height: 6.0),
-                  Text(widget.set.names.name(widget.cardSelector.subExtension().extension.language)),
-                ]
-              ),
               style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0)),
               onPressed: widget.readOnly ? null : () {
                 widget.cardSelector.setOnly(widget.setId);
 
                 Navigator.of(context).pop();
-                if(widget.refresh!=null)
+                if(widget.refresh!=null) {
                   widget.refresh!();
+                }
               },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [widget.set.imageWidget(width: 75.0),
+                  const SizedBox(height: 6.0),
+                  Text(widget.set.names.name(widget.cardSelector.subExtension().extension.language)),
+                ]
+              ),
             ),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Column(
             children: [
               ElevatedButton(
@@ -194,33 +195,29 @@ class _IconCardState extends State<IconCard> {
                   setState(() {
                     widget.cardSelector.increase(widget.setId);
                   });
-                  if(widget.refresh!=null)
+                  if(widget.refresh!=null) {
                     widget.refresh!();
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   primary: background, // background
                 ),
-                child: Container(
-                  child: Text('+', style: TextStyle(fontSize: 20)),
-                )
+                child: const Text('+', style: TextStyle(fontSize: 20))
               ),
-              Container(
-                  child: Text('$count', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 20),)
-              ),
+              Text('$count', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 20),),
               ElevatedButton(
                   onPressed: widget.readOnly ? null : () {
                     setState(() {
                       widget.cardSelector.decrease(widget.setId);
                     });
-                    if(widget.refresh!=null)
+                    if(widget.refresh!=null) {
                       widget.refresh!();
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     primary: background, // background
                   ),
-                  child: Container(
-                    child: Text('-', style: TextStyle(fontSize: 20)),
-                  )
+                  child: const Text('-', style: TextStyle(fontSize: 20))
               ),
             ],
           )
@@ -237,7 +234,7 @@ class ImageSetCounter extends StatefulWidget {
   final Function?     refresh;
   final bool          readOnly;
 
-  const ImageSetCounter(this.cardSelector, this.imageId, {required this.refresh, required this.readOnly});
+  const ImageSetCounter(this.cardSelector, this.imageId, {required this.refresh, required this.readOnly, Key? key}) : super(key: key);
 
   @override
   State<ImageSetCounter> createState() => _ImageSetCounterState();
@@ -258,7 +255,7 @@ class NumericalRangeFormatter extends TextInputFormatter {
     if (newValue.text == '') {
       return newValue;
     } else if (int.parse(newValue.text) < min) {
-      return TextEditingValue().copyWith(text: min.toStringAsFixed(2));
+      return const TextEditingValue().copyWith(text: min.toStringAsFixed(2));
     } else {
       return int.parse(newValue.text) > max ? oldValue : newValue;
     }
@@ -292,7 +289,7 @@ class _ImageSetCounterState extends State<ImageSetCounter> {
     var card  = widget.cardSelector.cardExtension();
     var count = countCard();
 
-    return Container(
+    return SizedBox(
       width: 100.0,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -303,7 +300,7 @@ class _ImageSetCounterState extends State<ImageSetCounter> {
               card.tryGetImage(designId).cardDesign.icon(width: iconSize, height: iconSize)
             ]
           ),
-          SizedBox(height: 3.0),
+          const SizedBox(height: 3.0),
           genericCardWidget( widget.cardSelector.subExtension(), widget.cardSelector.cardIdentifier(), designId, height: 110, language: widget.cardSelector.subExtension().extension.language ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -334,9 +331,9 @@ class _ImageSetCounterState extends State<ImageSetCounter> {
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,
                       color: count > 0 ? Colors.green.shade300 : Colors.white
                   ),
-                  decoration: InputDecoration(border: InputBorder.none,
+                  decoration: const InputDecoration(border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
+                    constraints: BoxConstraints(),
                     counterText: "",
                   ),
                 )

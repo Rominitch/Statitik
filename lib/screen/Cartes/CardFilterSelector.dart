@@ -18,7 +18,7 @@ class CardFilterSelector extends StatefulWidget {
   const CardFilterSelector(this.language, this.result, {Key? key}) : super(key: key);
 
   @override
-  _CardFilterSelectorState createState() => _CardFilterSelectorState();
+  State<CardFilterSelector> createState() => _CardFilterSelectorState();
 }
 
 class _CardFilterSelectorState extends State<CardFilterSelector> {
@@ -254,7 +254,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                       children: [
                         Row(
                           children: [
-                            Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B0'), style: Theme.of(context).textTheme.headline6)),
+                            SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B0'), style: Theme.of(context).textTheme.headline6)),
                             Expanded(
                               child: RangeSlider(
                                 values: widget.result.life,
@@ -276,15 +276,15 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                         ),
                         Row(
                           children: [
-                            Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B3'), style: Theme.of(context).textTheme.headline6)),
-                            Expanded(child: Container(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: weaknessTypeWidget)))
+                            SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B3'), style: Theme.of(context).textTheme.headline6)),
+                            Expanded(child: SizedBox(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: weaknessTypeWidget)))
                           ],
                         ),
 
                         Row(
                           children: [
-                            Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B2'), style: Theme.of(context).textTheme.headline6)),
-                            Expanded(child: Container(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: resistanceTypeWidget)))
+                            SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B2'), style: Theme.of(context).textTheme.headline6)),
+                            Expanded(child: SizedBox(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: resistanceTypeWidget)))
                           ],
                         )
                       ]
@@ -311,7 +311,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                           children: [
                             Row(
                               children: [
-                                Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B7'), style: Theme.of(context).textTheme.headline6)),
+                                SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B7'), style: Theme.of(context).textTheme.headline6)),
                                 Expanded(
                                   child: SliderTheme(
                                     data: SliderTheme.of(context).copyWith(
@@ -338,7 +338,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                             ),
                             Row(
                               children: [
-                                Container(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B8'), style: Theme.of(context).textTheme.headline6)),
+                                SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B8'), style: Theme.of(context).textTheme.headline6)),
                                 Expanded(
                                   child: SliderTheme(
                                     data: SliderTheme.of(context).copyWith(
@@ -364,9 +364,9 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                               ],
                             ),
                             Text(StatitikLocale.of(context).read('CAVIEW_B9'), style: Theme.of(context).textTheme.headline6),
-                            Container(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: effectsAttackWidget)),
+                            SizedBox(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: effectsAttackWidget)),
                             Text(StatitikLocale.of(context).read('CAVIEW_B10'), style: Theme.of(context).textTheme.headline6),
-                            Container(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: attackTypeEnergyWidget)),
+                            SizedBox(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: attackTypeEnergyWidget)),
                           ]
                       ),
                     )

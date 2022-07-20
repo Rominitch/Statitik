@@ -12,9 +12,9 @@ SimpleDialog createNewDialog(BuildContext context, List<News> news)
   return SimpleDialog(
     titlePadding: EdgeInsets.zero,
     contentPadding: EdgeInsets.zero,
-    insetPadding: EdgeInsets.symmetric(horizontal: 0),
+    insetPadding: const EdgeInsets.symmetric(horizontal: 0),
     children: [
-      Container(
+      SizedBox(
         width: MediaQuery.of(context).size.width,
         child: CarouselNews(news)
       )
@@ -23,13 +23,12 @@ SimpleDialog createNewDialog(BuildContext context, List<News> news)
 }
 
 class CarouselNews extends StatefulWidget {
-
   final List<News> news;
 
-  const CarouselNews(this.news);
+  const CarouselNews(this.news, {Key? key}) : super(key: key);
 
   @override
-  _CarouselNewsState createState() => _CarouselNewsState();
+  State<CarouselNews> createState() => _CarouselNewsState();
 }
 
 class _CarouselNewsState extends State<CarouselNews> {
@@ -45,7 +44,7 @@ class _CarouselNewsState extends State<CarouselNews> {
   @override
   Widget build(BuildContext context) {
     List<Widget> newsWidget = [];
-    RegExp exp = new RegExp(r'(?:https?|ftp)://[\w/\-?=%.]+\.[\w/\-?=%.]+');
+    RegExp exp = RegExp(r'(?:https?|ftp)://[\w/\-?=%.]+\.[\w/\-?=%.]+');
     for(var newsItem in widget.news) {
       List<InlineSpan> children = [];
 
@@ -79,19 +78,19 @@ class _CarouselNewsState extends State<CarouselNews> {
         }
       }
 
-      newsWidget.add(Container(
+      newsWidget.add(SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Column(
                 children: [
                   Center( child: Text(newsItem.title, style: Theme.of(context).textTheme.headline5)),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   SingleChildScrollView(
                     child: RichText(
                         textAlign: TextAlign.justify,
                         softWrap: true,
                         maxLines: 20,
                         text: TextSpan(
-                            style: TextStyle(fontSize: 12),
+                            style: const TextStyle(fontSize: 12),
                             children: children
                         )
                     )
@@ -127,7 +126,7 @@ class _CarouselNewsState extends State<CarouselNews> {
               child: Container(
                 width: 12.0,
                 height: 12.0,
-                margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: (Theme.of(context).brightness == Brightness.dark
@@ -142,7 +141,7 @@ class _CarouselNewsState extends State<CarouselNews> {
           color: Colors.grey[900],
           child: TextButton(onPressed: (){
             Navigator.of(context).pop();
-          }, child: Icon(Icons.close)),
+          }, child: const Icon(Icons.close)),
         )
       ],
     );

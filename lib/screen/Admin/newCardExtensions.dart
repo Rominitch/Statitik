@@ -22,7 +22,7 @@ class NewCardExtensions extends StatefulWidget {
   const NewCardExtensions(this.language, this.se, {Key? key}) : super(key: key);
 
   @override
-  _NewCardExtensionsState createState() => _NewCardExtensionsState();
+  State<NewCardExtensions> createState() => _NewCardExtensionsState();
 }
 
 class _NewCardExtensionsState extends State<NewCardExtensions> {
@@ -90,7 +90,6 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
           widget.se.seCards.cards.insert(pos, [newItem]);
         }
       }
-
 
       updateCardList(listId);
     });
@@ -296,25 +295,23 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     },
     child: Scaffold(
       appBar: AppBar(
-        title: Container(
-          child: Row(
-            children: [
-              Image(image: widget.language.create(), height: 30),
-              const SizedBox(width: 4.0),
-              widget.se.image(hSize: 30),
-              const SizedBox(width: 4.0),
-              Flexible(
-                child:Text(widget.se.name, softWrap: true,
-                  style: Theme.of(context).textTheme.headline6?..copyWith(
-                    fontSize: widget.se.name.length > 9 ? 7 : 10
-                  )
+        title: Row(
+          children: [
+            Image(image: widget.language.create(), height: 30),
+            const SizedBox(width: 4.0),
+            widget.se.image(hSize: 30),
+            const SizedBox(width: 4.0),
+            Flexible(
+              child:Text(widget.se.name, softWrap: true,
+                style: Theme.of(context).textTheme.headline6?..copyWith(
+                  fontSize: widget.se.name.length > 9 ? 7 : 10
                 )
-              ),
-            ]
-          ),
+              )
+            ),
+          ]
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             backAction(context);
           },
@@ -351,10 +348,10 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                 ExpansionPanel(
                   canTapOnHeader: true,
                   headerBuilder: (context, isOpen) {
-                    return Row(children:[
-                      const Icon(Icons.add_box_outlined),
-                      const SizedBox(width: 4),
-                      const Text("Quick Creator")
+                    return Row(children:const [
+                      Icon(Icons.add_box_outlined),
+                      SizedBox(width: 4),
+                      Text("Quick Creator")
                       ]
                     );
                   },

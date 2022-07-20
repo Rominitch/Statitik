@@ -11,7 +11,7 @@ class CardNameSelector extends StatefulWidget {
   const CardNameSelector(this.language, {Key? key}) : super(key: key);
 
   @override
-  _CardNameSelectorState createState() => _CardNameSelectorState();
+  State<CardNameSelector> createState() => _CardNameSelectorState();
 }
 
 class _CardNameSelectorState extends State<CardNameSelector> {

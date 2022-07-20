@@ -86,9 +86,9 @@ class CardSelectorDeck extends GenericCardSelector {
             ]
           )
         ),
-        SizedBox(height:3),
+        const SizedBox(height:3),
         Expanded(child: genericCardWidget(cardInfo.se, cardInfo.idCard, CardImageIdentifier(), height: 150, language: cardInfo.se.extension.language)),
-        SizedBox(height:3),
+        const SizedBox(height:3),
         Center(child: Text("$count")),
       ],
     );

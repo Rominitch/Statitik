@@ -10,10 +10,10 @@ class StatsExtensionsPage extends StatefulWidget {
   final StatsBooster stats;
   final StatsData data;
 
-  StatsExtensionsPage({required this.stats, required this.data});
+  const StatsExtensionsPage({required this.stats, required this.data, Key? key}) : super(key: key);
 
   @override
-  _StatsExtensionsPageState createState() => _StatsExtensionsPageState();
+  State<StatsExtensionsPage> createState() => _StatsExtensionsPageState();
 }
 
 class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
@@ -53,13 +53,13 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
             Text(StatitikLocale.of(context).read('SE_B0'), style: Theme.of(context).textTheme.headline5),
             GridView.count(
               crossAxisCount: 3,
-              children: infoCount,
               primary: false,
               shrinkWrap: true,
               childAspectRatio: 1.8,
+              children: infoCount,
             ),
             PieExtension(widget.stats.subExt, Visualize.Type),
-            SizedBox(height: 10.0,),
+            const SizedBox(height: 10.0),
             PieExtension(widget.stats.subExt, Visualize.Rarity),
             if (widget.data.cardStats.hasStats() && widget.data.cardStats.stats!.hasData())
               Card(child: Padding(

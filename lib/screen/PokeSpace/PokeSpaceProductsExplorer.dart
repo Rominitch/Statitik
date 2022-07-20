@@ -9,7 +9,7 @@ class PokeSpaceProductsExplorer extends StatefulWidget {
   final Language? language;
   final Function  onChangeMyProduct;
 
-  const PokeSpaceProductsExplorer(this.language, this.onChangeMyProduct);
+  const PokeSpaceProductsExplorer(this.language, this.onChangeMyProduct, {Key? key}) : super(key: key);
 
   @override
   State<PokeSpaceProductsExplorer> createState() => _PokeSpaceProductsExplorerState();
@@ -56,7 +56,7 @@ class _PokeSpaceProductsExplorerState extends State<PokeSpaceProductsExplorer> w
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(icon, size: 12),
-                Text(count.toString(), style: TextStyle(fontSize: 12)),
+                Text(count.toString(), style: const TextStyle(fontSize: 12)),
               ],
             ),
           )
@@ -94,7 +94,7 @@ class _PokeSpaceProductsExplorerState extends State<PokeSpaceProductsExplorer> w
       Map filteredProduct = Map.from(myProducts)..removeWhere((product, value) => product.releaseDate.year != year);
 
       Widget page = GridView.builder(
-        padding: EdgeInsets.all(2),
+        padding: const EdgeInsets.all(2),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 3, crossAxisSpacing: 2, mainAxisSpacing: 2,
           childAspectRatio: 0.7,
@@ -147,7 +147,7 @@ class _PokeSpaceProductsExplorerState extends State<PokeSpaceProductsExplorer> w
         Expanded(
           child: TabBarView(
             controller: yearController,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             children: productsTab,
           )
         )

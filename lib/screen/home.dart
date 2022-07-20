@@ -17,8 +17,10 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';
 
 class Home extends StatefulWidget {
+  const Home({Key? key}) : super(key: key);
+
   @override
-  _HomeState createState() => _HomeState();
+  State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
@@ -58,12 +60,12 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     _widgetOptions = [
-      DrawHomePage(),
+      const DrawHomePage(),
       StatsPage(),
-      CardStatisticPage(),
-      OptionsPage(),
+      const CardStatisticPage(),
+      const OptionsPage(),
       if(Environment.instance.isAdministrator())
-        AdminPage(),
+        const AdminPage(),
     ];
 
     return Scaffold(
@@ -74,27 +76,27 @@ class _HomeState extends State<Home> {
       ),
       bottomNavigationBar:
        BottomNavigationBar(
-          backgroundColor: useDebug ? Color.fromARGB(255,50, 0, 0) : Environment.instance.isMaintenance ? Colors.cyan[900] : Colors.grey[900],
+          backgroundColor: useDebug ? const Color.fromARGB(255,50, 0, 0) : Environment.instance.isMaintenance ? Colors.cyan[900] : Colors.grey[900],
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.add_chart),
+              icon: const Icon(Icons.add_chart),
               label: StatitikLocale.of(context).read('H_T0'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.insert_chart_outlined_rounded),
+              icon: const Icon(Icons.insert_chart_outlined_rounded),
               label: StatitikLocale.of(context).read('H_T1'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(StatitikFont.font_01_pokecard),
+              icon: const Icon(StatitikFont.font_01_pokecard),
               label: StatitikLocale.of(context).read('H_T3'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
+              icon: const Icon(Icons.settings),
               label: StatitikLocale.of(context).read('H_T2'),
             ),
             if(Environment.instance.isAdministrator())
               BottomNavigationBarItem(
-                icon: Icon(Icons.admin_panel_settings_outlined),
+                icon: const Icon(Icons.admin_panel_settings_outlined),
                 label: StatitikLocale.of(context).read('H_T4'),
               ),
           ],

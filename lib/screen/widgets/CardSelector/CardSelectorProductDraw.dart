@@ -72,7 +72,7 @@ class CardSelectorProductDraw extends CardSelectorProductCard {
           if(cardEx.isValid())
             Row( mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [subExtension().image(wSize: 30, hSize: 30), cardEx.imageType()] + cardEx.imageRarity(subExtension().extension.language)),
-          if(cardEx.isValid()) SizedBox(height: 6.0),
+          if(cardEx.isValid()) const SizedBox(height: 6.0),
           Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

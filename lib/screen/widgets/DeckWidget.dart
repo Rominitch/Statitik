@@ -15,19 +15,19 @@ List<Widget> computeDeckInfo(Deck deck, BuildContext context) {
 
   return [
     Text(deck.name, style: Theme.of(context).textTheme.headline6),
-    Spacer(),
+    const Spacer(),
     Row(
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
-    Icon(Icons.image_outlined),
+    const Icon(Icons.image_outlined),
     Text("${deck.stats.nbCards}"),
-    Spacer(),
-    Icon(StatitikFont.font_01_pokecard),
+    const Spacer(),
+    const Icon(StatitikFont.font_01_pokecard),
     Text("${deck.stats.nbCardsPokemon}"),
-    Spacer(),
+    const Spacer(),
     getImageType(TypeCard.Objet),
     Text("${deck.stats.countByType[TypeCard.Objet] ?? 0}"),
-    Spacer(),
+    const Spacer(),
     getImageType(TypeCard.Supporter),
     Text("${deck.stats.countByType[TypeCard.Supporter] ?? 0}"),
 
@@ -37,7 +37,7 @@ List<Widget> computeDeckInfo(Deck deck, BuildContext context) {
     children: [
     getImageType(TypeCard.Energy),
     Text("${deck.stats.countByType[TypeCard.Energy] ?? 0}"),
-    Spacer()
+    const Spacer()
     ] + energies
     )
   ];
@@ -71,7 +71,7 @@ class DeckStatisticWidget extends StatelessWidget {
         child: Row(
           children: [
             getImageType(type),
-            SizedBox(width: 4.0),
+            const SizedBox(width: 4.0),
             Text("$count")
           ]
         ),
@@ -109,9 +109,9 @@ class DeckStatisticWidget extends StatelessWidget {
           children:
           [
             Row(children:[
-              miniBox(Icon(Icons.image_outlined),          deck.stats.nbCards),
-              Text("="),
-              miniBox(Icon(StatitikFont.font_01_pokecard), deck.stats.nbCardsPokemon, deck.stats.countPokemon.length),
+              miniBox(const Icon(Icons.image_outlined),          deck.stats.nbCards),
+              const Text("="),
+              miniBox(const Icon(StatitikFont.font_01_pokecard), deck.stats.nbCardsPokemon, deck.stats.countPokemon.length),
               miniBox(getImageType(TypeCard.Objet),        deck.stats.countByType[TypeCard.Objet]),
               miniBox(getImageType(TypeCard.Supporter),    deck.stats.countByType[TypeCard.Supporter]),
               miniBox(getImageType(TypeCard.Stade),        deck.stats.countByType[TypeCard.Stade]),
@@ -145,7 +145,7 @@ class DeckStatisticWidget extends StatelessWidget {
                       if(deck.stats.hpStats != null)
                         TableRow(
                           children: [
-                            Container(
+                            SizedBox(
                               width: firstColWidth,
                               child:Text(StatitikLocale.of(context).read('PSMDC_B11'), style: Theme.of(context).textTheme.headline6),
                             ),
@@ -157,7 +157,7 @@ class DeckStatisticWidget extends StatelessWidget {
                       if(deck.stats.retreatStats != null)
                         TableRow(
                           children: [
-                            Container(
+                            SizedBox(
                               width: firstColWidth,
                               child: Text(StatitikLocale.of(context).read('PSMDC_B16'), style: Theme.of(context).textTheme.headline6),
                             ),
@@ -172,7 +172,7 @@ class DeckStatisticWidget extends StatelessWidget {
                     children: [
                       TableRow(
                         children: [
-                          Container(
+                          SizedBox(
                             width: firstColWidth,
                               child: Text(StatitikLocale.of(context).read('PSMDC_B12'), style: Theme.of(context).textTheme.headline6),
                           ),
@@ -181,7 +181,7 @@ class DeckStatisticWidget extends StatelessWidget {
                       ),
                       TableRow(
                           children: [
-                            Container(
+                            SizedBox(
                               width: firstColWidth,
                               child: Text(StatitikLocale.of(context).read('PSMDC_B17'), style: Theme.of(context).textTheme.headline6),
                             ),
@@ -190,7 +190,7 @@ class DeckStatisticWidget extends StatelessWidget {
                       ),
                       TableRow(
                           children: [
-                            Container(
+                            SizedBox(
                               width: firstColWidth,
                               child: Text(StatitikLocale.of(context).read('PSMDC_B18'), style: Theme.of(context).textTheme.headline6),
                             ),

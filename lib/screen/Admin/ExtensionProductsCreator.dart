@@ -119,7 +119,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
                 shrinkWrap: true,
                 itemCount: infoArray.length,
                 itemBuilder: (context, index) {
-                  return Container(
+                  return SizedBox(
                     height: 55,
                     child: Card(
                       child: Padding(

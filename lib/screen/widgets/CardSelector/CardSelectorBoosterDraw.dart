@@ -85,18 +85,19 @@ class CardSelectorBoosterDraw extends GenericCardSelector {
             if(card.isValid())
               Row( mainAxisAlignment: MainAxisAlignment.center,
                   children: [card.imageType()] + card.imageRarity(subExtension().extension.language)),
-            if(card.isValid()) SizedBox(height: 6.0),
+            if(card.isValid()) const SizedBox(height: 6.0),
             if( nbCard > 1)
               Text('${boosterDraw.nameCard(idCard.numberId)} ($nbCard)')
             else
-              Text('${boosterDraw.nameCard(idCard.numberId)}')
+              Text(boosterDraw.nameCard(idCard.numberId))
           ]
       );
       case 1 : return getImageType(card.data.typeExtended ?? TypeCard.Unknown);
       case 2 :
         var name = card.numberOfCard(idCard.numberId);
-        if( nbCard > 1)
+        if( nbCard > 1) {
           name += '($nbCard)';
+        }
 
         return Text(name, style: TextStyle(fontSize: name.length > 8 ? 10 : 12));
       default:

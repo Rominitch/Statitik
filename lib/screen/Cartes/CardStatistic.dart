@@ -31,7 +31,7 @@ class CardStatisticPage extends StatefulWidget {
   const CardStatisticPage({Key? key}) : super(key: key);
 
   @override
-  _CardStatisticPageState createState() => _CardStatisticPageState();
+  State<CardStatisticPage> createState() => _CardStatisticPageState();
 }
 
 class _CardStatisticPageState extends State<CardStatisticPage> with TickerProviderStateMixin {
@@ -55,7 +55,7 @@ class _CardStatisticPageState extends State<CardStatisticPage> with TickerProvid
     List<Widget> tabPages   = [];
     Environment.instance.collection.languages.forEach((key, language) {
       tabHeaders.add(Padding(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         child: language.barIcon(),
       ));
 
@@ -69,7 +69,7 @@ class _CardStatisticPageState extends State<CardStatisticPage> with TickerProvid
         ),
         actions: <Widget>[
           Padding(
-          padding: EdgeInsets.only(right: 20.0),
+          padding: const EdgeInsets.only(right: 20.0),
             child: GestureDetector(
               onTap: () {
                 setState(() {
@@ -98,7 +98,7 @@ class _CardStatisticPageState extends State<CardStatisticPage> with TickerProvid
             ),
             Expanded(
               child: TabBarView(
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 controller: tabController,
                 children: tabPages
               )

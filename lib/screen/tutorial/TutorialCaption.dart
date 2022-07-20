@@ -13,7 +13,7 @@ class TutorialCaption extends StatelessWidget {
       padding: const EdgeInsets.all(3.0),
       child: Row( children: [
           icon,
-          SizedBox(width: 5.0),
+          const SizedBox(width: 5.0),
           Flexible(child: Text(text, style: TextStyle(fontSize: text.length > 10  ? 12.0 : 14.0)))
         ]
       )
@@ -30,8 +30,9 @@ class TutorialCaption extends StatelessWidget {
 
     var artWidgets = <Widget>[];
     ArtFormat.values.forEach((art) {
-      if(art != ArtFormat.Unknown)
+      if(art != ArtFormat.Unknown) {
         artWidgets.add( createIconDescribe(StatitikLocale.of(context).read(codeArt(art)), iconArt(art, iconSize, iconSize)));
+      }
     });
 
     return Scaffold(
@@ -60,9 +61,9 @@ class TutorialCaption extends StatelessWidget {
                                   GridView.count(
                                     crossAxisCount: 2,
                                     childAspectRatio: 4.0,
-                                    children: artWidgets,
                                     primary: false,
                                     shrinkWrap: true,
+                                    children: artWidgets,
                                   )
                                 ]
                             ),
@@ -78,9 +79,9 @@ class TutorialCaption extends StatelessWidget {
                                 GridView.count(
                                   crossAxisCount: 2,
                                   childAspectRatio: 4.0,
-                                  children: designWidget,
                                   primary: false,
                                   shrinkWrap: true,
+                                  children: designWidget,
                                 )
                               ]
                             ),

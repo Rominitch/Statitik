@@ -93,8 +93,8 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
           child: language.barIcon(),
         ));
       } else {
-        languageWidgets.add(Padding(
-          padding: const EdgeInsets.all(8.0),
+        languageWidgets.add(const Padding(
+          padding: EdgeInsets.all(8.0),
           child: Icon(Icons.public),
         ));
       }
@@ -111,7 +111,6 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
           title: Text(StatitikLocale.of(context).read('DC_B17'), style: Theme.of(context).textTheme.headline3),
           actions: [
             FloatingActionButton.small(
-              child: Icon(Icons.add_shopping_cart, color: Colors.white,),
               backgroundColor: productMenuColor,
               onPressed: (){
                 Navigator.push(context, MaterialPageRoute(builder:
@@ -140,6 +139,7 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
                   }
                 });
               },
+              child: const Icon(Icons.add_shopping_cart, color: Colors.white),
             ),
           ],
         ),
@@ -153,14 +153,14 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
                     children: [
                       Row(
                         children: [
-                          Spacer(),
+                          const Spacer(),
                           Text(StatitikLocale.of(context).read('PSMP_B0'), style: Theme.of(context).textTheme.headline6),
-                          SizedBox(width: 5.0),
-                          Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
-                          SizedBox(width: 15.0),
+                          const SizedBox(width: 5.0),
+                          const Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
+                          const SizedBox(width: 15.0),
                         ]
                       ),
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
                       drawNothing(context, 'PSMP_B1')
                     ]
                 ),
@@ -180,7 +180,7 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
               Expanded(
                 child: TabBarView(
                   controller: langueController,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   children: productTab,
                 )
               )
