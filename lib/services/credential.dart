@@ -1,8 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -21,8 +22,6 @@ class Credential
   Future<void> initialize() async
   {
     try {
-      await Firebase.initializeApp();
-
       // Auto login
       var prefs = await SharedPreferences.getInstance();
       if( prefs.getString('uid') != null ) {

@@ -399,7 +399,7 @@ class Collection
       assert(effects.isNotEmpty);
 
       // Read cards info
-      var cardsReq = await connection.query("SELECT * FROM `cartes`");
+      var cardsReq = await connection.query("SELECT * FROM `Cartes`");
       for (var row in cardsReq) {
         // 0 = id
         // 1 = nom
@@ -546,7 +546,7 @@ class Collection
   }
 
   void adminReverse() {
-    printOutput("Compute admin reverse database");
+    printOutput("Compute Admin reverse database");
     rIllustrators    = illustrators.map((k, v)    => MapEntry(v, k));
     rRegions         = regions.map((k, v)         => MapEntry(v, k));
     rPokemonCards    = pokemonCards.map((k, v)    => MapEntry(v, k));
@@ -599,12 +599,12 @@ class Collection
     var query = "";
     if (idCard == null) {
       data.insert(0, nextId);
-      query = 'INSERT INTO `cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
+      query = 'INSERT INTO `Cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
 
       //printOutput("New card added at $nextId and we update internal list");
     } else {
-      query = 'UPDATE `cartes` SET `noms` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?'
-              ' WHERE `cartes`.`idCartes` = $idCard';
+      query = 'UPDATE `Cartes` SET `noms` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?'
+              ' WHERE `Cartes`.`idCartes` = $idCard';
 
       //printOutput("Update card at $idCard and we update internal list");
     }
@@ -627,7 +627,7 @@ class Collection
   Future<void> saveDatabaseSEC(SubExtensionCards seCards, connection) async {
     // Compute next Id of card
     int nextId = 0;
-    var nextIdReq = await connection.query("SELECT MAX(`idCartes`) as maxId FROM `cartes`;");
+    var nextIdReq = await connection.query("SELECT MAX(`idCartes`) as maxId FROM `Cartes`;");
     for(var row in nextIdReq) {
       nextId = row[0];
     }

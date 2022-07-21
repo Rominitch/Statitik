@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-import 'package:statitikcard/screen/Admin/card_creator.dart';
-import 'package:statitikcard/screen/Admin/card_editor.dart';
+import 'package:statitikcard/screen/admin/card_creator.dart';
+import 'package:statitikcard/screen/admin/card_editor.dart';
+import 'package:statitikcard/screen/admin/card_editor_options.dart';
+
 import 'package:statitikcard/services/collection.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/services/models/language.dart';

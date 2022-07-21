@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/screen/admin/card_creator.dart';
+import 'package:statitikcard/screen/admin/card_editor_options.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
@@ -8,12 +9,6 @@ import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/rarity.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/type_card.dart';
-
-class CardEditorOptions {
-  int tabIndex = 0;
-
-  CardEditorOptions();
-}
 
 class CardEditor extends StatefulWidget {
   final CardIdentifier       id;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:statitikcard/screen/admin/card_editor.dart';
+import 'package:statitikcard/screen/admin/card_editor_options.dart';
 import 'package:statitikcard/screen/admin/card_effect_panel.dart';
 import 'package:statitikcard/screen/admin/search_extension_card_id.dart';
 import 'package:statitikcard/screen/view.dart';
