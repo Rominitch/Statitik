@@ -62,8 +62,8 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
     if(hasRandomCard()) {
       valid = selection != null;
     }
-    simplePacks.forEach((element) { valid &= element.selection != null; });
-    triPacks.forEach((element) { valid &= element.selection != null; });
+    for (var element in simplePacks) { valid &= element.selection != null; }
+    for (var element in triPacks) { valid &= element.selection != null; }
     return valid;
   }
 
@@ -180,31 +180,31 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
     if(productSelected[ProductKind.buildBattle.index]) {
       var p = createProduct(ProductKind.buildBattle, 4);
       p.nbRandomPerProduct = 1;
-      selection!.cards.forEach( (card) {
+      for (var card in selection!.cards) {
         p.otherCards.add(createCardProduct(selection!.subExtension, card, true));
-      });
+      }
       products.add(p);
     }
     if(productSelected[ProductKind.buildBattleStadium.index]) {
       var p = createProduct(ProductKind.buildBattleStadium, 12);
       p.nbRandomPerProduct = 2;
-      selection!.cards.forEach( (card) {
+      for (var card in selection!.cards) {
         p.otherCards.add(createCardProduct(selection!.subExtension, card, true));
-      });
+      }
       products.add(p);
     }
-    triPacks.forEach((element) {
+    for (var id=0; id < triPacks.length; id +=1) {
       var p = createProduct(ProductKind.triPack, 3);
-      selection!.cards.forEach( (card) {
+      for (var card in selection!.cards) {
         p.otherCards.add(createCardProduct(selection!.subExtension, card, false));
-      });
-    });
-    simplePacks.forEach((element) {
+      }
+    }
+    for (var id=0; id < simplePacks.length; id +=1) {
       var p = createProduct(ProductKind.simplePack, 1);
-      selection!.cards.forEach( (card) {
+      for (var card in selection!.cards) {
         p.otherCards.add(createCardProduct(selection!.subExtension, card, false));
-      });
-    });
+      }
+    }
 
     if(productSelected[ProductKind.etb.index]) {
       var p = createProduct(ProductKind.etb, 8);

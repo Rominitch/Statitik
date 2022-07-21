@@ -87,7 +87,7 @@ class CardSelectorPokeSpace extends GenericCardSelector {
     List<Widget> countBySet = [];
     if(count > 0) {
       var idSet=0;
-      card.sets.forEach((set) {
+      for (var set in card.sets) {
         var countValue = code.countBySet(idSet);
         if(countValue > 0) {
           countBySet.add(
@@ -109,7 +109,7 @@ class CardSelectorPokeSpace extends GenericCardSelector {
           );
         }
         idSet +=1;
-      });
+      }
     }
 
     Widget? extendedType = card.imageTypeExtended(generate: true, sizeIcon: 14.0);

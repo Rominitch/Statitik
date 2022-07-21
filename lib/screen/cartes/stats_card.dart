@@ -140,7 +140,7 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
 
       var s = widget.stats.stats!;
       // parse sub extension by order
-      subExtOrdered.forEach((SubExtension subExtension) {
+      for( SubExtension subExtension in subExtOrdered ) {
         var listCards = s.countSubExtension[subExtension];
         if(listCards != null) {
           tabHeaders.add(
@@ -156,15 +156,15 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
                   itemBuilder: (context, index){
                     var idCard = listCards[index];
                     return Card(color: Colors.grey[800],
-                        margin: EdgeInsets.zero,
-                        child: TextButton(child: genericCardWidget(subExtension, idCard, CardImageIdentifier()),
-                          onPressed: (){
-                            var card = subExtension.seCards.cardFromId(idCard);
-                            Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => CardViewer(subExtension, idCard, card)),
-                            );
-                          },
-                        )
+                      margin: EdgeInsets.zero,
+                      child: TextButton(child: genericCardWidget(subExtension, idCard, CardImageIdentifier()),
+                        onPressed: (){
+                          var card = subExtension.seCards.cardFromId(idCard);
+                          Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => CardViewer(subExtension, idCard, card)),
+                          );
+                        },
+                      )
                     );
                   }
               ),
@@ -180,22 +180,22 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
                   var idCard = listCards[index];
                   var name = subExtension.seCards.numberOfCard(idCard.numberId);
                   return Card(color: Colors.grey[800],
-                      margin: EdgeInsets.zero,
-                      child: TextButton(child: Text(name, style: TextStyle(fontSize: name.length > 2 ? (name.length > 3 ? 9 : 12) : 14)),
-                        onPressed: (){
-                          var card = subExtension.seCards.cardFromId(idCard);
-                          Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => CardViewer(subExtension, idCard, card)),
-                          );
-                        },
-                      )
+                    margin: EdgeInsets.zero,
+                    child: TextButton(child: Text(name, style: TextStyle(fontSize: name.length > 2 ? (name.length > 3 ? 9 : 12) : 14)),
+                      onPressed: (){
+                        var card = subExtension.seCards.cardFromId(idCard);
+                        Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => CardViewer(subExtension, idCard, card)),
+                        );
+                      },
+                    )
                   );
                 }
               ),
             );
           }
         }
-      });
+      }
     }
 
     return Column(
@@ -255,17 +255,17 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
     ];
 
     var filteredRarities = [];
-    Environment.instance.collection.orderedRarity.forEach((rarity){
+    for (var rarity in Environment.instance.collection.orderedRarity) {
       if(s.countRarity[rarity] != null) {
         filteredRarities.add(rarity);
       }
-    });
+    }
     var filteredType = [];
-    orderedType.forEach((type) {
+    for (var type in orderedType) {
       if(s.countType[type] != null) {
         filteredType.add(type);
       }
-    });
+    }
 
     return Column(
       children: [

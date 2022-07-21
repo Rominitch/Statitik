@@ -29,10 +29,10 @@ class ByteEncoder
     var imageCode = <int>[
       stringInfo.length * 2, // Not more than 256
     ];
-    stringInfo.forEach((element) {
+    for (var element in stringInfo) {
       assert(element < 65536);
       imageCode += ByteEncoder.encodeInt16(element);
-    });
+    }
     assert(imageCode[0] == imageCode.length-1);
     return imageCode;
   }

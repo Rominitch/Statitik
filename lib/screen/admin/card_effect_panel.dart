@@ -28,9 +28,9 @@ class _CardEffectsPanelState extends State<CardEffectsPanel> {
 
   @override
   void initState() {
-    widget.card.data.cardEffects.effects.forEach((effect) {
+    for (var effect in widget.card.data.cardEffects.effects) {
       effectsWidget.add(CardEffectPanel(widget, effect));
-    });
+    }
     super.initState();
   }
 

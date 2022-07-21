@@ -449,11 +449,11 @@ class Collection
         }
         //Extract effects
         if( effects != null ) {
-          effects.effects.forEach((element) {
+          for (var element in effects.effects) {
             if( element.description != null ) {
               element.description!.computeDescriptionEffects(descriptions, languages[1]);
             }
-          });
+          }
           p.cardEffects = effects;
         }
         //Extract illustrator
@@ -564,9 +564,9 @@ class Collection
     int? idCard = rPokemonCards[card];
 
     List<int> nameBytes = [];
-    card.title.forEach((element) {
+    for (var element in card.title) {
       nameBytes += element.toBytes(this);
-    });
+    }
 
     int? idIllustrator = card.illustrator != null ? rIllustrators[card.illustrator] : null;
 
@@ -678,7 +678,7 @@ class Collection
 
   List<CardIntoSubExtensions> searchCardIntoAllSubExtension(PokemonCardData searchCard) {
     List<CardIntoSubExtensions> result = [];
-    subExtensions.values.forEach((subExtension) {
+    for (var subExtension in subExtensions.values) {
       int id=0;
       subExtension.seCards.cards.forEach((cards) {
         int subId=0;
@@ -706,7 +706,7 @@ class Collection
         }
         id += 1;
       });
-    });
+    }
     return result;
   }
 
@@ -714,7 +714,7 @@ class Collection
     List<CardIntoSubExtensions> result = [];
     var alreadyFind = <dynamic>{};
 
-    subExtensions.values.forEach((subExtension) {
+    for (var subExtension in subExtensions.values) {
       if( supportedDuplicateSeCard || !alreadyFind.contains(subExtension.seCards) ) {
         int id=0;
         subExtension.seCards.cards.forEach((cards) {
@@ -745,7 +745,7 @@ class Collection
           id += 1;
         });
       }
-    });
+    }
     return result;
   }
 

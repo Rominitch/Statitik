@@ -204,7 +204,7 @@ class StatsBooster {
 
     var idEnergy = 0;
     var energyCard = subExt.seCards.energyCard.iterator;
-    edc.drawEnergies.forEach((code) {
+    for (var code in edc.drawEnergies) {
       if(energyCard.moveNext()) {
         var count = code.count();
         if(count > 0) {
@@ -222,10 +222,10 @@ class StatsBooster {
         }
       }
       idEnergy += 1;
-    });
+    }
 
     var noNumberCards = subExt.seCards.noNumberedCard.iterator;
-    edc.drawNoNumber.forEach((code) {
+    for (var code in edc.drawNoNumber) {
       if(noNumberCards.moveNext()) {
         var count = code.count();
         if(count > 0) {
@@ -241,7 +241,7 @@ class StatsBooster {
           computeStatsBySet(cardInfo, code);
         }
       }
-    });
+    }
 
     int cardsId=0;
     for(List<CodeDraw> cards in edc.drawCards) {
@@ -342,9 +342,9 @@ class CardStats {
     } else {
       countSubExtension[se] = [idCard];
     }
-    d.markers.markers.forEach((marker) {
+    for (var marker in d.markers.markers) {
       countMarker[marker] = countMarker[marker] != null ? countMarker[marker]! + 1 : 1;
-    });
+    }
   }
 }
 
@@ -413,9 +413,9 @@ class CardResults {
     }
     if(select && hasMarkersFilter()) {
       select = false;
-      filter.markers.forEach((marker) {
+      for (var marker in filter.markers) {
         select |= card.data.markers.markers.contains(marker);
-      });
+      }
     }
     if(select && types.isNotEmpty) {
       select = types.contains(card.data.type);
@@ -519,9 +519,9 @@ class CardResults {
               }
               // Compile all result
               bool allCheck = true;
-              checkDescriptions.forEach((element) {
+              for (var element in checkDescriptions) {
                 allCheck &= element;
-              });
+              }
               count[3].set(allCheck);
             } else {
               count[3].set(false);

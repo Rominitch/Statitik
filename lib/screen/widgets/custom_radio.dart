@@ -30,9 +30,9 @@ class CustomRadioController {
   }
 
   void refresh() {
-    _radios.forEach((element) {
+    for (var element in _radios) {
       element.activate(currentValue);
-    });
+    }
   }
 }
 

@@ -200,19 +200,19 @@ class _CardFilteredReportState extends State<CardFilteredReport> {
     return Future(() {
       var time = TimeReport();
       var stats = CardStats();
-      Environment.instance.collection.subExtensions.values.forEach((subExt) {
+      for (var subExt in Environment.instance.collection.subExtensions.values) {
         if( subExt.extension.language == widget.language && subExt.seCards.isValid ) {
           int id=0;
           subExt.seCards.cards.forEach((List<PokemonCardExtension> cards) {
-            cards.forEach((singleCard) {
+            for (var singleCard in cards) {
               if( _filterData.isSelected(singleCard) ) {
                 stats.add(subExt, singleCard, CardIdentifier.from([0, id, 0]));
               }
-            });
+            }
             id += 1;
           });
         }
-      });
+      }
       time.tick("After filter query");
       return stats;
     });

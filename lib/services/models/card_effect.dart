@@ -65,7 +65,7 @@ class CardDescription {
     effects.clear();
 
     DescriptionData data = descriptionCollection[idDescription];
-    data.markers.forEach((element) { if(!effects.contains(element)) effects.add(element); });
+    for (var element in data.markers) { if(!effects.contains(element)) effects.add(element); }
 
     String toAnalyze = data.name(l);
     while(toAnalyze.isNotEmpty) {
@@ -76,7 +76,7 @@ class CardDescription {
         assert(code.length==2);
         if( code[0] == "D" ) {
           DescriptionData data = descriptionCollection[int.parse(code[1])];
-          data.markers.forEach((element) { if(!effects.contains(element)) effects.add(element); });
+          for (var element in data.markers) { if(!effects.contains(element)) effects.add(element); }
 
           toAnalyze += data.name(l);
         } else if( code[0] == "E" || code[0] == "P") {
@@ -97,10 +97,10 @@ class CardDescription {
       (idDescription & 0xFF00) >> 8, idDescription & 0xFF,
       parameters.length
     ];
-    parameters.forEach((element) {
+    for (var element in parameters) {
       bytes.add((element & 0xFF00) >> 8);
       bytes.add(element & 0xFF);
-    });
+    }
     return bytes;
   }
 
@@ -214,7 +214,7 @@ class CardEffect {
   List<int> toBytes() {
     int idEffect      = title ?? 0;
     List<int> att = [attack.length];
-    attack.forEach((element) { att.add(element.index); });
+    for (var element in attack) { att.add(element.index); }
 
     //int 16 = 65k value
     return <int>[ (idEffect & 0xFF00) >> 8,(idEffect & 0xFF)] +
@@ -254,9 +254,9 @@ class CardEffects {
 
   List<int> toBytes() {
     List<int> b = [version, effects.length];
-    effects.forEach((element) {
+    for (var element in effects) {
       b += element.toBytes();
-    });
+    }
     return b;
   }
 }

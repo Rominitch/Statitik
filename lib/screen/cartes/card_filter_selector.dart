@@ -81,44 +81,44 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
     super.initState();
 
     // Build static card marker
-    Environment.instance.collection.markers.values.forEach((element) {
+    for (var element in Environment.instance.collection.markers.values) {
       if (!Environment.instance.collection.longMarkers.contains(element)) {
         widgetMarkers.add(MarkerButtonCheck(widget.language, widget.result.filter, element, controller: refreshController));
       }
-    });
-    Environment.instance.collection.longMarkers.forEach((element) {
+    }
+    for (var element in Environment.instance.collection.longMarkers) {
       longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.language, widget.result.filter, element, controller: refreshController)));
-    });
+    }
 
-    orderedType.forEach((type) {
+    for (var type in orderedType) {
       if( type != TypeCard.unknown ) {
         typesWidget.add(TypeButtonCheck(widget.result.types, type, controller: refreshController));
       }
-    });
+    }
 
     var rarities = widget.language.isWorld() ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity;
-    rarities.forEach((rarity) {
+    for (var rarity in rarities) {
       raritiesWidget.add(RarityButtonCheck(widget.language, widget.result.rarities, rarity, controller: refreshController));
-    });
+    }
 
-    energies.forEach((element) {
+    for (var element in energies) {
       weaknessTypeWidget.add(CustomRadio(value: element, controller: weaknessController, widget: getImageType(element), widthBox: typeSize,));
       resistanceTypeWidget.add(CustomRadio(value: element, controller: resistanceController, widget: getImageType(element), widthBox: typeSize));
       attackTypeEnergyWidget.add(CustomRadio(value: element, controller: energyAttackController, widget: getImageType(element), widthBox: typeSize));
-    });
+    }
 
-    Environment.instance.collection.validDesigns.forEach((design) {
+    for (var design in Environment.instance.collection.validDesigns) {
       designWidget.add(DesignButtonCheck(widget.language, widget.result.designs, design, controller: refreshController));
-    });
-    ArtFormat.values.forEach((art) {
+    }
+    for (var art in ArtFormat.values) {
       artsWidget.add(ArtButtonCheck(widget.language, widget.result.arts, art, controller: refreshController));
-    });
+    }
 
-    DescriptionEffect.values.forEach((effect) {
+    for (var effect in DescriptionEffect.values) {
       if( effect != DescriptionEffect.unknown) {
         effectsAttackWidget.add(DescriptionEffectButtonCheck(widget.result.effects, effect, controller: descriptionController));
       }
-    });
+    }
 
     // Set default value
     regionController.currentValue       = widget.result.filterRegion;

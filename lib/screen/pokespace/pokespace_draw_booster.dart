@@ -46,19 +46,19 @@ class _BoosterPageState extends State<BoosterPage> {
 
     widgetEnergies = [];
     idInBooster=0;
-    widget.boosterDraw.subExtension!.seCards.energyCard.forEach((card) {
+    for (var card in widget.boosterDraw.subExtension!.seCards.energyCard) {
       var selector = CardSelectorBoosterDraw(widget.boosterDraw, card, widget.boosterDraw.cardDrawing!.drawEnergies[idInBooster]);
       widgetEnergies.add( PokemonCard(selector, refresh:refresh, readOnly: widget.readOnly) );
       idInBooster += 1;
-    });
+    }
 
     widgetNoNumber = [];
     idInBooster=0;
-    widget.boosterDraw.subExtension!.seCards.noNumberedCard.forEach((card) {
+    for (var card in widget.boosterDraw.subExtension!.seCards.noNumberedCard) {
       var selector = CardSelectorBoosterDraw(widget.boosterDraw, card, widget.boosterDraw.cardDrawing!.drawNoNumber[idInBooster]);
       widgetNoNumber.add( PokemonCard(selector, refresh:refresh, readOnly: widget.readOnly) );
       idInBooster += 1;
-    });
+    }
   }
 
   @override

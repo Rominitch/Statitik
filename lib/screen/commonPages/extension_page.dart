@@ -86,11 +86,11 @@ class _ExtensionPageState extends State<ExtensionPage> {
   Widget build(BuildContext context) {
     List<Widget> filters = [];
     if(!widget.addMode) {
-      SerieType.values.forEach((element) {
+      for (var element in SerieType.values) {
         filters.add(
           Expanded(child: SerieTypeButtonCheck(serieFilters, element, controller: refreshController))
         );
-      });
+      }
     }
     List<Widget> ext = buildExts();
 

@@ -13,11 +13,11 @@ class ProductDraw {
 
   ProductDraw(this.session, [ByteParser? parser]) {
     randomProductCard.clear();
-    session!.product.otherCards.forEach((productCard) {
+    for (var productCard in session!.product.otherCards) {
       if(productCard.isRandom) {
         randomProductCard[productCard] = CodeDraw.fromSet(productCard.card.sets.length);
       }
-    });
+    }
 
     if(parser != null) {
       var itRandom = randomProductCard.entries.iterator;

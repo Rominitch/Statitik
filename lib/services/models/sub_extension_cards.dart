@@ -209,11 +209,11 @@ class SubExtensionCards {
     } else {
       CodeNaming cn = CodeNaming();
       if (codeNaming.isNotEmpty) {
-        codeNaming.forEach((element) {
+        for (var element in codeNaming) {
           if (id >= element.idStart) {
             cn = element;
           }
-        });
+        }
       }
       if (cn.naming.contains("%s")) {
         return sprintf(cn.naming, [(id - cn.idStart + 1).toString()]);
@@ -235,14 +235,14 @@ class SubExtensionCards {
 
   List<int> toBytes(Map collectionCards, Map allSets, Map rarities) {
     List<int> cardBytes = [];
-    cards.forEach((cardById) {
+    for (var cardById in cards) {
       // Add nb cards by number
       cardBytes.add(cardById.length);
       // Add card code
-      cardById.forEach((card) {
+      for (var card in cardById) {
         cardBytes += card.toBytes(collectionCards, allSets, rarities);
-      });
-    });
+      }
+    }
 
     List<int> finalBytes = [version];
     finalBytes += gzip.encode(cardBytes);
@@ -253,9 +253,9 @@ class SubExtensionCards {
 
   List<int> otherToBytes(List otherCards, Map collectionCards, Map allSets, Map rarities) {
     List<int> cardBytes = [];
-    otherCards.forEach((card) {
+    for (var card in otherCards) {
       cardBytes += card.toBytes(collectionCards, allSets, rarities);
-    });
+    }
 
     List<int> finalBytes = [version];
     finalBytes += gzip.encode(cardBytes);

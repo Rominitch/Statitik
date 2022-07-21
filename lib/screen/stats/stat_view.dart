@@ -60,7 +60,7 @@ class StatsView extends StatelessWidget {
       });
 
       int typeId=0;
-      data.stats!.countByType.forEach( (sum) {
+      for (var sum in data.stats!.countByType) {
         double luck = sum.toDouble() / data.stats!.nbBoosters;
         if(luck > 0)
         {
@@ -72,7 +72,7 @@ class StatsView extends StatelessWidget {
           types.add( buildLine([getImageType(TypeCard.values[typeId])], sum, luck, typeColors[typeId], divider, userLuck) );
         }
         typeId += 1;
-      });
+      }
 
       data.stats!.countBySet.forEach((set, sum) {
         double luck = sum.toDouble() / data.stats!.nbBoosters;
@@ -240,12 +240,12 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
     }
 
     // Compute by important set of expansion
-    statsExtension.allSets.forEach((set) {
+    for (var set in statsExtension.allSets) {
       ResultProbability resultSet = computeProbabilities(statsExtension, [set]);
       if( resultSet.isValid() ) {
         bySets[set] = computeCompletion(statsExtension, resultSet.info);
       }
-    });
+    }
 
     super.initState();
   }
@@ -306,11 +306,11 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
       unityProbability = unityProbability / countEmpty.toDouble();
 
       // Fill invalid data
-      findEmpty.forEach((r) {
+      for (var r in findEmpty) {
         var proba = unityProbability * statsExtension.countByRarity[r]!;
         result.info[r] = proba;
         assert(proba > 0.0);
-      });
+      }
     }
     result.valid = minRarity != null;
     return result;

@@ -54,11 +54,11 @@ class Deck
     List<int> bytes = [version];
     bytes += ByteEncoder.encodeString16(name.codeUnits);
     bytes += ByteEncoder.encodeInt8(cards.length);
-    cards.forEach((card) {
+    for (var card in cards) {
       bytes += ByteEncoder.encodeInt16(card.se.id);
       bytes += card.idCard.toBytes();
       bytes += card.count.toBytes();
-    });
+    }
     return bytes;
   }
 
@@ -163,13 +163,13 @@ class DeckStats
         }
 
         // Count energy in power
-        card.data.cardEffects.effects.forEach((effect) {
-          effect.attack.forEach((energy) {
+        for (var effect in card.data.cardEffects.effects) {
+          for (var energy in effect.attack) {
             if( !powerEnergies.contains(energy) ) {
               powerEnergies.add(energy);
             }
-          });
-        });
+          }
+        }
       }
 
       if(countByType.containsKey(card.data.type)) {

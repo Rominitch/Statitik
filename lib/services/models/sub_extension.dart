@@ -102,7 +102,7 @@ class StatsExtension {
     countBySetByRarity = {};
 
     var computeStatsByCard = (PokemonCardExtension c) {
-      c.sets.forEach((element) {
+      for (var element in c.sets) {
         if(!allSets.contains(element)) {
           allSets.add(element);
           allRarityPerSets[element] = [c.rarity];
@@ -120,7 +120,7 @@ class StatsExtension {
             countBySetByRarity[element]![c.rarity] =  countBySetByRarity[element]![c.rarity]! + 1;
           }
         }
-      });
+      }
 
       if(c.isSecret) {
         countSecret += 1;
@@ -139,17 +139,17 @@ class StatsExtension {
 
     };
 
-    subExt.seCards.cards.forEach((cards) {
-      cards.forEach((c) {
+    for (var cards in subExt.seCards.cards) {
+      for (var c in cards) {
         computeStatsByCard(c);
-      });
-    });
-    subExt.seCards.energyCard.forEach((c) {
+      }
+    }
+    for (var c in subExt.seCards.energyCard) {
       computeStatsByCard(c);
-    });
-    subExt.seCards.noNumberedCard.forEach((c) {
+    }
+    for (var c in subExt.seCards.noNumberedCard) {
       computeStatsByCard(c);
-    });
+    }
 
     countOneCards = subExt.seCards.cards.length + subExt.seCards.energyCard.length + subExt.seCards.noNumberedCard.length;
   }

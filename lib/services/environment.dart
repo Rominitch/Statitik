@@ -675,7 +675,7 @@ class Environment
                     ' WHERE `idProduit` = ?;';
             }
 
-            products.forEach((product) {
+            for (var product in products) {
                 var outDate = DateFormat('yyyy-MM-dd 00:00:00').format(
                     product.releaseDate);
 
@@ -694,7 +694,7 @@ class Environment
                 }
 
                 productInfo.add(myData);
-            });
+            }
             // Go
             await connection.queryMulti(query, productInfo);
         } );
@@ -725,7 +725,7 @@ class Environment
                         ' WHERE `idProduitAnnexe` = ?;';
                 }
 
-                products.forEach((product) {
+                for (var product in products) {
                     var outDate = DateFormat('yyyy-MM-dd 00:00:00').format(
                         product.releaseDate);
 
@@ -740,7 +740,7 @@ class Environment
                     }
 
                     productInfo.add(myData);
-                });
+                }
                 // Go
                 await connection.queryMulti(query, productInfo);
             } );

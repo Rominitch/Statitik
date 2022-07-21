@@ -84,7 +84,7 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
   Widget build(BuildContext context) {
     List<Widget> productTab      = [];
     List<Widget> languageWidgets = [];
-    myProdLanguages.forEach( (idLanguage){
+    for (var idLanguage in myProdLanguages) {
       Language? language;
       if(idLanguage >= 0) {
         language = Environment.instance.collection.languages[idLanguage];
@@ -99,7 +99,7 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
         ));
       }
       productTab.add(PokeSpaceProductsExplorer(language, (){ needToSave = true; }));
-    });
+    }
 
     return WillPopScope(
       onWillPop: () async {

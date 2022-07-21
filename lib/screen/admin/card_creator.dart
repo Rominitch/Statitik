@@ -136,14 +136,14 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
   }
 
   void automaticFill() {
-    widget.se.seCards.cards.forEach((extCards) {
+    for (var extCards in widget.se.seCards.cards) {
       var extCard = extCards.first;
       // Automatic add missing design
-      extCard.images.forEach((imageCard) {
+      for (var imageCard in extCard.images) {
         if(imageCard.isEmpty) {
           addBestDesign(widget.se.seCards.computeIdCard(extCard)!, imageCard, extCard.images.indexOf(imageCard));
         }
-      });
+      }
 
       // Automatic first design
       if(extCard.images.isNotEmpty) {
@@ -180,7 +180,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           }
         }
       }
-    });
+    }
   }
 
   void addBestDesign(CardIdentifier idCard, List images, int index) {
@@ -210,7 +210,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
       itemBuilder: (BuildContext context, int index){
         List<Widget> images = [widget.card.sets[index].imageWidget(height: 50)];
         int idImg=0;
-        widget.card.images[index].forEach( (element){
+        for (var element in widget.card.images[index]) {
           var localIdImg = CardImageIdentifier(index, idImg);
           images.add(Card(
             child: TextButton(
@@ -232,7 +232,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             )
           ));
           idImg +=1;
-        });
+        }
 
         images.add(Card(
           child: IconButton(icon: const Icon(Icons.add_circle_outline),
@@ -255,12 +255,10 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     List<Widget> others = [];
     if(widget.editor) {
-      int id=0;
       List<Widget> namedWidgets = [];
-      widget.card.data.title.forEach((element) {
+      for (int id=0; id < widget.card.data.title.length; id+=1) {
         namedWidgets.add(PokeCardNaming(widget.activeLanguage, widget.idCard, widget.card, id));
-        id+=1;
-      });
+      }
 
       typeExtController.afterPress(widget.card.data.typeExtended != null ? widget.card.data.typeExtended! : TypeCard.unknown);
 
@@ -681,7 +679,7 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
     List<Widget> regionsWidget = createRegionsWidget(context, regionController, widget.language);
     List<Widget> formeWidget   = [];
 
-    Environment.instance.collection.formes.values.forEach((element) {
+    for (var element in Environment.instance.collection.formes.values) {
       var text = element.applyToPokemonName(widget.language);
       formeWidget.add(CustomRadio(value: element, controller: specialController,
           widget: Row(mainAxisAlignment: MainAxisAlignment.center,
@@ -693,7 +691,7 @@ class _PokeCardNamingState extends State<PokeCardNaming> {
               ])
       )
       );
-    });
+    }
     regionController.afterPress(name.region);
     specialController.afterPress(name.forme);
 

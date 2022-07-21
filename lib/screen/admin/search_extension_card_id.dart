@@ -80,7 +80,7 @@ class SearchExtensionsCardId extends StatelessWidget {
     List<Widget> cardImageWidget = [];
 
     List<Widget> expansionWidget = [];
-    Environment.instance.collection.subExtensions.values.forEach((subExtension) {
+    for (var subExtension in Environment.instance.collection.subExtensions.values) {
       // Keep Japanese only
       if(subExtension.extension.language.id == 3 ) {
         List<Widget> cardsWidgets = [];
@@ -125,7 +125,7 @@ class SearchExtensionsCardId extends StatelessWidget {
           ));
         }
       }
-    });
+    }
 
     List<Widget> cardImages = cardImageWidget.isNotEmpty ?
     [

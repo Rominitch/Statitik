@@ -172,12 +172,12 @@ class _ProductPerYearSelectorState extends State<ProductPerYearSelector> with Si
   List<int> years = [];
   @override
   void initState() {
-    widget.productList.forEach((product) {
+    for (var product in widget.productList) {
       DateTime date = product.releaseDate;
       if(!years.contains(date.year)) {
         years.add(date.year);
       }
-    });
+    }
 
     years.sort((a,b) => b.compareTo(a));
 
@@ -193,7 +193,7 @@ class _ProductPerYearSelectorState extends State<ProductPerYearSelector> with Si
   Widget build(BuildContext context) {
     List<Widget> yearsTab = [];
     List<Widget> productsTab = [];
-    years.forEach((year) {
+    for(var year in years) {
       yearsTab.add(Padding(
         padding: const EdgeInsets.all(8.0),
         child: Text(year.toString()),
@@ -248,7 +248,7 @@ class _ProductPerYearSelectorState extends State<ProductPerYearSelector> with Si
       );
 
       productsTab.add(page);
-    });
+    }
     assert(yearsTab.length == productsTab.length);
 
     return Column(

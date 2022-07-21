@@ -83,7 +83,7 @@ class _CardSelectorState extends State<CardSelector> {
 
       int idSet=0;
       var card = widget.cardSelector.cardExtension();
-      card.sets.forEach((set) {
+      for (var set in card.sets) {
         List<Widget> wrapCard = [];
         for(int idImage=0; idImage < max(1, card.images[idSet].length); idImage+=1) {
           var cardImageId = CardImageIdentifier(idSet, idImage);
@@ -124,7 +124,7 @@ class _CardSelectorState extends State<CardSelector> {
           )
         );
         idSet += 1;
-      });
+      }
 
       return Column(
         mainAxisSize: MainAxisSize.min,

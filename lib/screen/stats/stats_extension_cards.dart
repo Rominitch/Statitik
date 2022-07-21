@@ -62,16 +62,16 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> with SingleTi
       uniform = 100.0 / stats.count.length;
       int id = 0;
 
-      stats.count.forEach((countByCard) {
+      for (var countByCard in stats.count) {
         int idCard=0;
         var cardByPosition = stats.subExt.seCards.cards[id];
-        cardByPosition.forEach((PokemonCardExtension pc) {
+        for (int loop=0; loop < cardByPosition.length; loop +=1) {
           int count = countByCard[idCard];
           double percent = stats.totalCards > 0 ? count * ratio : 0;
           statsPerCard.add(StatsPerCard(count, percent));
           id += 1;
-        });
-      });
+        }
+      }
 
       assert(statsPerCard.length == stats.subExt.seCards.cards.length);
     }

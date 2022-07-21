@@ -151,11 +151,11 @@ class ImageStorage {
       var ok = await dir.exists();
       if (ok) {
         var files = dir.listSync(recursive: true, followLinks: false);
-        files.forEach((FileSystemEntity entity) {
+        for (var entity in files) {
           if (entity is File) {
             totalSize += entity.lengthSync();
           }
-        });
+        }
       }
     } catch (e) {
       printOutput(e.toString());

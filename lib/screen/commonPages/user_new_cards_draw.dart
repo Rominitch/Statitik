@@ -10,7 +10,7 @@ class UserNewCardDraw extends StatelessWidget {
   List<Widget> createCards(SubExtension subExtension, List<NewCardReport> reports) {
     var list = <Widget>[];
 
-    reports.forEach((cardReport) {
+    for (var cardReport in reports) {
       var card = subExtension.cardFromId(cardReport.idCard);
       var itSet = card.sets.iterator;
       for(int idSet=0; idSet < cardReport.state.nbSetsRegistred(); idSet +=1 ) {
@@ -25,7 +25,7 @@ class UserNewCardDraw extends StatelessWidget {
           }
         }
       }
-    });
+    }
     return list;
   }
 

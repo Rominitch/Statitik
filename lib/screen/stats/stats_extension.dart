@@ -42,9 +42,9 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
      ['SE_B4', statsExtension.countSecret],
      ['SE_B5', statsExtension.countAllCards()],
     ];
-    info.forEach((element) {
+    for (var element in info) {
       infoCount.add(cardInfo(context, element[0], element[1]));
-    });
+    }
 
     return Padding(
       padding: const EdgeInsets.all(4.0),

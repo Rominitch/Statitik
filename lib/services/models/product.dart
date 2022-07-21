@@ -197,13 +197,13 @@ class Product extends ProductGeneric
     // Save boosters
     assert(boosters.length <= 255);
     bytes += ByteEncoder.encodeInt8(boosters.length);
-    boosters.forEach((booster) {
+    for (var booster in boosters) {
       bytes += ByteEncoder.encodeInt16(booster.subExtension != null ? booster.subExtension!.id : 0);
       assert(booster.nbBoosters <= 255);
       bytes += ByteEncoder.encodeInt8(booster.nbBoosters);
       assert(booster.nbCardsPerBooster <= 255);
       bytes += ByteEncoder.encodeInt8(booster.nbCardsPerBooster);
-    });
+    }
 
     // Save other products
     assert(sideProducts.length <= 255);
@@ -217,9 +217,9 @@ class Product extends ProductGeneric
     // Save other cards
     assert(otherCards.length <= 255);
     bytes += ByteEncoder.encodeInt8(otherCards.length);
-    otherCards.forEach((card) {
+    for (var card in otherCards) {
       bytes += card.toBytes();
-    });
+    }
     
     assert(nbRandomPerProduct <= 255);
     bytes += ByteEncoder.encodeInt8(nbRandomPerProduct);
@@ -244,19 +244,19 @@ class Product extends ProductGeneric
 
   int countBoosters() {
     int count=0;
-    boosters.forEach((value) { count += value.nbBoosters; });
+    for (var value in boosters) { count += value.nbBoosters; }
     return count;
   }
 
   List<BoosterDraw> buildBoosterDraw() {
     var list = <BoosterDraw>[];
     int id=1;
-    boosters.forEach((value) {
+    for (var value in boosters) {
       for( int i=0; i < value.nbBoosters; i+=1) {
         list.add( BoosterDraw(creation: value.subExtension, id: id, nbCards: value.nbCardsPerBooster) );
         id += 1;
       }
-    });
+    }
     return list;
   }
 
@@ -373,15 +373,15 @@ Future<Map> filterProducts(Language l, SubExtension se, ProductCategory? categor
   Environment.instance.collection.categories.forEach((key, category) { products[category] = [];});
 
   // Product of current extension
-  Environment.instance.collection.products.values.forEach((product) {
+  for (var product in Environment.instance.collection.products.values) {
     // Add to list
     if(filter(product, l, se, category, userExtension)) {
       products[product.category]!.add(ProductRequested(product, Colors.grey.shade600, userCounts[product] ?? 0));
     }
-  });
+  }
   if(showAll) {
     // Product of with random booster
-    Environment.instance.collection.products.values.forEach((product) {
+    for (var product in Environment.instance.collection.products.values) {
       // Add to list
       if(filter(product, l, se, category, userExtension, onlyShowRandom: true)) {
         // Search product inside list
@@ -397,7 +397,7 @@ Future<Map> filterProducts(Language l, SubExtension se, ProductCategory? categor
           products[product.category]!.add(ProductRequested(product, Colors.deepOrange.shade700, userCounts[product] ?? 0));
         }
       }
-    });
+    }
   }
   return products;
 }

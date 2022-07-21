@@ -262,7 +262,7 @@ List<Widget> createRegionsWidget(context, regionController, Language language) {
   );
 
   // parse region
-  Environment.instance.collection.regions.values.forEach((region) {
+  for (var region in Environment.instance.collection.regions.values) {
     regionsWidget.add(CustomRadio(value: region, controller: regionController,
         widget: Row(mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -273,7 +273,7 @@ List<Widget> createRegionsWidget(context, regionController, Language language) {
             ])
       )
     );
-  });
+  }
   return regionsWidget;
 }
 

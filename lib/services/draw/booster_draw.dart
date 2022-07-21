@@ -172,7 +172,7 @@ class BoosterDraw {
 
       // No number
       int idCardNum = 0;
-      cardDrawing!.drawNoNumber.forEach((element) {
+      for (var element in cardDrawing!.drawNoNumber) {
         var localCount = element.count();
         if(localCount > 0) {
           var idCard = CardIdentifier.from([2, idCardNum]);
@@ -186,11 +186,11 @@ class BoosterDraw {
           }
         }
         idCardNum += 1;
-      });
+      }
 
       // Energy
       idCardNum = 0;
-      cardDrawing!.drawEnergies.forEach((element) {
+      for (var element in cardDrawing!.drawEnergies) {
         var localCount = element.count();
         if(localCount > 0) {
           var idCard = CardIdentifier.from([1, idCardNum]);
@@ -200,7 +200,7 @@ class BoosterDraw {
           addAlternativeCard(element, card);
         }
         idCardNum += 1;
-      });
+      }
 
       if (subExtension!.seCards.hasBoosterEnergy() && energyAndMarker != 1 && energyAndMarker != 2) {
         return Validator.errorEnergy;
@@ -208,9 +208,9 @@ class BoosterDraw {
 
       // Parsing all cards after
       idCardNum = 0;
-      cardDrawing!.drawCards.forEach((cards) {
+      for (var cards in cardDrawing!.drawCards) {
         int idLocalCard = 0;
-        cards.forEach((element) {
+        for (var element in cards) {
           var localCount = element.count();
           if(localCount > 0) {
             var idCard = CardIdentifier.from([0, idCardNum, idLocalCard]);
@@ -222,9 +222,9 @@ class BoosterDraw {
             }
           }
           idLocalCard += 1;
-        });
+        }
         idCardNum += 1;
-      });
+      }
 
       if (subExtension!.seCards.hasAlternativeSet() && alternativeSet != 1 && alternativeSet != 2) {
         return Validator.errorReverse;

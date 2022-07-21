@@ -27,7 +27,9 @@ class CustomButtonCheckController {
   }
 
   void refresh() {
-    _radios.forEach((element) { element.refresh(); });
+    for (var element in _radios) {
+      element.refresh();
+    }
   }
 }
 

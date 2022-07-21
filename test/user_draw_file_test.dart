@@ -22,10 +22,10 @@ import 'package:statitikcard/services/models/product.dart';
 void parseDualArray<T>(List<T> main, List<T> other, Function(T mElement, T oElement) parser) {
   expect(main.length, other.length);
   var itOther = other.iterator;
-  main.forEach((element) {
+  for (var element in main) {
     itOther.moveNext();
     parser(element, itOther.current);
-  });
+  }
 }
 
 void main() {
@@ -35,7 +35,7 @@ void main() {
 
     expect(ref.boosterDraws.length, cmp.boosterDraws.length);
     var itBoosterRef = ref.boosterDraws.iterator;
-    cmp.boosterDraws.forEach((booster) {
+    for (var booster in cmp.boosterDraws) {
       itBoosterRef.moveNext();
       expect(itBoosterRef.current.id,             booster.id);
       expect(itBoosterRef.current.subExtension,   booster.subExtension);
@@ -58,7 +58,7 @@ void main() {
           expect(mElement.toInt(), oElement.toInt());
         }
       );
-    });
+    }
   }
 
   test('UserDrawFile', () async {
@@ -78,6 +78,7 @@ void main() {
     card[0].sets.add(sets[0]);
     card[0].sets.add(sets[1]);
     card[1].sets.add(sets[0]);
+    card[0].images.add([ImageDesign()]);
 
     var seCard = SubExtensionCards([[card[0], card[1]], [card[1]], [card[0]]], [], 0);
     seCard.energyCard.add(card[0]);
@@ -109,9 +110,9 @@ void main() {
 
     var savedDraws = await UserDrawCollection.readSavedDraws();
     if(savedDraws.isNotEmpty) {
-      savedDraws.forEach((element) {
+      for (var element in savedDraws) {
         element.remove();
-      });
+      }
       await UserDrawCollection.readSavedDraws();
     }
     expect(0, savedDraws.length, reason: "Start condition is not ready");

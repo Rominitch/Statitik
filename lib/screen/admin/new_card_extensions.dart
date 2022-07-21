@@ -227,13 +227,13 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     int id=0;
     int listId=0;
     if( widget.se.seCards.isValid ) {
-      widget.se.seCards.cards.forEach((cardList) {
+      for (var cardList in widget.se.seCards.cards) {
         // Select only first
         var card = cardList[0];
         myCards.add( cardBuilder(card, id, listId) );
 
         id += 1;
-      });
+      }
     }
     return myCards;
   }
@@ -243,11 +243,11 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     int id=0;
     int listId=1;
     if( widget.se.seCards.isValid ) {
-      widget.se.seCards.energyCard.forEach((cardList) {
+      for (var cardList in widget.se.seCards.energyCard) {
         myCards.add( cardBuilder(cardList, id, listId) );
 
         id += 1;
-      });
+      }
     }
     return myCards;
   }
@@ -257,12 +257,12 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     int id=0;
     int listId=2;
     if( widget.se.seCards.isValid ) {
-      widget.se.seCards.noNumberedCard.forEach((cardList) {
+      for (var cardList in widget.se.seCards.noNumberedCard) {
         // Select only first
         myCards.add( cardBuilder(cardList, id, listId) );
 
         id += 1;
-      });
+      }
     }
     return myCards;
   }

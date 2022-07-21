@@ -37,7 +37,7 @@ class CardMarkers {
     ];
     int nextId = 33;
     int id = 1;
-    fullcode.reversed.forEach((code) {
+    for (var code in fullcode.reversed) {
       while(code > 0)
       {
         if((code & 0x1) == 0x1) {
@@ -52,12 +52,12 @@ class CardMarkers {
       }
       id = nextId;
       nextId += 32;
-    });
+    }
   }
 
   List<int> toBytes(Map rMarkers) {
     List<int> codeMarkers = [0, 0];
-    markers.forEach((element) {
+    for (var element in markers) {
       int id = rMarkers[element];
       if(id < 33) {
         codeMarkers[1] |= (1<<(id-1));
@@ -65,7 +65,7 @@ class CardMarkers {
         var multiple = id-33;
         codeMarkers[0] |= (1<<(multiple));
       }
-    });
+    }
     return <int>[
       codeMarkers[0] & 0xFF,
     ]+ByteEncoder.encodeInt32(codeMarkers[1]);

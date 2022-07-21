@@ -85,14 +85,12 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
         allDesigns[language] = [];
       }
       var idSet=0;
-      result.card.images.forEach((imagePerSet) {
-        var idImage = 0;
-        imagePerSet.forEach((element) {
+      for (var imagePerSet in result.card.images) {
+        for (var idImage=0; idImage < imagePerSet.length; idImage +=1) {
           allDesigns[language]!.add(CardViewerIdentifier(result.se, result.idCard, CardImageIdentifier(idSet, idImage)));
-          idImage += 1;
-        });
+        }
         idSet+=1;
-      });
+      }
     });
 
     var index = allDesigns.keys.toList(growable: false).indexOf(widget.se.extension.language);
@@ -105,9 +103,9 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
   @override
   Widget build(BuildContext context) {
     List<Widget> effectsWidgets = [];
-    widget.card.data.cardEffects.effects.forEach((effect) {
+    for (var effect in widget.card.data.cardEffects.effects) {
       effectsWidgets.add(EffectViewer(effect, widget.se.extension.language));
-    });
+    }
 
     List<Widget> imageTabHeaders = [];
     List<Widget> imageTabPages   = [];
@@ -284,11 +282,11 @@ class EffectViewer extends StatelessWidget {
     Widget? descriptionPanel;
     if(effect.title != null) {
       List<Widget> attackType = [];
-      effect.attack.forEach((type) {
+      for (var type in effect.attack) {
         if(type != TypeCard.unknown) {
           attackType.add(energyImage(type));
         }
-      });
+      }
 
       attackPanel = Row(
         children: <Widget>[
@@ -304,13 +302,13 @@ class EffectViewer extends StatelessWidget {
     List<Widget> descriptionMarkerWidgets = [];
     if(effect.description != null) {
       descriptionPanel = effect.description!.toWidget(Environment.instance.collection.descriptions, Environment.instance.collection.pokemons, l);
-      effect.description!.effects.forEach((element) {
+      for (var element in effect.description!.effects) {
         descriptionMarkerWidgets.add(
             Tooltip(message: labelDescriptionEffect(context, element),
                     child: getDescriptionEffectWidget(element)
             )
         );
-      });
+      }
     }
 
     return Card(
@@ -436,7 +434,7 @@ class _CardImageViewerState extends State<CardImageViewer> with TickerProviderSt
   Widget build(BuildContext context) {
     List<Widget> imageTabHeaders = [];
     List<Widget> imageTabPages   = [];
-    widget.ids.forEach((image) {
+    for (var image in widget.ids) {
       var card = image.se.cardFromId(image.idCard);
       imageTabHeaders.add(
         Row(
@@ -452,7 +450,7 @@ class _CardImageViewerState extends State<CardImageViewer> with TickerProviderSt
           fit: BoxFit.fitWidth
         )
       );
-    });
+    }
 
     return Column(
       children: [

@@ -57,7 +57,7 @@ class _UserReportState extends State<UserReport> {
         }
       }
 
-      cardSort.reversed.forEach((cards) {
+      for (var cards in cardSort.reversed) {
         for(var c in cards.entries) {
           if (bestCards.length > 14) {
             break;
@@ -102,7 +102,7 @@ class _UserReportState extends State<UserReport> {
             );
           }
         }
-      });
+      }
 
       products.clear();
       if (finalData.pr != null) {

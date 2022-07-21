@@ -23,17 +23,16 @@ class TutorialCaption extends StatelessWidget {
   Widget build(BuildContext context) {
     const iconSize = 50.0;
     var designWidget = <Widget>[];
-    Environment.instance.collection.validDesigns.forEach((element) {
-
+    for (var element in Environment.instance.collection.validDesigns) {
       designWidget.add( createIconDescribe(element.name(l), element.icon(height: iconSize)));
-    });
+    }
 
     var artWidgets = <Widget>[];
-    ArtFormat.values.forEach((art) {
+    for (var art in ArtFormat.values) {
       if(art != ArtFormat.unknown) {
         artWidgets.add( createIconDescribe(StatitikLocale.of(context).read(codeArt(art)), iconArt(art, iconSize, iconSize)));
       }
-    });
+    }
 
     return Scaffold(
       appBar: AppBar(

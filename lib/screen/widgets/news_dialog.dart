@@ -53,7 +53,7 @@ class _CarouselNewsState extends State<CarouselNews> {
       if(matches.isEmpty) {
         children.add(TextSpan(text: newsItem.body));
       } else {
-        matches.forEach((match) {
+        for (var match in matches) {
           if (index < match.start) {
             children.add(
               TextSpan(text: newsItem.body.substring(index, match.start))
@@ -70,7 +70,7 @@ class _CarouselNewsState extends State<CarouselNews> {
             )
           );
           index = match.end;
-        });
+        }
         if (index < newsItem.body.length) {
           children.add(
               TextSpan(text: newsItem.body.substring(index, newsItem.body.length))

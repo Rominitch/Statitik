@@ -9,9 +9,9 @@ import 'package:statitikcard/services/statitik_font_icons.dart';
 
 List<Widget> computeDeckInfo(Deck deck, BuildContext context) {
   List<Widget> energies = [];
-  deck.stats.energyTypes.forEach((type) {
+  for (var type in deck.stats.energyTypes) {
     energies.add(getImageType(type));
-  });
+  }
 
   return [
     Text(deck.name, style: Theme.of(context).textTheme.headline6),
@@ -88,13 +88,13 @@ class DeckStatisticWidget extends StatelessWidget {
     } else {
       var firstColWidth = 200.0;
       List<Widget> energies = [];
-      deck.stats.energyTypes.forEach((type) {
+      for (var type in deck.stats.energyTypes) {
         energies.add(getImageType(type));
-      });
+      }
       List<Widget> powerEnergies = [];
-      deck.stats.powerEnergies.forEach((type) {
+      for (var type in deck.stats.powerEnergies) {
         powerEnergies.add(getImageType(type));
-      });
+      }
       List<Widget> weaknessType = [];
       deck.stats.countWeakness.forEach((type, count) {
         weaknessType.add(createEnergyInfo(type, count));
@@ -109,7 +109,7 @@ class DeckStatisticWidget extends StatelessWidget {
           children:
           [
             Row(children:[
-              miniBox(const Icon(Icons.image_outlined),          deck.stats.nbCards),
+              miniBox(const Icon(Icons.image_outlined),    deck.stats.nbCards),
               const Text("="),
               miniBox(const Icon(StatitikFont.font01Pokecard), deck.stats.nbCardsPokemon, deck.stats.countPokemon.length),
               miniBox(getImageType(TypeCard.objet),        deck.stats.countByType[TypeCard.objet]),

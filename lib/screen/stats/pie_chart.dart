@@ -25,7 +25,7 @@ class PieChartEnergiesState extends State<PieChartEnergies> {
     sections.clear();
 
     var countEnergy = widget.allStats.countEnergy.iterator;
-    widget.allStats.subExt.seCards.energyCard.forEach((energy) {
+    for (var energy in widget.allStats.subExt.seCards.energyCard) {
       if(countEnergy.moveNext()) {
         final TypeCard energyType = energy.data.typeExtended ?? TypeCard.unknown;
         final isTouched           = energyType.index == touchedIndex;
@@ -44,7 +44,7 @@ class PieChartEnergiesState extends State<PieChartEnergies> {
           );
         }
       }
-    });
+    }
 
     super.initState();
   }
@@ -120,7 +120,7 @@ class _PieExtensionState extends State<PieExtension> {
     } else {
       const smallValue = 3.5;
       bool oldSmall = false;
-      widget.subExtension.stats.rarities.forEach( (rarity) {
+      for (var rarity in widget.subExtension.stats.rarities) {
         var isSmall = false;
         final isTouched = rarity.id == touchedIndex;
         final double radius = isTouched ? 110 : 90;
@@ -143,7 +143,7 @@ class _PieExtensionState extends State<PieExtension> {
           odd = !odd;
           oldSmall = !oldSmall && isSmall;
         }
-      });
+      }
     }
   }
 

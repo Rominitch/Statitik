@@ -85,7 +85,7 @@ class _PokeSpaceProductsExplorerState extends State<PokeSpaceProductsExplorer> w
   Widget build(BuildContext context) {
     List<Widget> yearsTab = [];
     List<Widget> productsTab = [];
-    years.forEach((year) {
+    for(var year in years){
       yearsTab.add(Padding(
         padding: const EdgeInsets.all(8.0),
         child: Text(year.toString()),
@@ -131,7 +131,7 @@ class _PokeSpaceProductsExplorerState extends State<PokeSpaceProductsExplorer> w
       );
 
       productsTab.add(page);
-    });
+    }
 
     return Column(
       children: [

@@ -163,7 +163,7 @@ class _NewProductPageState extends State<NewProductPage> {
   List<Widget> fillAdditionalCards() {
     List<Widget>  cardsWidget = [];
     cardsWidget.clear();
-    product.otherCards.forEach((otherCard) {
+    for (var otherCard in product.otherCards) {
       var selector = CardSelectorProductCard(otherCard);
       cardsWidget.add(PokemonCard(selector,
         refresh: (){ setState(() {
@@ -173,7 +173,7 @@ class _NewProductPageState extends State<NewProductPage> {
             });
         },
         readOnly: false, singlePress: true));
-    });
+    }
     //
     cardsWidget.add(
         Card(

@@ -111,17 +111,17 @@ class CardImage extends StatefulWidget {
       var cardIdentifier = "${cardId.toString()}_${idImage.toString()}";
       var cardPath = "StatitikCard/card/${se.extension.language.image}/${se.icon}/$cardIdentifier";
       var formats = ["webp", "png", "jpg"];
-      formats.forEach((ext) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardPath.$ext"));});
+      for (var ext in formats) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardPath.$ext"));}
 
       if(cardId.listId == 1) {
         var cardEnergyPath = "StatitikCard/card/${se.extension.language.image}/E_${se.icon}_${cardId.numberId+1}";
-        formats.forEach((ext) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardEnergyPath.$ext"));});
+        for (var ext in formats) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardEnergyPath.$ext"));}
         var cardEnergy2Path = "StatitikCard/card/${se.extension.language.image}/E_${defaultImage.image}_${cardId.numberId+1}";
-        formats.forEach((ext) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardEnergy2Path.$ext"));});
+        for (var ext in formats) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardEnergy2Path.$ext"));}
       }
       if(cardId.listId == 2) {
         var cardNoNumberPath = "StatitikCard/card/${se.extension.language.image}/$cardIdentifier";
-        formats.forEach((ext) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardNoNumberPath.$ext"));});
+        for (var ext in formats) { images.add(Uri(scheme: scheme, host:moucaServer, path: "$cardNoNumberPath.$ext"));}
       }
 
       //
@@ -130,7 +130,7 @@ class CardImage extends StatefulWidget {
           images += [Uri.parse(defaultImage.image)];
         } else {
           int addAt = cardId.listId != 0 ? images.length : 0;
-          se.seCode.forEach((seFolder) {
+          for (var seFolder in se.seCode) {
             String tcgId = se.seCards.tcgImage(cardId.numberId);
             // Official image source
             if (cardId.listId == 1) {
@@ -154,7 +154,7 @@ class CardImage extends StatefulWidget {
                   "assets/images/sets/${seFolder.toUpperCase()}/HD/${cardId
                       .numberId + 1}.jpg"),
             ];
-          });
+          }
         }
       } else if( se.extension.language.id == 2 ) {
         if (defaultImage.image.startsWith("https://")) {
@@ -168,11 +168,11 @@ class CardImage extends StatefulWidget {
           }
 
           // Official image source
-          se.seCode.forEach((seFolder) {
+          for (var seFolder in se.seCode) {
             images.insert(addAt, Uri.https("assets.pokemon.com",
                 "assets/cms2/img/cards/web/$seFolder/${seFolder}_EN_${se.seCards
                     .tcgImage(cardId.numberId)}.png"));
-          });
+          }
         }
       } else if( se.extension.language.id == 3 ) {
         if(defaultImage.image.startsWith("https://")) {
@@ -198,13 +198,13 @@ class CardImage extends StatefulWidget {
               images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large//${codeImage}_${codeType}_$romajiName.jpg"));
             }
 
-            se.seCode.forEach((seFolder) {
+            for (var seFolder in se.seCode) {
               // Official image source
               images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_${romajiName}_m.jpg"));
               images.insert(0, Uri.https("www.pokemon-card.com", "assets/images/card_images/large/$seFolder/${codeImage}_${codeType}_$romajiName.jpg"));
               // Reliable alternative source
               images.add(Uri.https("www.pokecardex.com", "assets/images/sets_jp/${seFolder.toUpperCase()}/HD/${se.seCards.tcgImage(cardId.numberId)}.jpg"));
-            });
+            }
           }
         }
       }

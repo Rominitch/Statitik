@@ -80,6 +80,8 @@ void main() {
     card[0].sets.add(sets[0]);
     card[0].sets.add(sets[1]);
     card[1].sets.add(sets[0]);
+    card[0].images[0].add(ImageDesign());
+    card[0].images.add([ImageDesign()]);
 
     var seCard = SubExtensionCards([[card[0], card[1]], [card[1]], [card[0]]], [], 0);
     seCard.energyCard.add(card[0]);
@@ -92,12 +94,12 @@ void main() {
       expect(codeS.drawCards.length, code.drawCards.length);
 
       var itS = codeS.drawCards.iterator;
-      code.drawCards.forEach((subCards) {
+      for (var subCards in code.drawCards) {
         itS.moveNext();
 
         expect(itS.current, isNot(null));
         var itSS = itS.current.iterator;
-        subCards.forEach((code) {
+        for (var code in subCards) {
           itSS.moveNext();
           expect(itSS.current, isNot(null));
 
@@ -107,14 +109,14 @@ void main() {
             setSS.moveNext();
             expect(cardSS.current,  setSS.current);
           }
-        });
-      });
+        }
+      }
 
       // Energy
       {
         expect(codeS.drawEnergies.length, code.drawEnergies.length);
         var itRef = codeS.drawEnergies.iterator;
-        code.drawEnergies.forEach((cardCode) {
+        for (var cardCode in code.drawEnergies) {
           itRef.moveNext();
           var setSS = itRef.current.iterator;
           var cardSS = cardCode.iterator;
@@ -122,7 +124,7 @@ void main() {
             setSS.moveNext();
             expect(cardSS.current,  setSS.current);
           }
-        });
+        }
       }
     };
 
@@ -230,7 +232,7 @@ void main() {
       expect(codeS.effects.length, code.effects.length); // Pointer comparison
 
       var itEffect = code.effects.iterator;
-      codeS.effects.forEach((effect) {
+      for (var effect in codeS.effects) {
         itEffect.moveNext();
         expect(effect.attack,      itEffect.current.attack);
         expect(effect.title,       itEffect.current.title);
@@ -240,7 +242,7 @@ void main() {
         } else {
           expect(effect.description, itEffect.current.description);
         }
-      });
+      }
     }
   });
 }

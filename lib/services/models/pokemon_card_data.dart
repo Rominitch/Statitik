@@ -153,9 +153,9 @@ class PokemonCardData {
 
   String titleOfCard(Language l) {
     List<String> name = [];
-    title.forEach((pokemon) {
+    for (var pokemon in title) {
       name.add(pokemon.titleOfCard(l));
-    });
+    }
     return name.join("&");
   }
 

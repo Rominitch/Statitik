@@ -31,11 +31,11 @@ class StatsCardUser {
     assert(subExtension.seCards.cards.length == cards.length);
 
     var userCards = cards.iterator;
-    subExtension.seCards.cards.forEach((subCards) {
+    for (var subCards in subExtension.seCards.cards) {
       if(userCards.moveNext()) {
         assert(userCards.current.length == subCards.length);
         var userSubCards = userCards.current.iterator;
-        subCards.forEach((card) {
+        for (var card in subCards) {
           if(userSubCards.moveNext()) {
             if( userSubCards.current.count() > 0) {
               if(countByRarity.containsKey(card.rarity)) {
@@ -51,7 +51,7 @@ class StatsCardUser {
               }
 
               int idSet=0;
-              card.sets.forEach((set) {
+              for (var set in card.sets) {
                 if(idSet < userSubCards.current.nbSetsRegistred()) {
                   if(userSubCards.current.countBySet(idSet) > 0) {
                     if(countBySet.containsKey(set)) {
@@ -62,12 +62,12 @@ class StatsCardUser {
                   }
                 }
                 idSet += 1;
-              });
+              }
             }
           }
-        });
+        }
       }
-    });
+    }
   }
 }
 
@@ -168,34 +168,34 @@ class UserCardCounter
   List<int> toBytes() {
     List<int> bytes = [];
     bytes += ByteEncoder.encodeInt16(cards.length);
-    cards.forEach((subCard) {
+    for (var subCard in cards) {
       bytes += ByteEncoder.encodeInt8(subCard.length);
-      subCard.forEach((code) {
+      for (var code in subCard) {
         bytes += code.toBytes();
-      });
-    });
+      }
+    }
 
     bytes += ByteEncoder.encodeInt16(energies.length);
-    energies.forEach((code) {
+    for (var code in energies) {
       bytes += code.toBytes();
-    });
+    }
 
     bytes += ByteEncoder.encodeInt16(noNumbers.length);
-    noNumbers.forEach((code) {
+    for (var code in noNumbers) {
       bytes += code.toBytes();
-    });
+    }
     return bytes;
   }
 
   void add(ExtensionDrawCards edc, [NewCardsReport? report]) {
     int idCard = 0;
     var subCard = cards.iterator;
-    edc.drawCards.forEach((element) {
+    for (var element in edc.drawCards) {
       if(subCard.moveNext()) {
         addList(subExtension, element, subCard.current, [0, idCard], report);
         idCard += 1;
       }
-    });
+    }
 
     addList(subExtension, edc.drawEnergies, energies, [1], report);
   }
@@ -225,7 +225,7 @@ class UserCardCounter
   void addList(SubExtension se, List<CodeDraw> from, List<CodeDraw> to, List<int> listId, [NewCardsReport? report]) {
     int idCard = 0;
     var dstCode = to.iterator;
-    from.forEach((cardCode) {
+    for (var cardCode in from) {
       if(dstCode.moveNext()) {
         var code = dstCode.current.add(cardCode);
         if(code != null && report!= null) {
@@ -233,7 +233,7 @@ class UserCardCounter
         }
         idCard +=1;
       }
-    });
+    }
   }
 
   NewCardReport? addProductCard(ProductCard productCard, [int mulFactor=1]) {
@@ -320,21 +320,21 @@ class PokeSpace
 
   List<Language> myLanguagesCard() {
     List<Language> languages = [];
-    myCards.keys.forEach((subExtension) {
+    for (var subExtension in myCards.keys) {
       if(!languages.contains(subExtension.extension.language)) {
         languages.add(subExtension.extension.language);
       }
-    });
+    }
     return languages;
   }
 
   List<Language> myLanguagesProduct() {
     List<Language> languages = [];
-    myProducts.keys.forEach((product) {
+    for (var product in myProducts.keys) {
       if(!languages.contains(product.language)) {
         languages.add(product.language!);
       }
-    });
+    }
     return languages;
   }
 
@@ -463,9 +463,9 @@ class PokeSpace
 
     // My decks
     bytes += ByteEncoder.encodeInt16(myDecks.length);
-    myDecks.forEach((deck) {
+    for (var deck in myDecks) {
       bytes += deck.toBytes();
-    });
+    }
 
     // Save final data
     assert(version <= 255);
@@ -496,13 +496,13 @@ class PokeSpace
         insertSideProduct(sideProduct, UserProductCounter.fromOpened( counter.opened * count));
       });
       // Cards
-      product.otherCards.forEach((productCard) {
+      for (var productCard in product.otherCards) {
         insertSubExtension(productCard.subExtension);
         var result = myCards[productCard.subExtension]!.addProductCard(productCard, counter.opened);
         if(result != null && report!=null) {
           report.add(productCard.subExtension, result);
         }
-      });
+      }
 
       outOfDate |= product.otherCards.isNotEmpty;
     }
@@ -539,12 +539,12 @@ class PokeSpace
   NewCardsReport insertSessionDraw(SessionDraw draw) {
     var myNewCard = NewCardsReport();
 
-    draw.boosterDraws.forEach((booster) {
+    for (var booster in draw.boosterDraws) {
       if(booster.cardDrawing != null) {
         insertSubExtension(booster.subExtension!);
         myCards[booster.subExtension!]!.add(booster.cardDrawing!, myNewCard);
       }
-    });
+    }
 
     // Add new product
     insertProduct(draw.product, UserProductCounter.fromOpened(), report: myNewCard);

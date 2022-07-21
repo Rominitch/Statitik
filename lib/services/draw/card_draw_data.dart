@@ -116,12 +116,12 @@ class ExtensionDrawCards {
 
     var itCurrent = drawCards.iterator;
 
-    savedData.drawCards.forEach((saveCards) {
+    for (var saveCards in savedData.drawCards) {
       if(!itCurrent.moveNext()) {
         throw StatitikException("ExtensionDrawCards - draw Data corruption : more cards into Expansion than expected ${drawCards.length} < ${savedData.drawCards.length}!");
       }
       var itCard = itCurrent.current.iterator;
-      saveCards.forEach((card) {
+      for (var card in saveCards) {
         if(!itCard.moveNext()) {
           throw StatitikException("ExtensionDrawCards - draw Data corruption : more card than expected !");
         }
@@ -129,28 +129,28 @@ class ExtensionDrawCards {
         itCard.current.copy(card);
 
         count += card.count();
-      });
-    });
+      }
+    }
 
     var energyIt = drawEnergies.iterator;
-    savedData.drawEnergies.forEach((drawEnergy) {
+    for (var drawEnergy in savedData.drawEnergies) {
       if(!energyIt.moveNext()) {
         throw StatitikException("ExtensionDrawCards - draw Energy Data corruption : more cards into Expansion than expected ${drawEnergies.length} < ${savedData.drawEnergies.length}!");
       }
 
       energyIt.current.copy(drawEnergy);
       count += drawEnergy.count();
-    });
+    }
 
     var noNumberIt = drawNoNumber.iterator;
-    savedData.drawNoNumber.forEach((draw) {
+    for (var draw in savedData.drawNoNumber) {
       if(!noNumberIt.moveNext()) {
         throw StatitikException("ExtensionDrawCards - draw no number Data corruption : more cards into Expansion than expected ${drawNoNumber.length} < ${savedData.drawNoNumber.length}!");
       }
 
       noNumberIt.current.copy(draw);
       count += draw.count();
-    });
+    }
 
     return count;
   }
@@ -159,15 +159,15 @@ class ExtensionDrawCards {
   List<int> toBytes() {
     // Clean code to minimal binary data
     List<List<int>> allCardsCodes = [];
-    drawCards.forEach((codeCards) {
+    for (var codeCards in drawCards) {
       List<int> localCard = [];
-      codeCards.forEach((card) { localCard.add(card.toInt()); });
+      for (var card in codeCards) { localCard.add(card.toInt()); }
       allCardsCodes.add(localCard);
-    });
+    }
     // Parse and Clear empty
     while(allCardsCodes.isNotEmpty) {
       int count=0;
-      allCardsCodes.last.forEach((element) { count += element; });
+      for (var element in allCardsCodes.last) { count += element; }
       if(count == 0) {
         allCardsCodes.removeLast();
       } else {
@@ -197,10 +197,10 @@ class ExtensionDrawCards {
 
     // Build binary data
     List<int> bytes = ByteEncoder.encodeInt16(allCardsCodes.length);
-    allCardsCodes.forEach((cards) {
+    for (var cards in allCardsCodes) {
       bytes.add(cards.length);
-      cards.forEach((code) { bytes.add(code);});
-    });
+      for (var code in cards) { bytes.add(code);}
+    }
     // Make for energies
     bytes += ByteEncoder.encodeInt16(validEnergy);
     drawEnergies.sublist(0, validEnergy).forEach((element) {
@@ -227,20 +227,20 @@ class CodeDraw {
   CodeDraw.emptyCopy(CodeDraw copy) :
     _countBySetByImage = []
   {
-    copy._countBySetByImage.forEach((images) {
+    for (var images in copy._countBySetByImage) {
       assert(images.isNotEmpty);
       _countBySetByImage.add(List<int>.generate(images.length, (id) => 0));
-    });
+    }
   }
 
   CodeDraw.fromPokeCardExtension(PokemonCardExtension card, [int? code]) :
     _countBySetByImage = []
   {
     assert(card.sets.length == card.images.length);
-    card.images.forEach((images) {
+    for (var images in card.images) {
       _countBySetByImage.add(List<int>.generate(max(1, images.length), (id) => 0));
       assert(_countBySetByImage.last.length == images.length || _countBySetByImage.last.length == 1);
-    });
+    }
     assert(_countBySetByImage.length == card.images.length);
 
     if(code != null) {
@@ -295,13 +295,13 @@ class CodeDraw {
 
   List<int> toBytes() {
     List<int> bytes = ByteEncoder.encodeInt8(_countBySetByImage.length);
-    _countBySetByImage.forEach((List<int> countByImage) {
+    for (var countByImage in _countBySetByImage) {
       bytes += ByteEncoder.encodeInt8(countByImage.length);
-      countByImage.forEach((count) {
+      for (var count in countByImage) {
         assert(count < 256);
         bytes += ByteEncoder.encodeInt8(count);
-      });
-    });
+      }
+    }
     return bytes;
   }
 
@@ -331,9 +331,9 @@ class CodeDraw {
 
   void copy(CodeDraw other) {
     _countBySetByImage = [];
-    other._countBySetByImage.forEach((element) {
+    for (var element in other._countBySetByImage) {
       _countBySetByImage.add(List<int>.from(element));
-    });
+    }
   }
 
   void reset() {
@@ -376,11 +376,11 @@ class CodeDraw {
 
   int count() {
     int c = 0;
-    _countBySetByImage.forEach((countByImage) {
+    for (var countByImage in _countBySetByImage) {
       if(countByImage.isNotEmpty) {
         c += countByImage.reduce((value, currentItem) => value + currentItem);
       }
-    });
+    }
     return c;
   }
 
@@ -453,7 +453,7 @@ class CodeDraw {
       int alternativeSet = 0;
       var countSet = _countBySetByImage.iterator;
       // or for each set, check reverse
-      card.sets.forEach((set) {
+      for (var set in card.sets) {
         if (countSet.moveNext()) {
           if (set.isParallel || set.replaceRevertIntoBooster) {
             alternativeSet +=
@@ -461,7 +461,7 @@ class CodeDraw {
                     currentItem);
           }
         }
-      });
+      }
       return alternativeSet;
     }
   }

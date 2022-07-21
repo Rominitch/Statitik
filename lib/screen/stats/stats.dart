@@ -47,12 +47,12 @@ class StatsConfiguration {
       sData.stats = stats;
       // Compute Cards stats
       int idCard=0;
-      sData.subExt!.seCards.cards.forEach((listCardSE) {
-        listCardSE.forEach((cardSE) {
+      for (var listCardSE in sData.subExt!.seCards.cards) {
+        for (var cardSE in listCardSE) {
           sData.cardStats.stats!.add(sData.subExt!, cardSE, CardIdentifier.from([0, idCard, 0]));
           idCard +=1;
-        });
-      });
+        }
+      }
 
       // Get user info after
       if(env.user != null) {

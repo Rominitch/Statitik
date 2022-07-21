@@ -72,7 +72,7 @@ class SessionDraw
     bytes += ByteEncoder.encodeBool(productAnomaly);
 
     bytes += ByteEncoder.encodeInt16(boosterDraws.length);
-    boosterDraws.forEach((element) {
+    for (var element in boosterDraws) {
       bytes += ByteEncoder.encodeInt16(element.creation != null ? element.creation!.id : 0);
       bytes += ByteEncoder.encodeInt8(element.nbCards);
       bytes += ByteEncoder.encodeInt16(element.subExtension == null ? 0 : element.subExtension!.id);
@@ -83,7 +83,7 @@ class SessionDraw
         // List code
         bytes += ByteEncoder.encodeBytesArray(element.cardDrawing!.toBytes());
       }
-    });
+    }
 
     bytes += productDraw.toBytes();
     
@@ -92,9 +92,9 @@ class SessionDraw
   }
 
   void closeStream() {
-    boosterDraws.forEach((booster) {
+    for (var booster in boosterDraws) {
       booster.closeStream();
-    });
+    }
   }
 
   void addNewBooster() {
@@ -111,7 +111,7 @@ class SessionDraw
     boosterDraws.removeAt(id);
     // Change Label ID
     id = 1;
-    boosterDraws.forEach((BoosterDraw element) {element.id = id; id += 1; });
+    for (var element in boosterDraws) {element.id = id; id += 1; }
   }
 
   bool canDelete() {

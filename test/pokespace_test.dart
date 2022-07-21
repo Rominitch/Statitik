@@ -35,6 +35,7 @@ void main() {
     cards[0].sets.add(sets[0]);
     cards[0].sets.add(sets[1]);
     cards[1].sets.add(sets[0]);
+    cards[0].images.add([ImageDesign()]);
 
     var seCard = SubExtensionCards([[cards[0], cards[1]], [cards[1]], [cards[0]]], [], 0);
     seCard.energyCard.add(cards[0]);
