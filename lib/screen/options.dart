@@ -62,12 +62,12 @@ class _OptionsPageState extends State<OptionsPage> {
   Widget build(BuildContext context) {
     langueController.currentValue = StatitikLocale.of(context).locale.languageCode;
 
-    var refreshWithError = (String message) {
+    refreshWithError(String message) {
       EasyLoading.showError(message, dismissOnTap: true);
-    };
-    Function refresh = () {
+    }
+    refresh() {
       setState(() {});
-    };
+    }
 
     Widget toolBarLanguage() {
       return Row( children: [

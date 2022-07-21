@@ -45,7 +45,7 @@ class _PokeSpaceProductsExplorerState extends State<PokeSpaceProductsExplorer> w
   }
 
   Widget buildCounter(UserProductCounter counter) {
-    var buildCard = (int count, icon, color) {
+    buildCard(int count, icon, color) {
       return Expanded(
         child: Card(
           margin: const EdgeInsets.all(2.0),
@@ -62,7 +62,7 @@ class _PokeSpaceProductsExplorerState extends State<PokeSpaceProductsExplorer> w
           )
         )
       );
-    };
+    }
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

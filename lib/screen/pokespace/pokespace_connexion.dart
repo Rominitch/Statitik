@@ -288,14 +288,14 @@ class _DrawHomePageState extends State<DrawHomePage> {
         ),
       );
     } else {
-      var refreshWithError = (String message) {
+      refreshWithError(String message) {
         setState( () {
           this.message = message;
         } );
-      };
-      var refresh = () {
+      }
+      refresh() {
         setState( () {} );
-      };
+      }
       return Scaffold(
         appBar: AppBar(
           title: Center(

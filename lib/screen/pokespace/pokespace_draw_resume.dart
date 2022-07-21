@@ -79,14 +79,14 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
 
   @override
   Widget build(BuildContext context) {
-    Function update = () { setState(() {}); };
+    update() { setState(() {}); }
     List<Widget> boosters = [];
     bool atLeastOne  = false;
     bool allFinished = true;
     bool sameExt     = true;
 
     for( var boosterDraw in widget._activeSession.boosterDraws) {
-      Function fillBoosterInfo = (BuildContext context) async {
+      fillBoosterInfo(BuildContext context) async {
         final result = await Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => BoosterPage(language: widget._activeSession.language, boosterDraw: boosterDraw, readOnly: widget._readOnly,)),
@@ -98,9 +98,8 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
         if (result == null || result) {
           setState(() {});
         }
-      };
-      Function afterSelectExtension = (BuildContext context, Language language, SubExtension subExt) async
-      {
+      }
+      afterSelectExtension(BuildContext context, Language language, SubExtension subExt) async {
         // Quit page
         Navigator.of(context).pop();
 
@@ -108,9 +107,9 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
         boosterDraw.fillCard();
         // Go to booster fill
         await fillBoosterInfo(context);
-      };
+      }
 
-      Function navigateAndDisplaySelection = (BuildContext context) async {
+      navigateAndDisplaySelection(BuildContext context) async {
         // First fill extension is not the case
         if(!boosterDraw.hasSubExtension()) {
           Navigator.push(
@@ -121,7 +120,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
         else {
           await fillBoosterInfo(context);
         }
-      };
+      }
 
       boosters.add(createBoosterDrawTitle(widget._activeSession, boosterDraw, context, navigateAndDisplaySelection, update));
 
@@ -241,7 +240,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
         );
       }
       else if(!widget._readOnly && atLeastOne) {
-          var errorFunction =  (error, stackTrace){
+        errorFunction(error, stackTrace) {
           printOutput("Write file error:\n${stackTrace.toString()}");
           EasyLoading.dismiss();
           showDialog(
@@ -253,7 +252,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                     StatitikLocale.of(context).read('TR_B9')),
               )
           );
-        };
+        }
 
         // Save to file action
         actions.add(

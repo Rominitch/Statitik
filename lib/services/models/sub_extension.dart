@@ -101,7 +101,7 @@ class StatsExtension {
     allRarityPerSets = {};
     countBySetByRarity = {};
 
-    var computeStatsByCard = (PokemonCardExtension c) {
+    computeStatsByCard(PokemonCardExtension c) {
       for (var element in c.sets) {
         if(!allSets.contains(element)) {
           allSets.add(element);
@@ -136,8 +136,7 @@ class StatsExtension {
       if(!rarities.contains(c.rarity)) {
         rarities.add(c.rarity);
       }
-
-    };
+    }
 
     for (var cards in subExt.seCards.cards) {
       for (var c in cards) {

@@ -90,7 +90,7 @@ void main() {
 
     var se = SubExtension(1, "Demo", "D", ex, DateTime.now(), seCard, SerieType.normal, ["D"], 10 );
 
-    var compare = (ExtensionDrawCards codeS, ExtensionDrawCards code) {
+    compare(ExtensionDrawCards codeS, ExtensionDrawCards code) {
       expect(codeS.drawCards.length, code.drawCards.length);
 
       var itS = codeS.drawCards.iterator;
@@ -126,7 +126,7 @@ void main() {
           }
         }
       }
-    };
+    }
 
     // Demo data
     ExtensionDrawCards edc = ExtensionDrawCards.fromSubExtension(se);

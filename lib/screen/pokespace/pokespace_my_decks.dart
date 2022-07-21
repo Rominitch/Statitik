@@ -20,7 +20,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
   void goToDeckSelector(Deck deck) {
 
     if(deck.cards.isEmpty) {
-      var afterSelectLanguage = (BuildContext context, Language language) {
+      afterSelectLanguage(BuildContext context, Language language) {
         Navigator.pop(context);
         Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyDecksCreator(language, deck))).then(
           (value) {
@@ -32,7 +32,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
             });
           }
         );
-      };
+      }
       Navigator.push(context, MaterialPageRoute(builder: (context) => LanguageSelector(afterSelectLanguage)));
     } else {
       Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyDecksCreator(deck.cards.first.se.extension.language, deck))).then(

@@ -176,7 +176,7 @@ class StatsBooster {
       throw StatitikException('Corruption des données de tirages');
     }
 
-    var computeStatsBySet = (PokemonCardExtension cardInfo, CodeDraw code) {
+    computeStatsBySet(PokemonCardExtension cardInfo, CodeDraw code) {
       for(int setId=0; setId < cardInfo.sets.length; setId += 1) {
         var countSet = code.countBySet(setId);
         var setCard = cardInfo.sets[setId];
@@ -194,7 +194,7 @@ class StatsBooster {
           countBySetByRarity[setCard]![cardInfo.rarity] = countBySetByRarity[setCard]![cardInfo.rarity]! + countSet;
         }
       }
-    };
+    }
 
     anomaly += anomaly;
     nbBoosters += 1;

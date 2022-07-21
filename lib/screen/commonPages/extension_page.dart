@@ -44,9 +44,9 @@ class _ExtensionPageState extends State<ExtensionPage> {
       for( SubExtension se in Environment.instance.collection.getSubExtensions(e))
       {
         if( serieFilters.contains(se.type) ) {
-          void Function() press = () {
+          press() {
             widget.afterSelected(context, widget.language, se);
-          };
+          }
           subExtensions.add(ExtensionButton(subExtension: se, press: press));
         }
       }

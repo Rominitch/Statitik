@@ -35,7 +35,7 @@ class _BoosterPageState extends State<BoosterPage> {
 
   void createCards() {
     // Build one time all widgets
-    Function refresh = () => setState( () {} );
+    refresh() => setState( () {} );
     widgets = [];
     int idInBooster=0;
     for(var cards in widget.boosterDraw.subExtension!.seCards.cards) {

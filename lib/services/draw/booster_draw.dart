@@ -166,9 +166,9 @@ class BoosterDraw {
       int alternativeSet  = 0; // Other than standard or standard brillant
 
       // Functor
-      var addAlternativeCard = (CodeDraw code, PokemonCardExtension card) {
+      addAlternativeCard(CodeDraw code, PokemonCardExtension card) {
         alternativeSet += code.countBoosterReversePosition(card);
-      };
+      }
 
       // No number
       int idCardNum = 0;

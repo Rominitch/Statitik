@@ -66,11 +66,11 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
   }
 
   Future<void> computeList() async {
-    var checkVisible = (notUser) {
+    checkVisible(notUser) {
       return showMode == _VisualizationMask.all ||
         (showMode == _VisualizationMask.mine && !notUser) ||
         (showMode == _VisualizationMask.missing && notUser);
-    };
+    }
 
     var card = [];
     for(int id=0; id < widget.subExtension.seCards.cards.length; id +=1) {

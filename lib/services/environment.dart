@@ -82,7 +82,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '2.0.7';
+    final String version = '2.0.8';
 
     // State
     bool isInitialized          = false;
@@ -484,7 +484,7 @@ class Environment
     }
 
     void login(CredentialMode mode, context, {Function()? afterLog, Function(String)? afterError}) async {
-        var onSuccess = (uid) {
+        onSuccess(uid) {
             //printOutput("Credential Success: "+uid);
             SharedPreferences.getInstance().then((prefs) {
                 // Save to preferences
@@ -498,8 +498,8 @@ class Environment
                     }
                 });
             });
-        };
-        var onError = (codeMessage, [code]) {
+        }
+        onError(codeMessage, [code]) {
             //printOutput("Credential Error: "+message);
             var message = sprintf(StatitikLocale.of(context).read(codeMessage), [code]);
             Environment.instance.user = null;
@@ -507,7 +507,7 @@ class Environment
             if(afterError != null) {
               afterError(message);
             }
-        };
+        }
         try {
             // Log system
             if(mode==CredentialMode.phone) {
