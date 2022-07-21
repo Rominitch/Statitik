@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-import 'package:statitikcard/screen/widgets/CustomRadio.dart';
-import 'package:statitikcard/services/Draw/BoosterDraw.dart';
-import 'package:statitikcard/services/Draw/SessionDraw.dart';
-import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/screen/widgets/custom_radio.dart';
+import 'package:statitikcard/services/draw/booster_draw.dart';
+import 'package:statitikcard/services/draw/session_draw.dart';
+import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/Language.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
-import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
+import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/models/models.dart';
 
 Widget createLanguage(Language l, BuildContext context, Widget Function(BuildContext) press)
@@ -84,7 +84,7 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
   Color? color = Colors.grey[900];
   if( bd.isFinished() ) {
     final valid = bd.validationWorld(current.language);
-    color = (valid == Validator.Valid) ? greenValid : Colors.deepOrange;
+    color = (valid == Validator.valid) ? greenValid : Colors.deepOrange;
   }
 
   return Card(
@@ -148,7 +148,7 @@ Widget signInButton(String nameId, CredentialMode mode, Function(String) showMes
             // Login
             Environment.instance.login(mode, context,
               afterLog: () {
-                // Try to restore PokeSpace if exists
+                // Try to restore pokespace if exists
                 if(Environment.instance.user != null) {
                   EasyLoading.show();
                   Environment.instance.readPokeSpace().then((value) {

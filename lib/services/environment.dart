@@ -4,31 +4,29 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
-
 import 'package:mysql1/mysql1.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:sprintf/sprintf.dart';
-import 'package:statitikcard/services/Draw/BoosterDraw.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'package:statitikcard/services/draw/booster_draw.dart';
+import 'package:statitikcard/services/draw/card_draw_data.dart';
+import 'package:statitikcard/services/draw/session_draw.dart';
 
 import 'package:statitikcard/services/connection.dart';
-import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/collection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/ImageStorage.dart';
+import 'package:statitikcard/services/models/image_storage.dart';
 import 'package:statitikcard/services/models/models.dart';
-import 'package:statitikcard/services/models/NewCardsReport.dart';
-import 'package:statitikcard/services/models/PokeSpace.dart';
+import 'package:statitikcard/services/models/new_cards_report.dart';
+import 'package:statitikcard/services/models/pokespace.dart';
 import 'package:statitikcard/services/models/product.dart';
-import 'package:statitikcard/services/models/ProductCategory.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
-import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/Draw/SessionDraw.dart';
-import 'package:statitikcard/services/TimeReport.dart';
-import 'package:statitikcard/services/Tools.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:statitikcard/services/models/product_category.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
+import 'package:statitikcard/services/models/type_card.dart';
+import 'package:statitikcard/services/time_report.dart';
+import 'package:statitikcard/services/tools.dart';
 
 class StatitikException implements Exception {
     String msg;
@@ -146,7 +144,7 @@ class Environment
                         readStaticData().whenComplete(() async {
                             if (isAdministrator()) {
                                 await db.transactionR( collection.migration );
-                                printOutput("Admin is launched !");
+                                printOutput("admin is launched !");
                                 onInfoLoading.add('LOAD_2');
                                 collection.adminReverse();
                             } else {
@@ -279,7 +277,7 @@ class Environment
         if (user != null) {
             var time = TimeReport();
             await db.transactionR( (connection) async {
-                String query = 'SELECT `pokeSpace` FROM `Utilisateur` WHERE `idUtilisateur` = \'${user!.idDB}\';';
+                String query = 'SELECT `pokespace` FROM `Utilisateur` WHERE `idUtilisateur` = \'${user!.idDB}\';';
                 var reqUser = await connection.query(query);
                 assert( reqUser.length == 1 );
 
@@ -316,12 +314,12 @@ class Environment
                     }
                 }
             });
-            time.tick("My PokeSpace");
+            time.tick("My pokespace");
         }
     }
 
     Future<void> sendPokeSpace(connection) {
-        return connection.queryMulti('UPDATE `Utilisateur` SET `pokeSpace` = ?'
+        return connection.queryMulti('UPDATE `Utilisateur` SET `pokespace` = ?'
             ' WHERE `idUtilisateur` = \'${user!.idDB}\';',
             [[Int8List.fromList(user!.pokeSpace.toBytes())]]);
     }
@@ -356,11 +354,11 @@ class Environment
                                             draw);
 
                 time.tick("Register draw");
-                // Update PokeSpace and save into db
+                // Update pokespace and save into db
                 if(registerPokeSpace) {
                     report = user!.pokeSpace.insertSessionDraw(currentDraw!);
                     await sendPokeSpace(connection);
-                    time.tick("Save PokeSpace");
+                    time.tick("Save pokespace");
                 }
             });
             return report;
@@ -512,11 +510,11 @@ class Environment
         };
         try {
             // Log system
-            if(mode==CredentialMode.Phone) {
+            if(mode==CredentialMode.phone) {
                 credential.signInWithPhone(context, onError, onSuccess);
-            } else if(mode==CredentialMode.Google) {
+            } else if(mode==CredentialMode.google) {
                 credential.signInWithGoogle(onSuccess);
-            } else if(mode==CredentialMode.AutoLog) {
+            } else if(mode==CredentialMode.autoLog) {
                 SharedPreferences.getInstance().then((prefs) {
                     onSuccess(prefs.getString('uid'));
                 });

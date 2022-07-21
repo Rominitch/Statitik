@@ -1,24 +1,24 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
 
-import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/Draw/cardDrawData.dart';
+import 'package:statitikcard/services/models/card_set.dart';
+import 'package:statitikcard/services/draw/card_draw_data.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/CardDesign.dart';
-import 'package:statitikcard/services/models/CardIdentifier.dart';
-import 'package:statitikcard/services/models/CardTitleData.dart';
-import 'package:statitikcard/services/models/Language.dart';
-import 'package:statitikcard/services/models/Marker.dart';
-import 'package:statitikcard/services/models/MultiLanguageString.dart';
-import 'package:statitikcard/services/models/PokeSpace.dart';
-import 'package:statitikcard/services/models/PokemonCardExtension.dart';
+import 'package:statitikcard/services/models/card_design.dart';
+import 'package:statitikcard/services/models/card_identifier.dart';
+import 'package:statitikcard/services/models/card_title_data.dart';
+import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/marker.dart';
+import 'package:statitikcard/services/models/multi_language_string.dart';
+import 'package:statitikcard/services/models/pokespace.dart';
+import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/product.dart';
-import 'package:statitikcard/services/models/ProductCategory.dart';
-import 'package:statitikcard/services/models/Rarity.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
-import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
+import 'package:statitikcard/services/models/product_category.dart';
+import 'package:statitikcard/services/models/rarity.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
+import 'package:statitikcard/services/models/type_card.dart';
+import 'package:statitikcard/services/models/pokemon_card_data.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';
 
 final Color greenValid = Colors.green[500]!;
@@ -52,17 +52,17 @@ class UserPoke {
 
 
 enum Validator {
-  Valid,
-  ErrorReverse,
-  ErrorEnergy,
-  ErrorTooManyGood,
+  valid,
+  errorReverse,
+  errorEnergy,
+  errorTooManyGood,
 }
 
 enum Level {
-  Base,
-  Level1,
-  Level2,
-  WithoutLevel,
+  base,
+  level1,
+  level2,
+  withoutLevel,
 }
 
 const List<String> levelString = ['LEVEL_0', 'LEVEL_1', 'LEVEL_2', 'LEVEL_3'];
@@ -88,18 +88,18 @@ const String emptyMode = '_';
 
 
 enum DescriptionEffect {
-  Unknown,          // 0
-  Attack,           // 1
-  Draw,             // 2
-  FlipCoin,         // 4
-  Poison,           // 8
-  Burn,             // 16
-  Sleep,            // 32
-  Paralyzed,        // 64
-  Search,           // 128
-  Heal,             // 256
-  Mix,              // 512
-  Confusion,        // 1024
+  unknown,          // 0
+  attack,           // 1
+  draw,             // 2
+  flipCoin,         // 4
+  poison,           // 8
+  burn,             // 16
+  sleep,            // 32
+  paralyzed,        // 64
+  search,           // 128
+  heal,             // 256
+  mix,              // 512
+  confusion,        // 1024
 }
 
 String labelDescriptionEffect(BuildContext context, DescriptionEffect de) {
@@ -108,28 +108,28 @@ String labelDescriptionEffect(BuildContext context, DescriptionEffect de) {
 
 Widget getDescriptionEffectWidget(DescriptionEffect de, {size}) {
   switch(de) {
-    case DescriptionEffect.Attack:
-      return Icon(StatitikFont.font_09_attack, size: size);
-    case DescriptionEffect.Draw:
-      return Icon(StatitikFont.font_02_pioche, size: size);
-    case DescriptionEffect.FlipCoin:
-      return Icon(StatitikFont.font_03_coin, size: size);
-    case DescriptionEffect.Poison:
-      return Icon(StatitikFont.font_05_poison, size: size);
-    case DescriptionEffect.Burn:
-      return Icon(StatitikFont.font_04_burn, size: size);
-    case DescriptionEffect.Sleep:
-      return Icon(StatitikFont.font_07_sleep, size: size);
-    case DescriptionEffect.Paralyzed:
-      return Icon(StatitikFont.font_06_paralized, size: size);
-    case DescriptionEffect.Search:
-      return Icon(StatitikFont.font_08_search, size: size);
-    case DescriptionEffect.Heal:
-      return Icon(StatitikFont.font_12_heal, size: size);
-    case DescriptionEffect.Mix:
-      return Icon(StatitikFont.font_10_mix, size: size);
-    case DescriptionEffect.Confusion:
-      return Icon(StatitikFont.font_11_confusion, size: size);
+    case DescriptionEffect.attack:
+      return Icon(StatitikFont.font09Attack, size: size);
+    case DescriptionEffect.draw:
+      return Icon(StatitikFont.font02Pioche, size: size);
+    case DescriptionEffect.flipCoin:
+      return Icon(StatitikFont.font03Coin, size: size);
+    case DescriptionEffect.poison:
+      return Icon(StatitikFont.font05Poison, size: size);
+    case DescriptionEffect.burn:
+      return Icon(StatitikFont.font04Burn, size: size);
+    case DescriptionEffect.sleep:
+      return Icon(StatitikFont.font07Sleep, size: size);
+    case DescriptionEffect.paralyzed:
+      return Icon(StatitikFont.font06Paralized, size: size);
+    case DescriptionEffect.search:
+      return Icon(StatitikFont.font08Search, size: size);
+    case DescriptionEffect.heal:
+      return Icon(StatitikFont.font12Heal, size: size);
+    case DescriptionEffect.mix:
+      return Icon(StatitikFont.font10Mix, size: size);
+    case DescriptionEffect.confusion:
+      return Icon(StatitikFont.font11Confusion, size: size);
     default:
       return Icon(Icons.help_outline, size: size);
   }
@@ -385,16 +385,16 @@ class CardResults {
   MultiLanguageString? effectName;
 
   // Attack
-  TypeCard?       attackType   = TypeCard.Unknown;
+  TypeCard?       attackType   = TypeCard.unknown;
   RangeValues     attackEnergy = defaultEnergyAttack;
   RangeValues     attackPower  = defaultAttack;
   List<DescriptionEffect> effects = [];
 
   // Pokémon card
   RangeValues     life           = defaultLife;
-  TypeCard        weaknessType   = TypeCard.Unknown;
+  TypeCard        weaknessType   = TypeCard.unknown;
   RangeValues     weakness       = defaultWeakness;
-  TypeCard        resistanceType = TypeCard.Unknown;
+  TypeCard        resistanceType = TypeCard.unknown;
   RangeValues     resistance     = defaultResistance;
 
   bool isSelected(PokemonCardExtension card){
@@ -426,11 +426,11 @@ class CardResults {
     if(select && life != defaultLife) {
       select = life.start.round() <= card.data.life && card.data.life <= life.end.round();
     }
-    if(select && (resistance != defaultResistance || resistanceType != TypeCard.Unknown)) {
+    if(select && (resistance != defaultResistance || resistanceType != TypeCard.unknown)) {
       select = card.data.resistance != null;
       if(select) {
         var res = card.data.resistance!;
-        if(resistanceType != TypeCard.Unknown) {
+        if(resistanceType != TypeCard.unknown) {
           select = res.energy == resistanceType;
         }
         if(select && resistance != defaultResistance) {
@@ -438,11 +438,11 @@ class CardResults {
         }
       }
     }
-    if(select && (weakness != defaultWeakness || weaknessType != TypeCard.Unknown)) {
+    if(select && (weakness != defaultWeakness || weaknessType != TypeCard.unknown)) {
       select = card.data.weakness != null;
       if(select) {
         var weak = card.data.weakness!;
-        if(weaknessType != TypeCard.Unknown) {
+        if(weaknessType != TypeCard.unknown) {
           select = weak.energy == weaknessType;
         }
         if(select && weakness != defaultWeakness) {
@@ -498,7 +498,7 @@ class CardResults {
         // Parse each effect to find filter item at least one time.
         //card.data.cardEffects.effects.forEach((effect) {
         for(var effect in card.data.cardEffects.effects) {
-          if(attackType != TypeCard.Unknown) {
+          if(attackType != TypeCard.unknown) {
             count[0].set(effect.attack.contains(attackType));
           }
           if(attackEnergy != defaultEnergyAttack) {
@@ -586,12 +586,12 @@ class CardResults {
   }
 
   bool hasWeaknessFilter() {
-    return weaknessType != TypeCard.Unknown
+    return weaknessType != TypeCard.unknown
         || weakness != defaultWeakness;
   }
 
   bool hasResistanceFilter() {
-    return resistanceType != TypeCard.Unknown
+    return resistanceType != TypeCard.unknown
         || resistance != defaultResistance;
   }
 
@@ -603,21 +603,21 @@ class CardResults {
 
   void clearGeneralityFilter() {
     life           = defaultLife;
-    weaknessType   = TypeCard.Unknown;
+    weaknessType   = TypeCard.unknown;
     weakness       = defaultWeakness;
-    resistanceType = TypeCard.Unknown;
+    resistanceType = TypeCard.unknown;
     resistance     = defaultResistance;
   }
 
   bool hasAttackFilter() {
-    return attackType != TypeCard.Unknown
+    return attackType != TypeCard.unknown
         || attackEnergy != defaultEnergyAttack
         || attackPower != defaultAttack
         || effects.isNotEmpty;
   }
 
   void clearAttackFilter() {
-    attackType   = TypeCard.Unknown;
+    attackType   = TypeCard.unknown;
     attackEnergy  = defaultEnergyAttack;
     attackPower  = defaultAttack;
     effects.clear();

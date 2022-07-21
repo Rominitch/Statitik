@@ -3,14 +3,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:statitikcard/screen/Admin/AdminPage.dart';
+import 'package:statitikcard/screen/Admin/admin_page.dart';
 
-import 'package:statitikcard/screen/Cartes/CardStatistic.dart';
+import 'package:statitikcard/screen/cartes/card_statistic.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/options.dart';
-import 'package:statitikcard/screen/PokeSpace/PokeSpaceConnexion.dart';
-import 'package:statitikcard/screen/widgets/NewsDialog.dart';
-import 'package:statitikcard/services/News.dart';
+import 'package:statitikcard/screen/PokeSpace/pokespace_connexion.dart';
+import 'package:statitikcard/screen/widgets/news_dialog.dart';
+import 'package:statitikcard/services/news.dart';
 import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -87,7 +87,7 @@ class _HomeState extends State<Home> {
               label: StatitikLocale.of(context).read('H_T1'),
             ),
             BottomNavigationBarItem(
-              icon: const Icon(StatitikFont.font_01_pokecard),
+              icon: const Icon(StatitikFont.font01Pokecard),
               label: StatitikLocale.of(context).read('H_T3'),
             ),
             BottomNavigationBarItem(

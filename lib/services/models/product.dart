@@ -1,18 +1,18 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/models/CardIdentifier.dart';
-import 'package:statitikcard/services/Draw/BoosterDraw.dart';
-import 'package:statitikcard/services/Tools.dart';
-import 'package:statitikcard/services/Draw/cardDrawData.dart';
+import 'package:statitikcard/services/models/card_identifier.dart';
+import 'package:statitikcard/services/draw/booster_draw.dart';
+import 'package:statitikcard/services/draw/card_draw_data.dart';
+import 'package:statitikcard/services/tools.dart';
 
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/BytesCoder.dart';
-import 'package:statitikcard/services/models/Language.dart';
-import 'package:statitikcard/services/models/PokemonCardExtension.dart';
-import 'package:statitikcard/services/models/ProductCategory.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
+import 'package:statitikcard/services/models/bytes_coder.dart';
+import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/pokemon_card_extension.dart';
+import 'package:statitikcard/services/models/product_category.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
+import 'package:statitikcard/services/models/pokemon_card_data.dart';
 
 abstract class ProductGeneric
 {

@@ -9,10 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'package:statitikcard/screen/view.dart';
-import 'package:statitikcard/screen/widgets/CustomRadio.dart';
-import 'package:statitikcard/screen/widgets/NewsDialog.dart';
-import 'package:statitikcard/services/News.dart';
-import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/screen/widgets/custom_radio.dart';
+import 'package:statitikcard/screen/widgets/news_dialog.dart';
+import 'package:statitikcard/services/news.dart';
+import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -122,8 +122,8 @@ class _OptionsPageState extends State<OptionsPage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                        signInButton('V_B5', CredentialMode.Google, refreshWithError, refresh, context),
-                        signInButton('V_B6', CredentialMode.Phone, refreshWithError, refresh, context),
+                        signInButton('V_B5', CredentialMode.google, refreshWithError, refresh, context),
+                        signInButton('V_B6', CredentialMode.phone, refreshWithError, refresh, context),
                       ],)
                   ]
                 )

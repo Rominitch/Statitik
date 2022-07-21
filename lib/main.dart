@@ -6,8 +6,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 
-import 'package:statitikcard/screen/Cartes/CardStatistic.dart';
-import 'package:statitikcard/screen/Wrapper.dart';
+import 'package:statitikcard/screen/cartes/card_statistic.dart';
+import 'package:statitikcard/screen/wrapper.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/support.dart';
 import 'package:statitikcard/screen/thanks.dart';

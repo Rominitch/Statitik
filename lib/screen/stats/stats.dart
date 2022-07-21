@@ -2,32 +2,32 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import 'package:statitikcard/screen/commonPages/languagePage.dart';
-import 'package:statitikcard/screen/stats/statView.dart';
-import 'package:statitikcard/screen/stats/statsExtensionWidget.dart';
-import 'package:statitikcard/screen/tutorial/TutorialCaption.dart';
+import 'package:statitikcard/screen/commonPages/language_page.dart';
+import 'package:statitikcard/screen/stats/stat_view.dart';
+import 'package:statitikcard/screen/stats/stats_extension_widget.dart';
+import 'package:statitikcard/screen/tutorial/tutorial_caption.dart';
 import 'package:statitikcard/screen/view.dart';
-import 'package:statitikcard/services/models/CardIdentifier.dart';
-import 'package:statitikcard/screen/widgets/CustomRadio.dart';
+import 'package:statitikcard/services/models/card_identifier.dart';
+import 'package:statitikcard/screen/widgets/custom_radio.dart';
 
-import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/Extension.dart';
-import 'package:statitikcard/services/models/Language.dart';
-import 'package:statitikcard/services/models/SerieType.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
+import 'package:statitikcard/services/models/extension.dart';
+import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/serie_type.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/models.dart';
 
 enum StateStatsExtension {
-  Cards,
-  GlobalStats,
-  Draw,
-  Product,
+  cards,
+  globalStats,
+  draw,
+  product,
 }
 
 class StatsConfiguration {
-  StateStatsExtension state     = StateStatsExtension.Cards;
+  StateStatsExtension state     = StateStatsExtension.cards;
   StatsData           statsData = StatsData();
   List<SubExtension>  se        = [];
   StatsViewOptions    options   = StatsViewOptions();
@@ -90,7 +90,7 @@ class _StatsPageState extends State<StatsPage> {
     }
     _pageController = PageController(initialPage: idPage, keepPage: false);
 
-    menuBarController.currentValue = StateStatsExtension.Cards;
+    menuBarController.currentValue = StateStatsExtension.cards;
     super.initState();
   }
 
@@ -130,10 +130,10 @@ class _StatsPageState extends State<StatsPage> {
   Widget menuBar(BuildContext context) {
     return Row( 
       children: [
-        Expanded(child: CustomRadio(value: StateStatsExtension.Cards,       controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_0')))),
-        Expanded(child: CustomRadio(value: StateStatsExtension.GlobalStats, controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_1')))),
-        if(widget.info.statsData.subExt != null && widget.info.statsData.subExt!.type == SerieType.Normal)
-          Expanded(child: CustomRadio(value: StateStatsExtension.Draw,      controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_2')))),
+        Expanded(child: CustomRadio(value: StateStatsExtension.cards,       controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_0')))),
+        Expanded(child: CustomRadio(value: StateStatsExtension.globalStats, controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_1')))),
+        if(widget.info.statsData.subExt != null && widget.info.statsData.subExt!.type == SerieType.normal)
+          Expanded(child: CustomRadio(value: StateStatsExtension.draw,      controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_2')))),
     ]);
   }
 

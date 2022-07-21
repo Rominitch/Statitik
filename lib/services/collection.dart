@@ -3,31 +3,31 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 import 'package:mysql1/mysql1.dart';
-import 'package:statitikcard/services/models/CardDesign.dart';
-import 'package:statitikcard/services/models/CardIdentifier.dart';
+import 'package:statitikcard/services/models/card_design.dart';
+import 'package:statitikcard/services/models/card_identifier.dart';
 
-import 'package:statitikcard/services/CardEffect.dart';
-import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/models/card_effect.dart';
+import 'package:statitikcard/services/models/card_set.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/BytesCoder.dart';
-import 'package:statitikcard/services/models/CardIntoSubExtensions.dart';
-import 'package:statitikcard/services/models/CardTitleData.dart';
-import 'package:statitikcard/services/models/Extension.dart';
-import 'package:statitikcard/services/models/Language.dart';
-import 'package:statitikcard/services/models/Marker.dart';
-import 'package:statitikcard/services/models/MultiLanguageString.dart';
-import 'package:statitikcard/services/models/ProductCategory.dart';
-import 'package:statitikcard/services/models/Rarity.dart';
-import 'package:statitikcard/services/models/SerieType.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
-import 'package:statitikcard/services/models/SubExtensionCards.dart';
-import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/models/bytes_coder.dart';
+import 'package:statitikcard/services/models/card_into_sub_extensions.dart';
+import 'package:statitikcard/services/models/card_title_data.dart';
+import 'package:statitikcard/services/models/extension.dart';
+import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/marker.dart';
+import 'package:statitikcard/services/models/multi_language_string.dart';
+import 'package:statitikcard/services/models/product_category.dart';
+import 'package:statitikcard/services/models/rarity.dart';
+import 'package:statitikcard/services/models/serie_type.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
+import 'package:statitikcard/services/models/sub_extension_cards.dart';
+import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/product.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
-import 'package:statitikcard/services/Draw/SessionDraw.dart';
-import 'package:statitikcard/services/TimeReport.dart';
-import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/models/pokemon_card_data.dart';
+import 'package:statitikcard/services/draw/session_draw.dart';
+import 'package:statitikcard/services/time_report.dart';
+import 'package:statitikcard/services/tools.dart';
 
 class Collection
 {
@@ -57,11 +57,11 @@ class Collection
   // Rarity Information
   static const int idUnknownRarity = 28;
   static const int idEmptyRarity   = 29;
-  static const int RarityMaskWorldCard        = 1;
-  static const int RarityMaskAsianCard        = 2;
-  static const int RarityMaskOtherReverseCard = 4;
-  static const int RarityMaskGoodCard         = 8;
-  static const int RarityMaskRotateIcon       = 16;
+  static const int rarityMaskWorldCard        = 1;
+  static const int rarityMaskAsianCard        = 2;
+  static const int rarityMaskOtherReverseCard = 4;
+  static const int rarityMaskGoodCard         = 8;
+  static const int rarityMaskRotateIcon       = 16;
   Rarity? unknownRarity;
   List<Rarity> orderedRarity    = [];
   List<Rarity> worldRarity      = [];
@@ -76,7 +76,7 @@ class Collection
 
   List<CardDesign>         validDesigns = [];
 
-  // Admin part
+  // admin part
   Map rIllustrators    = {};
   Map rRegions         = {};
   Map rPokemonCards    = {};
@@ -195,9 +195,9 @@ class Collection
       for (var row in setResult) {
         try {
           sets[row[0]] = CardSet(MultiLanguageString([row[1] ?? "", row[2] ?? "", row[3] ?? ""]), Color(row[4]), row[5],
-              mask(row[6], CardSet.SetMaskSystem),
-              mask(row[6], CardSet.SetMaskParallel),
-              mask(row[6], CardSet.SetMaskReplaceRevertIntoBooster));
+              mask(row[6], CardSet.setMaskSystem),
+              mask(row[6], CardSet.setMaskParallel),
+              mask(row[6], CardSet.setMaskReplaceRevertIntoBooster));
         } catch(e) {
           printOutput("Bad Set: ${row[0]} $e");
         }
@@ -221,7 +221,7 @@ class Collection
           // Build
           Rarity rarity;
           if(row[1] != null) {
-            rarity = Rarity.fromIcon(row[0], getIcon(row[1]), name, Color(row[6]), rotate: mask(row[4], RarityMaskRotateIcon));
+            rarity = Rarity.fromIcon(row[0], getIcon(row[1]), name, Color(row[6]), rotate: mask(row[4], rarityMaskRotateIcon));
           } else if(row[2] != null) {
             rarity = Rarity.fromText(row[0], name, Color(row[6]));
           } else if(row[3] != null) {
@@ -231,21 +231,21 @@ class Collection
           }
 
           // register into list
-          if(mask(row[4],RarityMaskAsianCard)) {
+          if(mask(row[4],rarityMaskAsianCard)) {
             japanRarity.add(rarity);
           }
-          if(mask(row[4],RarityMaskWorldCard)) {
+          if(mask(row[4],rarityMaskWorldCard)) {
             worldRarity.add(rarity);
           }
 
           // Order
           orderedRarity.add(rarity);
           // Good card
-          if(mask(row[4], RarityMaskGoodCard)) {
+          if(mask(row[4], rarityMaskGoodCard)) {
             goodCard.add(rarity);
           }
           // Other than  reverse
-          if(mask(row[4], RarityMaskOtherReverseCard)) {
+          if(mask(row[4], rarityMaskOtherReverseCard)) {
             otherThanReverse.add(rarity);
           }
 
@@ -399,7 +399,7 @@ class Collection
       assert(effects.isNotEmpty);
 
       // Read cards info
-      var cardsReq = await connection.query("SELECT * FROM `Cartes`");
+      var cardsReq = await connection.query("SELECT * FROM `cartes`");
       for (var row in cardsReq) {
         // 0 = id
         // 1 = nom
@@ -546,7 +546,7 @@ class Collection
   }
 
   void adminReverse() {
-    printOutput("Compute Admin reverse database");
+    printOutput("Compute admin reverse database");
     rIllustrators    = illustrators.map((k, v)    => MapEntry(v, k));
     rRegions         = regions.map((k, v)         => MapEntry(v, k));
     rPokemonCards    = pokemonCards.map((k, v)    => MapEntry(v, k));
@@ -576,13 +576,13 @@ class Collection
     }
     var namedData = nameBytes.isNotEmpty ? Int8List.fromList(nameBytes) : null;
     Int8List? resistance;
-    if( card.resistance != null && card.resistance!.energy != TypeCard.Unknown) {
+    if( card.resistance != null && card.resistance!.energy != TypeCard.unknown) {
       resistance = Int8List.fromList(card.resistance!.toBytes());
     }
     var retreat = Int8List.fromList([card.retreat]);
 
     Int8List? weakness;
-    if( card.weakness != null && card.weakness!.energy != TypeCard.Unknown) {
+    if( card.weakness != null && card.weakness!.energy != TypeCard.unknown) {
       weakness = Int8List.fromList(card.weakness!.toBytes());
     }
     Int8List? effects;
@@ -599,12 +599,12 @@ class Collection
     var query = "";
     if (idCard == null) {
       data.insert(0, nextId);
-      query = 'INSERT INTO `Cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
+      query = 'INSERT INTO `cartes` VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);';
 
       //printOutput("New card added at $nextId and we update internal list");
     } else {
-      query = 'UPDATE `Cartes` SET `noms` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?'
-              ' WHERE `Cartes`.`idCartes` = $idCard';
+      query = 'UPDATE `cartes` SET `noms` = ?, `niveau` = ?, `type` = ?, `vie` = ?, `marqueur` = ?, `effets` = ?, `retrait` = ?, `faiblesse` = ?, `resistance` = ?, `idIllustrateur` = ?'
+              ' WHERE `cartes`.`idCartes` = $idCard';
 
       //printOutput("Update card at $idCard and we update internal list");
     }
@@ -627,7 +627,7 @@ class Collection
   Future<void> saveDatabaseSEC(SubExtensionCards seCards, connection) async {
     // Compute next Id of card
     int nextId = 0;
-    var nextIdReq = await connection.query("SELECT MAX(`idCartes`) as maxId FROM `Cartes`;");
+    var nextIdReq = await connection.query("SELECT MAX(`idCartes`) as maxId FROM `cartes`;");
     for(var row in nextIdReq) {
       nextId = row[0];
     }
@@ -803,7 +803,7 @@ class Collection
   }
 
   Future<void> removeListCards(List<List<int>> cardId, connection) async {
-    var query = 'DELETE FROM `Cartes` WHERE (`idCartes` = ?)';
+    var query = 'DELETE FROM `cartes` WHERE (`idCartes` = ?)';
     await connection.queryMulti(query, cardId);
   }
 

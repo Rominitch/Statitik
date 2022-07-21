@@ -3,15 +3,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 enum CredentialMode
 {
-  Google,
-  Phone,
-  AutoLog
+  google,
+  phone,
+  autoLog
 }
 
 class Credential
@@ -26,7 +26,7 @@ class Credential
       // Auto login
       var prefs = await SharedPreferences.getInstance();
       if( prefs.getString('uid') != null ) {
-        Environment.instance.login(CredentialMode.AutoLog, null);
+        Environment.instance.login(CredentialMode.autoLog, null);
       }
 
       printOutput("User created");

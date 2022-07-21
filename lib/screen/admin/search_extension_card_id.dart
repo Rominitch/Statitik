@@ -1,0 +1,153 @@
+import 'package:flutter/material.dart';
+import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/services/models/card_identifier.dart';
+import 'package:statitikcard/screen/widgets/card_image.dart';
+import 'package:statitikcard/services/tools.dart';
+import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/models/card_title_data.dart';
+import 'package:statitikcard/services/models/pokemon_card_extension.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
+import 'package:statitikcard/services/models/type_card.dart';
+import 'package:statitikcard/services/models/pokemon_card_data.dart';
+
+class SearchExtensionsCardId extends StatelessWidget {
+  final TypeCard type;
+  final CardTitleData? name;
+  final String title;
+  final int currentId;
+
+  const SearchExtensionsCardId(this.type, this.name, this.title, this.currentId, {Key? key}) : super(key: key);
+
+  void createWidgetCard(BuildContext context, PokemonCardExtension cardEx, SubExtension subExtension, CardIdentifier id,
+                        Set<PokemonCardData> cards, List<Widget> cardImageWidget, List<Widget> cardsWidgets) {
+    var cardData = cardEx.data;
+    if(type == cardData.type // Keep only same type
+        && (name == null || cardData.title.isEmpty || name == cardData.title[0].name) // If name, search similar
+    ) {
+      int? localId = Environment.instance.collection.rPokemonCards[cardData];
+      if(localId == null) {
+        printOutput("SearchExtensionsCardId: Impossible to find card: $id into ${subExtension.name}");
+      } else {
+        // Show card when name filter is enabled (otherwise too many card to show)
+        if(!cards.contains(cardData) && cardData.title.isNotEmpty && name == cardData.title[0].name) {
+          cards.add(cardData);
+          cardImageWidget.add(
+              Card(
+                color: (localId == currentId) ? Colors.red[500] : Colors.grey[500],
+                child: TextButton(
+                  style: TextButton.styleFrom(padding: const EdgeInsets.all(2), alignment: Alignment.center),
+                  child: Row(
+                    children: [
+                      RotatedBox(quarterTurns:3, child: Text(localId.toString(), style: const TextStyle(fontSize: 10))),
+                      Expanded(child: genericCardWidget(subExtension, id, CardImageIdentifier())),
+                    ],
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context, localId);
+                  },
+                ),
+              )
+          );
+        }
+        cardsWidgets.add(
+            Card(
+              color: (localId == currentId) ? Colors.red[500] : Colors.grey[500],
+              child: TextButton(
+                child: Column(
+                  children: [
+                    Expanded(child: Text(subExtension.seCards.numberOfCard(id.numberId))),
+                    Text(localId.toString(), style: const TextStyle(fontSize: 8)),
+                  ],
+                ),
+                onPressed: () {
+                  Navigator.pop(context, localId);
+                },
+              ),
+            )
+        );
+      }
+    }
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Refresh admin info
+    Environment.instance.collection.adminReverse();
+
+    Set<PokemonCardData> cards = {};
+    List<Widget> cardImageWidget = [];
+
+    List<Widget> expansionWidget = [];
+    Environment.instance.collection.subExtensions.values.forEach((subExtension) {
+      // Keep Japanese only
+      if(subExtension.extension.language.id == 3 ) {
+        List<Widget> cardsWidgets = [];
+        // Search all basic cards ...
+        int id=0;
+        subExtension.seCards.cards.forEach((List<PokemonCardExtension> allCards) {
+          createWidgetCard(context, allCards[0], subExtension, CardIdentifier.from([0, id, 0]), cards, cardImageWidget, cardsWidgets);
+          id += 1;
+        });
+        // ... and energy
+        id=0;
+        subExtension.seCards.energyCard.forEach((PokemonCardExtension allCards) {
+          createWidgetCard(context, allCards, subExtension, CardIdentifier.from([1, id]), cards, cardImageWidget, cardsWidgets);
+          id += 1;
+        });
+        // ... and no number
+        id=0;
+        subExtension.seCards.noNumberedCard.forEach((PokemonCardExtension allCards) {
+          createWidgetCard(context, allCards, subExtension, CardIdentifier.from([2, id]), cards, cardImageWidget, cardsWidgets);
+          id += 1;
+        });
+
+        // Add card about expansion
+        if(cardsWidgets.isNotEmpty) {
+          expansionWidget.add(Card(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
+              child: Row(
+                children: [
+                  subExtension.image(wSize: 50.0),
+                  Expanded(
+                    child: GridView.count(crossAxisCount: 6,
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      primary: false,
+                      children: cardsWidgets
+                    ),
+                  )
+                ]
+              ),
+            ),
+          ));
+        }
+      }
+    });
+
+    List<Widget> cardImages = cardImageWidget.isNotEmpty ?
+    [
+      GridView.count(
+        crossAxisCount: 3,
+        shrinkWrap: true,
+        primary: false,
+        children: cardImageWidget,
+      ),
+    ] : [];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(sprintf("%s %s - %d", [StatitikLocale.of(context).read('CA_B31'), title, currentId])),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: cardImages+expansionWidget,
+          )
+        )
+      )
+    );
+  }
+}
