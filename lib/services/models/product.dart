@@ -78,7 +78,7 @@ class ProductCard {
     card = subExtension.cardFromId(cardId);
 
     // Restore counter
-    counter = CodeDraw.fromPokeCardExtension(this.card);
+    counter = CodeDraw.fromPokeCardExtension(card);
     var count = parser.extractInt8();
     for(int id=0; id < count; id +=1){
       if( id < card.sets.length) {
@@ -136,7 +136,7 @@ class Product extends ProductGeneric
   static const int version = 3;
 
   Product.empty():
-    this.boosters = [],
+    boosters = [],
     super(-1, null, "", "", DateTime.now());
 
   Product(idDB, this.language, name, imageURL, outDate, category, this.boosters):
@@ -144,7 +144,7 @@ class Product extends ProductGeneric
 
   Product.fromBytes(idDB, this.language, name, imageURL, outDate, category,
       List<int> data, Map mapSubExtensions, Map productSides):
-        this.boosters = [],
+        boosters = [],
         super(idDB, category, name, imageURL, outDate)
   {
     int currentVersion = data[0];
@@ -237,8 +237,8 @@ class Product extends ProductGeneric
     return imageURL.isNotEmpty;
   }
 
-  Widget image()
-  {
+  @override
+  Widget image() {
     return drawCachedImage('products', imageURL, height: 70);
   }
 

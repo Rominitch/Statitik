@@ -46,7 +46,7 @@ Widget iconArt(ArtFormat design, [double? width, double? height]) {
     case ArtFormat.FullArt:
       return Image.asset("assets/design/ArtFull.png", width: width, height: height);
     default:
-      return Icon(Icons.help_outline);
+      return const Icon(Icons.help_outline);
   }
 }
 
@@ -71,33 +71,36 @@ class CardDesign {
   CardDesign([this.design = 0, this.pattern = 0, this.art = ArtFormat.Normal]);
 
   CardDesign.fromBytesV1(ByteParser parser):
-    this.design  = Design.Unknown.index,
-    this.pattern = ShiningPattern.None.index,
-    this.art     = ArtFormat.Normal
+    design  = Design.Unknown.index,
+    pattern = ShiningPattern.None.index,
+    art     = ArtFormat.Normal
   {
     int idDesign = parser.extractInt8();
-    if(idDesign < Design.values.length)
-      this.design  = idDesign;
+    if(idDesign < Design.values.length) {
+      design = idDesign;
+    }
 
     int idPattern = parser.extractInt8();
-    if(idPattern < ShiningPattern.values.length)
-      this.pattern = idPattern;
+    if(idPattern < ShiningPattern.values.length) {
+      pattern = idPattern;
+    }
   }
 
   CardDesign.fromBytes(ByteParser parser):
-    this.design  = Design.Unknown.index,
-    this.pattern = ShiningPattern.None.index,
-    this.art     = ArtFormat.Unknown
+    design  = Design.Unknown.index,
+    pattern = ShiningPattern.None.index,
+    art     = ArtFormat.Unknown
   {
     int idDesign = parser.extractInt8();
-    this.design  = idDesign;
+    design  = idDesign;
 
     int idPattern = parser.extractInt8();
-    this.pattern = idPattern;
+    pattern = idPattern;
 
     int idArt = parser.extractInt8();
-    if(idArt < ArtFormat.values.length)
-      this.art     = ArtFormat.values[idArt];
+    if(idArt < ArtFormat.values.length) {
+      art = ArtFormat.values[idArt];
+    }
   }
 
   List<int> toBytes() {
@@ -122,7 +125,7 @@ class CardDesign {
     return Row(
         children : [
           iconArt(art, width, height),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           icon(width: width, height: height)
         ]
     );
@@ -153,8 +156,9 @@ class CardDesignData {
   }
 
   Widget icon({double? width, double? height}) {
-    if(this.image.isNotEmpty)
-      return drawCachedImage("design", this.image, width: width, height: height);
-    return Icon(Icons.help_outline);
+    if(image.isNotEmpty) {
+      return drawCachedImage("design", image, width: width, height: height);
+    }
+    return const Icon(Icons.help_outline);
   }
 }

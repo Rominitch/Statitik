@@ -111,26 +111,31 @@ class StatsExtension {
           countBySet[element] = 1;
         } else {
           countBySet[element] = countBySet[element]! + 1;
-          if(!allRarityPerSets[element]!.contains(c.rarity))
+          if(!allRarityPerSets[element]!.contains(c.rarity)) {
             allRarityPerSets[element]!.add(c.rarity);
-          if(!countBySetByRarity[element]!.containsKey(c.rarity))
+          }
+          if(!countBySetByRarity[element]!.containsKey(c.rarity)) {
             countBySetByRarity[element]![c.rarity] = 1;
-          else
+          } else {
             countBySetByRarity[element]![c.rarity] =  countBySetByRarity[element]![c.rarity]! + 1;
+          }
         }
       });
 
-      if(c.isSecret)
+      if(c.isSecret) {
         countSecret += 1;
+      }
 
       countByType[c.data.type.index] += 1;
-      if(countByRarity.containsKey(c.rarity))
+      if(countByRarity.containsKey(c.rarity)) {
         countByRarity[c.rarity] = countByRarity[c.rarity]! + 1;
-      else
+      } else {
         countByRarity[c.rarity] = 1;
+      }
 
-      if(!rarities.contains(c.rarity))
+      if(!rarities.contains(c.rarity)) {
         rarities.add(c.rarity);
+      }
 
     };
 

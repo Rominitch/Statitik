@@ -85,12 +85,12 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
     List<Widget> productTab      = [];
     List<Widget> languageWidgets = [];
     myProdLanguages.forEach( (idLanguage){
-      var language;
+      Language? language;
       if(idLanguage >= 0) {
         language = Environment.instance.collection.languages[idLanguage];
         languageWidgets.add(Padding(
           padding: const EdgeInsets.all(8.0),
-          child: language.barIcon(),
+          child: language!.barIcon(),
         ));
       } else {
         languageWidgets.add(const Padding(

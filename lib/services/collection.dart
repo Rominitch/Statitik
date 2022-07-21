@@ -208,7 +208,7 @@ class Collection
       var rarityResult = await connection.query("SELECT * FROM `Rarete` ORDER BY `order` ASC");
       for (var row in rarityResult) {
         try {
-          var name;
+          MultiLanguageString? name;
           if(row[2] != null) {
             var allName = (row[2] as String).split(";");
             if(allName.length == 3){
@@ -219,30 +219,35 @@ class Collection
           }
 
           // Build
-          var rarity;
+          Rarity rarity;
           if(row[1] != null) {
             rarity = Rarity.fromIcon(row[0], getIcon(row[1]), name, Color(row[6]), rotate: mask(row[4], RarityMaskRotateIcon));
-          }
-          else if(row[2] != null)
+          } else if(row[2] != null) {
             rarity = Rarity.fromText(row[0], name, Color(row[6]));
-          else if(row[3] != null)
+          } else if(row[3] != null) {
             rarity = Rarity.fromImage(row[0], row[3], Color(row[6]));
-          assert(rarity != null);
+          } else {
+            throw StatitikException("Impossible to build rarity !");
+          }
 
           // register into list
-          if(mask(row[4],RarityMaskAsianCard))
+          if(mask(row[4],RarityMaskAsianCard)) {
             japanRarity.add(rarity);
-          if(mask(row[4],RarityMaskWorldCard))
+          }
+          if(mask(row[4],RarityMaskWorldCard)) {
             worldRarity.add(rarity);
+          }
 
           // Order
           orderedRarity.add(rarity);
           // Good card
-          if(mask(row[4], RarityMaskGoodCard))
+          if(mask(row[4], RarityMaskGoodCard)) {
             goodCard.add(rarity);
+          }
           // Other than  reverse
-          if(mask(row[4], RarityMaskOtherReverseCard))
+          if(mask(row[4], RarityMaskOtherReverseCard)) {
             otherThanReverse.add(rarity);
+          }
 
           // Save
           rarities[row[0]] = rarity;
@@ -261,8 +266,9 @@ class Collection
           markers[row[0]] = mark;
 
           // long markers
-          if( mask(row[5], 2) )
+          if( mask(row[5], 2) ) {
             longMarkers.add(mark);
+          }
         } catch(e) {
           printOutput("Bad Marker: ${row[0]} $e");
         }
@@ -332,14 +338,16 @@ class Collection
 
       var designRes = await connection.query("SELECT * FROM `Design`");
       for (var row in designRes) {
-        if(!designs.containsKey(row[0]))
+        if(!designs.containsKey(row[0])) {
           designs[row[0]] = {};
+        }
 
         var cardDesign = CardDesignData(row[5], MultiLanguageString([row[2], row[3], row[4]]));
         designs[row[0]][row[1]] = cardDesign;
 
-        if(cardDesign.image.isNotEmpty)
+        if(cardDesign.image.isNotEmpty) {
           validDesigns.add(CardDesign(row[0], row[1]));
+        }
       }
 
       time.tick("Design");
@@ -455,8 +463,9 @@ class Collection
         pokemonCards[row[0]] = p;
       }
 
-      if(!Environment.instance.onInfoLoading.isClosed)
+      if(!Environment.instance.onInfoLoading.isClosed) {
         Environment.instance.onInfoLoading.add('LOAD_3');
+      }
       var cardsExtensionRes = await connection.query("SELECT * FROM `CartesExtension`;");
       for(var row in cardsExtensionRes) {
         try {
@@ -507,8 +516,9 @@ class Collection
       time.tick("Categories");
       assert(categories.isNotEmpty);
 
-      if(!Environment.instance.onInfoLoading.isClosed)
+      if(!Environment.instance.onInfoLoading.isClosed) {
         Environment.instance.onInfoLoading.add('LOAD_4');
+      }
       
       // Read static other product
       var otherProductsRequest = await connection.query("SELECT * FROM `ProduitAnnexe`");
@@ -565,23 +575,23 @@ class Collection
       typesByte.add(card.typeExtended!.index);
     }
     var namedData = nameBytes.isNotEmpty ? Int8List.fromList(nameBytes) : null;
-    var resistance;
+    Int8List? resistance;
     if( card.resistance != null && card.resistance!.energy != TypeCard.Unknown) {
       resistance = Int8List.fromList(card.resistance!.toBytes());
     }
     var retreat = Int8List.fromList([card.retreat]);
 
-    var weakness;
+    Int8List? weakness;
     if( card.weakness != null && card.weakness!.energy != TypeCard.Unknown) {
       weakness = Int8List.fromList(card.weakness!.toBytes());
     }
-    var effects;
+    Int8List? effects;
     card.cardEffects.removeUseless();
     if( card.cardEffects.effects.isNotEmpty ) {
       effects = Int8List.fromList(card.cardEffects.toBytes());
     }
 
-    List data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life,
+    List<Object?> data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life,
       Int8List.fromList(card.markers.toBytes(rMarkers)),
       effects, retreat, weakness, resistance, idIllustrator,
     ];
@@ -608,8 +618,8 @@ class Collection
         rPokemonCards[card] = nextId;
       }
     } catch(e) {
-      printOutput("Request error: "+e.toString());
-      throw e;
+      printOutput("Request error: $e");
+      rethrow;
     }
     return idCard == null;
   }
@@ -702,7 +712,7 @@ class Collection
 
   List<CardIntoSubExtensions> searchCardIntoSubExtension(PokemonCardData searchCard, [bool supportedDuplicateSeCard=false]) {
     List<CardIntoSubExtensions> result = [];
-    var alreadyFind = Set();
+    var alreadyFind = <dynamic>{};
 
     subExtensions.values.forEach((subExtension) {
       if( supportedDuplicateSeCard || !alreadyFind.contains(subExtension.seCards) ) {

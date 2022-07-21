@@ -14,9 +14,9 @@ class Rarity {
   final bool rotate;
   final Color color;
 
-  const Rarity.fromText(this.id,  this.value, this.color) : this.iconId = null, this.image = "", this.rotate = false;
-  const Rarity.fromIcon(this.id,  this.iconId, this.value, this.color, {this.rotate=false}): this.image = "";
-  const Rarity.fromImage(this.id, this.image, this.color) : this.iconId = null, this.value = null, this.rotate = false;
+  const Rarity.fromText(this.id,  this.value, this.color) : iconId = null, image = "", rotate = false;
+  const Rarity.fromIcon(this.id,  this.iconId, this.value, this.color, {this.rotate=false}): image = "";
+  const Rarity.fromImage(this.id, this.image, this.color) : iconId = null, value = null, rotate = false;
 
   List<Widget> icon(Language l, {iconSize, fontSize=12.0, textureSize=20.0}) {
     var text = (value != null) ? value!.name(l) : "";
@@ -44,10 +44,11 @@ List<Widget> getImageRarity(Rarity rarity, Language l,{iconSize, textureSize=20.
 
   if(generate || Environment.instance.collection.cachedImageRarity[l]![rarity] == null) {
     List<Widget> rendering = rarity.icon(l, iconSize: iconSize, fontSize: fontSize, textureSize: textureSize);
-    if(generate)
+    if(generate) {
       return rendering;
-    else
+    } else {
       Environment.instance.collection.cachedImageRarity[l]![rarity] = rendering;
+    }
   }
   return Environment.instance.collection.cachedImageRarity[l]![rarity]!;
 }

@@ -100,12 +100,12 @@ class StatitikApp extends StatelessWidget {
       ],
       builder: EasyLoading.init(),
       routes: {
-        '/': (context) => ApplicationWidget(),
-        '/home': (context) => ApplicationWidget(),
-        '/stats': (context) => StatsPage(),
-        '/cards': (context) => const CardStatisticPage(),
-        '/support': (context) => SupportPage(),
-        '/thanks': (context) => ThanksPage(),
+        '/':        (context) => const ApplicationWidget(),
+        '/home':    (context) => const ApplicationWidget(),
+        '/stats':   (context) => StatsPage(),
+        '/cards':   (context) => const CardStatisticPage(),
+        '/support': (context) => const SupportPage(),
+        '/thanks':  (context) => const ThanksPage(),
       }
     );
   }

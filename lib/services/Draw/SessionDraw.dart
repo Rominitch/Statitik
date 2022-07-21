@@ -21,12 +21,12 @@ class SessionDraw
 
   Key               id; // Make unique file
 
-  SessionDraw(Product product, this.language):
-    this.id = UniqueKey(),
-    this.product = product,
-    this.boosterDraws = product.buildBoosterDraw()
+  SessionDraw(Product currentProduct, this.language):
+    id = UniqueKey(),
+    product      = currentProduct,
+    boosterDraws = currentProduct.buildBoosterDraw()
   {
-    this.productDraw = ProductDraw(this);
+    productDraw = ProductDraw(this);
   }
 
   SessionDraw.fromFile(this.id, int version, ByteParser parser, mapLanguages, mapProducts, mapSubExtensions) :
@@ -48,7 +48,7 @@ class SessionDraw
       var subExt = subExtCreationId == 0 ? null : mapSubExtensions[subExtCreationId];
       int nbCards = parser.extractInt8(); // Can change from db if not good !
       // Create booster from scratch
-      var booster = new BoosterDraw(creation: subExt, id: idBooster, nbCards: nbCards);
+      var booster = BoosterDraw(creation: subExt, id: idBooster, nbCards: nbCards);
 
       int subExtensionId = parser.extractInt16();
       if(subExtensionId != 0) {
@@ -60,8 +60,9 @@ class SessionDraw
       boosterDraws.add(booster);
     }
 
-    if(version == 2)
+    if(version == 2) {
       productDraw = ProductDraw(this, parser);
+    }
   }
 
   List<int> toBytes() {
@@ -99,12 +100,13 @@ class SessionDraw
   void addNewBooster() {
     BoosterDraw booster = boosterDraws.last;
 
-    boosterDraws.add(new BoosterDraw(creation: booster.subExtension, id: booster.id+1, nbCards: booster.nbCards) );
+    boosterDraws.add(BoosterDraw(creation: booster.subExtension, id: booster.id+1, nbCards: booster.nbCards) );
   }
 
   void deleteBooster(int id) {
-    if( id >= boosterDraws.length || id < 0 )
+    if( id >= boosterDraws.length || id < 0 ) {
       throw StatitikException("Impossible de trouver le booster $id");
+    }
     // Delete
     boosterDraws.removeAt(id);
     // Change Label ID
@@ -126,8 +128,9 @@ class SessionDraw
   bool needReset() {
     bool editedBooster = false;
     for(BoosterDraw b in boosterDraws){
-      if(b.creation != null && b.creation != b.subExtension)
+      if(b.creation != null && b.creation != b.subExtension) {
         editedBooster |= true;
+      }
     }
 
     return editedBooster || boosterDraws.length != product.countBoosters();

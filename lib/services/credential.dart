@@ -36,7 +36,7 @@ class Credential
   }
 
   void signInWithGoogle(onSuccess) {
-    FirebaseAuth _auth = FirebaseAuth.instance;
+    FirebaseAuth auth = FirebaseAuth.instance;
 
     googleSignIn.signIn().then((GoogleSignInAccount? googleSignInAccount) {
       if(googleSignInAccount != null) {
@@ -48,9 +48,9 @@ class Credential
             idToken: googleSignInAuthentication.idToken,
           );
 
-          _auth.signInWithCredential(credential).then((
+          auth.signInWithCredential(credential).then((
               UserCredential authResult) {
-            onSuccess("google-" + authResult.user!.uid);
+            onSuccess("google-${authResult.user!.uid}");
           });
         });
       }
@@ -74,8 +74,7 @@ class Credential
               // Sign the user in (or link) with the auto-generated credential
               auth.signInWithCredential(credential).then((
                   UserCredential authResult) {
-                String uid = "telephone-" +
-                    authResult.user!.uid;
+                String uid = "telephone-${authResult.user!.uid}";
                 onSuccess(uid);
               }).onError((error, stackTrace) =>
                   onError('LOG_5', myPhoneNumber));
@@ -104,8 +103,7 @@ class Credential
                   // Sign the user in (or link) with the credential
                   auth.signInWithCredential(credential).then((
                       UserCredential authResult) {
-                    String uid = "telephone-" +
-                        authResult.user!.uid;
+                    String uid = "telephone-${authResult.user!.uid}";
                     onSuccess(uid);
                   }).onError((error, stackTrace) {
                       onError('LOG_5', myPhoneNumber);
@@ -150,7 +148,7 @@ class Credential
           smsCode = value;
         },
         //controller: _textFieldController,
-        decoration: InputDecoration(hintText: "Sms code"),
+        decoration: const InputDecoration(hintText: "Sms code"),
       ),
       actions: <Widget>[
         TextButton(
@@ -183,7 +181,7 @@ class Credential
           },
           //controller: _text,
           decoration: InputDecoration(hintText: StatitikLocale.of(context).read('LOG_7'),
-            hintStyle: TextStyle(fontSize: 10),
+            hintStyle: const TextStyle(fontSize: 10),
             //errorText: _validate ? 'Value Can\'t Be Empty' : null
           )
       ),

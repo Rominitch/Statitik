@@ -34,8 +34,9 @@ class NewCardsReport {
     }
 
     // else Add new
-    if(!find)
+    if(!find) {
       result[subExtension]!.add(code);
+    }
   }
 
   void sort() {

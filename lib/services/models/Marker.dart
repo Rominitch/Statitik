@@ -26,12 +26,12 @@ class CardMarkers {
   List<CardMarker> markers = [];
 
   CardMarkers();
-
-  CardMarkers.from(List<CardMarker> markers) : this.markers = markers;
+  CardMarkers.from(List<CardMarker> currentMarkers) :
+    markers = currentMarkers;
 
   static const int byteLength=5;
   CardMarkers.fromBytes(List<int> bytes, Map allMarkers) {
-    var fullcode = <int>[
+    final List<int> fullcode = <int>[
       bytes[0],
       ((bytes[1] << 8 | bytes[2]) << 8 | bytes[3]) << 8 | bytes[4]
     ];

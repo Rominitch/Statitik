@@ -11,7 +11,7 @@ class StatitikLocale {
     return Localizations.of<StatitikLocale>(context, StatitikLocale)!;
   }
 
-  static Map<String, Map<String, String>> _localizedValues = {
+  static final Map<String, Map<String, String>> _localizedValues = {
     'en': {
       'H_T0': 'PokéSpace',
       'H_T1': 'Expansions',
@@ -526,7 +526,7 @@ Images and illustrations used are the property of their respective authors.\n
       'TB_B1': 'Exemple: le nombre de cartes n\'est pas correct',
       'TP_T0': 'Produits',
       'TP_B0': 'Aucun produit n\'est disponible',
-      'TP_B1': '''Si votre produit n\'est pas référencé, utiliser plusieurs boosters ou signaler-le nous.
+      'TP_B1': '''Si votre produit n'est pas référencé, utiliser plusieurs boosters ou signaler-le nous.
 
 Les produits `oranges` possèdent des boosters aléatoires.''',
       'TP_B2': 'Sélectionner',
@@ -556,7 +556,7 @@ Les produits `oranges` possèdent des boosters aléatoires.''',
       'SU_B2': 'Vous pouvez aussi nous soutenir financièrement:',
       'TH_B0': 'Un grand merci aux membres de Pokécardex pour leur aide et soutien :',
       'disclaimer_T0': 'Disclaimer',
-      'disclaimer': ''' n\'est pas une application officielle Pokémon, elle n\'est en aucun cas affiliée, approuvée ou supportée par Nintendo, GAME FREAK ou The Pokémon Company.
+      'disclaimer': ''' n'est pas une application officielle Pokémon, elle n'est en aucun cas affiliée, approuvée ou supportée par Nintendo, GAME FREAK ou The Pokémon Company.
 Elle est à but non-lucratif, créé par et pour des fans de Pokémon.
 
 Les personnages, le thème "Pokémon ®" et ses marques dérivées sont propriétés de © Nintendo, The Pokémon Company, Game Freak, Creatures.
@@ -856,7 +856,7 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
     var dict = _localizedValues[locale.languageCode];
     if(dict != null) {
       var s = dict[code];
-      return s != null ? s : "";
+      return s ?? "";
     }
     return "";
   }

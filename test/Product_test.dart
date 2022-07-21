@@ -29,7 +29,7 @@ void main() {
     var itOther = other.keys.iterator;
     main.forEach((key, element) {
       itOther.moveNext();
-      parser(key, element, itOther.current, other[itOther.current]!);
+      parser(key, element, itOther.current, other[itOther.current] as T1);
     });
   }
 

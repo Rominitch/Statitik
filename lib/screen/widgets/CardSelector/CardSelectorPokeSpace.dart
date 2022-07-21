@@ -18,11 +18,11 @@ class CardSelectorPokeSpace extends GenericCardSelector {
 
   static const int limitSet = 255;
 
-  CardSelectorPokeSpace(SubExtension subExt, PokeSpace pokeSpace, CardIdentifier idCard):
-    this.subExt = subExt, this.pokeSpace = pokeSpace,
-    this.card   = subExt.cardFromId(idCard),
-    this.idCard = idCard,
-    this.code   = pokeSpace.cardCounter(subExt, idCard),
+  CardSelectorPokeSpace(SubExtension currentSubExt, PokeSpace currentPokeSpace, CardIdentifier currentIdCard):
+    subExt = currentSubExt, pokeSpace = currentPokeSpace,
+    card   = currentSubExt.cardFromId(currentIdCard),
+    idCard = currentIdCard,
+    code   = currentPokeSpace.cardCounter(currentSubExt, currentIdCard),
     super()
   {
     fullSetsImages = true;

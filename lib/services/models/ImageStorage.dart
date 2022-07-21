@@ -20,7 +20,7 @@ class StorageData {
 }
 
 class ImageStorage {
-  static const List formats = const["webp", "png" , "jpg"];
+  static const List formats = ["webp", "png" , "jpg"];
 
   Future<String> imageLocalPath(List<String> folders, String file, String extension) async {
     final directory = await getApplicationDocumentsDirectory();
@@ -34,7 +34,7 @@ class ImageStorage {
         // Try to download image
         final client = RetryClient(Client(), retries: 4 );
         Uint8List? bodyBytes;
-        var ext;
+        String ext;
         try {
           bodyBytes = await client.readBytes(url);
           var dots = url.path.split(".");
@@ -43,6 +43,7 @@ class ImageStorage {
           printOutput("ImageStorage: Not found ${url.toString()} -> ${urls.indexOf(url)}/${urls.length}");
           file      = null;
           bodyBytes = null;
+          ext       = "";
         }
         client.close();
 
@@ -80,8 +81,9 @@ class ImageStorage {
             } catch(e) {
               printOutput("ImageStorage : error ${e.toString()}");
               // Clean bad file save
-              if(file != null && file.existsSync())
+              if(file != null && file.existsSync()) {
                 file.deleteSync();
+              }
               file = null;
             }
           }
@@ -95,12 +97,13 @@ class ImageStorage {
     try {
       var imageLocale = await imageLocalPath(data.folders, data.imageLocalPath, "");
       var ok = false;
-      var file;
+      File? file;
       for(var format in formats) {
         file = File(imageLocale+format);
         ok = file.existsSync();
-        if(ok)
+        if(ok) {
           break;
+        }
       }
 
       if(ok) {
@@ -133,8 +136,9 @@ class ImageStorage {
     var directory = await getApplicationDocumentsDirectory();
     var dir = Directory([directory.path, "images"].join(Platform.pathSeparator));
     var ok = await dir.exists();
-    if(ok)
+    if(ok) {
       dir.delete(recursive: true);
+    }
   }
 
   Future<int> storageSize() async {

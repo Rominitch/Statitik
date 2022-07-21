@@ -10,14 +10,15 @@ class CardIdentifier {
   }
 
   CardIdentifier.copy(CardIdentifier idCard) :
-    this.cardId = List<int>.generate(idCard.cardId.length, (index) => idCard.cardId[index]){
+    cardId = List<int>.generate(idCard.cardId.length, (index) => idCard.cardId[index]){
     assert(cardId.length >= 2);
   }
 
-  CardIdentifier.fromBytes(ByteParser parser) : this.cardId = []{
+  CardIdentifier.fromBytes(ByteParser parser) : cardId = []{
     cardId = [parser.extractInt8(), parser.extractInt16()];
-    if(cardId[0] == 0)
+    if(cardId[0] == 0) {
       cardId.add(parser.extractInt8());
+    }
   }
 
   int get alternativeId {
@@ -31,8 +32,9 @@ class CardIdentifier {
     return cardId[0];
   }
 
+  @override
   String toString() {
-    return "${cardId.join("_")}";
+    return cardId.join("_");
   }
 
   int compareTo(CardIdentifier other) {
@@ -40,8 +42,9 @@ class CardIdentifier {
     for(var element in cardId) {
       if(itOther.moveNext()) {
         var cmp = element.compareTo(itOther.current);
-        if(cmp != 0)
+        if(cmp != 0) {
           return cmp;
+        }
       }
     }
     return 0;
@@ -52,8 +55,9 @@ class CardIdentifier {
   List<int> toBytes() {
     List<int> bytes = ByteEncoder.encodeInt8(listId);
     bytes += ByteEncoder.encodeInt16(numberId);
-    if(cardId.length > 2)
+    if(cardId.length > 2) {
       bytes += ByteEncoder.encodeInt8(alternativeId);
+    }
     return bytes;
   }
 
@@ -70,6 +74,7 @@ class CardImageIdentifier {
 
   CardImageIdentifier([this.idSet=0, this.idImage=0]);
 
+  @override
   String toString() {
     return "${idSet}_$idImage";
   }

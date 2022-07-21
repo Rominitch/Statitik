@@ -36,24 +36,27 @@ class StatsCardUser {
         subCards.forEach((card) {
           if(userSubCards.moveNext()) {
             if( userSubCards.current.count() > 0) {
-              if(countByRarity.containsKey(card.rarity))
+              if(countByRarity.containsKey(card.rarity)) {
                 countByRarity[card.rarity] = countByRarity[card.rarity]! + 1;
-              else
+              } else {
                 countByRarity[card.rarity] = 1;
+              }
 
-              if(card.isSecret)
+              if(card.isSecret) {
                 countSecret += 1;
-              else
+              } else {
                 countOfficial += 1;
+              }
 
               int idSet=0;
               card.sets.forEach((set) {
                 if(idSet < userSubCards.current.nbSetsRegistred()) {
                   if(userSubCards.current.countBySet(idSet) > 0) {
-                    if(countBySet.containsKey(set))
+                    if(countBySet.containsKey(set)) {
                       countBySet[set] = countBySet[set]! + 1;
-                    else
+                    } else {
                       countBySet[set] = 1;
+                    }
                   }
                 }
                 idSet += 1;
@@ -99,8 +102,9 @@ class UserCardCounter
       for(var idSubCards = 0; idSubCards < countSub; idSubCards += 1) {
         var code = CodeDraw.fromBytes(parser);
         // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
-        if(idCards < cards.length && idSubCards < cards[idCards].length)
+        if(idCards < cards.length && idSubCards < cards[idCards].length) {
           cards[idCards][idSubCards].add(code);
+        }
       }
     }
 
@@ -108,16 +112,18 @@ class UserCardCounter
     for(var idCards = 0; idCards < countECards; idCards += 1) {
       var code = CodeDraw.fromBytes(parser);
       // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
-      if(idCards < energies.length )
+      if(idCards < energies.length ) {
         energies[idCards].add(code);
+      }
     }
 
     var countNCards = parser.extractInt16();
     for(var idCards = 0; idCards < countNCards; idCards += 1) {
       var code = CodeDraw.fromBytes(parser);
       // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
-      if(idCards < noNumbers.length )
+      if(idCards < noNumbers.length ) {
         noNumbers[idCards].add(code);
+      }
     }
   }
 
@@ -128,8 +134,9 @@ class UserCardCounter
       for(var idSubCards = 0; idSubCards < countSub; idSubCards += 1) {
         var code = CodeDraw.fromBytesV1(parser);
         // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
-        if(idCards < cards.length && idSubCards < cards[idCards].length)
+        if(idCards < cards.length && idSubCards < cards[idCards].length) {
           cards[idCards][idSubCards].add(code);
+        }
       }
     }
 
@@ -137,16 +144,18 @@ class UserCardCounter
     for(var idCards = 0; idCards < countECards; idCards += 1) {
       var code = CodeDraw.fromBytesV1(parser);
       // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
-      if(idCards < energies.length )
+      if(idCards < energies.length ) {
         energies[idCards].add(code);
+      }
     }
 
     var countNCards = parser.extractInt16();
     for(var idCards = 0; idCards < countNCards; idCards += 1) {
       var code = CodeDraw.fromBytesV1(parser);
       // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
-      if(idCards < noNumbers.length )
+      if(idCards < noNumbers.length ) {
         noNumbers[idCards].add(code);
+      }
     }
   }
 
@@ -192,7 +201,7 @@ class UserCardCounter
   void addRandomCard(ProductCard card, CodeDraw counter, [NewCardsReport? report]) {
     var idCard = card.subExtension.seCards.computeIdCard(card.card)!;
 
-    var code;
+    CodeDraw? code;
     switch(idCard.listId) {
       case 0:
         code = cards[idCard.numberId][idCard.alternativeId].add(counter);
@@ -233,17 +242,20 @@ class UserCardCounter
       switch(idCards.listId) {
         case 0:
           if (idCards.numberId < cards.length &&
-              idCards.alternativeId < cards[idCards.numberId].length)
+              idCards.alternativeId < cards[idCards.numberId].length) {
             report = cards[idCards.numberId][idCards.alternativeId].add(
                 productCard.counter, mulFactor);
+          }
           break;
         case 1:
-          if (idCards.numberId < energies.length)
+          if (idCards.numberId < energies.length) {
             report = energies[idCards.numberId].add(productCard.counter, mulFactor);
+          }
           break;
         case 2:
-          if (idCards.numberId < noNumbers.length)
+          if (idCards.numberId < noNumbers.length) {
             report = noNumbers[idCards.numberId].add(productCard.counter, mulFactor);
+          }
           break;
         default:
           throw StatitikException("Unknown List");
@@ -327,20 +339,22 @@ class PokeSpace
   static PokeSpace fromBytes(List<int> data, Map subExtensions, Map products, Map sideProducts)
   {
     int localVersion = data[0];
-    if(localVersion == 2)
+    if(localVersion == 2) {
       return PokeSpace.fromBytesV2(data, subExtensions, products, sideProducts);
-    else if(localVersion == 3)
+    } else if(localVersion == 3) {
       return PokeSpace.fromBytesV3(data, subExtensions, products, sideProducts);
-    else
+    } else {
       throw StatitikException("Unknown Product version: ${data[0]}");
+    }
   }
 
   /// Build space from database
   PokeSpace.fromBytesV2(List<int> data, Map subExtensions, Map products, Map sideProducts)
   {
     int localVersion = data[0];
-    if(localVersion > version)
+    if(localVersion > version) {
       throw StatitikException("Unknown Product version: ${data[0]}");
+    }
 
     // Is Zip ?
     List<int> bytes = (data[1] == 1) ? gzip.decode(data.sublist(2)) : data.sublist(2);
@@ -352,10 +366,11 @@ class PokeSpace
       assert(subExtensions[idSE] != null, "Impossible to find SE: $idSE");
       var subExtension = subExtensions[idSE]!;
       insertSubExtension(subExtension);
-      if(localVersion == 2)
+      if(localVersion == 2) {
         myCards[subExtension]!.fromByte(parser);
-      else
+      } else {
         myCards[subExtension]!.fromByteV1(parser);
+      }
     }
 
     int nbProducts = parser.extractInt16();
@@ -378,8 +393,9 @@ class PokeSpace
   PokeSpace.fromBytesV3(List<int> data, Map subExtensions, Map products, Map sideProducts)
   {
     int localVersion = data[0];
-    if(localVersion > version)
+    if(localVersion > version) {
       throw StatitikException("Unknown Product version: ${data[0]}");
+    }
 
     // Is Zip ?
     List<int> bytes = (data[1] == 1) ? gzip.decode(data.sublist(2)) : data.sublist(2);
@@ -391,10 +407,11 @@ class PokeSpace
       assert(subExtensions[idSE] != null, "Impossible to find SE: $idSE");
       var subExtension = subExtensions[idSE]!;
       insertSubExtension(subExtension);
-      if(localVersion >= 2)
+      if(localVersion >= 2) {
         myCards[subExtension]!.fromByte(parser);
-      else
+      } else {
         myCards[subExtension]!.fromByteV1(parser);
+      }
     }
 
     int nbProducts = parser.extractInt16();
@@ -510,10 +527,11 @@ class PokeSpace
   }
 
   Map<SubExtension, UserCardCounter> getBy(Language? currentValue) {
-    if(currentValue != null && myCards.isNotEmpty)
+    if(currentValue != null && myCards.isNotEmpty) {
       return Map.from(myCards)..removeWhere((subExt, v) => subExt.extension.language != currentValue );
-    else
+    } else {
       return {};
+    }
   }
 
   NewCardsReport insertSessionDraw(SessionDraw draw) {

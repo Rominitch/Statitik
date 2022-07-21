@@ -239,8 +239,9 @@ class Environment
                 var reqUser = await connection.query(query);
                 if( reqUser.length == 1 ) {
                     for (var row in reqUser) {
-                        if(row[1] != 0)
-                            throw StatitikException("Utilisateur banni pour non respect des règles.");
+                        if(row[1] != 0) {
+                          throw StatitikException("Utilisateur banni pour non respect des règles.");
+                        }
                         user = UserPoke(row[0]);
                         user!.admin = row[2] == 1 ? true : false;
                     }
@@ -283,11 +284,11 @@ class Environment
                 assert( reqUser.length == 1 );
 
                 for (var row in reqUser) {
-                    if(row[0] != null)
-                        user!.pokeSpace = PokeSpace.fromBytes((row[0] as Blob).toBytes(),
+                    if(row[0] != null) {
+                      user!.pokeSpace = PokeSpace.fromBytes((row[0] as Blob).toBytes(),
                             collection.subExtensions,
                             collection.products, collection.productSides);
-                    else {
+                    } else {
                         // Retrieve from draw (do one time)
                         String query = 'SELECT `idSousExtension`, `cartesBin`'
                             ' FROM `TirageBooster`, `UtilisateurProduit`'
@@ -326,8 +327,9 @@ class Environment
     }
 
     Future<NewCardsReport?> sendDraw([bool registerPokeSpace=true]) async {
-        if( !isLogged() )
-            return null;
+        if( !isLogged() ) {
+          return null;
+        }
         try {
             var report = NewCardsReport();
 
@@ -369,8 +371,9 @@ class Environment
     }
 
     Future<void> removeUser() async {
-        if( !isLogged() )
-            return;
+        if( !isLogged() ) {
+          return;
+        }
 
         try {
             await db.transactionR( (connection) async {
@@ -379,16 +382,16 @@ class Environment
                 user = null;
             });
         }
-        catch( e ) {
-        }
+        catch( _ ) {}
     }
 
     Future<StatsBooster> getStats(SubExtension subExt, Product? product, ProductCategory? category, [int? user]) async {
-        StatsBooster stats = new StatsBooster(subExt: subExt);
+        StatsBooster stats = StatsBooster(subExt: subExt);
         try {
             String userReq = '';
-            if(user != null)
-                userReq = 'AND `UtilisateurProduit`.`idUtilisateur` = $user ';
+            if(user != null) {
+              userReq = 'AND `UtilisateurProduit`.`idUtilisateur` = $user ';
+            }
 
             await db.transactionR( (connection) async {
                 String query;
@@ -427,8 +430,9 @@ class Environment
             });
         }
         catch( e ) {
-            if( e is StatitikException)
-                printOutput(e.msg);
+            if( e is StatitikException) {
+              printOutput(e.msg);
+            }
         }
         return stats;
     }
@@ -491,8 +495,9 @@ class Environment
                 // Register and check access
                 assert(uid != null);
                 registerUser(uid).then((value){
-                    if(afterLog != null)
-                        afterLog();
+                    if(afterLog != null) {
+                      afterLog();
+                    }
                 });
             });
         };
@@ -501,8 +506,9 @@ class Environment
             var message = sprintf(StatitikLocale.of(context).read(codeMessage), [code]);
             Environment.instance.user = null;
 
-            if(afterError != null)
-                afterError(message);
+            if(afterError != null) {
+              afterError(message);
+            }
         };
         try {
             // Log system
@@ -524,8 +530,9 @@ class Environment
 
   Future<bool> sendRequestProduct(String info, String eac) async
   {
-      if( !isLogged() )
-          return false;
+      if( !isLogged() ) {
+        return false;
+      }
       try {
           return await db.transactionR( (connection) async {
               // Get new ID
@@ -536,7 +543,7 @@ class Environment
               }
 
               // Add new request
-              final queryStr = 'INSERT INTO `Demande` (idDemande, Information, EAC) VALUES (?, ?, ?)';
+              const queryStr = 'INSERT INTO `Demande` (idDemande, Information, EAC) VALUES (?, ?, ?)';
 
               await connection.queryMulti(queryStr, [[idRequest, info, eac]]);
           });
@@ -571,7 +578,7 @@ class Environment
                         // Read user data
                         var reqUserBoosters = await connection.query("SELECT `idSousExtension`, `anomalie`, `cartesBin` "
                             " FROM `TirageBooster`"
-                            " WHERE `idAchat` = \'${session.idAchat}\'");
+                            " WHERE `idAchat` = '${session.idAchat}'");
                         int id=0;
                         for (var rowUserBooster in reqUserBoosters) {
                             BoosterDraw booster;

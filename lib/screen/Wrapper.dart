@@ -30,9 +30,9 @@ class _ApplicationWidgetState extends State<ApplicationWidget> {
       .indicatorWidget = drawLoading(context);
     
     if( Environment.instance.isInitialized ) {
-      return Home();
+      return const Home();
     } else {
-      return Loading();
+      return const Loading();
     }
   }
 }

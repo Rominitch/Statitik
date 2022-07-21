@@ -22,7 +22,7 @@ enum TypeCard {
   Unknown,
   Marker,
 }
-const List<TypeCard> orderedType = const[
+const List<TypeCard> orderedType = [
   TypeCard.Unknown, TypeCard.Plante, TypeCard.Feu, TypeCard.Eau, TypeCard.Electrique, TypeCard.Psy,
   TypeCard.Combat, TypeCard.Obscurite, TypeCard.Metal, TypeCard.Fee,
   TypeCard.Dragon, TypeCard.Incolore, TypeCard.Objet, TypeCard.Supporter, TypeCard.Stade, TypeCard.Energy,
@@ -70,16 +70,18 @@ const List<Color> generationColor = [
   Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal
 ];
 
-List<Color> typeColors = energiesColors + [Color(0xFF1976D2), Color(0xFFC62828), Color(0xFFB9F6CA), Color(0xFFFFFF8D), Colors.black, Colors.greenAccent];
+List<Color> typeColors = energiesColors + [const Color(0xFF1976D2), const Color(0xFFC62828), const Color(0xFFB9F6CA), const Color(0xFFFFFF8D), Colors.black, Colors.greenAccent];
 
 Widget energyImage(TypeCard type, {double sizeIcon = iconSize}) {
   assert (type != TypeCard.Unknown);
-  var iconWidget;
+  Widget iconWidget;
   if (imageName[type].isNotEmpty) {
     iconWidget = Image(
       image: AssetImage('assets/energie/${imageName[type]}.png'),
       width: sizeIcon,
     );
+  } else {
+    iconWidget = const Icon(Icons.help_outline);
   }
   return iconWidget;
 }
@@ -88,7 +90,7 @@ List<Widget?> cachedImageType = List.filled(TypeCard.values.length, null);
 
 Widget getImageType(TypeCard type, {bool generate=false, double? sizeIcon})
 {
-  var iconWidget;
+  Widget iconWidget;
   if(generate || cachedImageType[type.index] == null) {
     switch(type) {
       case TypeCard.Objet:
@@ -113,11 +115,11 @@ Widget getImageType(TypeCard type, {bool generate=false, double? sizeIcon})
         iconWidget = energyImage(type, sizeIcon: sizeIcon ?? iconSize);
     }
 
-    if(generate)
+    if(generate) {
       return iconWidget;
-    else
+    } else {
       cachedImageType[type.index] = iconWidget;
-
+    }
   }
   return cachedImageType[type.index]!;
 }

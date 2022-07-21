@@ -34,9 +34,7 @@ class _AdminPageState extends State<AdminPage> {
     Environment.instance.db.transactionR( (connection) async {
         String query = "SELECT `idDemande` FROM Demande;";
         var exts = await connection.query(query);
-        for(var ext in exts) {
-          demanded = true;
-        }
+        demanded = exts.isNotEmpty;
       }
     ).then((value){
       setState(() {});

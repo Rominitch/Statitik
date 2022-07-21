@@ -65,11 +65,9 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
                   Text(StatitikLocale.of(context).read('PS_B2')),
                 ]
               ),
-              onPressed: () async {
-                var code;
-
+              onPressed: () {
                 if(selection.computeProductWithOtherStuff()) {
-                  code = await showDialog(
+                  showDialog(
                     context: context,
                     builder: (BuildContext context) => AlertDialog(
                       title: Center(child: Text(StatitikLocale.of(context).read('warning'), style: Theme.of(context).textTheme.headline5)),
@@ -99,13 +97,13 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
                         ),
                       ],
                     ),
-                  );
+                  ).then((code) {
+                    selection.withSubProducts = code;
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(selection);
+                  });
                 } else {
-                  code = false;
-                }
-
-                if(code != null) {
-                  selection.withSubProducts = code;
+                  selection.withSubProducts = false;
                   Navigator.of(context).pop();
                   Navigator.of(context).pop(selection);
                 }

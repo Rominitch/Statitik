@@ -89,7 +89,7 @@ class _CustomRadioState extends State<CustomRadio> {
   Widget build(BuildContext context) {
     return Container(
       width: widget.widthBox,
-      padding: EdgeInsets.all(1.0),
+      padding: const EdgeInsets.all(1.0),
       child: TextButton(
         style: TextButton.styleFrom(
           backgroundColor: _activate ? Colors.green : Colors.grey[800],

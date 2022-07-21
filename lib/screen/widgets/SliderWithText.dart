@@ -235,8 +235,8 @@ class SliderWithTextThumb extends SliderComponentShape {
 }
 
 class SliderInfoController {
-  var     functionValue;
-  var     functionChanged;
+  Function     functionValue;
+  Function     functionChanged;
 
   SliderInfoController(this.functionValue, this.functionChanged);
 }

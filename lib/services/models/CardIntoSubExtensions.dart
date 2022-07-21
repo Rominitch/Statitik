@@ -7,9 +7,10 @@ class CardIntoSubExtensions {
   CardIdentifier       idCard;
   PokemonCardExtension card;
 
-  CardIntoSubExtensions(SubExtension se, CardIdentifier idCard) :
-    this.se = se, this.idCard = idCard,
-    this.card = se.seCards.cardFromId(idCard);
+  CardIntoSubExtensions(SubExtension currentSe, CardIdentifier currentIdCard) :
+    se     = currentSe,
+    idCard = currentIdCard,
+    card   = currentSe.seCards.cardFromId(currentIdCard);
 
   CardIntoSubExtensions.withAll(this.se, this.idCard, this.card);
 }

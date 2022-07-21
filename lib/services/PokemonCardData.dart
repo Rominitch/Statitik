@@ -53,12 +53,14 @@ class Pokemon {
               ? collection.getPokemonID(idName)
               : collection.getNamedID(idName));
     int idRegion = parser.extractInt8();
-    if(idRegion > 0)
+    if(idRegion > 0) {
       p.region = collection.regions[idRegion];
+    }
 
     int idForme  = parser.extractInt8();
-    if(idForme > 0)
+    if(idForme > 0) {
       p.forme = collection.formes[idForme];
+    }
     return p;
   }
 
@@ -144,8 +146,9 @@ class PokemonCardData {
   EnergyValue?     weakness;
 
   PokemonCardData(this.title, this.level, this.type, this.markers, [this.life=0, this.retreat=0, this.resistance, this.weakness]) {
-    if( this.retreat > 5)
-      this.retreat = 0;
+    if( retreat > 5) {
+      retreat = 0;
+    }
   }
 
   String titleOfCard(Language l) {

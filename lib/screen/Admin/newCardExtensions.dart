@@ -97,7 +97,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
 
   void removeCard(int listId,int localId) {
     setState(() {
-      var cardList;
+      List cardList;
       if(listId == 1) {
         cardList = widget.se.seCards.energyCard;
       } else if(listId == 2) {
@@ -267,22 +267,24 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
     return myCards;
   }
 
-  Future<bool> backAction(BuildContext context) async {
+  bool backAction(BuildContext context) {
     if( !_modify ) {
       Navigator.of(context).pop(true);
     } else {
       widget.se.computeStats();
-      var exit = await showDialog(
-          context: context,
-          barrierDismissible: false, // user must tap button!
-          builder: (BuildContext context) {
-            return showExit(context);
-          });
-      if (exit) {
-        Navigator.of(context).pop(true);
-      } else {
-        return false;
-      }
+      showDialog(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return showExit(context);
+        }).then((exit) {
+          if (exit) {
+            Navigator.of(context).pop(true);
+          } else {
+            return false;
+          }
+        }
+      );
     }
     return true;
   }
@@ -291,7 +293,8 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () {
-        return backAction(context);
+        bool exit = backAction(context);
+        return Future.value(exit);
     },
     child: Scaffold(
       appBar: AppBar(

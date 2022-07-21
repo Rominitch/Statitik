@@ -52,10 +52,10 @@ class PokemonCardExtension {
     // Automatic fill base on current database ID
     if(isJapanese) {
       // Auto art
-      image.cardDesign.art = this.rarity == Environment.instance.collection.rarities[16] ? ArtFormat.FullArt
-          : this.rarity == Environment.instance.collection.rarities[14] ? ArtFormat.HalfArt :  ArtFormat.Normal;
-      image.cardDesign.design = this.rarity == Environment.instance.collection.rarities[16] ? Design.Full.index
-          : this.rarity == Environment.instance.collection.rarities[14] ? Design.Full.index :  0;
+      image.cardDesign.art = rarity == Environment.instance.collection.rarities[16] ? ArtFormat.FullArt
+          : rarity == Environment.instance.collection.rarities[14] ? ArtFormat.HalfArt :  ArtFormat.Normal;
+      image.cardDesign.design = rarity == Environment.instance.collection.rarities[16] ? Design.Full.index
+          : rarity == Environment.instance.collection.rarities[14] ? Design.Full.index :  0;
     }
 
     images.add([image]);
@@ -70,13 +70,15 @@ class PokemonCardExtension {
     if(Environment.instance.collection.japanRarity.contains(rarity)) {
       sets.add(allSets[0]);
     } else {
-      if( rarity.id < 6 )
+      if( rarity.id < 6 ) {
         sets.add(allSets[0]);
-      else
+      } else {
         sets.add(allSets[1]);
+      }
 
-      if( rarity.id <= 6 )
+      if( rarity.id <= 6 ) {
         sets.add(allSets[2]);
+      }
     }
 
     // Fill image list
@@ -95,9 +97,7 @@ class PokemonCardExtension {
     try {
       rarity = allRarities[parser.extractInt8()];
     }
-    catch(e){
-
-    }
+    catch(_) {}
     images.add([ImageDesign()]);
 
     computeDefaultSet(allSets);
@@ -110,9 +110,7 @@ class PokemonCardExtension {
     try {
       rarity = allRarities[parser.extractInt8()];
     }
-    catch(e){
-
-    }
+    catch(_) {}
 
     var image = ImageDesign();
     image.image = parser.decodeString16();
@@ -131,9 +129,7 @@ class PokemonCardExtension {
     try {
       rarity = allRarities[parser.extractInt8()];
     }
-    catch(e){
-
-    }
+    catch(_) {}
 
     var image = ImageDesign();
     image.image  = parser.decodeString16();
@@ -150,9 +146,7 @@ class PokemonCardExtension {
     try {
       rarity = allRarities[parser.extractInt8()];
     }
-    catch(e){
-
-    }
+    catch(_) {}
 
     var image = ImageDesign();
     image.image  = parser.decodeString16();
@@ -348,8 +342,9 @@ class PokemonCardExtension {
     assert(images.isNotEmpty);
     if(idImage.idSet < images.length) {
       var v = images[idImage.idSet];
-      if(idImage.idImage < v.length)
+      if(idImage.idImage < v.length) {
         return v[idImage.idImage];
+      }
     }
     return null;
   }

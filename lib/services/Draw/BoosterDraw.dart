@@ -19,13 +19,13 @@ class BoosterDraw {
   bool abnormal = false;          ///< Packaging error
 
   // Event
-  final StreamController onEnergyChanged = new StreamController.broadcast();
+  final StreamController onEnergyChanged = StreamController.broadcast();
 
   static const int _limitSet = 7;
 
   BoosterDraw({this.creation, required this.id, required this.nbCards})
   {
-    assert(this.nbCards > 0);
+    assert(nbCards > 0);
     subExtension = creation;
     fillCard();
   }
@@ -59,8 +59,9 @@ class BoosterDraw {
   }
 
   void fillCard() {
-    if(hasSubExtension())
+    if(hasSubExtension()) {
       cardDrawing = ExtensionDrawCards.fromSubExtension(subExtension!);
+    }
   }
 
   bool isFinished() {
@@ -154,8 +155,9 @@ class BoosterDraw {
   }
 
   Validator validationWorld(final Language language) {
-    if(abnormal)
+    if(abnormal) {
       return Validator.Valid;
+    }
 
     // Fr and US
     if(language.id == 1 || language.id == 2) {
@@ -179,8 +181,9 @@ class BoosterDraw {
           // Check alternative
           addAlternativeCard(element, card);
           // Check marker
-          if( card.data.type == TypeCard.Marker)
+          if( card.data.type == TypeCard.Marker) {
             energyAndMarker += localCount;
+          }
         }
         idCardNum += 1;
       });
@@ -199,8 +202,9 @@ class BoosterDraw {
         idCardNum += 1;
       });
 
-      if (subExtension!.seCards.hasBoosterEnergy() && energyAndMarker != 1 && energyAndMarker != 2)
+      if (subExtension!.seCards.hasBoosterEnergy() && energyAndMarker != 1 && energyAndMarker != 2) {
         return Validator.ErrorEnergy;
+      }
 
       // Parsing all cards after
       idCardNum = 0;
@@ -213,18 +217,21 @@ class BoosterDraw {
             var card = subExtension!.cardFromId(idCard);
 
             addAlternativeCard(element, card);
-            if( card.isGoodCard() )
+            if( card.isGoodCard() ) {
               goodCard += localCount;
+            }
           }
           idLocalCard += 1;
         });
         idCardNum += 1;
       });
 
-      if (subExtension!.seCards.hasAlternativeSet() && alternativeSet != 1 && alternativeSet != 2)
+      if (subExtension!.seCards.hasAlternativeSet() && alternativeSet != 1 && alternativeSet != 2) {
         return Validator.ErrorReverse;
-      if (goodCard > 3)
+      }
+      if (goodCard > 3) {
         return Validator.ErrorTooManyGood;
+      }
     }
     return Validator.Valid;
   }

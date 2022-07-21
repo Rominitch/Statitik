@@ -92,7 +92,7 @@ class _CardNameSelectorState extends State<CardNameSelector> {
                   itemBuilder: (context, id) {
                     var info = _filterered[id];
                     Color col = info.isPokemon() ? generationColor[info.generation] : Colors.grey;
-                    return Container(
+                    return SizedBox(
                       height: 40.0,
                       child: Card(
                         color: col,

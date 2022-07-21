@@ -67,7 +67,6 @@ class Deck
   }
 }
 
-
 class MMMState
 {
   int minV;
@@ -76,11 +75,11 @@ class MMMState
   int maxV;
 
   MMMState(int value) :
-    this.minV = value, this.sum = value, this.maxV = value, this.count =1;
+    minV = value, sum = value, maxV = value, count =1;
 
   void add(int value) {
-    this.minV = min(minV, value);
-    this.maxV = max(maxV, value);
+    minV = min(minV, value);
+    maxV = max(maxV, value);
     sum += value;
     count += 1;
   }
@@ -112,8 +111,9 @@ class DeckStats
       var card = cardInfo.se.cardFromId(cardInfo.idCard);
       // Check energy
       if(card.data.type == TypeCard.Energy && card.data.typeExtended != null) {
-        if(!energyTypes.contains(card.data.typeExtended))
+        if(!energyTypes.contains(card.data.typeExtended)) {
           energyTypes.add(card.data.typeExtended!);
+        }
       }
       // Check pokemon level
       if(card.data.level != Level.WithoutLevel) {
@@ -124,10 +124,11 @@ class DeckStats
       if(card.data.type.index <= TypeCard.Incolore.index) {
         var info = card.data.title[0].name as PokemonInfo;
         nbCardsPokemon += count;
-        if( countPokemon.containsKey(info.idPokedex) )
+        if( countPokemon.containsKey(info.idPokedex) ) {
           countPokemon[info.idPokedex] = countPokemon[info.idPokedex]! + count;
-        else
+        } else {
           countPokemon[info.idPokedex] = count;
+        }
 
         // HP
         if(hpStats == null) {

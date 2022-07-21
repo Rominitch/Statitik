@@ -20,7 +20,9 @@ class SubExtensionCards {
 
   int                              configuration;
 
-  SubExtensionCards(List<List<PokemonCardExtension>> cards, this.codeNaming, this.configuration) : this.cards = cards, this.isValid = cards.length > 0;
+  SubExtensionCards(List<List<PokemonCardExtension>> currentCards, this.codeNaming, this.configuration) :
+    cards   = currentCards,
+    isValid = currentCards.isNotEmpty;
 
   static const int _hasBoosterEnergy  = 1;
   static const int _hasAlternativeSet = 2;
@@ -48,37 +50,41 @@ class SubExtensionCards {
 
   int countNbLists() {
     int count = 0;
-    if(cards.isNotEmpty)
+    if(cards.isNotEmpty) {
       count += 1;
-    if(energyCard.isNotEmpty)
+    }
+    if(energyCard.isNotEmpty) {
       count += 1;
-    if(noNumberedCard.isNotEmpty)
+    }
+    if(noNumberedCard.isNotEmpty) {
       count += 1;
+    }
     return count;
   }
 
   PokemonCardExtension extractCard(int currentVersion, parser, Map cardCollection, Map allSets, Map rarities) {
     try {
-      if(currentVersion == 9)
+      if(currentVersion == 9) {
         return PokemonCardExtension.fromBytes(parser, cardCollection, allSets, rarities);
-      else if(currentVersion == 8)
+      } else if(currentVersion == 8) {
         return PokemonCardExtension.fromBytesV8(parser, cardCollection, allSets, rarities);
-      else if(currentVersion == 7)
+      } else if(currentVersion == 7) {
         return PokemonCardExtension.fromBytesV7(parser, cardCollection, allSets, rarities);
-      else if(currentVersion == 6)
+      } else if(currentVersion == 6) {
         return PokemonCardExtension.fromBytesV6(parser, cardCollection, allSets, rarities);
-      else if(currentVersion == 5)
+      } else if(currentVersion == 5) {
         return PokemonCardExtension.fromBytesV5(parser, cardCollection, allSets, rarities);
-      else if(currentVersion == 4)
+      } else if(currentVersion == 4) {
         return PokemonCardExtension.fromBytesV4(parser, cardCollection, allSets, rarities);
-      else if (currentVersion == 3)
+      } else if (currentVersion == 3) {
         return PokemonCardExtension.fromBytesV3(parser, cardCollection, allSets, rarities);
-      else
+      } else {
         throw StatitikException("Unknown version of card");
+      }
     }
     catch(error) {
       printOutput("Extract card error: version $currentVersion : ${error.toString()}");
-      throw error;
+      rethrow;
     }
   }
 
@@ -99,13 +105,15 @@ class SubExtensionCards {
             printOutput("OtherCard issue: Skip card\n$e\n$callStack");
           }
         }
-      } else
+      } else {
         throw StatitikException("SubExtensionCards: need migration ($currentVersion < $version");
+      }
     }
     return listCards;
   }
 
-  SubExtensionCards.build(List<int> bytes, this.codeNaming, Map cardCollection, Map allSets, Map rarities, this.configuration, List<int>? energy, List<int>? noNumber) : this.cards=[], this.isValid = (bytes.length > 0) {
+  SubExtensionCards.build(List<int> bytes, this.codeNaming, Map cardCollection, Map allSets, Map rarities, this.configuration, List<int>? energy, List<int>? noNumber) :
+    cards=[], isValid = bytes.isNotEmpty {
     final currentVersion = bytes[0];
     if(3 <= currentVersion && currentVersion <= version) {
       var parser = ByteParser(gzip.decode(bytes.sublist(1)));
@@ -118,8 +126,9 @@ class SubExtensionCards {
         }
         cards.add(numberedCard);
       }
-    } else
+    } else {
       throw StatitikException("SubExtensionCards: need migration ($currentVersion < $version");
+    }
 
     energyCard     = extractOtherCards(energy,   cardCollection, allSets, rarities);
     noNumberedCard = extractOtherCards(noNumber, cardCollection, allSets, rarities);
@@ -201,14 +210,16 @@ class SubExtensionCards {
       CodeNaming cn = CodeNaming();
       if (codeNaming.isNotEmpty) {
         codeNaming.forEach((element) {
-          if (id >= element.idStart)
+          if (id >= element.idStart) {
             cn = element;
+          }
         });
       }
-      if (cn.naming.contains("%s"))
+      if (cn.naming.contains("%s")) {
         return sprintf(cn.naming, [(id - cn.idStart + 1).toString()]);
-      else
+      } else {
         return sprintf(cn.naming, [(id - cn.idStart + 1)]);
+      }
     }
   }
 

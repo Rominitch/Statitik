@@ -3,7 +3,7 @@ import 'package:statitikcard/services/models/MultiLanguageString.dart';
 
 class CardTitleData
 {
-  MultiLanguageString _names;
+  final MultiLanguageString _names;
 
   CardTitleData(this._names);
 
@@ -38,7 +38,7 @@ class PokemonInfo extends CardTitleData
 
   @override
   String fullname(Language l) {
-    return name(l) + " - n°" + idPokedex.toString();
+    return "${name(l)} - n°$idPokedex";
   }
 
   @override
