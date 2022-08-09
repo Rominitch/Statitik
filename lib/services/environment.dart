@@ -38,7 +38,7 @@ class Database
     final String version = '3.3';
     final ConnectionSettings settings = createConnection();
 
-    Future<bool> transactionR(Function queries) async
+    Future<bool> transactionR(Future Function(TransactionContext) queries) async
     {
         bool valid=false;
 

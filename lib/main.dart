@@ -3,6 +3,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:firebase_core/firebase_core.dart';
+//import 'package:firebase_app_check/firebase_app_check.dart';
 
 import 'package:statitikcard/screen/cartes/card_statistic.dart';
 import 'package:statitikcard/screen/wrapper.dart';
@@ -15,6 +16,9 @@ Future<void> main() async {
   // Enable AppCheck : API Integrity
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  //await FirebaseAppCheck.instance.activate(
+  //  webRecaptchaSiteKey: 'recaptcha-v3-site-key',
+  //);
 
   // Build instance for first time
   runApp(const StatitikApp());

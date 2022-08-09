@@ -56,7 +56,7 @@ android {
         applicationId "fr.mouca.statitikcard"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
-        minSdkVersion 26
+        minSdkVersion 29
         targetSdkVersion 33
         //targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
@@ -89,15 +89,17 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // Import the Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:30.3.0')
-    implementation('com.google.firebase:firebase-auth') {
-        exclude module: "play-services-safetynet"
-    }
+    implementation platform('com.google.firebase:firebase-bom:30.3.1')
 
     // Add the dependency for the Firebase SDK for Google Analytics
     // When using the BoM, don't specify versions in Firebase dependencies
     implementation 'com.google.firebase:firebase-analytics-ktx'
-    implementation 'com.google.firebase:firebase-appcheck-playintegrity'
+    implementation ('com.google.firebase:firebase-auth') {
+        exclude module: "play-services-safetynet"
+    }
+    //implementation ('com.google.firebase:firebase-appcheck-playintegrity') {
+    //    exclude module: "play-services-safetynet"
+    //}
     // Show Webpage
     implementation "androidx.browser:browser:1.4.0"
 }

@@ -420,7 +420,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           itemCount: Environment.instance.collection.markers.values.length,
           itemBuilder: (BuildContext context, int index) {
              var element = Environment.instance.collection.markers.values.elementAt(index);
-             return MarkerButtonCheck(widget.activeLanguage, widget.card.data.markers, element);
+             return MarkerButtonCheck(widget.activeLanguage, widget.card.data.markers, element, null);
           }
         ),
         SingleChildScrollView(

@@ -83,22 +83,22 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
     // Build static card marker
     for (var element in Environment.instance.collection.markers.values) {
       if (!Environment.instance.collection.longMarkers.contains(element)) {
-        widgetMarkers.add(MarkerButtonCheck(widget.language, widget.result.filter, element, controller: refreshController));
+        widgetMarkers.add(MarkerButtonCheck(widget.language, widget.result.filter, element, refreshController));
       }
     }
     for (var element in Environment.instance.collection.longMarkers) {
-      longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.language, widget.result.filter, element, controller: refreshController)));
+      longMarkerWidget.add(Expanded(child: MarkerButtonCheck(widget.language, widget.result.filter, element, refreshController)));
     }
 
     for (var type in orderedType) {
       if( type != TypeCard.unknown ) {
-        typesWidget.add(TypeButtonCheck(widget.result.types, type, controller: refreshController));
+        typesWidget.add(TypeButtonCheck(widget.result.types, type, refreshController));
       }
     }
 
     var rarities = widget.language.isWorld() ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity;
     for (var rarity in rarities) {
-      raritiesWidget.add(RarityButtonCheck(widget.language, widget.result.rarities, rarity, controller: refreshController));
+      raritiesWidget.add(RarityButtonCheck(widget.language, widget.result.rarities, rarity, refreshController));
     }
 
     for (var element in energies) {
@@ -116,7 +116,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
 
     for (var effect in DescriptionEffect.values) {
       if( effect != DescriptionEffect.unknown) {
-        effectsAttackWidget.add(DescriptionEffectButtonCheck(widget.result.effects, effect, controller: descriptionController));
+        effectsAttackWidget.add(DescriptionEffectButtonCheck(widget.result.effects, effect, descriptionController));
       }
     }
 
