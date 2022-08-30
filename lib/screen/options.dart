@@ -200,14 +200,15 @@ class _OptionsPageState extends State<OptionsPage> {
                       ])
                   ),
                 )),
-                Expanded(child: Card(
-                  child: TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pushNamed('/support');
-                      },
-                      child: Text(StatitikLocale.of(context).read('O_B4'))
+                Expanded(child:
+                  Card(
+                    color: const Color(0xFF5865f2),
+                    child: TextButton(
+                        onPressed: () => Environment.launchURL(Uri.parse('https://discord.gg/mnJNEka2zN')),
+                        child: drawCachedImage('press', 'discordBlanc', height: 30.0)
+                    ),
                   ),
-                )),
+                ),
               ]
             ),
             Row(

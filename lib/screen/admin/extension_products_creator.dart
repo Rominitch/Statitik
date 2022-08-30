@@ -193,17 +193,19 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
       }
       products.add(p);
     }
-    for (var id=0; id < triPacks.length; id +=1) {
-      var p = createProduct(ProductKind.triPack, 3);
-      for (var card in selection!.cards) {
-        p.otherCards.add(createCardProduct(selection!.subExtension, card, false));
+    for (var triPack in triPacks) {
+      var p = createProduct(ProductKind.triPack, 3, triPack.name);
+      for (var card in triPack.selection!.cards) {
+        p.otherCards.add(createCardProduct(triPack.selection!.subExtension, card, false));
       }
+      products.add(p);
     }
-    for (var id=0; id < simplePacks.length; id +=1) {
-      var p = createProduct(ProductKind.simplePack, 1);
-      for (var card in selection!.cards) {
-        p.otherCards.add(createCardProduct(selection!.subExtension, card, false));
+    for (var simplePack in simplePacks) {
+      var p = createProduct(ProductKind.simplePack, 1, simplePack.name);
+      for (var card in simplePack.selection!.cards) {
+        p.otherCards.add(createCardProduct(simplePack.selection!.subExtension, card, false));
       }
+      products.add(p);
     }
 
     if(productSelected[ProductKind.etb.index]) {

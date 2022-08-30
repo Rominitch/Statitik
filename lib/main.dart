@@ -3,12 +3,9 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-//import 'package:firebase_app_check/firebase_app_check.dart';
-
 import 'package:statitikcard/screen/cartes/card_statistic.dart';
 import 'package:statitikcard/screen/wrapper.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
-import 'package:statitikcard/screen/support.dart';
 import 'package:statitikcard/screen/thanks.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
@@ -103,7 +100,6 @@ class StatitikApp extends StatelessWidget {
         '/home':    (context) => const ApplicationWidget(),
         '/stats':   (context) => StatsPage(),
         '/cards':   (context) => const CardStatisticPage(),
-        '/support': (context) => const SupportPage(),
         '/thanks':  (context) => const ThanksPage(),
       }
     );

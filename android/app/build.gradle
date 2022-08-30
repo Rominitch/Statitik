@@ -93,10 +93,8 @@ dependencies {
 
     // Add the dependency for the Firebase SDK for Google Analytics
     // When using the BoM, don't specify versions in Firebase dependencies
-    implementation 'com.google.firebase:firebase-analytics-ktx'
-    implementation ('com.google.firebase:firebase-auth') {
-        exclude module: "play-services-safetynet"
-    }
+    //implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation ('com.google.firebase:firebase-auth')
     //implementation ('com.google.firebase:firebase-appcheck-playintegrity') {
     //    exclude module: "play-services-safetynet"
     //}
