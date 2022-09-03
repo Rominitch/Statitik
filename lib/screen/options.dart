@@ -200,15 +200,7 @@ class _OptionsPageState extends State<OptionsPage> {
                       ])
                   ),
                 )),
-                Expanded(child:
-                  Card(
-                    color: const Color(0xFF5865f2),
-                    child: TextButton(
-                        onPressed: () => Environment.launchURL(Uri.parse('https://discord.gg/mnJNEka2zN')),
-                        child: drawCachedImage('press', 'discordBlanc', height: 30.0)
-                    ),
-                  ),
-                ),
+                Expanded(child: Environment.instance.createDiscordButton() ),
               ]
             ),
             Row(

@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/services/saved_instance_state.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:statitikcard/services/draw/booster_draw.dart';
@@ -82,7 +83,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '2.0.9';
+    final String version = '2.1.0';
 
     // State
     bool isInitialized          = false;
@@ -94,6 +95,8 @@ class Environment
     bool isMaintenance          = false;
 
     bool storeImageLocally      = true;
+
+    SavedInstanceState state = SavedInstanceState();
 
     // Cached data
     Collection collection = Collection();
@@ -226,8 +229,6 @@ class Environment
         user!.pokeSpace = PokeSpace();
         await readPokeSpace();
     }
-
-
 
     Future<void> registerUser(String uid) async {
         if (user == null) {
@@ -749,6 +750,16 @@ class Environment
             printOutput("Database error $e");
             return false;
         }
+    }
+
+    Widget createDiscordButton() {
+        return Card(
+            color: const Color(0xFF5865f2),
+            child: TextButton(
+            onPressed: () => Environment.launchURL(Uri.parse('https://discord.gg/mnJNEka2zN')),
+            child: drawCachedImage('press', 'discordBlanc', height: 30.0)
+            ),
+        );
     }
 
     static void launchURL(Uri url) async {

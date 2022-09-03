@@ -35,11 +35,12 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   void setupProducts(BuildContext context) {
+    var env = Environment.instance;
     if(widgetProd != null) {
       widgetProd!.clear();
     }
 
-    filterProducts(widget.language, widget.subExt, null, withUserCount: userSelection(), onlyWithUser: userSelection() ).then((products) {
+    filterProducts(widget.language, widget.subExt, null, showAll: env.state.showAllproduct, withUserCount: userSelection(), onlyWithUser: userSelection() ).then((products) {
       widgetProd = [];
       productFound = false;
 
@@ -83,7 +84,7 @@ class _ProductPageState extends State<ProductPage> {
             nameProduct += ' (${countP.toString()})';
           }
 
-          bool productImage = pr.product.hasImages() && Environment.instance.showPressProductImages;
+          bool productImage = pr.product.hasImages() && env.showPressProductImages;
           productCard.add(Card(
               color: pr.color,
               child: TextButton(
@@ -155,6 +156,7 @@ class _ProductPageState extends State<ProductPage> {
 
   @override
   Widget build(BuildContext context) {
+    var env = Environment.instance;
     return Scaffold(
             appBar: AppBar(
               title: Row(
@@ -170,12 +172,10 @@ class _ProductPageState extends State<ProductPage> {
                   backgroundColor: Colors.grey[800],
                   radius: 20,
                   child: TextButton(
-                      child: const Icon(Icons.add_photo_alternate_outlined,),
+                      child: env.state.showAllproduct ? const Icon(Icons.grid_on) : const Icon(Icons.grid_view),
                       onPressed: () {
-                        showDialog(
-                            context: context,
-                            builder: (_) => createRequest()
-                        );
+                        env.state.showAllproduct = !env.state.showAllproduct;
+                        setupProducts(context);
                       },
                   ),
                 ),
@@ -187,12 +187,19 @@ class _ProductPageState extends State<ProductPage> {
                       child: const Icon(Icons.help_outline,),
                       onPressed: () {
                         showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: Text(StatitikLocale.of(context).read('help')),
-                              content: Text( StatitikLocale.of(context).read('TP_B1'),
-                                  textAlign: TextAlign.justify),
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: Text(StatitikLocale.of(context).read('help'), style: Theme.of(context).textTheme.headline5),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text( StatitikLocale.of(context).read('TP_B6'), textAlign: TextAlign.justify),
+                                const SizedBox(height: 10.0),
+                                Text( StatitikLocale.of(context).read('TP_B1'), textAlign: TextAlign.justify),
+                                Environment.instance.createDiscordButton()
+                              ]
                             )
+                          )
                         );
                       },
                   ),
@@ -201,17 +208,17 @@ class _ProductPageState extends State<ProductPage> {
               ],
             ),
             body:
-                widgetProd == null
-                    ? drawLoading(context)
-                    : (widgetProd!.isEmpty ? Center( child: Text(StatitikLocale.of(context).read('TP_B0'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
-                      : SingleChildScrollView(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: widgetProd!,
-                          ),
-                      )
+              widgetProd == null
+                ? drawLoading(context)
+                : (widgetProd!.isEmpty ? Center( child: Text(StatitikLocale.of(context).read('TP_B0'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
+                  : SingleChildScrollView(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: widgetProd!,
+                    ),
+                )
               )
     );
   }

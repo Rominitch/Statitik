@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:statitikcard/screen/Admin/admin_page.dart';
+import 'package:statitikcard/screen/Products/products_explorer.dart';
 
 import 'package:statitikcard/screen/cartes/card_statistic.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
@@ -63,6 +64,7 @@ class _HomeState extends State<Home> {
       const DrawHomePage(),
       StatsPage(),
       const CardStatisticPage(),
+      const ProductsExplorer(),
       const OptionsPage(),
       if(Environment.instance.isAdministrator())
         const AdminPage(),
@@ -89,6 +91,10 @@ class _HomeState extends State<Home> {
             BottomNavigationBarItem(
               icon: const Icon(StatitikFont.font01Pokecard),
               label: StatitikLocale.of(context).read('H_T3'),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.card_giftcard),
+              label: StatitikLocale.of(context).read('H_T5'),
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.settings),

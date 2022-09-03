@@ -170,7 +170,7 @@ class _StatsPageState extends State<StatsPage> {
       Card(
         margin: const EdgeInsets.all(2.0),
         color: Colors.grey.shade800,
-        child: Container(height:165,
+        child: Container(height:170,
           padding: const EdgeInsets.all(4.0),
           child: Column(children: [
             drawImagePress(context, image, 40.0),
@@ -213,6 +213,7 @@ class _StatsPageState extends State<StatsPage> {
             buildExplain(context, "Rowlet",  "S_TOOL_T0", "S_TOOL_B0"),
             buildExplain(context, "Growl",   "S_TOOL_T1", "S_TOOL_B1"),
             buildExplain(context, "Voltorb", "S_TOOL_T2", "S_TOOL_B2"),
+            buildExplain(context, "pika",    "S_TOOL_T5", "S_TOOL_B5"),
             buildExplain(context, "news",    "S_TOOL_T3", "S_TOOL_B3"),
             if(Environment.instance.isAdministrator())
               buildExplain(context, "Voltorb",    "", ""),

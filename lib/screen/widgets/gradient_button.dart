@@ -23,7 +23,7 @@ class GradientButton extends StatelessWidget {
         decoration: BoxDecoration(gradient: gradient, borderRadius: BorderRadius.circular(4.0)),
         child: ElevatedButton(
           onPressed: onPressed,
-          style: ElevatedButton.styleFrom(primary: Colors.transparent, shadowColor: Colors.transparent),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.transparent, shadowColor: Colors.transparent),
           child: child,
         ),
       ),

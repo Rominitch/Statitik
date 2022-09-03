@@ -56,7 +56,7 @@ class StatitikApp extends StatelessWidget {
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
-            primary: Colors.white,
+            foregroundColor: Colors.white,
           ),
         ),
         checkboxTheme: CheckboxThemeData(fillColor: MaterialStateProperty.resolveWith((Set<MaterialState> states)
@@ -70,7 +70,7 @@ class StatitikApp extends StatelessWidget {
           }),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(primary: Colors.orange[500]!)
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.orange[500]!)
         ),
         inputDecorationTheme: InputDecorationTheme(
           labelStyle: TextStyle(color: Colors.orange[300]),

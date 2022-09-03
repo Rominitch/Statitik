@@ -200,7 +200,7 @@ class _IconCardState extends State<IconCard> {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: background, // background
+                  backgroundColor: background, // background
                 ),
                 child: const Text('+', style: TextStyle(fontSize: 20))
               ),
@@ -215,7 +215,7 @@ class _IconCardState extends State<IconCard> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    primary: background, // background
+                    backgroundColor: background, // background
                   ),
                   child: const Text('-', style: TextStyle(fontSize: 20))
               ),
