@@ -14,7 +14,7 @@ enum CardVisualization {
 
 class CardSelectionData {
   SubExtension subExtension;
-  List<PokemonCardExtension> cards = [];
+  List<CardIdentifier> cards = [];
 
   CardSelectionData(this.subExtension);
 }
@@ -48,7 +48,7 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
   
   Widget createCardButton(PokemonCardExtension card, CardIdentifier cardId, CardImageIdentifier imageId) {
     return Card(
-      color: selection.cards.contains(card) ? Colors.green : Colors.grey.shade700,
+      color: selection.cards.contains(cardId) ? Colors.green : Colors.grey.shade700,
       margin: const EdgeInsets.all(1.5),
       child: TextButton(
         child: modeVisu == CardVisualization.name ?
@@ -69,10 +69,10 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
         : CardImage(widget.subExtension, card, cardId, imageId),
         onPressed: (){
           setState(() {
-            if(selection.cards.contains(card)) {
-              selection.cards.remove(card);
+            if(selection.cards.contains(cardId)) {
+              selection.cards.remove(cardId);
             } else {
-              selection.cards.add(card);
+              selection.cards.add(cardId);
             }
           });
         },

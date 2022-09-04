@@ -142,6 +142,7 @@ class _PokeSpaceProductsExplorerState extends State<PokeSpaceProductsExplorer> w
               borderRadius: BorderRadius.circular(10),
               color: Colors.blueAccent,
             ),
+            isScrollable: true,
             tabs: yearsTab
         ),
         Expanded(

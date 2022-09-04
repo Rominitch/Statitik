@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/widgets/card_image.dart';
 
 import 'package:statitikcard/screen/widgets/card_selector.dart';
 
@@ -10,13 +11,11 @@ import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/product.dart';
 
 class CardSelectorProductCard extends GenericCardSelector {
+  static const int  _limitSet = 255;
   final ProductCard card;
-  late CardIdentifier idCard;
+  final bool        visualizer;
 
-  static const int _limitSet = 255;
-
-  CardSelectorProductCard(this.card): super() {
-    idCard = subExtension().seCards.computeIdCard(card.card)!;
+  CardSelectorProductCard(this.card, {this.visualizer=false}): super() {
     fullSetsImages = true;
   }
 
@@ -37,7 +36,7 @@ class CardSelectorProductCard extends GenericCardSelector {
 
   @override
   CardIdentifier cardIdentifier() {
-    return idCard;
+    return card.idCard;
   }
 
   @override
@@ -105,12 +104,24 @@ class CardSelectorProductCard extends GenericCardSelector {
 
   @override
   Color backgroundColor() {
-    return Colors.deepOrange.shade300;
+    return visualizer ? Colors.grey.shade800 : Colors.deepOrange.shade300;
   }
 
   @override
   Widget cardWidget() {
-    return Column(
+    return visualizer ?
+      Padding(
+        padding: const EdgeInsets.all(2.0),
+        child: Column(
+          children: [
+            Expanded(child: genericCardWidget(card.subExtension, card.idCard, CardImageIdentifier(), language: card.subExtension.extension.language)),
+            const SizedBox(height: 5.0),
+            Text(card.counter.count().toString(), style: const TextStyle(fontSize: 18.0))
+          ],
+        ),
+      )
+
+    : Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Row(
@@ -123,7 +134,7 @@ class CardSelectorProductCard extends GenericCardSelector {
         Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text(subExtension().seCards.numberOfCard(idCard.numberId)),
+              Text(subExtension().seCards.numberOfCard(card.idCard.numberId)),
               card.isRandom ? const Text("R") : Text(card.counter.allCounts().join(" | "))
             ]
         ),

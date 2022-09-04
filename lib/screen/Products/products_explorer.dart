@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:statitikcard/screen/Products/products_list_explorer.dart';
 
-import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
@@ -42,32 +41,10 @@ class _ProductsExplorerState extends State<ProductsExplorer> with TickerProvider
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(StatitikLocale.of(context).read('PE_T0'), style: Theme.of(context).textTheme.headline3),
+          title: Center(child: Text(StatitikLocale.of(context).read('PE_T0'), style: Theme.of(context).textTheme.headline3)),
         ),
         body: SafeArea(
-          child: productTab.isEmpty
-            ? SingleChildScrollView(
-            child:Padding(
-              padding: const EdgeInsets.all(6.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                      children: [
-                        const Spacer(),
-                        Text(StatitikLocale.of(context).read('PSMP_B0'), style: Theme.of(context).textTheme.headline6),
-                        const SizedBox(width: 5.0),
-                        const Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
-                        const SizedBox(width: 15.0),
-                      ]
-                  ),
-                  const SizedBox(height: 40),
-                  drawNothing(context, 'PSMP_B1')
-                ]
-              ),
-            )
-          )
-            : Column(
+          child: Column(
             children: [
               TabBar(
                   controller: langueController,

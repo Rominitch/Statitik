@@ -51,6 +51,7 @@ class ProductBooster
 
 class ProductCard {
   SubExtension          subExtension;
+  late CardIdentifier   idCard;
   late PokemonCardExtension  card;
   AlternativeDesign     design;       /// Think more about it but keep space !
   bool                  jumbo;
@@ -60,7 +61,8 @@ class ProductCard {
   static const int _jumboMask  = 1;
   static const int _randomMask = 2;
 
-  ProductCard(this.subExtension, this.card, this.design, this.jumbo, this.isRandom, this.counter);
+  ProductCard(this.subExtension, this.idCard, this.design, this.jumbo, this.isRandom, this.counter):
+    card = subExtension.cardFromId(idCard);
 
   ProductCard.fromBytesV1(ByteParser parser, Map mapSubExtensions):
     subExtension = mapSubExtensions[parser.extractInt16()],
@@ -74,8 +76,8 @@ class ProductCard {
     isRandom  = mask(code, _randomMask);
 
     // Retrieve card
-    var cardId = CardIdentifier.fromBytes(parser);
-    card = subExtension.cardFromId(cardId);
+    idCard = CardIdentifier.fromBytes(parser);
+    card = subExtension.cardFromId(idCard);
 
     // Restore counter
     counter = CodeDraw.fromPokeCardExtension(card);
@@ -99,8 +101,8 @@ class ProductCard {
     isRandom  = mask(code, _randomMask);
 
     // Retrieve card
-    var cardId = CardIdentifier.fromBytes(parser);
-    card = subExtension.cardFromId(cardId);
+    idCard = CardIdentifier.fromBytes(parser);
+    card = subExtension.cardFromId(idCard);
 
     // Restore counter
     counter = CodeDraw.fromBytes(parser);
@@ -238,8 +240,8 @@ class Product extends ProductGeneric
   }
 
   @override
-  Widget image() {
-    return drawCachedImage('products', imageURL, height: 70);
+  Widget image({height=70, alternativeRendering}) {
+    return drawCachedImage('products', imageURL, height: height, alternativeRendering: alternativeRendering);
   }
 
   int countBoosters() {

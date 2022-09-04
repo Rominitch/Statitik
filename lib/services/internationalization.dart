@@ -429,6 +429,10 @@ Images and illustrations used are the property of their respective authors.\n
       'RARE_B2': 'Replace reverse',
       'RARE_B3': 'Good Card',
       'PE_T0':   'Products',
+      'PV_B0':   'Boosters',
+      'PV_B1':   'Random',
+      'PV_B2':   'Random Cards',
+      'PV_B3':   'Cards',
     },
     'fr': {
       'H_T0': 'PokéSpace',
@@ -854,6 +858,10 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'RARE_B2': 'Remplace reverse',
       'RARE_B3': 'Bonne carte',
       'PE_T0':   'Produits',
+      'PV_B0':   'Boosters',
+      'PV_B1':   'Aléatoire',
+      'PV_B2':   'Cartes aléatoires',
+      'PV_B3':   'Cartes',
     },
   };
 

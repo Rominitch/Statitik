@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/Products/product_viewer.dart';
 
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/language.dart';
-import 'package:statitikcard/services/models/pokespace.dart';
+import 'package:statitikcard/services/models/product.dart';
 
 class ProductsListExplorer extends StatefulWidget {
-  final Language? language;
+  final Language language;
 
   const ProductsListExplorer(this.language, {Key? key}) : super(key: key);
 
@@ -41,41 +42,36 @@ class _ProductsListExplorerState extends State<ProductsListExplorer> with Single
         vsync: this);
   }
 
-  Widget buildCounter(UserProductCounter counter) {
-    buildCard(int count, icon, color) {
-      return Expanded(
-        child: Card(
-          margin: const EdgeInsets.all(2.0),
-          color: color,
-          child: Padding(
-            padding: const EdgeInsets.all(2.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, size: 12),
-                Text(count.toString(), style: const TextStyle(fontSize: 12)),
-              ],
-            ),
-          )
-        )
-      );
-    }
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        if(counter.opened > 0)
-          buildCard(counter.opened, Icons.lock_open, Colors.green),
-        if(counter.seal > 0)
-          buildCard(counter.seal, Icons.lock_outline, Colors.deepOrange),
-      ],
-    );
-  }
 
   @override
   void initState() {
     computeYearTab(0);
     super.initState();
+  }
+
+  Widget buildProduct(Product product) {
+      return Card(
+        child: TextButton(
+          child: Column(
+            children: [
+              Expanded(child: product.image(height: null,
+                alternativeRendering: Column(
+                  children: [
+                    Text(product.category!.name.name(widget.language)),
+                    const Spacer(),
+                    Text(product.name, style: Theme.of(context).textTheme.headline5),
+                    const Spacer(),
+                  ],
+                )
+              )),
+            ]
+          ),
+          onPressed: (){
+            Navigator.push(context, MaterialPageRoute(builder:
+            (context) => ProductViewer(widget.language, product)));
+          },
+        ),
+      );
   }
 
   @override
@@ -89,6 +85,7 @@ class _ProductsListExplorerState extends State<ProductsListExplorer> with Single
       ));
 
       var filteredProduct = List.from(products)..removeWhere((product) => product.releaseDate.year != year);
+      products.sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
 
       Widget page = GridView.builder(
         padding: const EdgeInsets.all(2),
@@ -100,20 +97,7 @@ class _ProductsListExplorerState extends State<ProductsListExplorer> with Single
         shrinkWrap: true,
         primary: false,
         itemBuilder: (context, id) {
-          var product = filteredProduct.elementAt(id);
-
-          return Card(
-            child: TextButton(
-              child: Column(
-                children: [
-                  Expanded(child: product.image()),
-                ]
-              ),
-              onPressed: (){
-
-              },
-            ),
-          );
+          return buildProduct(filteredProduct.elementAt(id));
         },
       );
 
@@ -129,6 +113,7 @@ class _ProductsListExplorerState extends State<ProductsListExplorer> with Single
               borderRadius: BorderRadius.circular(10),
               color: Colors.blueAccent,
             ),
+            isScrollable: true,
             tabs: yearsTab
         ),
         Expanded(

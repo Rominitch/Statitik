@@ -161,10 +161,10 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
     return product;
   }
 
-  ProductCard createCardProduct(subExtension, card, random) {
-    var code = CodeDraw.fromPokeCardExtension(card);
+  ProductCard createCardProduct(SubExtension subExtension, idCard, random) {
+    var code = CodeDraw.fromPokeCardExtension(subExtension.cardFromId(idCard));
     code.setCount(1, 0);
-    return ProductCard(subExtension, card, AlternativeDesign.basic, false, random, code);
+    return ProductCard(subExtension, idCard, AlternativeDesign.basic, false, random, code);
   }
 
   void createProducts() {
@@ -180,30 +180,30 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
     if(productSelected[ProductKind.buildBattle.index]) {
       var p = createProduct(ProductKind.buildBattle, 4);
       p.nbRandomPerProduct = 1;
-      for (var card in selection!.cards) {
-        p.otherCards.add(createCardProduct(selection!.subExtension, card, true));
+      for (var idCard in selection!.cards) {
+        p.otherCards.add(createCardProduct(selection!.subExtension, idCard, true));
       }
       products.add(p);
     }
     if(productSelected[ProductKind.buildBattleStadium.index]) {
       var p = createProduct(ProductKind.buildBattleStadium, 12);
       p.nbRandomPerProduct = 2;
-      for (var card in selection!.cards) {
-        p.otherCards.add(createCardProduct(selection!.subExtension, card, true));
+      for (var idCard in selection!.cards) {
+        p.otherCards.add(createCardProduct(selection!.subExtension, idCard, true));
       }
       products.add(p);
     }
     for (var triPack in triPacks) {
       var p = createProduct(ProductKind.triPack, 3, triPack.name);
-      for (var card in triPack.selection!.cards) {
-        p.otherCards.add(createCardProduct(triPack.selection!.subExtension, card, false));
+      for (var idCard in triPack.selection!.cards) {
+        p.otherCards.add(createCardProduct(triPack.selection!.subExtension, idCard, false));
       }
       products.add(p);
     }
     for (var simplePack in simplePacks) {
       var p = createProduct(ProductKind.simplePack, 1, simplePack.name);
-      for (var card in simplePack.selection!.cards) {
-        p.otherCards.add(createCardProduct(simplePack.selection!.subExtension, card, false));
+      for (var idCard in simplePack.selection!.cards) {
+        p.otherCards.add(createCardProduct(simplePack.selection!.subExtension, idCard, false));
       }
       products.add(p);
     }
