@@ -21,14 +21,8 @@ class ExtensionPage extends StatefulWidget {
 }
 
 class _ExtensionPageState extends State<ExtensionPage> {
-  late List<SerieType> serieFilters;
+  late List<SerieType> series = widget.addMode ? [SerieType.normal] : [SerieType.normal, SerieType.promo, SerieType.deck];
   late CustomButtonCheckController refreshController = CustomButtonCheckController(refresh);
-
-  @override
-  void initState() {
-    super.initState();
-    serieFilters = widget.addMode ? [SerieType.normal] : [SerieType.normal, SerieType.promo, SerieType.deck];
-  }
 
   void refresh() {
     setState(() {
@@ -43,7 +37,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
       List<Widget> subExtensions = [];
       for( SubExtension se in Environment.instance.collection.getSubExtensions(e))
       {
-        if( serieFilters.contains(se.type) ) {
+        if( series.contains(se.type) ) {
           press() {
             widget.afterSelected(context, widget.language, se);
           }
@@ -88,7 +82,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
     if(!widget.addMode) {
       for (var element in SerieType.values) {
         filters.add(
-          Expanded(child: SerieTypeButtonCheck(serieFilters, element, controller: refreshController))
+          Expanded(child: SerieTypeButtonCheck(series, element, controller: refreshController))
         );
       }
     }

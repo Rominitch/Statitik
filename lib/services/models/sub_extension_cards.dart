@@ -24,9 +24,9 @@ class SubExtensionCards {
     cards   = currentCards,
     isValid = currentCards.isNotEmpty;
 
-  static const int _hasBoosterEnergy  = 1;
-  static const int _hasAlternativeSet = 2;
-  static const int _notInsideRandom   = 4;
+  static const int codeHasBoosterEnergy  = 1;
+  static const int codeHasAlternativeSet = 2;
+  static const int codeNotInsideRandom   = 4;
 
   static const int version = 9;
 
@@ -146,16 +146,16 @@ class SubExtensionCards {
   }
 
   bool hasBoosterEnergy() {
-    return mask(configuration, _hasBoosterEnergy) && energyCard.isNotEmpty;
+    return mask(configuration, codeHasBoosterEnergy) && energyCard.isNotEmpty;
   }
 
   bool hasAlternativeSet() {
-    return mask(configuration, _hasAlternativeSet);
+    return mask(configuration, codeHasAlternativeSet);
   }
 
   /// Booster of this extension can't be found any random product
   bool notInsideRandom() {
-    return mask(configuration, _notInsideRandom);
+    return mask(configuration, codeNotInsideRandom);
   }
 
   PokemonCardExtension cardFromId(CardIdentifier cardId) {

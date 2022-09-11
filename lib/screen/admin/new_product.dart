@@ -143,7 +143,7 @@ class _NewProductPageState extends State<NewProductPage> {
           child: const Center( child: Icon(Icons.add_shopping_cart) ),
           onPressed: () {
             // Go to product selector
-            Navigator.push(context, MaterialPageRoute(builder: (context) => SideProductSelection(product.language!))).then((value) {
+            Navigator.push(context, MaterialPageRoute(builder: (context) => SideProductSelection(product.language!, edition: true, productInfo: product))).then((value) {
               if(value != null) {
                 // Added only new product and refresh
                 if( !product.sideProducts.containsKey(value) ) {
@@ -189,10 +189,11 @@ class _NewProductPageState extends State<NewProductPage> {
                 if(value != null) {
                   // Added only new product and refresh
                   setState(() {
-                    value.cards.forEach((card){
+                    value.cards.forEach((cardId){
+                      var card = value.subExtension.cardFromId(cardId);
                       var counter = CodeDraw.fromPokeCardExtension(card);
                       counter.setCount(1, 0);
-                      product.otherCards.add(ProductCard(value.subExtension, card, AlternativeDesign.basic, false, false, counter) );
+                      product.otherCards.add(ProductCard(value.subExtension, cardId, AlternativeDesign.basic, false, false, counter) );
                     });
                   });
                 }

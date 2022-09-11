@@ -13,9 +13,11 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
+import 'package:statitikcard/services/models/sub_extension_cards.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/pokemon_card_data.dart';
+import 'package:statitikcard/services/tools.dart';
 
 class NewCardExtensions extends StatefulWidget {
   final Language     language;
@@ -348,6 +350,40 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Row(children: [
+              const Expanded(child: Text("Etat")),
+              IconButton(icon: const Icon(Icons.folder_copy_outlined),
+                color: mask(widget.se.seCards.configuration, SubExtensionCards.codeHasAlternativeSet) ? Colors.green : Colors.grey,
+                onPressed: (){
+                  setState(() {
+                    int code = mask(widget.se.seCards.configuration, SubExtensionCards.codeHasAlternativeSet) ? 0 : SubExtensionCards.codeHasAlternativeSet;
+                    widget.se.seCards.configuration = setMask(widget.se.seCards.configuration, code, SubExtensionCards.codeHasAlternativeSet);
+
+                    printOutput("${widget.se.seCards.configuration}");
+                  });
+                },
+              ),
+              IconButton(icon: const Icon(Icons.battery_charging_full),
+                color: mask(widget.se.seCards.configuration, SubExtensionCards.codeHasBoosterEnergy) ? Colors.green : Colors.grey,
+                onPressed: (){
+                  setState(() {
+                    int code = mask(widget.se.seCards.configuration, SubExtensionCards.codeHasBoosterEnergy) ? 0 : SubExtensionCards.codeHasBoosterEnergy;
+                    widget.se.seCards.configuration = setMask(widget.se.seCards.configuration, code, SubExtensionCards.codeHasBoosterEnergy);
+                    printOutput("${widget.se.seCards.configuration}");
+                  });
+                },
+              ),
+              IconButton(icon: const Icon(Icons.account_tree),
+                color: mask(widget.se.seCards.configuration, SubExtensionCards.codeNotInsideRandom) ? Colors.green : Colors.grey,
+                onPressed: (){
+                  setState(() {
+                    int code = mask(widget.se.seCards.configuration, SubExtensionCards.codeNotInsideRandom) ? 0 : SubExtensionCards.codeNotInsideRandom;
+                    widget.se.seCards.configuration = setMask(widget.se.seCards.configuration, code, SubExtensionCards.codeNotInsideRandom);
+                    printOutput("${widget.se.seCards.configuration}");
+                  });
+                },
+              )
+            ]),
             ExpansionPanelList(
               children: [
                 ExpansionPanel(

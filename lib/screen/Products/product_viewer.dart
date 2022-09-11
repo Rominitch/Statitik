@@ -14,9 +14,10 @@ class ProductViewer extends StatefulWidget {
   State<ProductViewer> createState() => _ProductViewerState();
 }
 
-class _ProductViewerState extends State<ProductViewer> {
+class _ProductViewerState extends State<ProductViewer> with TickerProviderStateMixin {
   List<ProductCard> randomCards = [];
   List<ProductCard> cards       = [];
+  late TabController panelController;
 
   @override
   void initState() {
@@ -27,6 +28,11 @@ class _ProductViewerState extends State<ProductViewer> {
         cards.add(card);
       }
     }
+
+    panelController = TabController(length: widget.product.hasImages() ? 2 : 1,
+        animationDuration: Duration.zero,
+        initialIndex: 0,
+        vsync: this);
 
     super.initState();
   }
@@ -56,7 +62,6 @@ class _ProductViewerState extends State<ProductViewer> {
       ));
     }
 
-    var image = widget.product.image(height: null, alternativeRendering: const SizedBox());
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.product.name, style: Theme.of(context).textTheme.headline5),
@@ -66,76 +71,140 @@ class _ProductViewerState extends State<ProductViewer> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            image,
-            const SizedBox(height: 5.0),
-            Expanded(child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  if(boosterInfo.isNotEmpty) Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          Expanded(child: Text(StatitikLocale.of(context).read('PV_B0'), style: Theme.of(context).textTheme.headline5)),
-                          Wrap(children: boosterInfo)
-                        ]
-                      ),
-                    )
-                  ),
-                  if(randomCards.isNotEmpty) Card(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row( children: [
-                            Expanded(child: Text(StatitikLocale.of(context).read('PV_B2'), style: Theme.of(context).textTheme.headline5)),
-                            Text(widget.product.nbRandomPerProduct.toString(), style: const TextStyle(fontSize: 20.0)),
-                          ]),
-                        ),
-                        GridView.builder(
-                          padding: const EdgeInsets.all(1.0),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
-                              childAspectRatio: 0.7),
-                          itemCount: randomCards.length,
-                          shrinkWrap: true,
-                          primary: false,
-                          itemBuilder: (context, id) {
-                            var cardSelector = CardSelectorProductCard(randomCards[id], visualizer: true);
-                            return PokemonCard(cardSelector, readOnly: true, singlePress: true, refresh: (){});
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  if(cards.isNotEmpty) Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          Text(StatitikLocale.of(context).read('PV_B3'), style: Theme.of(context).textTheme.headline5),
-                          const SizedBox(height: 5.0),
-                          GridView.builder(
-                            padding: const EdgeInsets.all(1.0),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
-                                childAspectRatio: 0.7),
-                            itemCount: cards.length,
-                            shrinkWrap: true,
-                            primary: false,
-                            itemBuilder: (context, id) {
-                              var cardSelector = CardSelectorProductCard(cards[id], visualizer: true);
-                              return PokemonCard(cardSelector, readOnly: true, singlePress: true, refresh: (){});
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+            TabBar(
+                controller: panelController,
+                indicatorPadding: const EdgeInsets.all(1),
+                indicator: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.green,
+                ),
+                tabs: [
+                  if(widget.product.hasImages()) Text(StatitikLocale.of(context).read('PV_B4'), style: Theme.of(context).textTheme.headline5),
+                  Text(StatitikLocale.of(context).read('PV_B5'), style: Theme.of(context).textTheme.headline5),
                 ]
-              )
+            ),
+            Expanded(
+                child: TabBarView(
+                  controller: panelController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    // Tab 1
+                    if(widget.product.hasImages()) widget.product.image(height: null, alternativeRendering: const SizedBox()),
+                    //Tab 2
+                    SingleChildScrollView(
+                        child: Column(
+                            children: [
+                              if(boosterInfo.isNotEmpty) Card(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                        children: [
+                                          Expanded(child: Text(StatitikLocale.of(context).read('PV_B0'), style: Theme.of(context).textTheme.headline5)),
+                                          Wrap(children: boosterInfo)
+                                        ]
+                                    ),
+                                  )
+                              ),
+                              if(randomCards.isNotEmpty) Card(
+                                child: Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row( children: [
+                                        Expanded(child: Text(StatitikLocale.of(context).read('PV_B2'), style: Theme.of(context).textTheme.headline5)),
+                                        Text(widget.product.nbRandomPerProduct.toString(), style: const TextStyle(fontSize: 20.0)),
+                                      ]),
+                                    ),
+                                    GridView.builder(
+                                      padding: const EdgeInsets.all(1.0),
+                                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
+                                          childAspectRatio: 0.7),
+                                      itemCount: randomCards.length,
+                                      shrinkWrap: true,
+                                      primary: false,
+                                      itemBuilder: (context, id) {
+                                        var cardSelector = CardSelectorProductCard(randomCards[id], visualizer: true);
+                                        return PokemonCard(cardSelector, readOnly: true, singlePress: true, refresh: (){});
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if(cards.isNotEmpty) Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: [
+                                      Text(StatitikLocale.of(context).read('PV_B3'), style: Theme.of(context).textTheme.headline5),
+                                      const SizedBox(height: 5.0),
+                                      GridView.builder(
+                                        padding: const EdgeInsets.all(1.0),
+                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
+                                            childAspectRatio: 0.7),
+                                        itemCount: cards.length,
+                                        shrinkWrap: true,
+                                        primary: false,
+                                        itemBuilder: (context, id) {
+                                          var cardSelector = CardSelectorProductCard(cards[id], visualizer: true);
+                                          return PokemonCard(cardSelector, readOnly: true, singlePress: true, refresh: (){});
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              if(cards.isNotEmpty) Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: [
+                                      Text(StatitikLocale.of(context).read('PV_B6'), style: Theme.of(context).textTheme.headline5),
+                                      const SizedBox(height: 5.0),
+                                      GridView.builder(
+                                        padding: const EdgeInsets.all(1.0),
+                                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 3, crossAxisSpacing: 1, mainAxisSpacing: 1,
+                                            childAspectRatio: 0.7),
+                                        itemCount: widget.product.sideProducts.length,
+                                        shrinkWrap: true,
+                                        primary: false,
+                                        itemBuilder: (context, id) {
+                                          var sideProduct = widget.product.sideProducts.keys.elementAt(id);
+                                          var info = widget.product.sideProducts[sideProduct];
+                                          if( sideProduct.imageURL.isEmpty ) {
+                                            return Card(child: Column(
+                                                children: [
+                                                  if(sideProduct.category != null) Text(sideProduct.category!.name.name(widget.language)),
+                                                  Text(sideProduct.name, style: Theme.of(context).textTheme.headline5),
+                                                  Text(info.toString()),
+                                                ]
+                                              )
+                                            );
+                                          } else {
+                                            return Card(child: Column(
+                                                children: [
+                                                  sideProduct.image(),
+                                                  Text(info.toString()),
+                                                ]
+                                              )
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ]
+                        )
+                    )
+                  ],
+                )
             )
-            )
+
+
           ]
         ),
       )

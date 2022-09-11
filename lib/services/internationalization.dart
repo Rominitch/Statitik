@@ -433,6 +433,9 @@ Images and illustrations used are the property of their respective authors.\n
       'PV_B1':   'Random',
       'PV_B2':   'Random Cards',
       'PV_B3':   'Cards',
+      'PV_B4':   'Images',
+      'PV_B5':   'Information',
+      'PV_B6':   'Goodies',
     },
     'fr': {
       'H_T0': 'PokéSpace',
@@ -862,6 +865,9 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'PV_B1':   'Aléatoire',
       'PV_B2':   'Cartes aléatoires',
       'PV_B3':   'Cartes',
+      'PV_B4':   'Images',
+      'PV_B5':   'Informations',
+      'PV_B6':   'Goodies',
     },
   };
 

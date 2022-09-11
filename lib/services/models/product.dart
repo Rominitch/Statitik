@@ -240,7 +240,7 @@ class Product extends ProductGeneric
   }
 
   @override
-  Widget image({height=70, alternativeRendering}) {
+  Widget image({height=70.0, alternativeRendering}) {
     return drawCachedImage('products', imageURL, height: height, alternativeRendering: alternativeRendering);
   }
 

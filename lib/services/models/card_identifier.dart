@@ -50,6 +50,15 @@ class CardIdentifier {
     return 0;
   }
 
+  @override
+  bool operator==(Object other)
+  {
+    if(other is CardIdentifier) {
+      return compareTo(other) == 0;
+    }
+    return false;
+  }
+
   bool isEqual(other) => listEquals(cardId, other.cardId);
 
   List<int> toBytes() {
@@ -65,6 +74,17 @@ class CardIdentifier {
     var newId = List<int>.from(cardId, growable: false);
     newId[1] = position;
     return CardIdentifier.from(newId);
+  }
+
+  @override
+  int get hashCode {
+    int code = cardId.length;
+    int step = 8;
+    for(int id in cardId) {
+      code |= id << step;
+      step += 8;
+    }
+    return code;
   }
 }
 

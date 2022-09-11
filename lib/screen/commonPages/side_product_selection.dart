@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/screen/admin/side_product_creator.dart';
 
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/models/product_category.dart';
 
 class SideProductSelection extends StatefulWidget {
   final Language activeLanguage;
-  const SideProductSelection(this.activeLanguage, {Key? key}) : super(key: key);
+  final bool     edition;
+  final Product? productInfo;
+  const SideProductSelection(this.activeLanguage, {this.edition=false, this.productInfo, Key? key}) : super(key: key);
 
   @override
   State<SideProductSelection> createState() => _SideProductSelectionState();
@@ -79,6 +83,16 @@ class _SideProductSelectionState extends State<SideProductSelection> {
     return Scaffold(
       appBar: AppBar(
         title: Text(StatitikLocale.of(context).read('SPS_T0'), style: Theme.of(context).textTheme.headline5),
+        actions: widget.edition && Environment.instance.isAdministrator() ? [
+          IconButton(onPressed: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => SideProductCreator(widget.activeLanguage, product: widget.productInfo))).then((value) {
+                setState(() {
+                  filterCategory = null;
+                });
+              });
+            },
+            icon: const Icon(Icons.add_box_outlined))
+        ] : [],
       ),
       body: SafeArea(
         child: (filterCategory == null) ?

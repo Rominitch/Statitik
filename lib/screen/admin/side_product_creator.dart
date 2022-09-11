@@ -8,9 +8,9 @@ import 'package:statitikcard/services/models/product_category.dart';
 import 'package:statitikcard/services/models/product.dart';
 
 class SideProductCreator extends StatefulWidget {
-  final Language language;
-  
-  const SideProductCreator(this.language, {Key? key}) : super(key: key);
+  final Language    language;
+  final Product?    product;
+  const SideProductCreator(this.language, {this.product, Key? key}) : super(key: key);
 
   @override
   State<SideProductCreator> createState() => _SideProductCreatorState();
@@ -22,6 +22,9 @@ class _SideProductCreatorState extends State<SideProductCreator> {
 
   @override
   void initState() {
+    if(widget.product != null) {
+      product.releaseDate = widget.product!.releaseDate;
+    }
     sideProductCategories = Environment.instance.collection.categories.values.toList()..removeWhere((category) => category.isContainer);
     super.initState();
   }

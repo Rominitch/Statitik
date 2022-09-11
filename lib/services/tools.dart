@@ -112,5 +112,9 @@ Widget drawNothing(BuildContext context, String code) {
 }
 
 bool mask(int value, int mask) {
-  return value & mask == mask;
+  return (value & mask) == mask;
+}
+
+int setMask(int data, int value, int mask) {
+  return (data & ~mask) | (value & mask);
 }
