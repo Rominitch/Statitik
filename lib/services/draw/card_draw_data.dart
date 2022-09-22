@@ -405,16 +405,16 @@ class CodeDraw {
 
   bool increase(int set, int limit, [int image=0]) {
     assert(0 <= set && set < _countBySetByImage.length);
-    var v = _countBySetByImage[set][image] + 1;
-    var finalV = min(v, limit);
+    var v = _countBySetByImage[set][image];
+    var finalV = min(v + 1, limit);
     _countBySetByImage[set][image] = finalV;
     return v != finalV;
   }
 
   bool decrease(int set, [int image=0]) {
     assert(0 <= set && set < _countBySetByImage.length);
-    var v = _countBySetByImage[set][image] - 1;
-    var finalV = max(v, 0);
+    var v = _countBySetByImage[set][image];
+    var finalV = max(v - 1, 0);
     _countBySetByImage[set][image] = finalV;
     return v != finalV;
   }

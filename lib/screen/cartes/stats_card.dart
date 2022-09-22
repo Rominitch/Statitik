@@ -208,7 +208,7 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
             borderRadius: BorderRadius.circular(10),
             color: Colors.green,
           ),
-
+          isScrollable: true,
           tabs: tabHeaders
         ),
         const SizedBox(height: 5.0),

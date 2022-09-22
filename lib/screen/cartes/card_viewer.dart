@@ -447,7 +447,7 @@ class _CardImageViewerState extends State<CardImageViewer> with TickerProviderSt
       );
       imageTabPages.add(
         genericCardWidget(image.se, image.idCard, image.idImage, quality: FilterQuality.high, reloader: true,
-          fit: BoxFit.fitWidth
+          fit: BoxFit.fitWidth, photoView: true
         )
       );
     }

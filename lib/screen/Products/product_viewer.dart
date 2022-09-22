@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/screen/widgets/CardSelector/card_selector_product_card.dart';
+import 'package:statitikcard/screen/widgets/cardSelector/card_selector_product_card_viewer.dart';
+
 import 'package:statitikcard/screen/widgets/pokemon_card.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
@@ -89,7 +90,11 @@ class _ProductViewerState extends State<ProductViewer> with TickerProviderStateM
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
                     // Tab 1
-                    if(widget.product.hasImages()) widget.product.image(height: null, alternativeRendering: const SizedBox()),
+                    if(widget.product.hasImages())
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 0.0),
+                        child: widget.product.image(height: null, alternativeRendering: const SizedBox(), photoView: true),
+                      ),
                     //Tab 2
                     SingleChildScrollView(
                         child: Column(
@@ -124,8 +129,8 @@ class _ProductViewerState extends State<ProductViewer> with TickerProviderStateM
                                       shrinkWrap: true,
                                       primary: false,
                                       itemBuilder: (context, id) {
-                                        var cardSelector = CardSelectorProductCard(randomCards[id], visualizer: true);
-                                        return PokemonCard(cardSelector, readOnly: true, singlePress: true, refresh: (){});
+                                        var cardSelector = CardSelectorProductCardViewer(randomCards[id]);
+                                        return PokemonCard(cardSelector, readOnly: false, singlePress: true, refresh: (){});
                                       },
                                     ),
                                   ],
@@ -147,8 +152,8 @@ class _ProductViewerState extends State<ProductViewer> with TickerProviderStateM
                                         shrinkWrap: true,
                                         primary: false,
                                         itemBuilder: (context, id) {
-                                          var cardSelector = CardSelectorProductCard(cards[id], visualizer: true);
-                                          return PokemonCard(cardSelector, readOnly: true, singlePress: true, refresh: (){});
+                                          var cardSelector = CardSelectorProductCardViewer(cards[id]);
+                                          return PokemonCard(cardSelector, readOnly: false, singlePress: true, refresh: (){});
                                         },
                                       ),
                                     ],

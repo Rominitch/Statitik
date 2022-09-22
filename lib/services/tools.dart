@@ -19,14 +19,15 @@ Color cardMenuColor    = Colors.blueAccent.shade200;
 const Color productMenuColor = Colors.deepOrange;
 const Color deckMenuColor    = Colors.deepPurpleAccent;
 
-Widget drawCachedImage(folder, image, {double? width, double? height, alternativeRendering}){
+Widget drawCachedImage(folder, image, {double? width, double? height, alternativeRendering, photoView=false}){
   if(Environment.instance.storeImageLocally) {
     return ImageStoredLocally(["images", folder], '$image',
       [Uri.parse('$adresseHTTPS/StatitikCard/$folder/$image.webp'),
        Uri.parse('$adresseHTTPS/StatitikCard/$folder/$image.png')],
       width: width,
       height: height,
-      alternativeRendering : alternativeRendering
+      alternativeRendering : alternativeRendering,
+      photoView: photoView
     );
   } else {
     return CachedNetworkImage(

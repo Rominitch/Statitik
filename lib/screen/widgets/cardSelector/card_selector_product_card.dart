@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/screen/widgets/card_image.dart';
 
 import 'package:statitikcard/screen/widgets/card_selector.dart';
 
@@ -13,9 +12,8 @@ import 'package:statitikcard/services/models/product.dart';
 class CardSelectorProductCard extends GenericCardSelector {
   static const int  _limitSet = 255;
   final ProductCard card;
-  final bool        visualizer;
 
-  CardSelectorProductCard(this.card, {this.visualizer=false}): super() {
+  CardSelectorProductCard(this.card): super() {
     fullSetsImages = true;
   }
 
@@ -104,24 +102,12 @@ class CardSelectorProductCard extends GenericCardSelector {
 
   @override
   Color backgroundColor() {
-    return visualizer ? Colors.grey.shade800 : Colors.deepOrange.shade300;
+    return Colors.deepOrange.shade300;
   }
 
   @override
   Widget cardWidget() {
-    return visualizer ?
-      Padding(
-        padding: const EdgeInsets.all(2.0),
-        child: Column(
-          children: [
-            Expanded(child: genericCardWidget(card.subExtension, card.idCard, CardImageIdentifier(), language: card.subExtension.extension.language)),
-            const SizedBox(height: 5.0),
-            Text(card.counter.count().toString(), style: const TextStyle(fontSize: 18.0))
-          ],
-        ),
-      )
-
-    : Column(
+    return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Row(

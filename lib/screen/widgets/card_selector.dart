@@ -27,6 +27,10 @@ abstract class GenericCardSelector {
 
   Widget? advancedWidget(BuildContext context, Function refresh);
 
+  Function(BuildContext)? specialButtonAction() {
+    return null;
+  }
+
   Color backgroundColor();
   Widget cardWidget();
 

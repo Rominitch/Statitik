@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
+
 import 'package:statitikcard/services/tools.dart';
 
 import 'package:statitikcard/services/environment.dart';
@@ -16,10 +18,11 @@ class ImageStoredLocally extends StatefulWidget {
   final double?      height;
   final Widget?      alternativeRendering;
   final bool         reloader;
+  final bool         photoView;
   final BoxFit?      fit;
 
   const ImageStoredLocally(this.path, this.imageName, this.webAddress, {
-    this.quality, this.width, this.height, this.alternativeRendering, this.reloader=false, this.fit, Key? key
+    this.quality, this.width, this.height, this.alternativeRendering, this.reloader=false, this.fit, this.photoView=false, Key? key
   }) : super(key: key);
 
   @override
@@ -43,13 +46,40 @@ class _ImageStoredLocallyState extends State<ImageStoredLocally> {
                   return widget.alternativeRendering != null ? widget
                       .alternativeRendering! : const Icon(Icons.help_outline);
                 } else {
-                  var cardWidget = Image.file(
-                      snapshot.data!,
-                      width: widget.width, height: widget.height,
+                  Widget cardWidget;
+                  if(!widget.photoView) {
+                    cardWidget = Image.file(
+                        snapshot.data!,
+                        width: widget.width,
+                        height: widget.height,
+                        filterQuality: widget.quality ?? FilterQuality.medium,
+                        fit: widget.fit,
+                        errorBuilder: (context, error, stackTrace) {
+                          printOutput("ImageStored: Error ${error
+                              .toString()}\n$stackTrace");
+                          try {
+                            reloadImage();
+
+                            return Card(child: IconButton(
+                              onPressed: () {
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.rotate_left),
+                            ));
+                          }
+                          catch (error) {
+                            return const Icon(Icons.bug_report_outlined);
+                          }
+                        }
+                    );
+                  } else {
+                    cardWidget = PhotoView(
+                      imageProvider:FileImage(snapshot.data!),
                       filterQuality: widget.quality ?? FilterQuality.medium,
-                      fit: widget.fit,
+                      backgroundDecoration: const BoxDecoration(color: Colors.transparent),
                       errorBuilder: (context, error, stackTrace) {
-                        printOutput("ImageStored: Error ${error.toString()}\n$stackTrace");
+                        printOutput("ImageStored: Error ${error
+                            .toString()}\n$stackTrace");
                         try {
                           reloadImage();
 
@@ -58,13 +88,15 @@ class _ImageStoredLocallyState extends State<ImageStoredLocally> {
                               setState(() {});
                             },
                             icon: const Icon(Icons.rotate_left),
-                          ) );
+                          ));
                         }
-                        catch(error) {
+                        catch (error) {
                           return const Icon(Icons.bug_report_outlined);
                         }
-                      }
-                  );
+                      },
+                    );
+                  }
+
                   return widget.reloader ?
                     GestureDetector(
                         onLongPress: () {

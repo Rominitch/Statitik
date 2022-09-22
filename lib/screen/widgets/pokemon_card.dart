@@ -38,41 +38,45 @@ class _PokemonCardState extends State<PokemonCard> {
   }
 
   void showSelectorDialog() {
-    if(widget.selector.fullSetsImages) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        builder: (BuildContext context) {
-          return Padding(
-            padding: MediaQuery.of(context).viewInsets,//const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
-            child: CardSelector(widget.selector, refresh: update, readOnly: widget.readOnly),
-          );
-        }
-      ).then((value) {
-        // Refresh card info
-        setState(()
-        {
-          if(widget.afterOpenSelector != null) {
+    if(widget.selector.specialButtonAction() != null) {
+      widget.selector.specialButtonAction()!(context);
+    } else {
+      if(widget.selector.fullSetsImages) {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (BuildContext context) {
+            return Padding(
+              padding: MediaQuery.of(context).viewInsets,//const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 8.0),
+              child: CardSelector(widget.selector, refresh: update, readOnly: widget.readOnly),
+            );
+          }
+        ).then((value) {
+          // Refresh card info
+          setState(()
+          {
+            if(widget.afterOpenSelector != null) {
+              widget.afterOpenSelector!();
+            }
+            widget.refresh();
+          });
+        });
+      } else {
+        // Show more info if many rendering of more cards
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return CardSelector(
+              widget.selector, refresh: update, readOnly: widget.readOnly);
+          }
+        ).then((value) {
+          if (widget.afterOpenSelector != null) {
             widget.afterOpenSelector!();
           }
           widget.refresh();
         });
-      });
-    } else {
-      // Show more info if many rendering of more cards
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CardSelector(
-            widget.selector, refresh: update, readOnly: widget.readOnly);
-        }
-      ).then((value) {
-        if (widget.afterOpenSelector != null) {
-          widget.afterOpenSelector!();
-        }
-        widget.refresh();
-      });
-    }
+      }
+      }
   }
 
   @override
