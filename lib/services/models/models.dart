@@ -45,6 +45,7 @@ class UserPoke {
   int       idDB;
   String    uid       = "";
   bool      admin     = false;
+  bool      isRobotTest = false; /// For cloudtestlabaccounts
   PokeSpace pokeSpace = PokeSpace();
 
   UserPoke(this.idDB);

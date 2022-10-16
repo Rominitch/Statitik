@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+//import 'package:mobile_number/mobile_number.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:statitikcard/services/tools.dart';
@@ -17,17 +19,20 @@ enum CredentialMode
 
 class Credential
 {
-  final GoogleSignIn googleSignIn = GoogleSignIn();
+  final GoogleSignIn googleSignIn = GoogleSignIn(
+    scopes: <String>[
+      'email',
+    ],
+  );
 
   Future<void> initialize() async
   {
     try {
       // Auto login
       var prefs = await SharedPreferences.getInstance();
-      if( prefs.getString('uid') != null ) {
+      if( prefs.getString('userID') != null ) {
         Environment.instance.login(CredentialMode.autoLog, null);
       }
-
       printOutput("User created");
     } catch(e) {
       Environment.instance.user = null;
@@ -39,6 +44,16 @@ class Credential
 
     googleSignIn.signIn().then((GoogleSignInAccount? googleSignInAccount) {
       if(googleSignInAccount != null) {
+        /*
+        // Get Authentification data
+        googleSignInAccount.authentication.then((GoogleSignInAuthentication googleSignInAuthentication) {
+
+          // Finish connection
+          onSuccess("google-${googleSignInAccount.id}",
+                    googleSignInAccount.email.contains("cloudtestlabaccounts"));
+        });
+        */
+
         googleSignInAccount.authentication.then((
             GoogleSignInAuthentication googleSignInAuthentication) {
           final AuthCredential credential = GoogleAuthProvider
@@ -49,7 +64,9 @@ class Credential
 
           auth.signInWithCredential(credential).then((
               UserCredential authResult) {
-            onSuccess("google-${authResult.user!.uid}");
+            onSuccess("google-${googleSignInAccount.id}",
+                      "google-${authResult.user!.uid}",
+                      googleSignInAccount.email.contains("cloudtestlabaccounts") );
           });
         });
       }
@@ -127,14 +144,61 @@ class Credential
     catch(e) {
       onError(e);
     }
-  }
+    /*
+    MobileNumber.listenPhonePermission((isPermissionGranted) async {
+      if (isPermissionGranted) {
+        readMobileSIMInfo(context, onError, onSuccess);
+      } else {
+        onError('LOG_8', null);
+      }
+    });
 
+    readMobileSIMInfo(context, onError, onSuccess);
+    */
+  }
+/*
+  Future<void> readMobileSIMInfo(BuildContext? context, onError, onSuccess) async {
+    if (!await MobileNumber.hasPhonePermission) {
+      await MobileNumber.requestPhonePermission;
+      return;
+    }
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      var simCards = (await MobileNumber.getSimCards)!;
+
+      showDialog(
+          context: context!,
+          barrierDismissible: false,
+          // user must tap button!
+          builder: (BuildContext context) {
+            return Column(
+                children: [
+                  ListView.builder(
+                      itemBuilder: (context, id){
+                        var sim = simCards[id];
+                        return TextButton(
+                            onPressed: () {
+
+                            },
+                            child: Text("${sim.countryPhonePrefix} - ${sim.number}")
+                        );
+                      })
+                ]
+            );
+          }
+      );
+    } on PlatformException catch (e) {
+      onError('LOG_5', e);
+    }
+  }
+*/
   Future<void> signOutGoogle() async {
     Environment.instance.user = null;
     await googleSignIn.signOut();
 
     var prefs = await SharedPreferences.getInstance();
     prefs.remove('uid');
+    prefs.remove('userID');
   }
 
   AlertDialog showAlert(BuildContext context) {

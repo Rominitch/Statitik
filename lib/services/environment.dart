@@ -83,7 +83,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '2.1.1';
+    final String version = '2.2.0';
 
     // State
     bool isInitialized          = false;
@@ -230,33 +230,50 @@ class Environment
         await readPokeSpace();
     }
 
-    Future<void> registerUser(String uid) async {
+    Future<void> registerUser(String oldUID, String uid, bool isTest) async {
         if (user == null) {
             var time = TimeReport();
             await db.transactionR( (connection) async {
-                String query = 'SELECT `idUtilisateur`, `ban`, `su` FROM `Utilisateur` WHERE `identifiant` = \'$uid\';';
+                String query = 'SELECT `idUtilisateur`, `ban`, `su` FROM `Utilisateur` WHERE `identifiant` = \'$oldUID\';';
                 var reqUser = await connection.query(query);
                 if( reqUser.length == 1 ) {
                     for (var row in reqUser) {
                         if(row[1] != 0) {
                           throw StatitikException("Utilisateur banni pour non respect des règles.");
                         }
+                        // Migrate to new ID
+                        var reqQuery = "UPDATE `Utilisateur` SET `identifiant` = '$uid' WHERE `identifiant` = '$oldUID';";
+                        await connection.query(reqQuery);
+
                         user = UserPoke(row[0]);
                         user!.admin = row[2] == 1 ? true : false;
                     }
                 } else {
-                    // Check user data exists into database
-                    int idNewID=-1;
-                    var reqCountUser = await connection.query(
-                        'SELECT MAX(`idUtilisateur`) FROM `Utilisateur`;');
-                    for (var row in reqCountUser) {
-                        idNewID = row[0] + 1;
+                    String query = 'SELECT `idUtilisateur`, `ban`, `su` FROM `Utilisateur` WHERE `identifiant` = \'$uid\';';
+                    var reqUser = await connection.query(query);
+                    if( reqUser.length == 1 ) {
+                        for (var row in reqUser) {
+                            if(row[1] != 0) {
+                                throw StatitikException("Utilisateur banni pour non respect des règles.");
+                            }
+                            user = UserPoke(row[0]);
+                            user!.admin = row[2] == 1 ? true : false;
+                        }
+                    } else {
+                        // Check user data exists into database
+                        int idNewID=-1;
+                        var reqCountUser = await connection.query(
+                            'SELECT MAX(`idUtilisateur`) FROM `Utilisateur`;');
+                        for (var row in reqCountUser) {
+                            idNewID = row[0] + 1;
+                        }
+                        var nowDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+                        await connection.query("INSERT INTO `Utilisateur` (idUtilisateur, identifiant, dernierConnexion) VALUES ($idNewID, '$uid', '$nowDate');");
+                        user = UserPoke(idNewID);
                     }
-                    var nowDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
-                    await connection.query("INSERT INTO `Utilisateur` (idUtilisateur, identifiant, dernierConnexion) VALUES ($idNewID, '$uid', '$nowDate');");
-                    user = UserPoke(idNewID);
                 }
                 user!.uid = uid;
+                user!.isRobotTest = isTest;
             });
             time.tick("My User");
         }
@@ -334,26 +351,30 @@ class Environment
 
             await db.transactionR( (connection) async {
                 var time = TimeReport();
-                // Get new ID
-                int idAchat = 1;
-                var req = await connection.query('SELECT MAX(idAchat) FROM `UtilisateurProduit`;');
-                for (var row in req) {
-                    idAchat = row[0] + 1;
+                // NEVER send stats data if robot test BUT save into personal Pokespace
+                if(!user!.isRobotTest) {
+                    // Get new ID
+                    int idAchat = 1;
+                    var req = await connection.query('SELECT MAX(idAchat) FROM `UtilisateurProduit`;');
+                    for (var row in req) {
+                        idAchat = row[0] + 1;
+                    }
+
+                    // Add new product
+                    final queryStr = 'INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user!.idDB}, ${currentDraw!.product.idDB}, ${currentDraw!.productAnomaly ? 1 : 0})';
+                    await connection.query(queryStr);
+
+                    // Prepare data
+                    List<List<Object?>> draw = [];
+                    for(BoosterDraw booster in currentDraw!.boosterDraws) {
+                        draw.add(<Object?>[idAchat, booster.subExtension!.id, booster.abnormal ? 1 : 0, Int8List.fromList(booster.cardDrawing!.toBytes())]);
+                    }
+                    // Send data
+                    await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, cartesBin) VALUES (?, ?, ?, ?);',
+                                                draw);
+                } else {
+                    printOutput("RobotTest skip data send");
                 }
-
-                // Add new product
-                final queryStr = 'INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user!.idDB}, ${currentDraw!.product.idDB}, ${currentDraw!.productAnomaly ? 1 : 0})';
-                await connection.query(queryStr);
-
-                // Prepare data
-                List<List<Object?>> draw = [];
-                for(BoosterDraw booster in currentDraw!.boosterDraws) {
-                    draw.add(<Object?>[idAchat, booster.subExtension!.id, booster.abnormal ? 1 : 0, Int8List.fromList(booster.cardDrawing!.toBytes())]);
-                }
-                // Send data
-                await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, cartesBin) VALUES (?, ?, ?, ?);',
-                                            draw);
-
                 time.tick("Register draw");
                 // Update pokespace and save into db
                 if(registerPokeSpace) {
@@ -485,15 +506,19 @@ class Environment
     }
 
     void login(CredentialMode mode, context, {Function()? afterLog, Function(String)? afterError}) async {
-        onSuccess(uid) {
+        onSuccess(googleID, oldUID, bool? isTest) {
             //printOutput("Credential Success: "+uid);
             SharedPreferences.getInstance().then((prefs) {
+                var isRobotTest = isTest ?? false;
                 // Save to preferences
-                prefs.setString('uid', uid);
+                prefs.setString('userID', googleID);
+                prefs.setString('uid',    oldUID);
+                prefs.setBool('isTest',   isRobotTest);
 
                 // Register and check access
-                assert(uid != null);
-                registerUser(uid).then((value){
+                assert(googleID != null);
+                assert(oldUID != null);
+                registerUser(oldUID, googleID, isRobotTest).then((value){
                     if(afterLog != null) {
                       afterLog();
                     }
@@ -517,7 +542,7 @@ class Environment
                 credential.signInWithGoogle(onSuccess);
             } else if(mode==CredentialMode.autoLog) {
                 SharedPreferences.getInstance().then((prefs) {
-                    onSuccess(prefs.getString('uid'));
+                    onSuccess(prefs.getString('userID'), prefs.getString('uid'), prefs.getBool('isTest'));
                 });
             } else {
                 onError('LOG_3');
@@ -526,31 +551,6 @@ class Environment
             onError('LOG_4');
         }
     }
-
-  Future<bool> sendRequestProduct(String info, String eac) async
-  {
-      if( !isLogged() ) {
-        return false;
-      }
-      try {
-          return await db.transactionR( (connection) async {
-              // Get new ID
-              int idRequest = 1;
-              var req = await connection.query('SELECT MAX(idDemande) FROM `Demande`;');
-              for (var row in req) {
-                  idRequest = row[0] + 1;
-              }
-
-              // Add new request
-              const queryStr = 'INSERT INTO `Demande` (idDemande, Information, EAC) VALUES (?, ?, ?)';
-
-              await connection.queryMulti(queryStr, [[idRequest, info, eac]]);
-          });
-      } catch( e ) {
-          printOutput("Database error $e");
-      }
-      return false;
-  }
 
     Future<List<SessionDraw>> getMyDraw([bool showAll=false]) async
     {
