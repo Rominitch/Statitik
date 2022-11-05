@@ -36,7 +36,7 @@ class StatitikException implements Exception {
 
 class Database
 {
-    final String version = '3.3';
+    final String version = '3.4';
     final ConnectionSettings settings = createConnection();
 
     Future<bool> transactionR(Future Function(TransactionContext) queries) async
@@ -83,7 +83,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '2.2.0';
+    final String version = '2.2.1';
 
     // State
     bool isInitialized          = false;
@@ -648,6 +648,38 @@ class Environment
             try {
                 await db.transactionR( (connection) async {
                     id = await collection.addNewDresseurObjectName(name, language, connection);
+                });
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
+        }
+        return id;
+    }
+
+    Future<int?> addNewEffectName(String name, int language) async {
+        int? id;
+        if( isAdministrator() ) {
+
+            try {
+                await db.transactionR( (connection) async {
+
+                    id = await collection.addNewEffectName(name, language, connection);
+                });
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
+        }
+        return id;
+    }
+
+    Future<int?> addNewDescriptionData(String name, int language) async {
+        int? id;
+        if( isAdministrator() ) {
+
+            try {
+                await db.transactionR( (connection) async {
+
+                    id = await collection.addNewDescriptionData(name, language, connection);
                 });
             } catch( e ) {
                 printOutput("Database error $e");

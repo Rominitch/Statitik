@@ -829,7 +829,7 @@ class Collection
       printOutput("Next id of card is $nextId");
     }
     // Prepare data
-    List<String> names = [ "", "", ""];
+    List<String> names = [ "<$newText>", "<$newText>", "<$newText>"];
     names[idLangue-1] = newText;
 
     List<Object> values = <Object>[nextId] + names;
@@ -853,5 +853,62 @@ class Collection
     //Insert HERE all requests
 
     //printOutput('Migration Done !');
+  }
+
+  Future<int> addNewEffectName(String name, int idLangue, connection) async {
+    assert( 1 <= idLangue && idLangue <= 3);
+    // Compute next Id of name
+    int nextId = 0;
+    {
+      var nextIdReq = await connection.query(
+          "SELECT MAX(`idEffetsCarte`) as maxId FROM `EffetsCarte`;");
+      for (var row in nextIdReq) {
+        nextId = row[0];
+      }
+      nextId += 1;
+      //printOutput("Next id of card is $nextId");
+    }
+    // Prepare data
+    List<String> names = [ "<$name>", "<$name>", "<$name>"];
+    names[idLangue-1] = name;
+
+    // Run request
+    var query = 'INSERT INTO `EffetsCarte` (`idEffetsCarte`, `frNom`, `enNom`, `jpNom`) VALUES (?, ?, ?, ?);';
+    List<Object> values = <Object>[nextId] + names;
+    await connection.queryMulti(query, [values]);
+
+    // Edit local Db (avoid big refresh)
+    effects[nextId] = MultiLanguageString(names);
+
+    return nextId;
+  }
+
+  Future<int> addNewDescriptionData(String name, int idLangue, connection) async {
+    assert( 1 <= idLangue && idLangue <= 3);
+    // Compute next Id of name
+    int nextId = 0;
+    {
+      var nextIdReq = await connection.query(
+          "SELECT MAX(`idDescription`) as maxId FROM `Description`;");
+      for (var row in nextIdReq) {
+        nextId = row[0];
+      }
+      nextId += 1;
+      //printOutput("Next id of card is $nextId");
+    }
+    // Prepare data
+    List<String> names = [ "<$name>", "<$name>", "<$name>"];
+    names[idLangue-1] = name;
+
+    // Run request
+    var query = 'INSERT INTO `Description` (`idDescription`, `frNom`, `enNom`, `jpNom`) VALUES (?, ?, ?, ?);';
+
+    List<Object> values = <Object>[nextId] + names;
+    await connection.queryMulti(query, [values]);
+
+    // Edit local Db (avoid big refresh)
+    descriptions[nextId] = DescriptionData.fromDb(MultiLanguageString(names), 0);
+
+    return nextId;
   }
 }

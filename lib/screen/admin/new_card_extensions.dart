@@ -41,6 +41,11 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
 
   final List<int> secretRarities = const [21, 22, 23, 24, 25, 26, 27, 36, 37];
 
+  void onRefreshList() {
+    setState(() {
+      _modify = true;
+    });
+  }
   void onChangeList(int newIdList) {
    setState(() {
      idList = newIdList;
@@ -396,7 +401,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                       ]
                     );
                   },
-                  body: CardCreator.quick(widget.language, widget.se, data, CardIdentifier.from([0, 0, 0]), onAddCard, widget.language.isWorld(), onChangeList: onChangeList),
+                  body: CardCreator.quick(widget.language, widget.se, data, CardIdentifier.from([0, 0, 0]), onAddCard, onRefreshList, widget.language.isWorld(), onChangeList: onChangeList),
                   isExpanded: _showQuickCreator,
                 )
               ],

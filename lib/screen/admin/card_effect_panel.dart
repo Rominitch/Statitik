@@ -96,7 +96,7 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
     List<Widget> parameterWidgets = [];
     if(widget.effect.description != null) {
       description = widget.effect.description!.decrypted(Environment.instance.collection.descriptions, widget.parent.l).finalString.join();
-      RegExp re = RegExp(r"{(\d*)}");
+      RegExp re = RegExp(r"\{(\d*)\}", unicode: true);
       re.allMatches(description).forEach((element) {
         nbParameters = max(nbParameters, int.parse(element.group(1)!));
       });

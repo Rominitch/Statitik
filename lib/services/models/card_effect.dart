@@ -59,7 +59,7 @@ class CardDescription {
 
   void computeDescriptionEffects(Map descriptionCollection, Language l) {
     // Combine and extract info
-    RegExp exp = RegExp(r"(.*?)<(.*?:.*?)>(.*)");
+    RegExp exp = RegExp(r"(.*?)<(.?:\{\d+\})>(.*)", unicode: true);
     int count=0;
 
     effects.clear();
@@ -142,7 +142,7 @@ class CardDescription {
     DecryptedString s = DecryptedString();
 
     // Combine and extract info
-    RegExp exp = RegExp(r"(.*?)<(.*?:.*?)>(.*)");
+    RegExp exp = RegExp(r"(.*?)<(.?:\{\d+\})>(.*)", unicode: true);
 
     s.finalString.add("");
     int count=0;

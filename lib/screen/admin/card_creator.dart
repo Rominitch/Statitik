@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:statitikcard/screen/admin/card_editor.dart';
 import 'package:statitikcard/screen/admin/card_editor_options.dart';
@@ -13,6 +14,7 @@ import 'package:statitikcard/screen/widgets/custom_radio.dart';
 import 'package:statitikcard/screen/widgets/energy_slider.dart';
 import 'package:statitikcard/screen/widgets/list_selector.dart';
 import 'package:statitikcard/screen/widgets/slider_with_text.dart';
+import 'package:statitikcard/services/models/html_card_parser.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/rarity.dart';
@@ -32,19 +34,20 @@ class CardCreator extends StatefulWidget {
   final CardIdentifier        idCard;
   final Function(int listId, int?)?   onAppendCard;
   final Function(int listId)?         onChangeList;
+  final Function()?                   onNeedRefresh;
   final List                  listRarity;
   final String                title;
   final List?                 secondTypes;
   final CardEditorOptions     options;
 
   CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, this.options, {Key? key}):
-    editor=true, onAppendCard=null, onChangeList=null,
+    editor=true, onAppendCard=null, onChangeList=null, onNeedRefresh=null,
     listRarity = (se.extension.language.isWorld() ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity)
       ..removeWhere((element) => element == Environment.instance.collection.unknownRarity),
     secondTypes = [TypeCard.unknown] + energies,
     super(key: key);
 
-  CardCreator.quick(this.activeLanguage, this.se, this.card, this.idCard, this.onAppendCard, bool isWorldCard, {Key? key, this.onChangeList}):
+  CardCreator.quick(this.activeLanguage, this.se, this.card, this.idCard, this.onAppendCard, this.onNeedRefresh, bool isWorldCard, {Key? key, this.onChangeList}):
     editor=false, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity), title="",
     secondTypes=null, options = CardEditorOptions(), super(key: key);
 
@@ -250,6 +253,14 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
         );
       }
     );
+  }
+
+  Future<void> fillEffects() async {
+    for(var cardsList in widget.se.seCards.cards) {
+      for(var card in cardsList) {
+        await HtmlCardParser.readEffectsJP(card);
+      }
+    }
   }
 
   @override
@@ -590,6 +601,29 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                       automaticFill();
                     });
                   }
+                )
+              ),
+              if( widget.se.extension.language.isJapanese() ) Card(
+                color: Colors.grey[800],
+                child: TextButton(
+                    child: Column(
+                      children: [
+                        const Icon(Icons.format_color_fill),
+                        Text(StatitikLocale.of(context).read('NCE_B9'), style: const TextStyle(fontSize: 8.0))
+                      ],
+                    ),
+                    onPressed: () {
+                      EasyLoading.show();
+                      fillEffects().then((value) {
+                        EasyLoading.dismiss();
+                        if(widget.onNeedRefresh != null) {
+                          widget.onNeedRefresh!();
+                        }
+                      }).onError((error, stackTrace) {
+                        printOutput("$error - ${stackTrace.toString()}");
+                        EasyLoading.dismiss();
+                      });
+                    }
                 )
               ),
             ]

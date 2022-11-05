@@ -120,11 +120,12 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
 
     List<Widget> tabHeaders = [
       Padding(
-        padding: const EdgeInsets.all(2.0),
+        padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 2.0),
         child: Text(StatitikLocale.of(context).read('CAVIEW_B11')),
+
       ),
       Padding(
-        padding: const EdgeInsets.all(2.0),
+        padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 2.0),
         child: Text(StatitikLocale.of(context).read('CAVIEW_B12')),
       ),
     ];
@@ -394,7 +395,8 @@ class _CardSEViewerState extends State<CardSEViewer> {
         pageSnapping: true,
         onPageChanged: (position) {
           setState(() {
-            viewer = CardViewerBody(widget.se, idCurrentCard, widget.se.cardFromId(idCurrentCard.changeNumber(position)));
+            var newIdCard = idCurrentCard.changeNumber(position);
+            viewer = CardViewerBody(widget.se, newIdCard, widget.se.cardFromId(newIdCard));
           });
         },
         itemBuilder: (context, position) {
