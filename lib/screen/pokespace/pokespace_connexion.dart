@@ -326,9 +326,10 @@ class _DrawHomePageState extends State<DrawHomePage> {
               Container(
                 child: signInButton('V_B5', CredentialMode.google, refreshWithError, refresh, context)
               ),
-              Container(
-                child: signInButton('V_B6', CredentialMode.phone, refreshWithError, refresh, context)
-              ),
+              if(Credential.hasPhoneLogin())
+                Container(
+                  child: signInButton('V_B6', CredentialMode.phone, refreshWithError, refresh, context)
+                ),
               const SizedBox(height: 30),
               if(message != null) Center( child: Text(message!, style: const TextStyle(color: Colors.red))),
               Expanded(child: drawImagePress(context, 'PikaIntro', 300)),

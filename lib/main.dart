@@ -8,10 +8,8 @@ import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/thanks.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
-Future<void> main() async {
-  // Enable AppCheck : API Integrity
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-
   // Build instance for first time
   runApp(const StatitikApp());
 }

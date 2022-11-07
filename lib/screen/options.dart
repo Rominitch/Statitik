@@ -123,7 +123,8 @@ class _OptionsPageState extends State<OptionsPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                         signInButton('V_B5', CredentialMode.google, refreshWithError, refresh, context),
-                        signInButton('V_B6', CredentialMode.phone, refreshWithError, refresh, context),
+                        if(Credential.hasPhoneLogin())
+                          signInButton('V_B6', CredentialMode.phone, refreshWithError, refresh, context),
                       ],)
                   ]
                 )

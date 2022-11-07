@@ -162,7 +162,8 @@ class HtmlCardParser {
         }
         if(htmlEffect.description != null) {
           effectDescription = htmlEffect.description!.innerHtml;
-          effectDescription = effectDescription.replaceAll("<br />", "");
+          effectDescription = effectDescription.replaceAll(RegExp(r"<br\s*/>"), "");
+          effectDescription = effectDescription.replaceAll(RegExp(r"<br\s*>"), "");
         }
 
         // Compute Title of effect (add into DB if not found)

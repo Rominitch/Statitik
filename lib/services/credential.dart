@@ -22,6 +22,11 @@ class Credential
     ],
   );
 
+  static bool hasPhoneLogin() {
+    return false;
+  }
+
+
   Future<void> initialize() async
   {
     try {
@@ -41,9 +46,9 @@ class Credential
       if(googleSignInAccount != null) {
         // Get Authentification data
         googleSignInAccount.authentication.then((GoogleSignInAuthentication googleSignInAuthentication) {
-
+          final newId = "google-${googleSignInAccount.id}";
           // Finish connection
-          onSuccess("google-${googleSignInAccount.id}",
+          onSuccess(newId, newId,
                     googleSignInAccount.email.contains("cloudtestlabaccounts"));
         });
       }

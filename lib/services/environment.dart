@@ -83,7 +83,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '2.2.1';
+    final String version = '2.2.2';
 
     // State
     bool isInitialized          = false;
@@ -119,6 +119,7 @@ class Environment
             try {
                 bool isDBReady       = false;
                 bool isDatabaseMatch = false;
+
                 db.transactionR( (connection) async {
                     var info = await connection.query("SELECT * FROM `BaseInfo`");
 
@@ -504,6 +505,7 @@ class Environment
             printOutput("$error\n${stackTrace.toString()}");
         });
     }
+
 
     void login(CredentialMode mode, context, {Function()? afterLog, Function(String)? afterError}) async {
         onSuccess(googleID, oldUID, bool? isTest) {
