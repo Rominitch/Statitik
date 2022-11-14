@@ -79,7 +79,7 @@ class CardDescription {
           for (var element in data.markers) { if(!effects.contains(element)) effects.add(element); }
 
           toAnalyze += data.name(l);
-        } else if( code[0] == "E" || code[0] == "P") {
+        } else if( code[0] == "E" || code[0] == "P" || code[0] == "A") {
         } else {
           throw StatitikException("Error of code");
         }
@@ -112,7 +112,7 @@ class CardDescription {
     return result;
   }
 
-  Widget toWidget(Map descriptionCollection, Map pokemonCollection, Language l)
+  Widget toWidget(Map descriptionCollection, Map pokemonCollection, Map effectCollection, Language l)
   {
     var current = decrypted(descriptionCollection, l);
 
@@ -129,6 +129,10 @@ class CardDescription {
           String pokeCode = finalText.substring(2);
           PokemonInfo poke = pokemonCollection[int.parse(pokeCode)];
           children.add(TextSpan(text: poke.name(l)));
+        } else if(itString.current.startsWith("A:")) {
+          String effectCode = finalText.substring(2);
+          var effect = effectCollection[int.parse(effectCode)];
+          children.add(TextSpan(text: effect.name(l)));
         } else {
           children.add(TextSpan(text: finalText));
         }
@@ -165,6 +169,9 @@ class CardDescription {
             s.finalString.add(""); // New string to cumulate
           } else if( code[0] == "P" ) {
             s.finalString.add("P:${code[1]}");
+            s.finalString.add(""); // New string to cumulate
+          } else if( code[0] == "A" ) {
+            s.finalString.add("A:${code[1]}");
             s.finalString.add(""); // New string to cumulate
           } else {
             throw StatitikException("Error of code");

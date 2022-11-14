@@ -34,15 +34,14 @@ class HtmlCardParser {
 
   static Future<bool> readEffectsJP(PokemonCardExtension card) async {
     final jpLanguage = Environment.instance.collection.languages[3];
-    // Never fill already card
-    if(card.data.cardEffects.effects.isNotEmpty) {
-      printOutput("Card has already data");
-      return false;
-    }
+
     if(card.images.isEmpty || card.images.first.isEmpty || card.images.first.first.jpDBId == 0) {
       printOutput("Card has no valid JP Id");
       return false;
     }
+
+    // Clean data to recompute effect from scratch
+    card.data.cardEffects.effects.clear();
 
     // Build Uri
     final htmlPage = Uri.https("www.pokemon-card.com", "card-search/details.php/card/${card.images.first.first.jpDBId}/regu/XY");
@@ -252,6 +251,25 @@ class HtmlCardParser {
       while(start != -1);
     }
 
+    // Remove effect name too
+    for(MapEntry pokeEntry in Environment.instance.collection.effects.entries) {
+      final pattern = "「${pokeEntry.value.name(language)}」";
+      int start = 0;
+      // Search
+      do
+      {
+        var p = descriptionName.indexOf(pattern, start);
+        if(p != -1) {
+          finalDescription = finalDescription.replaceFirst(pattern, "「<A:{}>」");
+          codes[p] = pokeEntry.key;
+          start = p+1;
+        } else {
+          start = -1;
+        }
+      }
+      while(start != -1);
+    }
+
     // Remove number into text
     {
       var re = RegExp(r"(\d+)", unicode: true);
@@ -298,5 +316,26 @@ class HtmlCardParser {
     }
 
     return d;
+  }
+
+  Future<String?> getFrDescription(PokemonCardExtension card, PokemonCardId cardId) async {
+    final htmlPage = Uri.https("www.pokemon.com", "fr/jcc-pokemon/cartes-pokemon/ss-series/swsh${card.}12/2/${card.images.first.first.jpDBId});
+
+    // Get  page info
+    final response = await http.Client().get(htmlPage);
+    if(response.statusCode == 200) {
+      var document = parse(response.body);
+      var abilities = document.getElementsByClassName("pokemon-abilities");
+      for(var ability in abilities.first.getElementsByClassName("ability")) {
+        var preItem = ability.getElementsByTagName("pre");
+        if(preItem.isNotEmpty) {
+          var pItem = preItem.first.getElementsByTagName("p");
+          if(pItem.isNotEmpty) {
+            return pItem.first.text;
+          }
+        }
+      }
+    }
+    return null;
   }
 }

@@ -68,9 +68,16 @@ void main() {
       25: PokemonInfo(MultiLanguageString(["Pikachu", "Pikachu", "Pikachu"]), 1, 25),
     };
 
+    Map<int, MultiLanguageString> mapEffects =
+    {
+      1: MultiLanguageString(["E1","E1","E1"]),
+      2: MultiLanguageString(["E2","E2","E2"]),
+      3: MultiLanguageString(["E3","E3","E3"]),
+    };
+
     var d2 = CardDescription(2);
     d2.parameters = [1, 2.0];
-    Widget w = d2.toWidget(map, mapPoke, fr);
+    Widget w = d2.toWidget(map, mapPoke, mapEffects, fr);
 
     expect(w.runtimeType, RichText);
     int count = 0;
@@ -80,8 +87,8 @@ void main() {
     // Test Dynamic Energy and parameter order
     var d3 = CardDescription(3);
     d3.parameters = [1, 2];
-    var wFr = d3.toWidget(map, mapPoke, fr);
-    var wEn = d3.toWidget(map, mapPoke, en);
+    var wFr = d3.toWidget(map, mapPoke, mapEffects, fr);
+    var wEn = d3.toWidget(map, mapPoke, mapEffects, en);
 
     var frSpan = [];
     var enSpan = [];
@@ -93,7 +100,7 @@ void main() {
 
     var d4 = CardDescription(4);
     d4.parameters = [25];
-    var w4Fr = d4.toWidget(map, mapPoke, fr);
+    var w4Fr = d4.toWidget(map, mapPoke, mapEffects, fr);
 
     var fr4Span = [];
     (w4Fr as RichText).text.visitChildren((span) { fr4Span.add(span); return true; });

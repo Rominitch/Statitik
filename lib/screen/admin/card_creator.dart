@@ -256,10 +256,14 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
   }
 
   Future<void> fillEffects() async {
+    double count = 0.0;
     for(var cardsList in widget.se.seCards.cards) {
+      EasyLoading.showProgress(count / widget.se.seCards.cards.length, status: "$count / ${widget.se.seCards.cards.length}");
+
       for(var card in cardsList) {
         await HtmlCardParser.readEffectsJP(card);
       }
+      count += 1.0;
     }
   }
 

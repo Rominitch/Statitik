@@ -16,6 +16,7 @@ import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+import 'package:wakelock/wakelock.dart';
 
 class OptionsPage extends StatefulWidget {
   const OptionsPage({Key? key}) : super(key: key);
@@ -29,6 +30,7 @@ class _OptionsPageState extends State<OptionsPage> {
 
   StreamController sizeControler = StreamController();
   double? moSize;
+  bool isScreenOn=false;
 
   @override
   void initState() {
@@ -39,6 +41,8 @@ class _OptionsPageState extends State<OptionsPage> {
         setState(() {});
       }
     });
+
+    Wakelock.enabled.then((value) => isScreenOn = value);
 
     sizeControler.add(0);
 
@@ -138,6 +142,25 @@ class _OptionsPageState extends State<OptionsPage> {
                 children: [
                   Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline5)),
                   toolBarLanguage(),
+                  Row( children: [
+                    Checkbox(value: isScreenOn,
+                      onChanged: (newValue) {
+                        setState(() {
+                          isScreenOn = newValue ?? false;
+                          Environment.instance.setScreenOn(isScreenOn);
+                        });
+                      }
+                    ),
+                    Expanded(child:
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(StatitikLocale.of(context).read('O_B13')),
+                          Flexible(child: Text(StatitikLocale.of(context).read('O_B14'), softWrap: true, textAlign: TextAlign.left, style: const TextStyle(fontSize: 10))),
+                      ])
+                    ),
+                    ]
+                  ),
                   Row( children: [
                     Checkbox(value: Environment.instance.storeImageLocally,
                       onChanged: (newValue) {

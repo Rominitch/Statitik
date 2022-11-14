@@ -28,6 +28,7 @@ import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/time_report.dart';
 import 'package:statitikcard/services/tools.dart';
+import 'package:wakelock/wakelock.dart';
 
 class StatitikException implements Exception {
     String msg;
@@ -158,11 +159,10 @@ class Environment
                             }
                             onInfoLoading.add('LOAD_5');
                             (readPokeSpace()).whenComplete( () async {
-
                                 SharedPreferences.getInstance().then((prefs) {
                                     storeImageLocally = prefs.getBool("storeImageLocaly") ?? storeImageLocally;
+                                    setScreenOn(prefs.getBool("ScreenOn") ?? false);
                                 }).whenComplete(() {
-
                                     try {
                                         Environment.instance.tryChangeUserConnexionDate(Environment.instance.user!.uid);
                                     } catch(e) {
@@ -802,5 +802,16 @@ class Environment
               url,
               mode: LaunchMode.externalApplication);
         }
+    }
+
+    void setScreenOn(bool enable) {
+        SharedPreferences.getInstance().then((prefs) {
+            prefs.setBool("ScreenOn", enable);
+            if( enable) {
+                Wakelock.enable();
+            } else {
+                Wakelock.disable();
+            }
+        });
     }
 }

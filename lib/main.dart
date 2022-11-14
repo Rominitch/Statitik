@@ -10,8 +10,17 @@ import 'package:statitikcard/services/internationalization.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  configureEasyLoading();
+
   // Build instance for first time
   runApp(const StatitikApp());
+}
+
+void configureEasyLoading() {
+  EasyLoading.instance
+    ..maskType = EasyLoadingMaskType.black
+    ..dismissOnTap = false;
 }
 
 class StatitikApp extends StatelessWidget {
