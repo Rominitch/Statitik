@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/services/models/multi_language_string.dart';
 import 'package:statitikcard/services/saved_instance_state.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -84,7 +85,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '2.2.2';
+    final String version = '2.2.3';
 
     // State
     bool isInitialized          = false;
@@ -658,14 +659,14 @@ class Environment
         return id;
     }
 
-    Future<int?> addNewEffectName(String name, int language) async {
+    Future<int?> addNewEffectName(MultiLanguageString names) async {
         int? id;
         if( isAdministrator() ) {
 
             try {
                 await db.transactionR( (connection) async {
 
-                    id = await collection.addNewEffectName(name, language, connection);
+                    id = await collection.addNewEffectName(names, connection);
                 });
             } catch( e ) {
                 printOutput("Database error $e");
@@ -674,14 +675,14 @@ class Environment
         return id;
     }
 
-    Future<int?> addNewDescriptionData(String name, int language) async {
+    Future<int?> addNewDescriptionData(MultiLanguageString names) async {
         int? id;
         if( isAdministrator() ) {
 
             try {
                 await db.transactionR( (connection) async {
 
-                    id = await collection.addNewDescriptionData(name, language, connection);
+                    id = await collection.addNewDescriptionData(names, connection);
                 });
             } catch( e ) {
                 printOutput("Database error $e");

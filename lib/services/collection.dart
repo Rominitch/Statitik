@@ -855,8 +855,7 @@ class Collection
     //printOutput('Migration Done !');
   }
 
-  Future<int> addNewEffectName(String name, int idLangue, connection) async {
-    assert( 1 <= idLangue && idLangue <= 3);
+  Future<int> addNewEffectName(MultiLanguageString names, connection) async {
     // Compute next Id of name
     int nextId = 0;
     {
@@ -869,22 +868,20 @@ class Collection
       //printOutput("Next id of card is $nextId");
     }
     // Prepare data
-    List<String> names = [ "<$name>", "<$name>", "<$name>"];
-    names[idLangue-1] = name;
+    List<String> allNames = names.names();
 
     // Run request
     var query = 'INSERT INTO `EffetsCarte` (`idEffetsCarte`, `frNom`, `enNom`, `jpNom`) VALUES (?, ?, ?, ?);';
-    List<Object> values = <Object>[nextId] + names;
+    List<Object> values = <Object>[nextId] + allNames;
     await connection.queryMulti(query, [values]);
 
     // Edit local Db (avoid big refresh)
-    effects[nextId] = MultiLanguageString(names);
+    effects[nextId] = names;
 
     return nextId;
   }
 
-  Future<int> addNewDescriptionData(String name, int idLangue, connection) async {
-    assert( 1 <= idLangue && idLangue <= 3);
+  Future<int> addNewDescriptionData(MultiLanguageString names, connection) async {
     // Compute next Id of name
     int nextId = 0;
     {
@@ -897,17 +894,16 @@ class Collection
       //printOutput("Next id of card is $nextId");
     }
     // Prepare data
-    List<String> names = [ "<$name>", "<$name>", "<$name>"];
-    names[idLangue-1] = name;
+    List<String> allNames = names.names();
 
     // Run request
     var query = 'INSERT INTO `Description` (`idDescription`, `frNom`, `enNom`, `jpNom`) VALUES (?, ?, ?, ?);';
 
-    List<Object> values = <Object>[nextId] + names;
+    List<Object> values = <Object>[nextId] + allNames;
     await connection.queryMulti(query, [values]);
 
     // Edit local Db (avoid big refresh)
-    descriptions[nextId] = DescriptionData.fromDb(MultiLanguageString(names), 0);
+    descriptions[nextId] = DescriptionData.fromDb(names, 0);
 
     return nextId;
   }

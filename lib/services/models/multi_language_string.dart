@@ -16,6 +16,11 @@ class MultiLanguageString {
     return _names[l.id-1];
   }
 
+  void editName(String value, Language l) {
+    assert(0 <= l.id-1 && l.id-1 < _names.length);
+    _names[l.id-1] = value;
+  }
+
   bool search(Language? l, String searchPart) {
     if(l != null) {
       return name(l).toLowerCase().contains(searchPart.toLowerCase());
@@ -28,4 +33,6 @@ class MultiLanguageString {
       return false;
     }
   }
+
+  List<String> names() { return _names; }
 }

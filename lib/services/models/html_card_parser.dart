@@ -4,9 +4,11 @@ import 'package:http/http.dart' as http;
 
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/card_effect.dart';
+import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/multi_language_string.dart';
 import 'package:statitikcard/services/models/pokemon_card_extension.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/tools.dart';
 
@@ -15,6 +17,13 @@ class HTMLEffects  {
   Element? description;
 
   HTMLEffects(this.title, this.description);
+}
+
+class HTMLEffectsReader  {
+  String? title;
+  String? description;
+
+  HTMLEffectsReader(this.title, this.description);
 }
 
 class HtmlCardParser {
@@ -42,6 +51,29 @@ class HtmlCardParser {
 
     // Clean data to recompute effect from scratch
     card.data.cardEffects.effects.clear();
+
+    // Find world card node
+    List<HTMLEffectsReader> frAbilities = [];
+    List<HTMLEffectsReader> usAbilities = [];
+
+    SubExtension? seWorld;
+    CardIdentifier? cardIdWorld;
+    Environment.instance.collection.searchCardIntoSubExtension(card.data).forEach((element) {
+      if( element.se.extension.language.isWorld() ) {
+        seWorld     = element.se;
+        cardIdWorld = element.idCard;
+      }
+    });
+    if(seWorld != null) {
+      frAbilities = await getFrDescription(seWorld!, cardIdWorld!);
+      usAbilities = await getUSDescription(seWorld!, cardIdWorld!);
+
+      if(frAbilities.length != usAbilities.length) {
+        printOutput("Abilities FR/US are not matched");
+      }
+    } else {
+      printOutput("No World card found");
+    }
 
     // Build Uri
     final htmlPage = Uri.https("www.pokemon-card.com", "card-search/details.php/card/${card.images.first.first.jpDBId}/regu/XY");
@@ -109,7 +141,24 @@ class HtmlCardParser {
         }
       }
 
+      var parserFr = frAbilities.iterator;
+      var parserUs = usAbilities.iterator;
+
+      if(seWorld != null &&frAbilities.length != htmlEffects.length) {
+        printOutput("Abilities FR/JP are not matched");
+      }
+
       for(var htmlEffect in htmlEffects) {
+        // Read World info in same time if possible
+        HTMLEffectsReader? frInfo;
+        HTMLEffectsReader? usInfo;
+        if(parserFr.moveNext()) {
+          frInfo = parserFr.current;
+        }
+        if(parserUs.moveNext()) {
+          usInfo = parserUs.current;
+        }
+
         // Get title/Energy/Power
         var effect = CardEffect();
 
@@ -157,20 +206,29 @@ class HtmlCardParser {
           for(var i in htmlEffect.title!.children) {
             i.remove();
           }
-          effectName = htmlEffect.title!.text;
+          effectName = htmlEffect.title!.text.trim();
         }
         if(htmlEffect.description != null) {
           effectDescription = htmlEffect.description!.innerHtml;
           effectDescription = effectDescription.replaceAll(RegExp(r"<br\s*/>"), "");
           effectDescription = effectDescription.replaceAll(RegExp(r"<br\s*>"), "");
+          effectDescription = effectDescription.trim();
         }
 
         // Compute Title of effect (add into DB if not found)
         if(effectName.isNotEmpty) {
-          effect.title = await getOrAddEffectName(effectName.trim(), jpLanguage);
+          var name = MultiLanguageString(
+              [ frInfo != null ? "<>${frInfo.title}" : "<$effectName>",
+                usInfo != null ? "<>${usInfo.title}" : "<$effectName>",
+                effectName]);
+          effect.title = await getOrAddEffectName(name, jpLanguage);
         }
         if(effectDescription.isNotEmpty) {
-          effect.description = await getOrAddDescription(effectDescription.trim(), jpLanguage);
+          var name = MultiLanguageString(
+              [ frInfo != null ? "<>${frInfo.description}" : "<$effectDescription>",
+                usInfo != null ? "<>${usInfo.description}" : "<$effectDescription>",
+                effectDescription]);
+          effect.description = await getOrAddDescription(name, jpLanguage);
         }
 
         //printOutput("Name Id: ${effect.title}\nPower: ${effect.power}\nE: ${effect.attack.length}\nDes Id: ${effect.description}\n");
@@ -184,13 +242,12 @@ class HtmlCardParser {
     return false;
   }
 
-  static Future<int> getOrAddEffectName(String effectName, Language language) async {
-    assert(effectName.isNotEmpty);
+  static Future<int> getOrAddEffectName(MultiLanguageString effectNames, Language language) async {
     int? id;
-
+    // Search into Jp effect
     for (MapEntry e in Environment.instance.collection.effects.entries) {
       var effectValue = e.value as MultiLanguageString;
-      if(effectValue.name(language) == effectName) {
+      if(effectValue.name(language) == effectNames.name(language)) {
         id = e.key;
         printOutput("Find effect at $id");
         break;
@@ -198,18 +255,14 @@ class HtmlCardParser {
     }
 
     // If not find, need to add it
-    id ??= await Environment.instance.addNewEffectName(effectName, language.id);
+    id ??= await Environment.instance.addNewEffectName(effectNames);
 
     return id!;
   }
 
-  static Future<CardDescription?> getOrAddDescription(String descriptionName, Language language) async {
-    assert(descriptionName.isNotEmpty);
-
-    //printOutput("Des: $descriptionName");
-
+  static Future<CardDescription?> getOrAddDescription(MultiLanguageString descriptionNames, Language language) async {
     CardDescription? d;
-
+    final descriptionName = descriptionNames.name(language);
     Map<int, int> codes = {};
     var finalDescription = descriptionName;
 
@@ -304,8 +357,11 @@ class HtmlCardParser {
       }
     }
 
+    // Modify Jp name
+    descriptionNames.editName(finalDescription, language);
+
     // If not find, need to add it
-    id ??= await Environment.instance.addNewDescriptionData(finalDescription, language.id);
+    id ??= await Environment.instance.addNewDescriptionData(descriptionNames);
 
     // Create description
     d = CardDescription(id!);
@@ -318,24 +374,75 @@ class HtmlCardParser {
     return d;
   }
 
-  Future<String?> getFrDescription(PokemonCardExtension card, PokemonCardId cardId) async {
-    final htmlPage = Uri.https("www.pokemon.com", "fr/jcc-pokemon/cartes-pokemon/ss-series/swsh${card.}12/2/${card.images.first.first.jpDBId});
+   static Future<List<HTMLEffectsReader>> getFrDescription(SubExtension ext, CardIdentifier cardId) async {
+    return getWorldDescription("fr/jcc-pokemon/cartes-pokemon", ext, cardId);
+  }
+  static Future<List<HTMLEffectsReader>> getUSDescription(SubExtension ext, CardIdentifier cardId) async {
+    return getWorldDescription("us/pokemon-tcg/pokemon-cards", ext, cardId);
+  }
 
-    // Get  page info
-    final response = await http.Client().get(htmlPage);
-    if(response.statusCode == 200) {
-      var document = parse(response.body);
-      var abilities = document.getElementsByClassName("pokemon-abilities");
-      for(var ability in abilities.first.getElementsByClassName("ability")) {
-        var preItem = ability.getElementsByTagName("pre");
-        if(preItem.isNotEmpty) {
-          var pItem = preItem.first.getElementsByTagName("p");
-          if(pItem.isNotEmpty) {
-            return pItem.first.text;
+  static Future<List<HTMLEffectsReader>> getWorldDescription(String codeLangue, SubExtension ext, CardIdentifier cardId) async {
+    List<HTMLEffectsReader> htmlEffects = [];
+
+    var codeCard = ext.seCards.tcgImage(cardId.numberId).toUpperCase();
+
+    for (var seFolder in ext.seCode) {
+      final htmlPage = Uri.https("www.pokemon.com", "$codeLangue/ss-series/${seFolder.toLowerCase()}/$codeCard");
+      printOutput(htmlPage.toString());
+      var skipNames = ["Règle V", "V rule", "Règle VMAX", "VMAX rule",];
+      // Get  page info
+      final response = await http.Client().get(htmlPage);
+      if(response.statusCode == 200) {
+        var document = parse(response.body);
+        var abilities = document.getElementsByClassName("pokemon-abilities");
+
+        // Special Ability/Talent
+        if(abilities.isNotEmpty) {
+          var div = abilities.first.getElementsByClassName("poke-ability");
+          if(div.isNotEmpty) {
+            var nameNode = div.first.nextElementSibling;
+            if(nameNode!=null) {
+              var p = abilities.first.getElementsByTagName("p");
+              if(p.isNotEmpty) {
+                var p2 = p.first.nextElementSibling;
+                if(p2 != null) {
+                  htmlEffects.add(HTMLEffectsReader(nameNode.text, p2.text));
+                }
+              }
+            }
           }
         }
+        for(var ability in abilities.first.getElementsByClassName("ability")) {
+          String title = "";
+          String description = "";
+
+          var labelNode = ability.getElementsByClassName("left label");
+          if(labelNode.isNotEmpty) {
+            title = labelNode.first.text;
+          }
+
+          // Stop if special name
+          if(skipNames.contains(title)) {
+            continue;
+          }
+
+          var preItem = ability.getElementsByTagName("pre");
+          if(preItem.isNotEmpty) {
+            var pItem = preItem.first.getElementsByTagName("p");
+            if(pItem.isNotEmpty) {
+              description = pItem.first.text;
+            } else {
+              description = preItem.first.text;
+            }
+          }
+          if(title.isNotEmpty || description.isNotEmpty) {
+            htmlEffects.add(HTMLEffectsReader(title, description));
+          }
+        }
+        // First exit
+        return htmlEffects;
       }
     }
-    return null;
+    return htmlEffects; // return []
   }
 }
