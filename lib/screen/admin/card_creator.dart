@@ -261,7 +261,9 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
       EasyLoading.showProgress(count / widget.se.seCards.cards.length, status: "$count / ${widget.se.seCards.cards.length}");
 
       for(var card in cardsList) {
-        await HtmlCardParser.readEffectsJP(card);
+        if(!card.isSecret) {
+          await HtmlCardParser.readEffectsJP(card);
+        }
       }
       count += 1.0;
     }

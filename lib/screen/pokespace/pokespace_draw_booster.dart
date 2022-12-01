@@ -121,11 +121,11 @@ class _BoosterPageState extends State<BoosterPage> {
             children: [
               if(widget.boosterDraw.subExtension!.seCards.hasBoosterEnergy())
                 GridView.count(
-                  crossAxisCount: 7,
+                  crossAxisCount: 6,
                   primary: false,
                   shrinkWrap: true,
                   childAspectRatio: 1.2,
-                  children: widgetEnergies,
+                  children: widgetEnergies + widgetNoNumber,
                 ),
               CheckboxListTile(
                 title: Text(StatitikLocale.of(context).read('TB_B0')),
@@ -157,15 +157,6 @@ class _BoosterPageState extends State<BoosterPage> {
                 childAspectRatio: 1.15,
                 children: widgets,
               ),
-              if(widgetNoNumber.isNotEmpty)
-                GridView.count(
-                  crossAxisCount: 5,
-                  shrinkWrap: true,
-                  scrollDirection: Axis.vertical,
-                  primary: false,
-                  childAspectRatio: 1.15,
-                  children: widgetNoNumber,
-                ),
             ],
           ),
     );

@@ -152,11 +152,11 @@ class _StatsPageState extends State<StatsPage> {
               ]) : Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                drawImagePress(context, 'Minccino', 40),
+                drawImagePress(context, 'Minccino', 45),
                 const SizedBox(width: 15.0),
                 Text(StatitikLocale.of(context).read('S_B0'), style: Theme.of(context).textTheme.headline5),
                 const SizedBox(width: 15.0),
-                drawImagePress(context, 'pika', 40),
+                drawImagePress(context, 'pika', 45),
             ]),
           onPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: afterSelectExtension, addMode: false)));

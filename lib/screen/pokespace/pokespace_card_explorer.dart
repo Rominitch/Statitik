@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
 
 import 'package:statitikcard/screen/widgets/CardSelector/card_selector_poke_space.dart';
@@ -106,10 +107,7 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
   }
 
   Widget menuBar(BuildContext context, String idText ) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Text(StatitikLocale.of(context).read(idText)),
-    );
+    return Text(StatitikLocale.of(context).read(idText));
   }
 
   @override
@@ -142,23 +140,26 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
           child: cards.isEmpty ? drawLoading(context)
             : Column(
               children: [
-                TabBar(
-                controller: tabController,
-                isScrollable: false,
-                indicatorPadding: const EdgeInsets.all(1),
-                indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.blueAccent,
-                ),
-                tabs: [
-                  if(widget.subExtension.seCards.cards.isNotEmpty)
-                    menuBar(context, 'S_SERIE_0'),
-                  if(widget.subExtension.seCards.energyCard.isNotEmpty)
-                    menuBar(context, 'S_SERIE_1'),
-                  if(widget.subExtension.seCards.noNumberedCard.isNotEmpty)
-                    menuBar(context, 'S_SERIE_2'),
-                ]
+                SizedBox(
+                  height: Environment.heightTabHeader,
+                  child: TabBar(
+                  controller: tabController,
+                  isScrollable: false,
+                  indicatorPadding: const EdgeInsets.all(1),
+                  indicator: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.blueAccent,
+                  ),
+                  tabs: [
+                    if(widget.subExtension.seCards.cards.isNotEmpty)
+                      menuBar(context, 'S_SERIE_0'),
+                    if(widget.subExtension.seCards.energyCard.isNotEmpty)
+                      menuBar(context, 'S_SERIE_1'),
+                    if(widget.subExtension.seCards.noNumberedCard.isNotEmpty)
+                      menuBar(context, 'S_SERIE_2'),
+                  ]
               ),
+                ),
               Expanded(
                 child: TabBarView(
                   controller: tabController,

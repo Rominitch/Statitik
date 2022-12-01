@@ -12,10 +12,10 @@ class Language
     return AssetImage('assets/langue/$image.png');
   }
 
-  Image barIcon() {
+  Image barIcon([double? newHeight]) {
     return Image(
       image: create(),
-      height: AppBar().preferredSize.height * 0.4,
+      height: newHeight ?? AppBar().preferredSize.height * 0.4,
     );
   }
 

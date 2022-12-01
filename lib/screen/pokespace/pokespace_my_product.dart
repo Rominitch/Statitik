@@ -90,12 +90,12 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
         language = Environment.instance.collection.languages[idLanguage];
         languageWidgets.add(Padding(
           padding: const EdgeInsets.all(8.0),
-          child: language!.barIcon(),
+          child: language!.barIcon(Environment.heightTabHeader - 16.0),
         ));
       } else {
         languageWidgets.add(const Padding(
           padding: EdgeInsets.all(8.0),
-          child: Icon(Icons.public),
+          child: Icon(Icons.public, size: Environment.heightTabHeader - 16.0),
         ));
       }
       productTab.add(PokeSpaceProductsExplorer(language, (){ needToSave = true; }));

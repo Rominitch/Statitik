@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -11,6 +12,7 @@ import 'package:statitikcard/services/internationalization.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
+  RendererBinding.instance.setSemanticsEnabled(true);
   configureEasyLoading();
 
   // Build instance for first time

@@ -169,8 +169,8 @@ class _ProductPageState extends State<ProductPage> {
         ),
         actions: [
           CircleAvatar(
-            backgroundColor: Colors.grey[800],
-            radius: 20,
+            backgroundColor: Colors.grey.shade800,
+            radius: Environment.heightCircleAvatar,
             child: TextButton(
                 child: env.state.showAllproduct ? const Icon(Icons.grid_on) : const Icon(Icons.grid_view),
                 onPressed: () {
@@ -181,27 +181,27 @@ class _ProductPageState extends State<ProductPage> {
           ),
           const SizedBox(width: 5),
           CircleAvatar(
-              backgroundColor: Colors.grey[800],
-              radius: 20,
-              child: TextButton(
-                child: const Icon(Icons.help_outline,),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title: Text(StatitikLocale.of(context).read('help'), style: Theme.of(context).textTheme.headline5),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text( StatitikLocale.of(context).read('TP_B6'), textAlign: TextAlign.justify),
-                          const SizedBox(height: 10.0),
-                          Text( StatitikLocale.of(context).read('TP_B1'), textAlign: TextAlign.justify),
-                          Environment.instance.createDiscordButton()
-                        ]
-                      )
+            backgroundColor: Colors.grey.shade800,
+            radius: Environment.heightCircleAvatar,
+            child: TextButton(
+              child: const Icon(Icons.help_outline,),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: Text(StatitikLocale.of(context).read('help'), style: Theme.of(context).textTheme.headline5),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text( StatitikLocale.of(context).read('TP_B6'), textAlign: TextAlign.justify),
+                        const SizedBox(height: 10.0),
+                        Text( StatitikLocale.of(context).read('TP_B1'), textAlign: TextAlign.justify),
+                        Environment.instance.createDiscordButton()
+                      ]
                     )
-                  );
-                },
+                  )
+                );
+              },
             ),
           ),
           const SizedBox(width: 5),

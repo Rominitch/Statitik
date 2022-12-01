@@ -5,6 +5,7 @@ import 'package:statitikcard/screen/widgets/cards_selection.dart';
 import 'package:statitikcard/screen/widgets/deck_widget.dart';
 import 'package:statitikcard/screen/widgets/pokemon_card.dart';
 import 'package:statitikcard/services/draw/card_draw_data.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 import 'package:statitikcard/services/models/deck.dart';
@@ -105,8 +106,14 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
   @override
   Widget build(BuildContext context) {
     List<Widget> tabHeader = [
-      Text(StatitikLocale.of(context).read('PSMDC_B1'), style: Theme.of(context).textTheme.headline6),
-      Text(StatitikLocale.of(context).read('PSMDC_B2'), style: Theme.of(context).textTheme.headline6),
+      ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: Environment.heightTabHeader),
+        child: Text(StatitikLocale.of(context).read('PSMDC_B1'), style: Theme.of(context).textTheme.headline6),
+      ),
+      ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: Environment.heightTabHeader),
+        child: Text(StatitikLocale.of(context).read('PSMDC_B2'), style: Theme.of(context).textTheme.headline6),
+      ),
     ];
 
     List<Widget> tabPages = [

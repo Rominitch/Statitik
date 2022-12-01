@@ -115,7 +115,9 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
       body: SafeArea(
         child: Column(
           children: [
-            TabBar(
+            Container(
+              constraints: const BoxConstraints(minHeight: Environment.heightTabHeader),
+              child: TabBar(
                 controller: tabController,
                 //isScrollable: false,
                 indicatorPadding: const EdgeInsets.all(1),
@@ -140,6 +142,7 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
                     )),
                   ),
                 ]
+              ),
             ),
             Expanded(
               child: TabBarView(
@@ -253,15 +256,18 @@ class _ProductPerYearSelectorState extends State<ProductPerYearSelector> with Si
 
     return Column(
       children: [
-        TabBar(
-          controller: tabController,
-          isScrollable: true,
-          indicatorPadding: const EdgeInsets.all(1),
-          indicator: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.blueAccent,
+        SizedBox(
+          height: Environment.heightTabHeader,
+          child: TabBar(
+            controller: tabController,
+            isScrollable: true,
+            indicatorPadding: const EdgeInsets.all(1),
+            indicator: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.blueAccent,
+            ),
+            tabs: yearsTab
           ),
-          tabs: yearsTab
         ),
         Expanded(
           child: TabBarView(

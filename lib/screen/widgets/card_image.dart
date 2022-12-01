@@ -57,6 +57,8 @@ class CardImage extends StatefulWidget {
         val = val.replaceAll("ゃ", "XYA");
         val = val.replaceAll("ゅ", "XYU");
         val = val.replaceAll("ょ", "XYO");
+        val = val.replaceAll("ファ", "FUA");
+        val = val.replaceAll("フィ", "FUI");
       }
 
       // Convert kana

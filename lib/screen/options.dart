@@ -76,15 +76,15 @@ class _OptionsPageState extends State<OptionsPage> {
     Widget toolBarLanguage() {
       return Row( children: [
         Expanded(child: Text(StatitikLocale.of(context).read('L_T0'))),
-        CustomRadio(value: "fr", controller: langueController, widget: Environment.instance.collection.languages[1].barIcon()),
-        CustomRadio(value: "en", controller: langueController, widget: Environment.instance.collection.languages[2].barIcon()),
+        CustomRadio(value: "fr", controller: langueController, widget: Environment.instance.collection.languages[1].barIcon(Environment.heightlanguage)),
+        CustomRadio(value: "en", controller: langueController, widget: Environment.instance.collection.languages[2].barIcon(Environment.heightlanguage)),
       ]);
     }
 
     return Scaffold(
         appBar: AppBar(
         title: Center(
-          child: Text( StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline3, ),
+          child: Text( StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline3 ),
         ),
       ),
     body: SafeArea(

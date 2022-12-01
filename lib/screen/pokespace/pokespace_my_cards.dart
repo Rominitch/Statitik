@@ -35,15 +35,30 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
     var mySpace = Environment.instance.user!.pokeSpace;
 
     Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceCardExplorer(subExtension, mySpace))).then(
-      (value) {
-        setState(() {
-          if(value!) {
-            Environment.instance.savePokeSpace(context, mySpace);
-
-            computeTabLanguage(tabController.index);
+      (edited) {
+        var edition = edited ?? false;
+        // Clean empty SubExtension to avoid show 0
+        var info = mySpace.myCards[subExtension];
+        if(info != null) {
+          // Update Stats
+          info.computeStats();
+          // Remove if nothing inside
+          if (info.statsCards.countOfficial == 0) {
+            mySpace.myCards.remove(subExtension);
+            edition = true;
           }
+        }
+        // Save PokeSpace
+        if(edition) {
+          Environment.instance.savePokeSpace(context, mySpace);
+        }
+
+        setState(() {
+          // Rebuild GUI
+          computeTabLanguage(tabController.index);
         });
-      });
+      }
+    );
   }
 
   Widget buildLine(String name, Color color, int myCard, int maxCard, [double size = 10.0]) {
@@ -94,7 +109,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
     mySpace.myLanguagesCard().forEach((language) {
       tabHeaders.add(Padding(
         padding: const EdgeInsets.all(8.0),
-        child: language.barIcon(),
+        child: language.barIcon(Environment.heightTabHeader - 16.0),
       ));
 
       var myCards = mySpace.getBy(language);

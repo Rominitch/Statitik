@@ -24,7 +24,7 @@ class _ProductsExplorerState extends State<ProductsExplorer> with TickerProvider
     for (Language language in collection.languages.values) {
       languageWidgets.add(Padding(
         padding: const EdgeInsets.all(8.0),
-        child: language.barIcon(),
+        child: language.barIcon(Environment.heightTabHeader - 16.0),
       ));
       productTab.add(ProductsListExplorer(language));
     }
@@ -47,20 +47,20 @@ class _ProductsExplorerState extends State<ProductsExplorer> with TickerProvider
           child: Column(
             children: [
               TabBar(
-                  controller: langueController,
-                  indicatorPadding: const EdgeInsets.all(1),
-                  indicator: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.green,
-                  ),
-                  tabs: languageWidgets
+                controller: langueController,
+                indicatorPadding: const EdgeInsets.all(1),
+                indicator: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.green,
+                ),
+                tabs: languageWidgets
               ),
               Expanded(
-                  child: TabBarView(
-                    controller: langueController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: productTab,
-                  )
+                child: TabBarView(
+                  controller: langueController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: productTab,
+                )
               )
             ]
         ),

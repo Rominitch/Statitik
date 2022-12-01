@@ -79,10 +79,9 @@ class _ProductsListExplorerState extends State<ProductsListExplorer> with Single
     List<Widget> yearsTab = [];
     List<Widget> productsTab = [];
     for(var year in years){
-      yearsTab.add(Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text(year.toString()),
-      ));
+      yearsTab.add(ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: Environment.heightTabHeader),
+        child: Text(year.toString())));
 
       var filteredProduct = List.from(products)..removeWhere((product) => product.releaseDate.year != year);
       products.sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
@@ -107,14 +106,14 @@ class _ProductsListExplorerState extends State<ProductsListExplorer> with Single
     return Column(
       children: [
         TabBar(
-            controller: yearController,
-            indicatorPadding: const EdgeInsets.all(1),
-            indicator: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.blueAccent,
-            ),
-            isScrollable: true,
-            tabs: yearsTab
+          controller: yearController,
+          indicatorPadding: const EdgeInsets.all(1),
+          indicator: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.blueAccent,
+          ),
+          isScrollable: true,
+          tabs: yearsTab
         ),
         Expanded(
           child: TabBarView(

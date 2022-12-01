@@ -85,7 +85,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '2.2.3';
+    final String version = '2.2.4';
 
     // State
     bool isInitialized          = false;
@@ -108,6 +108,11 @@ class Environment
     SessionDraw? currentDraw;
 
     ImageStorage storage = ImageStorage();
+
+    static const double heightTabHeader     = 40.0;
+    static const double heightCircleAvatar  = 25.0;
+    static const double heightNewsCircle    = 36.0;
+    static const double heightlanguage      = 30.0;
 
     void initialize()
     {

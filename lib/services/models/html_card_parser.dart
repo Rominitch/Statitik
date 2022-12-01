@@ -404,10 +404,43 @@ class HtmlCardParser {
             if(nameNode!=null) {
               var p = abilities.first.getElementsByTagName("p");
               if(p.isNotEmpty) {
-                var p2 = p.first.nextElementSibling;
-                if(p2 != null) {
-                  htmlEffects.add(HTMLEffectsReader(nameNode.text, p2.text));
+                var p2 = p.first.getElementsByTagName("p");
+                String? description;
+                if(p2.isNotEmpty) {
+                  description = p2.first.text;
+                } else {
+                  if(p.first.text.isNotEmpty) {
+                    description = p.first.text;
+                  }
                 }
+                // Clean description
+                if(description != null && description.isNotEmpty) {
+                  String pattern = "<span class=\".*\">.*</span>";
+                  int start = 0;
+                  // Search
+                  do
+                  {
+                    var p = description!.indexOf(pattern, start);
+                    String finalDescription = description;
+                    if(p != -1) {
+                      finalDescription = finalDescription.replaceFirst(pattern, "<E:{}>");
+                      start = p+1;
+                    } else {
+                      start = -1;
+                    }
+                    description = finalDescription;
+                  }
+                  while(start != -1);
+                }
+
+                if(nameNode.text.length > 100) {
+                  printOutput("Ability: Effect reach limit: ${nameNode.text}");
+                }
+                if(description != null && description.length > 300) {
+                  printOutput("Ability: Description reach limit: $description");
+                }
+
+                htmlEffects.add(HTMLEffectsReader(nameNode.text, description));
               }
             }
           }
@@ -417,7 +450,7 @@ class HtmlCardParser {
           String description = "";
 
           var labelNode = ability.getElementsByClassName("left label");
-          if(labelNode.isNotEmpty) {
+          if(labelNode.isNotEmpty && labelNode.first.localName! == "h4") {
             title = labelNode.first.text;
           }
 
@@ -430,11 +463,19 @@ class HtmlCardParser {
           if(preItem.isNotEmpty) {
             var pItem = preItem.first.getElementsByTagName("p");
             if(pItem.isNotEmpty) {
-              description = pItem.first.text;
+              description = pItem.first.text.trim();
             } else {
-              description = preItem.first.text;
+              description = preItem.first.text.trim();
             }
           }
+
+          if(title.length > 100) {
+            printOutput("Effect reach limit: $title");
+          }
+          if(description.length > 300) {
+            printOutput("Description reach limit: $description");
+          }
+
           if(title.isNotEmpty || description.isNotEmpty) {
             htmlEffects.add(HTMLEffectsReader(title, description));
           }

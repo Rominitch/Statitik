@@ -82,17 +82,17 @@ class _CarouselNewsState extends State<CarouselNews> {
           width: MediaQuery.of(context).size.width,
           child: Column(
                 children: [
-                  Center( child: Text(newsItem.title, style: Theme.of(context).textTheme.headline5)),
+                  Center( child: Text(newsItem.title, style: Theme.of(context).textTheme.headline4)),
                   const SizedBox(height: 20),
                   SingleChildScrollView(
                     child: RichText(
-                        textAlign: TextAlign.justify,
-                        softWrap: true,
-                        maxLines: 20,
-                        text: TextSpan(
-                            style: const TextStyle(fontSize: 12),
-                            children: children
-                        )
+                      textAlign: TextAlign.justify,
+                      softWrap: true,
+                      maxLines: 20,
+                      text: TextSpan(
+                          style: const TextStyle(fontSize: 12),
+                          children: children
+                      )
                     )
                   ),
                   if(newsItem.images != null) Flexible(child: drawImagePress(context, newsItem.images!, 300)),
@@ -105,18 +105,18 @@ class _CarouselNewsState extends State<CarouselNews> {
     return Column(
       children: [
         CarouselSlider(
-            carouselController: _controller,
-            options: CarouselOptions(
-                height: min(MediaQuery.of(context).size.height/2, 600),
-                enableInfiniteScroll: false,
-                enlargeCenterPage: true,
-                onPageChanged: (index, reason) {
-                  setState(() {
-                    _current = index;
-                  });
-                }
-            ),
-            items:   newsWidget
+          carouselController: _controller,
+          options: CarouselOptions(
+            height: min(MediaQuery.of(context).size.height/2, 600),
+            enableInfiniteScroll: false,
+            enlargeCenterPage: true,
+            onPageChanged: (index, reason) {
+              setState(() {
+                _current = index;
+              });
+            }
+          ),
+          items:   newsWidget
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -124,15 +124,15 @@ class _CarouselNewsState extends State<CarouselNews> {
             return GestureDetector(
               onTap: () => _controller.animateToPage(entry.key),
               child: Container(
-                width: 12.0,
-                height: 12.0,
-                margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                width: Environment.heightNewsCircle,
+                height: Environment.heightNewsCircle,
+                margin: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 6.0),
                 decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: (Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white
-                        : Colors.black)
-                        .withOpacity(_current == entry.key ? 0.9 : 0.4)),
+                  shape: BoxShape.circle,
+                  color: (Theme.of(context).brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black)
+                      .withOpacity(_current == entry.key ? 0.9 : 0.4)),
               ),
             );
           }).toList(),
