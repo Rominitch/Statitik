@@ -51,6 +51,7 @@ class CardImage extends StatefulWidget {
         val = val.replaceAll(key, value);
       }
       if( alternative ) {
+        val = val.replaceAll("ッチ", "TCHI");
         val = val.replaceAll("ャ", "XYA");
         val = val.replaceAll("ュ", "XYU");
         val = val.replaceAll("ョ", "XYO");
