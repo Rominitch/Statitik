@@ -38,7 +38,7 @@ class StatitikException implements Exception {
 
 class Database
 {
-    final String version = '3.4';
+    final String version = '3.5';
     final ConnectionSettings settings = createConnection();
 
     Future<bool> transactionR(Future Function(TransactionContext) queries) async
@@ -85,7 +85,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '2.2.4';
+    final String version = '2.2.8';
 
     // State
     bool isInitialized          = false;
@@ -694,6 +694,64 @@ class Environment
             }
         }
         return id;
+    }
+
+    Future<bool> duplicateProducts(Product product) async {
+
+        // Need world
+        if( !product.language!.isWorld() ) {
+          return false;
+        }
+
+        // All world languages
+        var languages = [collection.languages[1], collection.languages[2]];
+        // Remove current
+        languages.remove(product.language!);
+
+        List<Product> products = [];
+        for( var newLanguage in languages) {
+            // Copy Booster
+            List<ProductBooster> boosters = [];
+            for(var booster in product.boosters) {
+                SubExtension? subExtension;
+                if( booster.subExtension != null ) {
+                    // Search subextension with same extension cards in new language
+                    subExtension = collection.subExtensions.values.firstWhere((element) {
+                        return element.extension.language == newLanguage && booster.subExtension!.seCards == element.seCards;
+                    });
+                }
+
+                var newBooster = ProductBooster(subExtension, booster.nbBoosters, booster.nbCardsPerBooster);
+                boosters.add(newBooster);
+            }
+            Product newProduct = Product(0, newLanguage, product.name, product.imageURL, product.releaseDate, product.category, boosters);
+
+            // Cards
+            for(var card in product.otherCards) {
+                // Search subextension with same extension cards in new language
+                SubExtension? subExtension = collection.subExtensions.values.firstWhere((element) {
+                    return element.extension.language == newLanguage && card.subExtension.seCards == element.seCards;
+                });
+                if(subExtension == null) {
+                    printOutput("Impossible to find card SubExtension: ${card.subExtension.name}");
+                } else {
+                    ProductCard newCard = ProductCard(
+                        subExtension, card.idCard, card.design, card.jumbo,
+                        card.isRandom, card.counter);
+                    newProduct.otherCards.add(newCard);
+                }
+            }
+
+            // Other products
+            for(var other in product.sideProducts.entries) {
+                newProduct.sideProducts[other.key] = other.value;
+            }
+
+            products.add(newProduct);
+        }
+
+        // Send to DB
+        return sendProducts(products, true);
     }
 
     Future<bool> sendProducts(List<Product> products, bool creation) async {

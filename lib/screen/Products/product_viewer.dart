@@ -167,7 +167,7 @@ class _ProductViewerState extends State<ProductViewer> with TickerProviderStateM
                                 ),
                               ),
                             ),
-                            if(cards.isNotEmpty) Card(
+                            if(widget.product.sideProducts.isNotEmpty) Card(
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(
@@ -186,21 +186,23 @@ class _ProductViewerState extends State<ProductViewer> with TickerProviderStateM
                                         var sideProduct = widget.product.sideProducts.keys.elementAt(id);
                                         var info = widget.product.sideProducts[sideProduct];
                                         if( sideProduct.imageURL.isEmpty ) {
-                                          return Card(child: Column(
-                                              children: [
-                                                if(sideProduct.category != null) Text(sideProduct.category!.name.name(widget.language)),
-                                                Text(sideProduct.name, style: Theme.of(context).textTheme.headline5),
-                                                Text(info.toString()),
-                                              ]
-                                            )
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              if(sideProduct.category != null) Text(sideProduct.category!.name.name(widget.language)),
+                                              Text(sideProduct.name, style: Theme.of(context).textTheme.headline5),
+                                              Text(info.toString()),
+                                            ]
                                           );
                                         } else {
-                                          return Card(child: Column(
-                                              children: [
-                                                sideProduct.image(),
-                                                Text(info.toString()),
-                                              ]
-                                            )
+                                          return Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              sideProduct.image(),
+                                              Text(info.toString()),
+                                            ]
                                           );
                                         }
                                       },

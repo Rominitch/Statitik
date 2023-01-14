@@ -439,6 +439,8 @@ Images and illustrations used are the property of their respective authors.\n
       'PV_B4':   'Images',
       'PV_B5':   'Information',
       'PV_B6':   'Goodies',
+      'NP_T0':   'New product',
+      'NP_T1':   'Edition',
     },
     'fr': {
       'H_T0': 'PokéSpace',
@@ -583,6 +585,7 @@ Les images et illustrations utilisées sont la propriété de leurs auteurs resp
       'DB_1': 'Le programme n\'est plus à jour.\nInstallez les mises à jour grâce au Play Store (peut mettre du temps a être détecté).\n\nExcusez nous pour la gêne occasionnée.',
       'DB_2': 'Le programme / base de données sont en maintenance.\nVeuillez réessayer dans une heure.\n\nExcusez nous pour la gêne occasionnée.',
       'NP_T0': 'Nouveau produit',
+      'NP_T1': 'Edition',
       'RE_B0': 'Meilleures cartes',
       'RE_B1': 'Partage',
       'RE_B2': 'Le rapport a été exporté dans Images.',

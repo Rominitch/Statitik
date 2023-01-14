@@ -34,9 +34,9 @@ class ProductSide extends ProductGeneric
   ProductSide(idDB, category, name, imageURL, releaseDate) : super(idDB, category, name, imageURL, releaseDate);
 
   @override
-  Widget image()
+  Widget image({alternativeRendering})
   {
-    return drawCachedImage('sideProducts', imageURL, height: 70);
+    return drawCachedImage('sideProducts', imageURL, height: 70, alternativeRendering: alternativeRendering);
   }
 }
 

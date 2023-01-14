@@ -59,7 +59,7 @@ class _ProductsListExplorerState extends State<ProductsListExplorer> with Single
                   children: [
                     Text(product.category!.name.name(widget.language)),
                     const Spacer(),
-                    Text(product.name, style: Theme.of(context).textTheme.headline5),
+                    Text(product.name, style: product.name.length < 25.0 ? Theme.of(context).textTheme.headline5 : Theme.of(context).textTheme.headline6),
                     const Spacer(),
                   ],
                 )
@@ -81,7 +81,13 @@ class _ProductsListExplorerState extends State<ProductsListExplorer> with Single
     for(var year in years){
       yearsTab.add(ConstrainedBox(
         constraints: const BoxConstraints(minHeight: Environment.heightTabHeader),
-        child: Text(year.toString())));
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(year.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+          ],
+        )));
 
       var filteredProduct = List.from(products)..removeWhere((product) => product.releaseDate.year != year);
       products.sort((a, b) => b.releaseDate.compareTo(a.releaseDate));

@@ -150,7 +150,7 @@ class DeckStatisticWidget extends StatelessWidget {
                               child:Text(StatitikLocale.of(context).read('PSMDC_B11'), style: Theme.of(context).textTheme.headline6),
                             ),
                             Text("${deck.stats.hpStats!.minV}"),
-                            Text("${deck.stats.hpStats!.sum/deck.stats.hpStats!.count}"),
+                            Text("${(deck.stats.hpStats!.sum/deck.stats.hpStats!.count).round()}"),
                             Text("${deck.stats.hpStats!.maxV}"),
                           ]
                         ),
@@ -162,7 +162,7 @@ class DeckStatisticWidget extends StatelessWidget {
                               child: Text(StatitikLocale.of(context).read('PSMDC_B16'), style: Theme.of(context).textTheme.headline6),
                             ),
                             Text("${deck.stats.retreatStats!.minV}"),
-                            Text("${deck.stats.retreatStats!.sum/deck.stats.retreatStats!.count}"),
+                            Text("${(deck.stats.retreatStats!.sum/deck.stats.retreatStats!.count).round()}"),
                             Text("${deck.stats.retreatStats!.maxV}"),
                           ]
                         ),

@@ -114,10 +114,10 @@ class _NewProductPageState extends State<NewProductPage> {
       Environment.instance.sendProducts([product], widget.editProduct == null).then((value) {
         if(value) {
           // Reload all products and admin stuff
-          Environment.instance.restoreAdminData();
-
-          EasyLoading.dismiss();
-          Navigator.popUntil(context, ModalRoute.withName('/'));
+          Environment.instance.restoreAdminData().then((value) {
+            EasyLoading.dismiss();
+            Navigator.popUntil(context, ModalRoute.withName('/'));
+          });
         } else {
           EasyLoading.showError("Erreur produit");
         }
@@ -125,6 +125,28 @@ class _NewProductPageState extends State<NewProductPage> {
       }).onError((errorInfo, stackTrace) {
         error = errorInfo.toString();
         EasyLoading.showError(error!);
+      });
+    }
+  }
+
+  void duplicateProduct() {
+    if ( product.validate() && _formKey.currentState!.validate()) {
+      EasyLoading.show();
+
+      Environment.instance.duplicateProducts(product).then((value) {
+      if(value) {
+        // Reload all products and admin stuff
+        Environment.instance.restoreAdminData().then((value) {
+          EasyLoading.dismiss();
+          Navigator.popUntil(context, ModalRoute.withName('/'));
+        });
+      } else {
+        EasyLoading.showError("Erreur produit");
+      }
+
+      }).onError((errorInfo, stackTrace) {
+      error = errorInfo.toString();
+      EasyLoading.showError(error!);
       });
     }
   }
@@ -297,8 +319,16 @@ class _NewProductPageState extends State<NewProductPage> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child:Scaffold(
         appBar: AppBar(
-          title: Text(StatitikLocale.of(context).read('NP_T0')),
+          title: Text(StatitikLocale.of(context).read( widget.editProduct != null ? 'NP_T1' : 'NP_T0')),
           actions: [
+            if(widget.editProduct != null && widget.editProduct!.language!.isWorld())
+              Card(
+                color: Colors.pink.shade900,
+                child: TextButton(
+                  onPressed: duplicateProduct,
+                  child: const Text('Copie\nMonde', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ),
             if(product.category != null && product.language != null)
               Card(
                 color: Colors.green,
@@ -414,8 +444,9 @@ class _SideProductCountState extends State<SideProductCount> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          widget.productSide.image(),
-          Text(widget.productSide.name, softWrap: true, style: Theme.of(context).textTheme.headline6),
+          widget.productSide.image(
+              alternativeRendering: Text(widget.productSide.name, softWrap: true, style:Theme.of(context).textTheme.headline6)
+          ),
           SpinBox(
             value: widget.product.sideProducts[widget.productSide]!.toDouble(),
             min: 0,

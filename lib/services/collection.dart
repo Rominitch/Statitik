@@ -385,7 +385,7 @@ class Collection
         }
       }
       time.tick("Descriptions");
-      assert(descriptions.isNotEmpty);
+      //assert(descriptions.isNotEmpty);
 
       var effectRes = await connection.query("SELECT * FROM `EffetsCarte`");
       for (var row in effectRes) {
@@ -399,6 +399,7 @@ class Collection
       assert(effects.isNotEmpty);
 
       // Read cards info
+      int countCardEffectIssue = 0;
       var cardsReq = await connection.query("SELECT * FROM `Cartes`");
       for (var row in cardsReq) {
         // 0 = id
@@ -449,12 +450,20 @@ class Collection
         }
         //Extract effects
         if( effects != null ) {
-          for (var element in effects.effects) {
-            if( element.description != null ) {
-              element.description!.computeDescriptionEffects(descriptions, languages[1]);
+          try {
+            for (var element in effects.effects) {
+              if (element.description != null) {
+                element.description!.computeDescriptionEffects(
+                    descriptions, languages[1]);
+              }
             }
+            p.cardEffects = effects;
+          } catch(e) {
+            // Reset effect
+            //printOutput("Reset effect of card id ${row[0]}");
+            countCardEffectIssue += 1;
+            p.cardEffects = CardEffects();
           }
-          p.cardEffects = effects;
         }
         //Extract illustrator
         if( illustrator != null ) {
@@ -462,6 +471,8 @@ class Collection
         }
         pokemonCards[row[0]] = p;
       }
+
+      printOutput("Effect with issue: $countCardEffectIssue");
 
       if(!Environment.instance.onInfoLoading.isClosed) {
         Environment.instance.onInfoLoading.add('LOAD_3');
@@ -888,7 +899,7 @@ class Collection
       var nextIdReq = await connection.query(
           "SELECT MAX(`idDescription`) as maxId FROM `Description`;");
       for (var row in nextIdReq) {
-        nextId = row[0];
+        nextId = row[0] ?? 0;
       }
       nextId += 1;
       //printOutput("Next id of card is $nextId");

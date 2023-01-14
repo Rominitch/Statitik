@@ -147,10 +147,10 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
                               setState(() {
                                 // Insert new card
                                 for(var cEx in value.cards) {
-                                  var count = CodeDraw.fromPokeCardExtension(cEx);
+                                  var count = CodeDraw.fromPokeCardExtension(value.subExtension.cardFromId(cEx));
                                   count.setCount(1, 0);
-                                  DeckCardInfo cardInfo = DeckCardInfo(value.subExtension, value.subExtension.seCards.computeIdCard(cEx), count);
-                                  widget.deck.cards.add(cardInfo);
+                                  DeckCardInfo deckCardInfo = DeckCardInfo(value.subExtension, cEx, count);
+                                  widget.deck.cards.add(deckCardInfo);
                                 }
                                 // Update stats
                                 widget.deck.computeStats();
@@ -162,23 +162,6 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
                         },
                       )
                     ),
-                    /*
-                    Card(
-                      color: Colors.grey,
-                      child: TextButton(
-                        child: Column(
-                          children: [
-                            Icon(Icons.filter_alt_outlined),
-                            SizedBox(height: 4.0),
-                            Text(StatitikLocale.of(context).read('PSMDC_B8')),
-                          ]
-                        ),
-                        onPressed: () {
-
-                        },
-                      )
-                    )
-                    */
                   ],
                 ),
               )

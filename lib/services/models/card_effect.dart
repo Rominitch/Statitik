@@ -5,6 +5,7 @@ import 'package:statitikcard/services/models/bytes_coder.dart';
 import 'package:statitikcard/services/models/card_title_data.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/multi_language_string.dart';
+import 'package:statitikcard/services/models/pokemon_card_data.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/models/models.dart';
 
@@ -59,28 +60,31 @@ class CardDescription {
 
   void computeDescriptionEffects(Map descriptionCollection, Language l) {
     // Combine and extract info
-    RegExp exp = RegExp(r"(.*?)<(.?:\{\d+\})>(.*)", unicode: true);
+    RegExp exp = RegExp(r"(.*?)<(.?:[{\d+}|]+)>(.*)", unicode: true);
     int count=0;
 
     effects.clear();
 
     DescriptionData data = descriptionCollection[idDescription];
-    for (var element in data.markers) { if(!effects.contains(element)) effects.add(element); }
+    for (var element in data.markers) {
+      if (!effects.contains(element)) effects.add(element);
+    }
 
     String toAnalyze = data.name(l);
-    while(toAnalyze.isNotEmpty) {
+    while (toAnalyze.isNotEmpty) {
       var match = exp.firstMatch(toAnalyze);
-      if( match != null ) {
+      if (match != null) {
         toAnalyze = "";
         var code = match.group(2)!.split(":");
-        assert(code.length==2);
-        if( code[0] == "D" ) {
+        assert(code.length == 2);
+        if (code[0] == "D") {
           DescriptionData data = descriptionCollection[int.parse(code[1])];
-          for (var element in data.markers) { if(!effects.contains(element)) effects.add(element); }
-
+          for (var element in data.markers) {
+            if (!effects.contains(element)) effects.add(element);
+          }
           toAnalyze += data.name(l);
-        } else if( code[0] == "E" || code[0] == "P" || code[0] == "A") {
-        } else {
+        } else if (code[0] == "E" || code[0] == "P" || code[0] == "A" ||
+            code[0] == "R") {} else {
           throw StatitikException("Error of code");
         }
         toAnalyze += match.group(3)!;
@@ -88,7 +92,7 @@ class CardDescription {
         break;
       }
       count += 1;
-      if(count > 30) throw StatitikException("Loop detector");
+      if (count > 30) throw StatitikException("Loop detector");
     }
   }
 
@@ -112,7 +116,7 @@ class CardDescription {
     return result;
   }
 
-  Widget toWidget(Map descriptionCollection, Map pokemonCollection, Map effectCollection, Language l)
+  Widget toWidget(Map descriptionCollection, Map pokemonCollection, Map effectCollection, Map regionCollection, Language l)
   {
     var current = decrypted(descriptionCollection, l);
 
@@ -133,6 +137,13 @@ class CardDescription {
           String effectCode = finalText.substring(2);
           var effect = effectCollection[int.parse(effectCode)];
           children.add(TextSpan(text: effect.name(l)));
+        } else if(itString.current.startsWith("R:")) {
+          final info = finalText.substring(2).split("|");
+          assert(info.length == 2);
+          final pokemonId = pokemonCollection[int.parse(info[0])];
+          final region    = regionCollection[int.parse(info[1])];
+          final pokemonName = Pokemon(pokemonId, region: region);
+          children.add(TextSpan(text: pokemonName.titleOfCard(l)));
         } else {
           children.add(TextSpan(text: finalText));
         }
@@ -146,7 +157,7 @@ class CardDescription {
     DecryptedString s = DecryptedString();
 
     // Combine and extract info
-    RegExp exp = RegExp(r"(.*?)<(.?:\{\d+\})>(.*)", unicode: true);
+    RegExp exp = RegExp(r"(.*?)<(.?:[{\d+}|]+)>(.*)", unicode: true);
 
     s.finalString.add("");
     int count=0;
@@ -172,6 +183,9 @@ class CardDescription {
             s.finalString.add(""); // New string to cumulate
           } else if( code[0] == "A" ) {
             s.finalString.add("A:${code[1]}");
+            s.finalString.add(""); // New string to cumulate
+          } else if( code[0] == "R" ) {
+            s.finalString.add("R:${code[1]}");
             s.finalString.add(""); // New string to cumulate
           } else {
             throw StatitikException("Error of code");
