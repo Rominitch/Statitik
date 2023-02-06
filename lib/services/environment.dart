@@ -85,7 +85,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '2.2.8';
+    final String version = '2.3.1';
 
     // State
     bool isInitialized          = false;
@@ -158,6 +158,7 @@ class Environment
                                 printOutput("admin is launched !");
                                 onInfoLoading.add('LOAD_2');
                                 collection.adminReverse();
+                                collection.databaseSafety();
                             } else {
                                 if(isMaintenance) {
                                     throw StatitikException('DB_2');
@@ -232,6 +233,8 @@ class Environment
         await db.transactionR( collection.migration );
         // Finalize data
         collection.adminReverse();
+        // Security
+        collection.databaseSafety();
         // Change poke space
         user!.pokeSpace = PokeSpace();
         await readPokeSpace();
@@ -304,38 +307,44 @@ class Environment
             await db.transactionR( (connection) async {
                 String query = 'SELECT `pokespace` FROM `Utilisateur` WHERE `idUtilisateur` = \'${user!.idDB}\';';
                 var reqUser = await connection.query(query);
-                assert( reqUser.length == 1 );
+                if(reqUser.isEmpty) {
+                    // Disconnect user
+                    printOutputError("User invalid: ${user!.idDB}");
+                    user = null;
+                } else {
+                    assert( reqUser.length == 1 );
 
-                for (var row in reqUser) {
-                    if(row[0] != null) {
-                      user!.pokeSpace = PokeSpace.fromBytes((row[0] as Blob).toBytes(),
-                            collection.subExtensions,
-                            collection.products, collection.productSides);
-                    } else {
-                        // Retrieve from draw (do one time)
-                        String query = 'SELECT `idSousExtension`, `cartesBin`'
-                            ' FROM `TirageBooster`, `UtilisateurProduit`'
-                            ' WHERE `idUtilisateur` = \'${user!.idDB}\''
-                            ' AND `TirageBooster`.`idAchat` = `UtilisateurProduit`.`idAchat`;';
-                        var reqUser = await connection.query(query);
-                        for (var row in reqUser) {
-                            var subExt = collection.subExtensions[row[0]]!;
-                            var bytes = (row[1] as Blob).toBytes().toList();
-                            ExtensionDrawCards edc = ExtensionDrawCards.fromBytes(subExt, bytes);
+                    for (var row in reqUser) {
+                        if(row[0] != null) {
+                          user!.pokeSpace = PokeSpace.fromBytes((row[0] as Blob).toBytes(),
+                                collection.subExtensions,
+                                collection.products, collection.productSides);
+                        } else {
+                            // Retrieve from draw (do one time)
+                            String query = 'SELECT `idSousExtension`, `cartesBin`'
+                                ' FROM `TirageBooster`, `UtilisateurProduit`'
+                                ' WHERE `idUtilisateur` = \'${user!.idDB}\''
+                                ' AND `TirageBooster`.`idAchat` = `UtilisateurProduit`.`idAchat`;';
+                            var reqUser = await connection.query(query);
+                            for (var row in reqUser) {
+                                var subExt = collection.subExtensions[row[0]]!;
+                                var bytes = (row[1] as Blob).toBytes().toList();
+                                ExtensionDrawCards edc = ExtensionDrawCards.fromBytes(subExt, bytes);
 
-                            user!.pokeSpace.add(subExt, edc);
+                                user!.pokeSpace.add(subExt, edc);
+                            }
+
+                            // Added product
+                            String queryProd = 'SELECT `idProduit`'
+                                ' FROM `UtilisateurProduit`'
+                                ' WHERE `idUtilisateur` = \'${user!.idDB}\';';
+                            var reqProdUser = await connection.query(queryProd);
+                            for (var row in reqProdUser) {
+                                user!.pokeSpace.insertProduct(collection.products[row[0]]!, UserProductCounter.fromOpened());
+                            }
+                            // Finally compute all stats
+                            user!.pokeSpace.computeStats();
                         }
-
-                        // Added product
-                        String queryProd = 'SELECT `idProduit`'
-                            ' FROM `UtilisateurProduit`'
-                            ' WHERE `idUtilisateur` = \'${user!.idDB}\';';
-                        var reqProdUser = await connection.query(queryProd);
-                        for (var row in reqProdUser) {
-                            user!.pokeSpace.insertProduct(collection.products[row[0]]!, UserProductCounter.fromOpened());
-                        }
-                        // Finally compute all stats
-                        user!.pokeSpace.computeStats();
                     }
                 }
             });

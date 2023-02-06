@@ -18,7 +18,14 @@ class CardSet {
   const CardSet(this.names, this.color, this.image, this.isSystem, this.isParallel, this.replaceRevertIntoBooster);
 
   Widget imageWidget({double? width, double? height}){
-    return Image(image: AssetImage('assets/carte/$image.png'), width: width, height: height);
+    try {
+      var imageAsset = AssetImage('assets/carte/$image.png');
+      return Image(image: imageAsset, width: width, height: height);
+    }
+    catch(e)
+    {
+      return const Icon(Icons.help_outline);
+    }
   }
 
 }

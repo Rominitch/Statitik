@@ -6,14 +6,12 @@ import 'package:statitikcard/services/models/card_title_data.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/multi_language_string.dart';
 import 'package:statitikcard/services/models/pokemon_card_data.dart';
-import 'package:statitikcard/services/models/type_card.dart';
 
 void main() {
   test('CardDescription.noExtract', () {
     Language fr = Language(id: 1, image: "");
     Language en = Language(id: 2, image: "");
     Language jp = Language(id: 3, image: "");
-    TypeCard t5 = TypeCard.psy;
 
     Map<int, DescriptionData> map =
     {

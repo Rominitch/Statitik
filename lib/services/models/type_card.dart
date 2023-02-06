@@ -21,16 +21,17 @@ enum TypeCard {
   energy,
   unknown,
   marker,
+  objetPokemon,
 }
 const List<TypeCard> orderedType = [
   TypeCard.unknown, TypeCard.plante, TypeCard.feu, TypeCard.eau, TypeCard.electrique, TypeCard.psy,
   TypeCard.combat, TypeCard.obscurite, TypeCard.metal, TypeCard.fee,
-  TypeCard.dragon, TypeCard.incolore, TypeCard.objet, TypeCard.supporter, TypeCard.stade, TypeCard.energy,
+  TypeCard.dragon, TypeCard.incolore, TypeCard.objet, TypeCard.objetPokemon, TypeCard.supporter, TypeCard.stade, TypeCard.energy,
   TypeCard.marker,
 ];
 
 bool isPokemonCard(TypeCard type) {
-  const List<TypeCard> notPokemon = [TypeCard.objet, TypeCard.supporter, TypeCard.stade, TypeCard.energy, TypeCard.marker];
+  const List<TypeCard> notPokemon = [TypeCard.objet, TypeCard.objetPokemon, TypeCard.supporter, TypeCard.stade, TypeCard.energy, TypeCard.marker];
   return !notPokemon.contains(type);
 }
 
@@ -51,6 +52,7 @@ const Map imageName = {
 bool isPokemonType(type) {
   return type != TypeCard.energy
       && type != TypeCard.objet
+      && type != TypeCard.objetPokemon
       && type != TypeCard.supporter
       && type != TypeCard.stade
       && type != TypeCard.marker;
@@ -70,7 +72,8 @@ const List<Color> generationColor = [
   Colors.amber, Colors.brown, Colors.deepPurpleAccent, Colors.teal
 ];
 
-List<Color> typeColors = energiesColors + [const Color(0xFF1976D2), const Color(0xFFC62828), const Color(0xFFB9F6CA), const Color(0xFFFFFF8D), Colors.black, Colors.greenAccent];
+List<Color> typeColors = energiesColors + [const Color(0xFF1976D2), const Color(0xFFC62828), const Color(0xFFB9F6CA), const Color(0xFFFFFF8D),
+  Colors.black, Colors.greenAccent, Colors.deepPurple];
 
 Widget energyImage(TypeCard type, {double sizeIcon = iconSize}) {
   assert (type != TypeCard.unknown);
@@ -95,6 +98,9 @@ Widget getImageType(TypeCard type, {bool generate=false, double? sizeIcon})
     switch(type) {
       case TypeCard.objet:
         iconWidget = Icon(Icons.build, color: Colors.blueAccent, size: sizeIcon);
+        break;
+      case TypeCard.objetPokemon:
+        iconWidget = Icon(Icons.build, color: Colors.deepPurple, size: sizeIcon);
         break;
       case TypeCard.stade:
         iconWidget = Icon(Icons.landscape, color: Colors.green[700], size: sizeIcon);

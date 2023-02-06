@@ -271,6 +271,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
       }
       count += 1.0;
     }
+    EasyLoading.dismiss();
   }
 
   @override
@@ -296,7 +297,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                  ? databaseCardId.toString()
                  : StatitikLocale.of(context).read('CA_B29');
 
-      const newResistances = <int>[3, 6, 9];
+      const newResistances = <int>[3, 6, 9, 12, 13, 14];
       int defaultResistance = newResistances.contains(widget.se.extension.id) ? 30 : 20;
 
       List<Widget> cardInfo = [];
@@ -627,6 +628,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                       fillEffects().then((value) {
                         EasyLoading.dismiss();
                         if(widget.onNeedRefresh != null) {
+                          EasyLoading.dismiss();
                           widget.onNeedRefresh!();
                         }
                       }).onError((error, stackTrace) {

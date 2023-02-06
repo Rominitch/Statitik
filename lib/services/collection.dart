@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:mysql1/mysql1.dart';
@@ -87,6 +88,7 @@ class Collection
   Map rSets            = {};
   Map rRarities        = {};
   Map rMarkers         = {};
+  List<int> cardIssues = [];
 
   void clear() {
     languages.clear();
@@ -133,6 +135,7 @@ class Collection
     rSets.clear();
     rRarities.clear();
     rMarkers.clear();
+    cardIssues.clear();
   }
 
   List<Extension> getExtensions(Language language) {
@@ -421,7 +424,14 @@ class Collection
           ByteParser nameBytes = ByteParser((row[1] as Blob).toBytes().toList());
 
           while(nameBytes.canParse) {
-            namePokemons.add(Pokemon.fromBytes(nameBytes, this));
+            try
+            {
+              var name = Pokemon.fromBytes(nameBytes, this);
+              namePokemons.add(name);
+            } catch(e) {
+              cardIssues.add(row[0]);
+              printOutputError("DB ${row[0]} - Pokémon/Trainer name was deleted.");
+            }
           }
         }
 
@@ -472,7 +482,9 @@ class Collection
         pokemonCards[row[0]] = p;
       }
 
-      printOutput("Effect with issue: $countCardEffectIssue");
+      if(countCardEffectIssue > 0) {
+        printOutputError("Effect with issue: $countCardEffectIssue");
+      }
 
       if(!Environment.instance.onInfoLoading.isClosed) {
         Environment.instance.onInfoLoading.add('LOAD_3');
@@ -493,11 +505,12 @@ class Collection
             });
           }
 
+          var cardByteInfo = row[1] != null ? (row[1] as Blob).toBytes().toList() : null;
           var energyList   = row[3] != null ? (row[3] as Blob).toBytes().toList() : null;
           var noNumberList = row[4] != null ? (row[4] as Blob).toBytes().toList() : null;
 
-          cardsExtensions[row[0]] = (row[1] != null)
-              ? SubExtensionCards.build((row[1] as Blob).toBytes().toList(), codeNaming, pokemonCards, sets, rarities, row[5], energyList, noNumberList)
+          cardsExtensions[row[0]] = cardByteInfo != null
+              ? SubExtensionCards.build(cardByteInfo, codeNaming, pokemonCards, sets, rarities, row[5], energyList, noNumberList)
               : SubExtensionCards.emptyDraw(codeNaming, row[5], sets);
         } catch(e, callStack) {
           var msg = e is StatitikException ? e.msg : e.toString();
@@ -568,6 +581,34 @@ class Collection
     rSets            = sets.map((k, v)            => MapEntry(v, k));
     rRarities        = rarities.map((k, v)        => MapEntry(v, k));
     rMarkers         = markers.map((k, v)         => MapEntry(v, k));
+  }
+
+  void databaseSafety() {
+    // Check data integrity
+    if(kDebugMode && cardIssues.isNotEmpty) {
+      try {
+        for (var seCard in cardsExtensions.entries) {
+          int countCard = 1;
+          if(seCard.value.isValid) {
+            for (var listCard in seCard.value.cards) {
+              for (var card in listCard) {
+                try {
+                  int id = rPokemonCards[card.data];
+                  if (cardIssues.contains(id)) {
+                    printOutputError("Issue Naming: ${seCard.key} - $countCard");
+                  }
+                } catch( e ) {
+                  printOutputError("Issue not found: ${seCard.key} - $countCard");
+                }
+              }
+              countCard += 1;
+            }
+          }
+        }
+      } catch (e) {
+        printOutputError("databaseSafety crash !");
+      }
+    }
   }
 
   Future<bool> saveDatabase(PokemonCardData card, int nextId, connection) async {
@@ -814,7 +855,7 @@ class Collection
   }
 
   Future<void> removeListCards(List<List<int>> cardId, connection) async {
-    var query = 'DELETE FROM `cartes` WHERE (`idCartes` = ?)';
+    var query = 'DELETE FROM `Cartes` WHERE (`idCartes` = ?)';
     await connection.queryMulti(query, cardId);
   }
 

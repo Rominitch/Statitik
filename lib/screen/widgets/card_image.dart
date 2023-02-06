@@ -82,7 +82,7 @@ class CardImage extends StatefulWidget {
 
       card.data.markers.markers.firstWhere((element) {
         if(element.toTitle) {
-          romajiName += element.name.name(se.extension.language).toUpperCase();
+          romajiName += element.titleName(se.extension.language);
         }
         return element.toTitle;
       });

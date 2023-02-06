@@ -84,6 +84,12 @@ Widget drawImage(BuildContext context, String image, double imgHeight) {
   return Image(image: AssetImage("assets/$image"), height: finalH);
 }
 
+void printOutputError(String s) {
+  if (kDebugMode) {
+    print("\x1B[31m📕 $s\x1B[0m");
+  }
+}
+
 void printOutput(String s) {
   if (kDebugMode) {
     print(s);

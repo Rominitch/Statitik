@@ -100,7 +100,8 @@ class HtmlCardParser {
       usAbilities = await getUSDescription(seWorld!, cardIdWorld!);
 
       if(frAbilities.length != usAbilities.length) {
-        printOutput("Abilities FR/US are not matched");
+        printOutputError("Abilities FR/US are not matched");
+        throw Exception("Need investigate");
       }
     } else {
       printOutput("No World card found");
@@ -176,7 +177,8 @@ class HtmlCardParser {
       var parserUs = usAbilities.iterator;
 
       if(seWorld != null && frAbilities.length != htmlEffects.length) {
-        printOutput("Abilities FR/JP are not matched");
+        printOutputError("Abilities FR/JP are not matched");
+        throw Exception("Need investigate");
       }
 
       for(var htmlEffect in htmlEffects) {
@@ -202,7 +204,7 @@ class HtmlCardParser {
             if(type != null) {
               effect.attack.add(type);
             } else {
-              printOutput("Impossible to find type '$idType' from ${htmlPage.path}");
+              printOutputError("Impossible to find type '$idType' from ${htmlPage.path}");
               return false;
             }
           }
@@ -337,16 +339,17 @@ class HtmlCardParser {
           if(pokeMatches != null) {
             assert(pokeMatches.groupCount == 3);
             String injection = "";
-            if(pokeMatches.group(1) != null) {
+            var regionFind = pokeMatches.group(1);
+            if(regionFind != null && regionFind.isNotEmpty) {
               // Search region
-              int regionId = 0;
-              var regionFind = pokeMatches.group(1)!;
+              int regionId = -1;
               for(MapEntry region in Environment.instance.collection.regions.entries) {
                 if(regionFind == region.value.name(language)) {
                   regionId = region.key;
                   break;
                 }
               }
+              assert(regionId != -1);
               injection = "「<R:{}|{}>";
               codes[match.start] = pokeEntry.key;
               codes[match.end]   = regionId;

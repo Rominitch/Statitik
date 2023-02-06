@@ -14,6 +14,11 @@ class CardMarker
 
   const CardMarker(this.name, this.color, this.toTitle);
 
+  String titleName(Language l) {
+    var title = name.name(l);
+    return title.toUpperCase().replaceAll("_SV", "");
+  }
+
   Widget icon(Language l, {height}) {
     var val = name.name(l);
     return drawCachedImage('logo', val, height: height,

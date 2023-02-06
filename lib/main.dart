@@ -12,6 +12,8 @@ import 'package:statitikcard/services/internationalization.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
+  //debugRepaintRainbowEnabled = true;
+
   RendererBinding.instance.setSemanticsEnabled(true);
   configureEasyLoading();
 

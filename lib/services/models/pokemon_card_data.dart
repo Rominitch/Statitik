@@ -8,6 +8,7 @@ import 'package:statitikcard/services/models/marker.dart';
 import 'package:statitikcard/services/models/multi_language_string.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/type_card.dart';
+import 'package:statitikcard/services/tools.dart';
 
 /// Pokemon region
 class Region {
@@ -46,18 +47,20 @@ class Pokemon {
   Pokemon(this.name, {this.region, this.forme});
 
   static Pokemon fromBytes(ByteParser parser, collection) {
-    int idName = parser.extractInt16();
+    // Extract all leave parser in good state if issue
+    int idName   = parser.extractInt16();
+    int idForme  = parser.extractInt8();
+    int idRegion = parser.extractInt8();
     assert(idName != 0);
 
     Pokemon p = Pokemon(idName < 10000
-              ? collection.getPokemonID(idName)
-              : collection.getNamedID(idName));
-    int idRegion = parser.extractInt8();
+          ? collection.getPokemonID(idName)
+          : collection.getNamedID(idName));
+
     if(idRegion > 0) {
       p.region = collection.regions[idRegion];
     }
 
-    int idForme  = parser.extractInt8();
     if(idForme > 0) {
       p.forme = collection.formes[idForme];
     }

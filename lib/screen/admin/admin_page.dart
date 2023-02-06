@@ -50,7 +50,6 @@ class _AdminPageState extends State<AdminPage> {
         builder: (_) => AlertDialog(
             title: Text(StatitikLocale.of(context).read('warning')),
             content: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text( sprintf(StatitikLocale.of(context).read('CA_B33'), [orphans.length]),
                       textAlign: TextAlign.justify),
@@ -59,15 +58,25 @@ class _AdminPageState extends State<AdminPage> {
                       child: TextButton(
                           child: Text(StatitikLocale.of(context).read('yes')),
                           onPressed: () {
-                            // Remove card
-                            Environment.instance.removeOrphans(orphans).then((value) {
-                              if(value) {
-                                // Reload full database to have all real data
-                                Environment.instance.restoreAdminData().then( (value){
-                                  Navigator.pop(context);
-                                });
-                              }
-                            });
+                            try {
+                              EasyLoading.show();
+                              // Remove card
+                              Environment.instance.removeOrphans(orphans).then((
+                                  value) {
+                                EasyLoading.dismiss();
+                                if (value) {
+                                  // Reload full database to have all real data
+                                  Environment.instance.restoreAdminData().then((
+                                      value) {
+                                    Navigator.pop(context);
+                                  });
+                                }
+                              });
+                            }
+                            catch(e)
+                            {
+                              EasyLoading.dismiss();
+                            }
                           }
                       )
                   )

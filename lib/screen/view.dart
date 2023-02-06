@@ -312,12 +312,14 @@ class _MovingImageWidgetState extends State<MovingImageWidget> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
+    return RepaintBoundary(
+      child:AnimatedBuilder(
         animation: animationControler,
         builder: (context, child) => Transform.rotate(
           angle: animationControler.value,
           child: Center(child: widget.child),
         )
+      )
     );
   }
 }
