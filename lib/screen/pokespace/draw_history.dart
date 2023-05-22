@@ -66,8 +66,8 @@ class _DrawHistoryState extends State<DrawHistory> {
                         softWrap: true,
                         maxLines: 3,
                         style: draw.product.name.length > 10
-                            ? Theme.of(context).textTheme.headline6
-                            : Theme.of(context).textTheme.headline5),
+                            ? Theme.of(context).textTheme.titleLarge
+                            : Theme.of(context).textTheme.headlineSmall),
                     )
                   ]),
               )
@@ -87,7 +87,7 @@ class _DrawHistoryState extends State<DrawHistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text( StatitikLocale.of(context).read('DC_B11'), style: Theme.of(context).textTheme.headline3),
+        title: Text( StatitikLocale.of(context).read('DC_B11'), style: Theme.of(context).textTheme.displaySmall),
       ),
       body: SafeArea(
         child: Padding(

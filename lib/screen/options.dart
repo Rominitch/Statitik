@@ -84,7 +84,7 @@ class _OptionsPageState extends State<OptionsPage> {
     return Scaffold(
         appBar: AppBar(
         title: Center(
-          child: Text( StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline3 ),
+          child: Text( StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.displaySmall ),
         ),
       ),
     body: SafeArea(
@@ -99,7 +99,7 @@ class _OptionsPageState extends State<OptionsPage> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Center(child: Text(StatitikLocale.of(context).read('O_B9'), style: Theme.of(context).textTheme.headline5)),
+                    Center(child: Text(StatitikLocale.of(context).read('O_B9'), style: Theme.of(context).textTheme.headlineSmall)),
                     if(Environment.instance.isLogged())
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -140,7 +140,7 @@ class _OptionsPageState extends State<OptionsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline5)),
+                  Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headlineSmall)),
                   toolBarLanguage(),
                   Row( children: [
                     Checkbox(value: isScreenOn,

@@ -49,3 +49,9 @@ assets/
 private/
 android/app/src/
 fonts/
+macos/
+windows/
+linux/
+pubspec.lock
+web/
+android/app/google-services.json

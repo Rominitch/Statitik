@@ -70,7 +70,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(name, style: TextStyle(
-                fontFamily: Theme.of(context).textTheme.headline1!.fontFamily,
+                fontFamily: Theme.of(context).textTheme.displayLarge!.fontFamily,
                 fontSize: size-1)
               ),
               if(myCard == maxCard)
@@ -126,7 +126,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
                 Row(
                   children: [
                     const Spacer(),
-                    Text(StatitikLocale.of(context).read('PSMC_B4'), style: Theme.of(context).textTheme.headline6),
+                    Text(StatitikLocale.of(context).read('PSMC_B4'), style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(width: 5.0),
                     const Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
                     const SizedBox(width: 15.0),
@@ -195,7 +195,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(StatitikLocale.of(context).read('DC_B16'), style: Theme.of(context).textTheme.headline3),
+        title: Text(StatitikLocale.of(context).read('DC_B16'), style: Theme.of(context).textTheme.displaySmall),
         actions: [
           FloatingActionButton.small(
             backgroundColor: cardMenuColor,

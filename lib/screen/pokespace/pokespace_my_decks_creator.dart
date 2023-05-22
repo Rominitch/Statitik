@@ -65,7 +65,7 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
     List<Widget> list = [];
     if(myFilteredCards[code].isNotEmpty)
     {
-      list.add(Text(StatitikLocale.of(context).read(codeName), style: Theme.of(context).textTheme.headline6));
+      list.add(Text(StatitikLocale.of(context).read(codeName), style: Theme.of(context).textTheme.titleLarge));
       list.add(const SizedBox(height: 4.0));
       list.add(GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -108,11 +108,11 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
     List<Widget> tabHeader = [
       ConstrainedBox(
         constraints: const BoxConstraints(minHeight: Environment.heightTabHeader),
-        child: Text(StatitikLocale.of(context).read('PSMDC_B1'), style: Theme.of(context).textTheme.headline6),
+        child: Text(StatitikLocale.of(context).read('PSMDC_B1'), style: Theme.of(context).textTheme.titleLarge),
       ),
       ConstrainedBox(
         constraints: const BoxConstraints(minHeight: Environment.heightTabHeader),
-        child: Text(StatitikLocale.of(context).read('PSMDC_B2'), style: Theme.of(context).textTheme.headline6),
+        child: Text(StatitikLocale.of(context).read('PSMDC_B2'), style: Theme.of(context).textTheme.titleLarge),
       ),
     ];
 
@@ -191,7 +191,7 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
                 });
               }
           )
-          : Text(widget.deck.name, style: Theme.of(context).textTheme.headline4),
+          : Text(widget.deck.name, style: Theme.of(context).textTheme.headlineMedium),
           actions: [
             IconButton(onPressed: () {
                 setState(()

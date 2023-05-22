@@ -58,7 +58,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
                   style: Theme
                       .of(context)
                       .textTheme
-                      .headline5,
+                      .headlineSmall,
                 ),
               ),
               GridView.count(

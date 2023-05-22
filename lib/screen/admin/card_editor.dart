@@ -46,7 +46,7 @@ class _CardEditorState extends State<CardEditor> {
           title: Row(
             children:
             [
-              Expanded(child: Text(title, style: Theme.of(context).textTheme.headline6, softWrap: true, maxLines: 2)),
+              Expanded(child: Text(title, style: Theme.of(context).textTheme.titleLarge, softWrap: true, maxLines: 2)),
               getImageType(widget.card.data.type),
             ] + getImageRarity(widget.card.rarity, widget.se.extension.language)
           ),

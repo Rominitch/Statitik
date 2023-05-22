@@ -19,7 +19,7 @@ class _RarityEditorState extends State<RarityEditor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: Text(StatitikLocale.of(context).read('ADMIN_B8'), style: Theme.of(context).textTheme.headline3),
+      title: Text(StatitikLocale.of(context).read('ADMIN_B8'), style: Theme.of(context).textTheme.displaySmall),
     ),
       body: SafeArea(
         child: Padding(

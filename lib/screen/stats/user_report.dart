@@ -148,7 +148,7 @@ class _UserReportState extends State<UserReport> {
     return Scaffold(
         appBar: AppBar(
           title: Text(
-              translator.read('S_B14'), style: Theme.of(context).textTheme.headline5,
+              translator.read('S_B14'), style: Theme.of(context).textTheme.headlineSmall,
           ),
           actions: [
             IconButton(
@@ -184,7 +184,7 @@ class _UserReportState extends State<UserReport> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Row( children: [
-                        Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headline5),
+                        Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headlineSmall),
                         const Expanded(child: SizedBox(width: 1.0)),
                         Image(image: widget.data.language!.create(), height: 30),
                         const SizedBox(width: 6.0),
@@ -201,7 +201,7 @@ class _UserReportState extends State<UserReport> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row( children: [
-                        Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headline5),
+                        Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headlineSmall),
                         const SizedBox(width: 30.0),
                         Image(image: widget.data.language!.create(), height: 30),
                         const SizedBox(width: 6.0),
@@ -231,7 +231,7 @@ class _UserReportState extends State<UserReport> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(translator.read('RE_B0'), style: Theme.of(context).textTheme.headline5),
+          Text(translator.read('RE_B0'), style: Theme.of(context).textTheme.headlineSmall),
           ListView(
             shrinkWrap: true,
             primary: false,
@@ -247,7 +247,7 @@ class _UserReportState extends State<UserReport> {
         child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(translator.read('TP_T0'), style: Theme.of(context).textTheme.headline5),
+              Text(translator.read('TP_T0'), style: Theme.of(context).textTheme.headlineSmall),
               GridView.count(
                 crossAxisCount: limit,
                 shrinkWrap: true,

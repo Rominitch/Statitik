@@ -39,7 +39,7 @@ class CardViewerBody extends StatefulWidget {
   Widget buildHeader(BuildContext context) {
     return Row(
         children:[
-          Expanded(child: Text(se.seCards.titleOfCard(se.extension.language, idCard.numberId), style: Theme.of(context).textTheme.headline5)),
+          Expanded(child: Text(se.seCards.titleOfCard(se.extension.language, idCard.numberId), style: Theme.of(context).textTheme.headlineSmall)),
           getImageType(card.data.type),
           if(card.data.typeExtended != null) getImageType(card.data.typeExtended!),
           if(card.rarity != Environment.instance.collection.unknownRarity)  Row(children: getImageRarity(card.rarity, se.extension.language)),
@@ -161,7 +161,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Row(children: [
-                        Expanded(child: Text(StatitikLocale.of(context).read('CAVIEW_B4'), style: Theme.of(context).textTheme.headline5)),
+                        Expanded(child: Text(StatitikLocale.of(context).read('CAVIEW_B4'), style: Theme.of(context).textTheme.headlineSmall)),
                         Card(
                           color: Colors.grey[800],
                           child: Padding(
@@ -173,7 +173,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
                       if( isPokemonType(widget.card.data.type) )
                         Row(children: [
                           SizedBox(width: CardViewerBody.labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B0'))),
-                          SizedBox(width: CardViewerBody.valueSpace, child: Text(widget.card.data.life.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
+                          SizedBox(width: CardViewerBody.valueSpace, child: Text(widget.card.data.life.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headlineSmall )),
                           const SizedBox(width: 10.0),
                           Expanded(child: LinearPercentIndicator(
                             lineHeight: CardViewerBody.lineHeight,
@@ -184,7 +184,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
                       if( isPokemonType(widget.card.data.type) )
                         Row(children: [
                           SizedBox(width: CardViewerBody.labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B1'))),
-                          SizedBox(width: CardViewerBody.valueSpace, child: Text(widget.card.data.retreat.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
+                          SizedBox(width: CardViewerBody.valueSpace, child: Text(widget.card.data.retreat.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headlineSmall )),
                           const SizedBox(width: 10.0),
                           Expanded(child: LinearPercentIndicator(
                             lineHeight: CardViewerBody.lineHeight,
@@ -195,7 +195,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
                       if( widget.card.data.resistance != null && widget.card.data.resistance!.energy != TypeCard.unknown )
                         Row(children: [
                           SizedBox(width: CardViewerBody.labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B2'))),
-                          SizedBox(width: CardViewerBody.valueSpace, child: Text(widget.card.data.resistance!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
+                          SizedBox(width: CardViewerBody.valueSpace, child: Text(widget.card.data.resistance!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headlineSmall )),
                           const SizedBox(width: 10.0),
                           energyImage(widget.card.data.resistance!.energy),
                           const Expanded(child: SizedBox()),
@@ -203,7 +203,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
                       if( widget.card.data.weakness != null && widget.card.data.weakness!.energy != TypeCard.unknown )
                         Row(children: [
                           SizedBox(width: CardViewerBody.labelSpace, child: Text(StatitikLocale.of(context).read('CAVIEW_B3'))),
-                          SizedBox(width: CardViewerBody.valueSpace, child: Text(widget.card.data.weakness!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headline5 )),
+                          SizedBox(width: CardViewerBody.valueSpace, child: Text(widget.card.data.weakness!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headlineSmall )),
                           const SizedBox(width: 10.0),
                           energyImage(widget.card.data.weakness!.energy),
                           const Expanded(child: SizedBox()),
@@ -218,7 +218,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
-                            Text(StatitikLocale.of(context).read('CAVIEW_B5'), style: Theme.of(context).textTheme.headline5),
+                            Text(StatitikLocale.of(context).read('CAVIEW_B5'), style: Theme.of(context).textTheme.headlineSmall),
                           ] + effectsWidgets
                       )
                   )
@@ -229,7 +229,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
-                            Text(StatitikLocale.of(context).read('CAVIEW_B6'), style: Theme.of(context).textTheme.headline5),
+                            Text(StatitikLocale.of(context).read('CAVIEW_B6'), style: Theme.of(context).textTheme.headlineSmall),
                             GridView.count(
                               crossAxisCount: 4,
                               childAspectRatio: 1.2,
@@ -291,7 +291,7 @@ class EffectViewer extends StatelessWidget {
 
       attackPanel = Row(
         children: <Widget>[
-          Text(Environment.instance.collection.effects[effect.title!].name(l), style: Theme.of(context).textTheme.headline5,),
+          Text(Environment.instance.collection.effects[effect.title!].name(l), style: Theme.of(context).textTheme.headlineSmall,),
           const SizedBox(width: 5),
           if(attackType.isNotEmpty)
             Expanded(child: Row( children: attackType)),

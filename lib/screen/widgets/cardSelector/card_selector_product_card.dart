@@ -74,7 +74,7 @@ class CardSelectorProductCard extends GenericCardSelector {
                 child: Card(
                     color: card.jumbo ? Colors.green : Colors.grey,
                     child: TextButton(
-                      child: Text(StatitikLocale.of(context).read('CS_B0'), style: Theme.of(context).textTheme.headline5),
+                      child: Text(StatitikLocale.of(context).read('CS_B0'), style: Theme.of(context).textTheme.headlineSmall),
                       onPressed: () {
                         card.jumbo = !card.jumbo;
                         refresh();
@@ -86,7 +86,7 @@ class CardSelectorProductCard extends GenericCardSelector {
                 child: Card(
                     color: card.isRandom ? Colors.green : Colors.grey,
                     child: TextButton(
-                      child: Text(StatitikLocale.of(context).read('CS_B1'), style: Theme.of(context).textTheme.headline5),
+                      child: Text(StatitikLocale.of(context).read('CS_B1'), style: Theme.of(context).textTheme.headlineSmall),
                       onPressed: () {
                         card.isRandom = !card.isRandom;
                         refresh();

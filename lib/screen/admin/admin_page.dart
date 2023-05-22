@@ -161,7 +161,7 @@ class _AdminPageState extends State<AdminPage> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Center(child: Text( StatitikLocale.of(context).read('H_T4'), style: Theme.of(context).textTheme.headline3 )),
+          title: Center(child: Text( StatitikLocale.of(context).read('H_T4'), style: Theme.of(context).textTheme.displaySmall )),
         ),
         body: SafeArea(
           child: Padding(
@@ -176,7 +176,7 @@ class _AdminPageState extends State<AdminPage> {
                       child: Row(
                         children: [
                           const Icon(Icons.warning_amber_rounded),
-                          Text(StatitikLocale.of(context).read('ADMIN_B5'), style: Theme.of(context).textTheme.headline5)
+                          Text(StatitikLocale.of(context).read('ADMIN_B5'), style: Theme.of(context).textTheme.headlineSmall)
                         ]
                       )
                     )

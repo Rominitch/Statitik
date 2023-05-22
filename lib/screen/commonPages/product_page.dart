@@ -53,7 +53,7 @@ class _ProductPageState extends State<ProductPage> {
                   Text(StatitikLocale.of(context).read('S_B9'), style: Theme
                       .of(context)
                       .textTheme
-                      .headline5),
+                      .headlineSmall),
                   const Expanded(child: SizedBox(width: 10)),
                   Text(StatitikLocale.of(context).read('TP_B2'),
                       style: const TextStyle(fontSize: 9)),
@@ -119,7 +119,7 @@ class _ProductPageState extends State<ProductPage> {
                   child: TextButton(
                     child: Row(
                     children: [
-                      Text(category.name.name(widget.language), style: Theme.of(context).textTheme.headline5),
+                      Text(category.name.name(widget.language), style: Theme.of(context).textTheme.headlineSmall),
                       const Expanded(child: SizedBox(width: 10)),
                       Text(StatitikLocale.of(context).read('TP_B2'), style: const TextStyle(fontSize: 9)),
                       const Icon(Icons.arrow_right_outlined)
@@ -132,7 +132,7 @@ class _ProductPageState extends State<ProductPage> {
                 ));
           } else {
             widgetProd!.add(
-                Text(category.name.name(widget.language), style: Theme.of(context).textTheme.headline5));
+                Text(category.name.name(widget.language), style: Theme.of(context).textTheme.headlineSmall));
           }
           widgetProd!.add(GridView.count(
             crossAxisCount: 3,
@@ -161,7 +161,7 @@ class _ProductPageState extends State<ProductPage> {
       appBar: AppBar(
         title: Row(
           children:[
-            Text(StatitikLocale.of(context).read('TP_T0'), style: Theme.of(context).textTheme.headline5),
+            Text(StatitikLocale.of(context).read('TP_T0'), style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(width: 5),
             widget.language.barIcon(),
             widget.subExt.image( wSize: iconSize ),
@@ -189,7 +189,7 @@ class _ProductPageState extends State<ProductPage> {
                 showDialog(
                   context: context,
                   builder: (_) => AlertDialog(
-                    title: Text(StatitikLocale.of(context).read('help'), style: Theme.of(context).textTheme.headline5),
+                    title: Text(StatitikLocale.of(context).read('help'), style: Theme.of(context).textTheme.headlineSmall),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -210,7 +210,7 @@ class _ProductPageState extends State<ProductPage> {
       body:
         widgetProd == null
           ? drawLoading(context)
-          : (widgetProd!.isEmpty ? Center( child: Text(StatitikLocale.of(context).read('TP_B0'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headline1))
+          : (widgetProd!.isEmpty ? Center( child: Text(StatitikLocale.of(context).read('TP_B0'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.displayLarge))
             : SingleChildScrollView(
               padding: const EdgeInsets.all(8.0),
               child: Column(

@@ -68,7 +68,7 @@ class _LoadingState extends State<Loading> {
               Center(
                 child: Text(
                     env.nameApp,
-                    style: Theme.of(context).textTheme.headline1,
+                    style: Theme.of(context).textTheme.displayLarge,
                     ),
                 ),
               Center(
@@ -110,7 +110,7 @@ class _LoadingState extends State<Loading> {
               else if(loadingInfo != null)
                 Center(
                   child: Text(StatitikLocale.of(context).read(loadingInfo!),
-                        style: Theme.of(context).textTheme.headline5,
+                        style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ),
             ],

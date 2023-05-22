@@ -70,7 +70,7 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
                   showDialog(
                     context: context,
                     builder: (BuildContext context) => AlertDialog(
-                      title: Center(child: Text(StatitikLocale.of(context).read('warning'), style: Theme.of(context).textTheme.headline5)),
+                      title: Center(child: Text(StatitikLocale.of(context).read('warning'), style: Theme.of(context).textTheme.headlineSmall)),
                       content: Text(StatitikLocale.of(context).read('PS_B4')),
 
                       actions: <Widget>[

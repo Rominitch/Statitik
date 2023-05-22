@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -12,9 +11,6 @@ import 'package:statitikcard/services/internationalization.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  //debugRepaintRainbowEnabled = true;
-
-  RendererBinding.instance.setSemanticsEnabled(true);
   configureEasyLoading();
 
   // Build instance for first time
@@ -37,28 +33,26 @@ class StatitikApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // Define the default brightness and colors.
-        colorScheme: ColorScheme.dark(secondary: Colors.orange[300]!),
-        appBarTheme: AppBarTheme(backgroundColor: Colors.grey[900]),
+        colorScheme: ColorScheme.dark(secondary: Colors.orange.shade300, background: Colors.grey.shade900),
+        appBarTheme: AppBarTheme(backgroundColor: Colors.grey.shade900),
         textSelectionTheme: TextSelectionThemeData(
           cursorColor: Colors.white,
-          selectionColor: Colors.orange[300],
-          selectionHandleColor: Colors.orange[300],
+          selectionColor: Colors.orange.shade300,
+          selectionHandleColor: Colors.orange.shade300,
         ),
         brightness: Brightness.dark,
-        primaryColor: Colors.grey[600],
-        //accentColor: Colors.orange[300],
-        backgroundColor: Colors.grey[900],
-        cardColor: Colors.grey[700],
-        sliderTheme: SliderThemeData(activeTrackColor: Colors.orange[300], inactiveTickMarkColor: Colors.orange[300], thumbColor: Colors.orange[300],
-                                     activeTickMarkColor: Colors.grey[900], inactiveTrackColor: Colors.grey[900]  ),
+        primaryColor: Colors.grey.shade600,
+        cardColor: Colors.grey.shade700,
+        sliderTheme: SliderThemeData(activeTrackColor: Colors.orange.shade300, inactiveTickMarkColor: Colors.orange.shade300, thumbColor: Colors.orange.shade300,
+                                     activeTickMarkColor: Colors.grey.shade900, inactiveTrackColor: Colors.grey.shade900 ),
         //disabledColor: Colors.orange[200],
         textTheme: const TextTheme(
-          headline1: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 50.0,),
-          headline3: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 30.0,),
-          headline4: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 25.0,),
-          headline5: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 20.0,),
-          headline6: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 16.0,),
-          bodyText2: TextStyle( color: Colors.white, fontSize: 16 ),
+          displayLarge:   TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 50.0),
+          displaySmall:   TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 30.0),
+          headlineMedium: TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 25.0),
+          headlineSmall:  TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 20.0),
+          titleLarge:     TextStyle( color: Colors.white, fontFamily: 'Pacifico', fontSize: 16.0),
+          bodyMedium:     TextStyle( color: Colors.white, fontSize: 16 ),
         ),
         textButtonTheme: TextButtonThemeData(
           style: TextButton.styleFrom(
@@ -67,24 +61,24 @@ class StatitikApp extends StatelessWidget {
         ),
         checkboxTheme: CheckboxThemeData(fillColor: MaterialStateProperty.resolveWith((Set<MaterialState> states)
           {
-              return states.contains(MaterialState.selected) ? Colors.orange[300]! : states.contains(MaterialState.disabled) ? Colors.grey[700] : Colors.white;
+              return states.contains(MaterialState.selected) ? Colors.orange.shade300 : states.contains(MaterialState.disabled) ? Colors.grey[700] : Colors.white;
           }),
         ),
         radioTheme: RadioThemeData(fillColor: MaterialStateProperty.resolveWith((Set<MaterialState> states)
           {
-            return states.contains(MaterialState.selected) ? Colors.orange[300]! : states.contains(MaterialState.disabled) ? Colors.grey[700] : Colors.white;
+            return states.contains(MaterialState.selected) ? Colors.orange.shade300 : states.contains(MaterialState.disabled) ? Colors.grey[700] : Colors.white;
           }),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(backgroundColor: Colors.orange[500]!)
         ),
         inputDecorationTheme: InputDecorationTheme(
-          labelStyle: TextStyle(color: Colors.orange[300]),
+          labelStyle: TextStyle(color: Colors.orange.shade300),
           focusedBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: Colors.white),
           ),
           border: UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.orange[300]!),
+            borderSide: BorderSide(color: Colors.orange.shade300),
           ),
         ),
       ),

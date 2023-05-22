@@ -108,7 +108,7 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(StatitikLocale.of(context).read('DC_B17'), style: Theme.of(context).textTheme.headline3),
+          title: Text(StatitikLocale.of(context).read('DC_B17'), style: Theme.of(context).textTheme.displaySmall),
           actions: [
             FloatingActionButton.small(
               backgroundColor: productMenuColor,
@@ -154,7 +154,7 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
                       Row(
                         children: [
                           const Spacer(),
-                          Text(StatitikLocale.of(context).read('PSMP_B0'), style: Theme.of(context).textTheme.headline6),
+                          Text(StatitikLocale.of(context).read('PSMP_B0'), style: Theme.of(context).textTheme.titleLarge),
                           const SizedBox(width: 5.0),
                           const Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
                           const SizedBox(width: 15.0),

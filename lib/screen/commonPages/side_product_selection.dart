@@ -28,7 +28,7 @@ class _SideProductSelectionState extends State<SideProductSelection> {
           child: TextButton(
             child: Center(child:
               Text(value.name.name(widget.activeLanguage),
-                  style: Theme.of(context).textTheme.headline5, softWrap: true)),
+                  style: Theme.of(context).textTheme.headlineSmall, softWrap: true)),
             onPressed: () {
               setState(() {
                 filterCategory = value;
@@ -57,7 +57,7 @@ class _SideProductSelectionState extends State<SideProductSelection> {
              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
              children: [
                value.image(),
-               Text(value.name, style: Theme.of(context).textTheme.headline6, softWrap: true),
+               Text(value.name, style: Theme.of(context).textTheme.titleLarge, softWrap: true),
              ]
             ),
             onPressed: () {
@@ -82,7 +82,7 @@ class _SideProductSelectionState extends State<SideProductSelection> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(StatitikLocale.of(context).read('SPS_T0'), style: Theme.of(context).textTheme.headline5),
+        title: Text(StatitikLocale.of(context).read('SPS_T0'), style: Theme.of(context).textTheme.headlineSmall),
         actions: widget.edition && Environment.instance.isAdministrator() ? [
           IconButton(onPressed: (){
               Navigator.push(context, MaterialPageRoute(builder: (context) => SideProductCreator(widget.activeLanguage, product: widget.productInfo))).then((value) {

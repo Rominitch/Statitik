@@ -97,32 +97,32 @@ class StatsView extends StatelessWidget {
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(children: [Text(translator.read('S_B4'), style: Theme.of(context).textTheme.headline5 ),
+              Row(children: [Text(translator.read('S_B4'), style: Theme.of(context).textTheme.headlineSmall ),
                 const Spacer(),
                 data.stats!.anomaly > 0 ? Text(sprintf(translator.read('S_B5'), [data.stats!.nbBoosters, data.stats!.anomaly]))
                     : Text(sprintf(translator.read('S_B13'), [data.stats!.nbBoosters]))
               ]),
               if(!options.print && options.showOption == OptionShowState.boosterLuck) Text(sprintf(translator.read('S_B6'), [divider.toInt()])),
               if(!options.print && options.showOption == OptionShowState.boosterLuck) const SizedBox(height: 8.0,),
-              Text(translator.read('S_B21'), style: Theme.of(context).textTheme.headline6 ),
+              Text(translator.read('S_B21'), style: Theme.of(context).textTheme.titleLarge ),
               ListView(
                 shrinkWrap: true,
                 primary: false,
                 children: rarity,
               ),
-              Text(translator.read('S_B20'), style: Theme.of(context).textTheme.headline6 ),
+              Text(translator.read('S_B20'), style: Theme.of(context).textTheme.titleLarge ),
               ListView(
                 shrinkWrap: true,
                 primary: false,
                 children: sets,
               ),
-              Text(translator.read('S_B22'), style: Theme.of(context).textTheme.headline6 ),
+              Text(translator.read('S_B22'), style: Theme.of(context).textTheme.titleLarge ),
               ListView(
                 shrinkWrap: true,
                 primary: false,
                 children: types,
               ),
-              if(!options.print && energyData) Text(translator.read('S_B12'), style: Theme.of(context).textTheme.headline5 ),
+              if(!options.print && energyData) Text(translator.read('S_B12'), style: Theme.of(context).textTheme.headlineSmall ),
               if(!options.print && energyData) PieChartEnergies(allStats: data.stats!),
             ]
         ),
@@ -399,7 +399,7 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(child: Text(StatitikLocale.of(context).read('SCB_T0'), style: Theme.of(context).textTheme.headline5)),
+            Center(child: Text(StatitikLocale.of(context).read('SCB_T0'), style: Theme.of(context).textTheme.headlineSmall)),
             const SizedBox(height: 8),
             Row(mainAxisAlignment: MainAxisAlignment.end, children: [const Icon(Icons.warning_amber_rounded), Text(StatitikLocale.of(context).read('devBeta'), style: const TextStyle(color: Colors.orange))]),
             const SizedBox(height: 8),

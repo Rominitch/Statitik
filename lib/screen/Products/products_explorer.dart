@@ -41,7 +41,7 @@ class _ProductsExplorerState extends State<ProductsExplorer> with TickerProvider
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Center(child: Text(StatitikLocale.of(context).read('PE_T0'), style: Theme.of(context).textTheme.headline3)),
+          title: Center(child: Text(StatitikLocale.of(context).read('PE_T0'), style: Theme.of(context).textTheme.displaySmall)),
         ),
         body: SafeArea(
           child: Column(

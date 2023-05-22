@@ -101,7 +101,7 @@ class _SideProductCreatorState extends State<SideProductCreator> {
                     return Card(
                       color: product.category == category ? Colors.green : Colors.grey,
                       child: TextButton(
-                        child: Text(category.name.name(widget.language), style: Theme.of(context).textTheme.headline6),
+                        child: Text(category.name.name(widget.language), style: Theme.of(context).textTheme.titleLarge),
                         onPressed: () {
                           setState(() {
                             product.category = category;

@@ -82,7 +82,7 @@ class _CarouselNewsState extends State<CarouselNews> {
           width: MediaQuery.of(context).size.width,
           child: Column(
                 children: [
-                  Center( child: Text(newsItem.title, style: Theme.of(context).textTheme.headline4)),
+                  Center( child: Text(newsItem.title, style: Theme.of(context).textTheme.headlineMedium)),
                   const SizedBox(height: 20),
                   SingleChildScrollView(
                     child: RichText(

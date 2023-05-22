@@ -26,7 +26,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(count.toString()),
-          Text(StatitikLocale.of(context).read(label), style: Theme.of(context).textTheme.headline6, softWrap: true)
+          Text(StatitikLocale.of(context).read(label), style: Theme.of(context).textTheme.titleLarge, softWrap: true)
         ]
       ),
     ));
@@ -51,7 +51,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(StatitikLocale.of(context).read('SE_B0'), style: Theme.of(context).textTheme.headline5),
+            Text(StatitikLocale.of(context).read('SE_B0'), style: Theme.of(context).textTheme.headlineSmall),
             GridView.count(
               crossAxisCount: 3,
               primary: false,

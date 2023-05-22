@@ -70,15 +70,15 @@ class _BoosterPageState extends State<BoosterPage> {
       {
         case Validator.errorEnergy:
           buttonColor = Colors.deepOrange;
-          buttonLabel = Row(children:const [Icon(Icons.warning_amber_outlined), Icon(Icons.battery_charging_full)]);
+          buttonLabel = const Row(children: [Icon(Icons.warning_amber_outlined), Icon(Icons.battery_charging_full)]);
           break;
         case Validator.errorReverse:
           buttonColor = Colors.deepOrange;
-          buttonLabel = Row(children:const [Icon(Icons.warning_amber_outlined), Image(image: AssetImage('assets/carte/set_parallel.png'), height: 30.0)]);
+          buttonLabel = const Row(children: [Icon(Icons.warning_amber_outlined), Image(image: AssetImage('assets/carte/set_parallel.png'), height: 30.0)]);
           break;
         case Validator.errorTooManyGood:
           buttonColor = Colors.deepOrange;
-          buttonLabel = Row(children:const [Icon(Icons.warning_amber_outlined), Icon(Icons.star_border)]);
+          buttonLabel = const Row(children: [Icon(Icons.warning_amber_outlined), Icon(Icons.star_border)]);
           break;
         case Validator.valid:
           break;

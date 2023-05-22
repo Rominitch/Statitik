@@ -132,7 +132,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
       child: Row(
         children: [
-          Expanded(child: Text( StatitikLocale.of(context).read(title), style: Theme.of(context).textTheme.headline5)),
+          Expanded(child: Text( StatitikLocale.of(context).read(title), style: Theme.of(context).textTheme.headlineSmall)),
           IconButton(
             icon: const Icon(Icons.delete),
             color: Colors.white,
@@ -156,7 +156,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text( StatitikLocale.of(context).read('CA_T2'), style: Theme.of(context).textTheme.headline3 ),
+        title: Text( StatitikLocale.of(context).read('CA_T2'), style: Theme.of(context).textTheme.displaySmall ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -254,7 +254,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                       children: [
                         Row(
                           children: [
-                            SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B0'), style: Theme.of(context).textTheme.headline6)),
+                            SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B0'), style: Theme.of(context).textTheme.titleLarge)),
                             Expanded(
                               child: RangeSlider(
                                 values: widget.result.life,
@@ -276,14 +276,14 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                         ),
                         Row(
                           children: [
-                            SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B3'), style: Theme.of(context).textTheme.headline6)),
+                            SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B3'), style: Theme.of(context).textTheme.titleLarge)),
                             Expanded(child: SizedBox(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: weaknessTypeWidget)))
                           ],
                         ),
 
                         Row(
                           children: [
-                            SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B2'), style: Theme.of(context).textTheme.headline6)),
+                            SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B2'), style: Theme.of(context).textTheme.titleLarge)),
                             Expanded(child: SizedBox(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: resistanceTypeWidget)))
                           ],
                         )
@@ -311,7 +311,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                           children: [
                             Row(
                               children: [
-                                SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B7'), style: Theme.of(context).textTheme.headline6)),
+                                SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B7'), style: Theme.of(context).textTheme.titleLarge)),
                                 Expanded(
                                   child: SliderTheme(
                                     data: SliderTheme.of(context).copyWith(
@@ -338,7 +338,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                             ),
                             Row(
                               children: [
-                                SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B8'), style: Theme.of(context).textTheme.headline6)),
+                                SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B8'), style: Theme.of(context).textTheme.titleLarge)),
                                 Expanded(
                                   child: SliderTheme(
                                     data: SliderTheme.of(context).copyWith(
@@ -363,9 +363,9 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                                 ),
                               ],
                             ),
-                            Text(StatitikLocale.of(context).read('CAVIEW_B9'), style: Theme.of(context).textTheme.headline6),
+                            Text(StatitikLocale.of(context).read('CAVIEW_B9'), style: Theme.of(context).textTheme.titleLarge),
                             SizedBox(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: effectsAttackWidget)),
-                            Text(StatitikLocale.of(context).read('CAVIEW_B10'), style: Theme.of(context).textTheme.headline6),
+                            Text(StatitikLocale.of(context).read('CAVIEW_B10'), style: Theme.of(context).textTheme.titleLarge),
                             SizedBox(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: attackTypeEnergyWidget)),
                           ]
                       ),
@@ -383,7 +383,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                   },
                   body: Column(
                     children: [
-                      Text(StatitikLocale.of(context).read('TUTO_CAPTION_T1'), style: Theme.of(context).textTheme.headline6),
+                      Text(StatitikLocale.of(context).read('TUTO_CAPTION_T1'), style: Theme.of(context).textTheme.titleLarge),
                       GridView.count(
                         crossAxisCount: 3,
                         childAspectRatio: 3.0,
@@ -391,7 +391,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                         shrinkWrap: true,
                         children: artsWidget,
                       ),
-                      Text(StatitikLocale.of(context).read('TUTO_CAPTION_T2'), style: Theme.of(context).textTheme.headline6),
+                      Text(StatitikLocale.of(context).read('TUTO_CAPTION_T2'), style: Theme.of(context).textTheme.titleLarge),
                       GridView.count(
                         crossAxisCount: 5,
                         primary: false,

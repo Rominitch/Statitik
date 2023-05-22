@@ -445,7 +445,7 @@ class _SideProductCountState extends State<SideProductCount> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           widget.productSide.image(
-              alternativeRendering: Text(widget.productSide.name, softWrap: true, style:Theme.of(context).textTheme.headline6)
+              alternativeRendering: Text(widget.productSide.name, softWrap: true, style:Theme.of(context).textTheme.titleLarge)
           ),
           SpinBox(
             value: widget.product.sideProducts[widget.productSide]!.toDouble(),

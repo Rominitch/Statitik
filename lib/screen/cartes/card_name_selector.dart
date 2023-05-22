@@ -54,7 +54,7 @@ class _CardNameSelectorState extends State<CardNameSelector> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text( StatitikLocale.of(context).read('CA_T1'), style: Theme.of(context).textTheme.headline3, ),
+        title: Text( StatitikLocale.of(context).read('CA_T1'), style: Theme.of(context).textTheme.displaySmall, ),
       ),
       body: SafeArea(
         child: Column(
@@ -64,12 +64,12 @@ class _CardNameSelectorState extends State<CardNameSelector> {
               children: [
                 Expanded(
                   child: CustomRadio(value: pokemons, controller: cardController,
-                    widget: Text(StatitikLocale.of(context).read('CA_B0'), style: Theme.of(context).textTheme.headline5)
+                    widget: Text(StatitikLocale.of(context).read('CA_B0'), style: Theme.of(context).textTheme.headlineSmall)
                   ),
                 ),
                 Expanded(
                   child: CustomRadio(value: others, controller: cardController,
-                    widget: Text(StatitikLocale.of(context).read('CA_B1'), style: Theme.of(context).textTheme.headline5)
+                    widget: Text(StatitikLocale.of(context).read('CA_B1'), style: Theme.of(context).textTheme.headlineSmall)
                   ),
                 )
               ]

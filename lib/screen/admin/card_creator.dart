@@ -498,7 +498,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             children: [
               SizedBox(height: imageSize, child: genericCardWidget(widget.se, widget.idCard, CardImageIdentifier(), height: imageSize, reloader: true)),
               const SizedBox(width:8),
-              Expanded(child: Text("${StatitikLocale.of(context).read('CA_B30')} $codeDB", style: Theme.of(context).textTheme.headline5)),
+              Expanded(child: Text("${StatitikLocale.of(context).read('CA_B30')} $codeDB", style: Theme.of(context).textTheme.headlineSmall)),
               Card(
                 color: widget.card.data.title.isNotEmpty ? Colors.grey.shade500 : Colors.grey.shade900,
                 child: TextButton(
@@ -651,7 +651,7 @@ Widget buildTitle(BuildContext context, Language language, PokemonCardExtension 
     children:
       [ getImageType(card.data.type, generate: false), const SizedBox(width: 8.0) ] +
       card.rarity.icon(language) +
-      [ const SizedBox(width: 8.0), Text( "- ${idCard.numberId+1}: ${card.data.titleOfCard(language)}", style: Theme.of(context).textTheme.headline6?..copyWith(fontSize: 10.0)) ],
+      [ const SizedBox(width: 8.0), Text( "- ${idCard.numberId+1}: ${card.data.titleOfCard(language)}", style: Theme.of(context).textTheme.titleLarge?..copyWith(fontSize: 10.0)) ],
   );
 }
 

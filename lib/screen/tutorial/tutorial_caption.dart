@@ -36,7 +36,7 @@ class TutorialCaption extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(StatitikLocale.of(context).read('S_TOOL_T4'), style: Theme.of(context).textTheme.headline4),
+        title: Text(StatitikLocale.of(context).read('S_TOOL_T4'), style: Theme.of(context).textTheme.headlineMedium),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -48,7 +48,7 @@ class TutorialCaption extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children:[
-                      Text(StatitikLocale.of(context).read('TUTO_CAPTION_T0'), style: Theme.of(context).textTheme.headline4),
+                      Text(StatitikLocale.of(context).read('TUTO_CAPTION_T0'), style: Theme.of(context).textTheme.headlineMedium),
                       Column(children: [
                         Card(
                           color: Colors.black12,
@@ -56,7 +56,7 @@ class TutorialCaption extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Column(
                                 children:[
-                                  Text(StatitikLocale.of(context).read('TUTO_CAPTION_T1'), style: Theme.of(context).textTheme.headline5),
+                                  Text(StatitikLocale.of(context).read('TUTO_CAPTION_T1'), style: Theme.of(context).textTheme.headlineSmall),
                                   GridView.count(
                                     crossAxisCount: 2,
                                     childAspectRatio: 4.0,
@@ -74,7 +74,7 @@ class TutorialCaption extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Column(
                               children:[
-                                Center(child: Text(StatitikLocale.of(context).read('TUTO_CAPTION_T2'), style: Theme.of(context).textTheme.headline5)),
+                                Center(child: Text(StatitikLocale.of(context).read('TUTO_CAPTION_T2'), style: Theme.of(context).textTheme.headlineSmall)),
                                 GridView.count(
                                   crossAxisCount: 2,
                                   childAspectRatio: 4.0,

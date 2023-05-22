@@ -32,17 +32,17 @@ class ScreenPrint
 
            PermissionState result = await PhotoManager.requestPermissionExtend();
            if (result == PermissionState.authorized || result == PermissionState.limited) {
-             await PhotoManager.editor.saveImageWithPath(
-                 file.path, title: title);
-
-             showDialog(
+             await PhotoManager.editor.saveImageWithPath(file.path, title: title).then((value) {
+               // After save show dialog
+               showDialog(
                  context: context,
                  builder: (_) =>
-                 AlertDialog(
-                   title: Text(StatitikLocale.of(context).read('RE_B1')),
-                   content: Text(StatitikLocale.of(context).read('RE_B2')),
+                     AlertDialog(
+                       title: Text(StatitikLocale.of(context).read('RE_B1')),
+                       content: Text(StatitikLocale.of(context).read('RE_B2')),
                  )
-             );
+               );
+             });
            }
          });
        }

@@ -28,7 +28,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
             padding: const EdgeInsets.all(5.0),
             child: Text( StatitikLocale.of(context).read('TUTO0_0'),
               maxLines: 3,
-              style: Theme.of(context).textTheme.headline6,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
           actions: [
@@ -54,11 +54,11 @@ class _DrawTutorialState extends State<DrawTutorial> {
               cardTutoImage(StatitikLocale.of(context).read('TUTO0_5'), "tuto2", ),
               cardTutoImage(StatitikLocale.of(context).read('TUTO0_6'), "tuto3", false),
               cardTutoColumnChildren([
-                Text(StatitikLocale.of(context).read('TUTO0_7'), textAlign: TextAlign.justify, style: Theme.of(context).textTheme.headline5),
+                Text(StatitikLocale.of(context).read('TUTO0_7'), textAlign: TextAlign.justify, style: Theme.of(context).textTheme.headlineSmall),
                 Text(StatitikLocale.of(context).read('TUTO0_8'), textAlign: TextAlign.justify),
               ]),
               cardTutoColumnChildren([
-                Text(StatitikLocale.of(context).read('TUTO0_9'), textAlign: TextAlign.justify, style: Theme.of(context).textTheme.headline5),
+                Text(StatitikLocale.of(context).read('TUTO0_9'), textAlign: TextAlign.justify, style: Theme.of(context).textTheme.headlineSmall),
                 cardTutoCC(StatitikLocale.of(context).read('TUTO0_10'), <Widget>[
                   simpleText(StatitikLocale.of(context).read('TUTO0_11')),
                   const Icon(Icons.add_photo_alternate_outlined),
@@ -119,11 +119,11 @@ class _DrawTutorialState extends State<DrawTutorial> {
   }
 
   Widget simpleText(String text) {
-    return Text(text, softWrap: true, maxLines: 5,  textAlign: TextAlign.justify, style: Theme.of(context).textTheme.bodyText2);
+    return Text(text, softWrap: true, maxLines: 5,  textAlign: TextAlign.justify, style: Theme.of(context).textTheme.bodyMedium);
   }
 
   Widget title(String text) {
-    return Text(text, style: Theme.of(context).textTheme.headline5);
+    return Text(text, style: Theme.of(context).textTheme.headlineSmall);
   }
 
   Widget imageTuto(String image, double height) {
@@ -155,7 +155,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children : <Widget>[
-            Text(title, style: Theme.of(context).textTheme.headline6),
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
           ]+subContent
         )
       ),
@@ -167,7 +167,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children : <Widget>[
-              Text(title, style: Theme.of(context).textTheme.headline6),
+              Text(title, style: Theme.of(context).textTheme.titleLarge),
             ]+subContent
         )
       ),
@@ -212,7 +212,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            Text(title, style: Theme.of(context).textTheme.headline6),
+            Text(title, style: Theme.of(context).textTheme.titleLarge),
           ]+content,
         ),
       ),

@@ -79,7 +79,7 @@ class _StatsExtensionDrawState extends State<StatsExtensionDraw> {
                   children: [
                     const Icon(Icons.account_circle),
                     const SizedBox(width: 5),
-                    Text(StatitikLocale.of(context).read('S_B14'), style: Theme.of(context).textTheme.headline5),
+                    Text(StatitikLocale.of(context).read('S_B14'), style: Theme.of(context).textTheme.headlineSmall),
                   ],
                 ),
                 onPressed: () {
@@ -89,7 +89,7 @@ class _StatsExtensionDrawState extends State<StatsExtensionDraw> {
             )
         ] : [
           const SizedBox(height: 20.0),
-          Center(child: Text(StatitikLocale.of(context).read('S_B1'), style: Theme.of(context).textTheme.headline1)),
+          Center(child: Text(StatitikLocale.of(context).read('S_B1'), style: Theme.of(context).textTheme.displayLarge)),
           Center(child: Text(StatitikLocale.of(context).read('S_B8'))),
           const SizedBox(height: 20.0),
           Padding(

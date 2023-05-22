@@ -122,7 +122,7 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
               const SizedBox(width: 5),
               widget.subExtension.image(wSize: 40, hSize: 40),
               const SizedBox(width: 5),
-              Text(widget.subExtension.name, style: Theme.of(context).textTheme.headline5?.copyWith(
+              Text(widget.subExtension.name, style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontSize: widget.subExtension.name.length > 9 ? 10 : 7
               )),
             ]

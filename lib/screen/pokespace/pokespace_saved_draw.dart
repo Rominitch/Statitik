@@ -42,7 +42,7 @@ class _PokeSpaceSavedDrawState extends State<PokeSpaceSavedDraw> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text( StatitikLocale.of(context).read('DC_B19'), style: Theme.of(context).textTheme.headline3),
+        title: Text( StatitikLocale.of(context).read('DC_B19'), style: Theme.of(context).textTheme.displaySmall),
       ),
       body:SafeArea(
         child: Padding(
@@ -87,7 +87,7 @@ class _PokeSpaceSavedDrawState extends State<PokeSpaceSavedDraw> {
                             context: context,
                             builder: (BuildContext context) {
                               return SimpleDialog(
-                                title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.headline3)),
+                                title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.displaySmall)),
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                                 children: [
                                   Card(

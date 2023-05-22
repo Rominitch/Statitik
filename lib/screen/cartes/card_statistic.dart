@@ -65,7 +65,7 @@ class _CardStatisticPageState extends State<CardStatisticPage> with TickerProvid
     return Scaffold(
       appBar: AppBar(
         title: Center(
-          child: Text( StatitikLocale.of(context).read('CA_T0'), style: Theme.of(context).textTheme.headline3),
+          child: Text( StatitikLocale.of(context).read('CA_T0'), style: Theme.of(context).textTheme.displaySmall),
         ),
         actions: <Widget>[
           Padding(

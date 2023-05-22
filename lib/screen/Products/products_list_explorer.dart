@@ -59,7 +59,7 @@ class _ProductsListExplorerState extends State<ProductsListExplorer> with Single
                   children: [
                     Text(product.category!.name.name(widget.language)),
                     const Spacer(),
-                    Text(product.name, style: product.name.length < 25.0 ? Theme.of(context).textTheme.headline5 : Theme.of(context).textTheme.headline6),
+                    Text(product.name, style: product.name.length < 25.0 ? Theme.of(context).textTheme.headlineSmall : Theme.of(context).textTheme.titleLarge),
                     const Spacer(),
                   ],
                 )

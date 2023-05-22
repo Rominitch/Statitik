@@ -184,7 +184,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                           context: context,
                           barrierDismissible: false,
                           builder: (_) => AlertDialog(
-                            title: Center(child: Text(StatitikLocale.of(context).read('TR_B1'), style: Theme.of(context).textTheme.headline4)),
+                            title: Center(child: Text(StatitikLocale.of(context).read('TR_B1'), style: Theme.of(context).textTheme.headlineMedium)),
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -274,7 +274,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                       showDialog(
                           context: context,
                           builder: (_) => AlertDialog(
-                            title: Text(StatitikLocale.of(context).read('TR_B11'), style: Theme.of(context).textTheme.headline4),
+                            title: Text(StatitikLocale.of(context).read('TR_B11'), style: Theme.of(context).textTheme.headlineMedium),
                             content: Text(
                                 StatitikLocale.of(context).read('TR_B10')),
                           )
@@ -354,11 +354,11 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            Text(StatitikLocale.of(context).read('TR_B15'), style: Theme.of(context).textTheme.headline6),
+                            Text(StatitikLocale.of(context).read('TR_B15'), style: Theme.of(context).textTheme.titleLarge),
                             Expanded(
                               child: Text("${widget._activeSession.productDraw.count} / ${widget._activeSession.product.nbRandomPerProduct}",
                                 textAlign: TextAlign.right,
-                                style: Theme.of(context).textTheme.headline6?.copyWith(
+                                style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   color: widget._activeSession.product.nbRandomPerProduct == widget._activeSession.productDraw.count ? Colors.green : Colors.red,
                                   )
                               ),

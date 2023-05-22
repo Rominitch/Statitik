@@ -85,7 +85,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '2.3.1';
+    final String version = '2.3.3';
 
     // State
     bool isInitialized          = false;
@@ -488,7 +488,7 @@ class Environment
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: Text(StatitikLocale.of(context).read('disclaimer_T0'), style: Theme.of(context).textTheme.headline3),
+          title: Text(StatitikLocale.of(context).read('disclaimer_T0'), style: Theme.of(context).textTheme.displaySmall),
           content: SingleChildScrollView(
             child: Text( nameApp + StatitikLocale.of(context).read('disclaimer'),
               textAlign: TextAlign.justify

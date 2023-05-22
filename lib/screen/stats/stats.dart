@@ -154,7 +154,7 @@ class _StatsPageState extends State<StatsPage> {
               children: [
                 drawImagePress(context, 'Minccino', 45),
                 const SizedBox(width: 15.0),
-                Text(StatitikLocale.of(context).read('S_B0'), style: Theme.of(context).textTheme.headline5),
+                Text(StatitikLocale.of(context).read('S_B0'), style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(width: 15.0),
                 drawImagePress(context, 'pika', 45),
             ]),
@@ -197,7 +197,7 @@ class _StatsPageState extends State<StatsPage> {
             children: [
             const Image(image: AssetImage('assets/arrowL.png'), height: 20.0,),
             const SizedBox(width: 5.0),
-            Text(StatitikLocale.of(context).read('S_B2'), style: Theme.of(context).textTheme.headline6),
+            Text(StatitikLocale.of(context).read('S_B2'), style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(width: 5.0),
             const Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
           ]),
@@ -228,7 +228,7 @@ class _StatsPageState extends State<StatsPage> {
     return Scaffold(
         appBar: AppBar(
           title: (widget.info.se.isEmpty && widget.info.statsData.subExt == null) ?
-            Center(child: Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.headline3))
+            Center(child: Text(Environment.instance.nameApp, style: Theme.of(context).textTheme.displaySmall))
             : TextButton(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -240,7 +240,7 @@ class _StatsPageState extends State<StatsPage> {
                   widget.info.statsData.subExt!.image(hSize: 30),
                   const SizedBox(width: 8.0),
                   Flexible(child: Text(widget.info.statsData.subExt!.name, style: TextStyle(
-                    fontFamily: Theme.of(context).textTheme.headline6!.fontFamily,
+                    fontFamily: Theme.of(context).textTheme.titleLarge!.fontFamily,
                     fontSize: widget.info.statsData.subExt!.name.length > 25 ? 10 : 16,
                   ), softWrap: true, maxLines: 3)),
                 ]

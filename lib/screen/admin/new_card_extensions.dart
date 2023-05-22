@@ -172,7 +172,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
               context: context,
               builder: (BuildContext context) {
                 return SimpleDialog(
-                  title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.headline3)),
+                  title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.displaySmall)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                   children: [
                     Card(
@@ -315,7 +315,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
             const SizedBox(width: 4.0),
             Flexible(
               child:Text(widget.se.name, softWrap: true,
-                style: Theme.of(context).textTheme.headline6?..copyWith(
+                style: Theme.of(context).textTheme.titleLarge?..copyWith(
                   fontSize: widget.se.name.length > 9 ? 7 : 10
                 )
               )
@@ -394,7 +394,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                 ExpansionPanel(
                   canTapOnHeader: true,
                   headerBuilder: (context, isOpen) {
-                    return Row(children:const [
+                    return const Row(children: [
                       Icon(Icons.add_box_outlined),
                       SizedBox(width: 4),
                       Text("Quick Creator")

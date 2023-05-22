@@ -11,7 +11,7 @@ class ThanksPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text( StatitikLocale.of(context).read('O_B3'), style: Theme.of(context).textTheme.headline3 ),
+        title: Text( StatitikLocale.of(context).read('O_B3'), style: Theme.of(context).textTheme.displaySmall ),
       ),
       body: SafeArea(
         child: Padding(

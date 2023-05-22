@@ -8,7 +8,6 @@ import 'package:statitikcard/services/models/marker.dart';
 import 'package:statitikcard/services/models/multi_language_string.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/type_card.dart';
-import 'package:statitikcard/services/tools.dart';
 
 /// Pokemon region
 class Region {

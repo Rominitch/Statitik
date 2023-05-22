@@ -4,7 +4,7 @@ import 'package:statitikcard/services/internationalization.dart';
 
 SimpleDialog createOptionDialog(BuildContext context, options) {
   return SimpleDialog(
-    title: Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headline3)),
+    title: Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.displaySmall)),
     contentPadding: const EdgeInsets.symmetric(horizontal: 10),
     children: [StatsOptions(options)]
   );
@@ -26,7 +26,7 @@ class _StatsOptionsState extends State<StatsOptions> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(StatitikLocale.of(context).read('S_B17'), style: Theme.of(context).textTheme.headline5),
+        Text(StatitikLocale.of(context).read('S_B17'), style: Theme.of(context).textTheme.headlineSmall),
         RadioListTile<OptionShowState>(
           title: Text(StatitikLocale.of(context).read('S_B16')),
           value: OptionShowState.realCount,
@@ -47,7 +47,7 @@ class _StatsOptionsState extends State<StatsOptions> {
             });
           },
         ),
-        Text(StatitikLocale.of(context).read('S_B18'), style: Theme.of(context).textTheme.headline5),
+        Text(StatitikLocale.of(context).read('S_B18'), style: Theme.of(context).textTheme.headlineSmall),
         RadioListTile<bool>(
           title: Text(StatitikLocale.of(context).read('S_B10')),
           value: true,

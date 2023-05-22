@@ -56,12 +56,12 @@ Widget drawOut(BuildContext context, SubExtension se) {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(sprintf(StatitikLocale.of(context).read('SEC_0'), [DateFormat.yMMMMd(StatitikLocale.of(context).locale.toLanguageTag()).format(se.out)]),
-              style: Theme.of(context).textTheme.headline3, textAlign: TextAlign.center),
+              style: Theme.of(context).textTheme.displaySmall, textAlign: TextAlign.center),
           const SizedBox(height: 30),
           drawImagePress(context, 'zorua', 300),
           const SizedBox(height: 30),
           Center(child: Text(sprintf(StatitikLocale.of(context).read('SEC_1'), [DateFormat.yMMMMd(StatitikLocale.of(context).locale.toLanguageTag()).format(se.out)]),
-            style: Theme.of(context).textTheme.headline5),
+            style: Theme.of(context).textTheme.headlineSmall),
           ),
       ]),
     ),
@@ -101,7 +101,7 @@ Widget drawLoading(BuildContext context) {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       const SizedBox(height: 40),
-      Center(child: Text(StatitikLocale.of(context).read('loading'), style: Theme.of(context).textTheme.headline3)),
+      Center(child: Text(StatitikLocale.of(context).read('loading'), style: Theme.of(context).textTheme.displaySmall)),
       const SizedBox(height: 20),
       drawImagePress(context, 'Snorlax', 300),
     ]));
@@ -112,7 +112,7 @@ Widget drawNothing(BuildContext context, String code) {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 40),
-        Center(child: Text(StatitikLocale.of(context).read(code), style: Theme.of(context).textTheme.headline3)),
+        Center(child: Text(StatitikLocale.of(context).read(code), style: Theme.of(context).textTheme.displaySmall)),
         const SizedBox(height: 20),
         drawImagePress(context, 'Arrozard', 300),
       ]);

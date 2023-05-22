@@ -73,7 +73,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
           const Icon(Icons.add_box_outlined),
           Flexible(
             child: Text(StatitikLocale.of(context).read('DC_B1'),
-                style: Theme.of(context).textTheme.headline6,
+                style: Theme.of(context).textTheme.titleLarge,
                 softWrap: true, maxLines: 2),
           ),
         ], () {
@@ -84,7 +84,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
       createButton([
           const Icon(Icons.info_outline),
           Text(StatitikLocale.of(context).read('DC_B10'),
-              style: Theme.of(context).textTheme.headline5
+              style: Theme.of(context).textTheme.headlineSmall
           ),
         ], () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const DrawTutorial()));
@@ -104,7 +104,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                 drawImagePress(context, 'Snorlax_Pikachu_Pose', 60.0),
                 const SizedBox(width: 15.0),
                 Text(StatitikLocale.of(context).read('DC_B14'),
-                    style: Theme.of(context).textTheme.headline4),
+                    style: Theme.of(context).textTheme.headlineMedium),
                 const SizedBox(width: 15.0),
                 drawImagePress(context, 'Snorlax_Pikachu', 60.0),
               ],
@@ -124,7 +124,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.history),
-                      Text(StatitikLocale.of(context).read('DC_B19'), style: Theme.of(context).textTheme.headline5),
+                      Text(StatitikLocale.of(context).read('DC_B19'), style: Theme.of(context).textTheme.headlineSmall),
                     ],
                   ),
                   onPressed: () {
@@ -144,7 +144,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
     var buttons = [
       createButtonGradient([
         Text(StatitikLocale.of(context).read('DC_B16'),
-          style: Theme.of(context).textTheme.headline5)
+          style: Theme.of(context).textTheme.headlineSmall)
         ],(){
         if(Environment.instance.isLogged()) {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const PokeSpaceMyCards()));
@@ -154,7 +154,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
       ),
       createButtonGradient([
         Text(StatitikLocale.of(context).read('DC_B17'),
-          style: Theme.of(context).textTheme.headline5),
+          style: Theme.of(context).textTheme.headlineSmall),
         ],(){
         if(Environment.instance.isLogged()) {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const PokeSpaceMyProducts()));
@@ -167,7 +167,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Text(StatitikLocale.of(context).read('DC_B18'),
-              style: Theme.of(context).textTheme.headline5),
+              style: Theme.of(context).textTheme.headlineSmall),
             Text(StatitikLocale.of(context).read('devBeta'), style: TextStyle(color: Colors.grey.shade300, fontSize: 12.0)),
           ]
         )
@@ -179,7 +179,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
         color: deckMenuColor
       ),
       createButton([
-        Text(StatitikLocale.of(context).read('DC_B11'), style: Theme.of(context).textTheme.headline5),
+        Text(StatitikLocale.of(context).read('DC_B11'), style: Theme.of(context).textTheme.headlineSmall),
       ], () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => const DrawHistory()));
       }),
@@ -200,7 +200,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                       drawImagePress(context, 'CafeMix_Pikachu', 60.0),
                       const SizedBox(width: 15.0),
                       Text(StatitikLocale.of(context).read('DC_B15'),
-                          style: Theme.of(context).textTheme.headline4),
+                          style: Theme.of(context).textTheme.headlineMedium),
                       const SizedBox(width: 15.0),
                       drawImagePress(context, 'Piplup', 60.0),
                     ],
@@ -249,7 +249,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
       return Scaffold(
           appBar: AppBar(
           title: Center(
-          child: Text(StatitikLocale.of(context).read('H_T0'), style: Theme.of(context).textTheme.headline3),
+          child: Text(StatitikLocale.of(context).read('H_T0'), style: Theme.of(context).textTheme.displaySmall),
          ),
         ),
         body: SafeArea(
@@ -299,7 +299,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
       return Scaffold(
         appBar: AppBar(
           title: Center(
-            child: Text( StatitikLocale.of(context).read('H_T0'), style: Theme.of(context).textTheme.headline3 ),
+            child: Text( StatitikLocale.of(context).read('H_T0'), style: Theme.of(context).textTheme.displaySmall ),
           ),
         ),
         body:SafeArea(
@@ -313,7 +313,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                   const SizedBox(width: 10),
                   drawImagePress(context, 'CafeMix_Pikachu', 50),
                   const SizedBox(width: 10),
-                  Text(StatitikLocale.of(context).read('DC_B4'), style: Theme.of(context).textTheme.headline3),
+                  Text(StatitikLocale.of(context).read('DC_B4'), style: Theme.of(context).textTheme.displaySmall),
                 ]
               ),
               const SizedBox(height: 10),

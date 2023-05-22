@@ -102,7 +102,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
             children: [
               Row(
                 children: [
-                  Text(StatitikLocale.of(context).read('PROD_KIND_${kind.index}'), style: Theme.of(context).textTheme.headline5),
+                  Text(StatitikLocale.of(context).read('PROD_KIND_${kind.index}'), style: Theme.of(context).textTheme.headlineSmall),
                   const Spacer(),
                   Card(
                     color: Colors.grey,
@@ -247,7 +247,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
           title: Row(children: [
             widget.subExtension.image(wSize: 30),
             const SizedBox(width: 5),
-            Text(StatitikLocale.of(context).read('ADMIN_B7'), style: Theme.of(context).textTheme.headline6),
+            Text(StatitikLocale.of(context).read('ADMIN_B7'), style: Theme.of(context).textTheme.titleLarge),
           ]),
           actions: [
             if(isValid())
@@ -276,7 +276,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
                       var text = StatitikLocale.of(context).read('PROD_KIND_$index');
                       return Card(
                         color: productSelected[index] ? Colors.green : Colors.grey,
-                        child: TextButton(child: Text(text, style: Theme.of(context).textTheme.headline6?.copyWith(
+                        child: TextButton(child: Text(text, style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontSize: text.length > 8 ? 12 : 20 )),
                           onPressed: () {
                             setState(() {
@@ -291,7 +291,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
                       padding: const EdgeInsets.all(4.0),
                       child: Row(
                         children: [
-                          Text(StatitikLocale.of(context).read('EPC_B0'), style: Theme.of(context).textTheme.headline5),
+                          Text(StatitikLocale.of(context).read('EPC_B0'), style: Theme.of(context).textTheme.headlineSmall),
                           const Spacer(),
                           buttonSelectCards(this)
                         ],
