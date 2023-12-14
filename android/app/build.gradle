@@ -40,7 +40,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     //compileSdkVersion flutter.compileSdkVersion
-    compileSdkVersion 33
+    compileSdkVersion 34
     //ndkVersion flutter.ndkVersion
     ndkVersion "25.0.8775105"
 
@@ -64,7 +64,7 @@ android {
         // Android 9  = 28 - Sony A2
         // Android 11 = 30 - Xperia 5
         minSdkVersion 28
-        targetSdkVersion 33
+        targetSdkVersion 34
         //targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
