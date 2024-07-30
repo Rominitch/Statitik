@@ -16,7 +16,7 @@ import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class OptionsPage extends StatefulWidget {
   const OptionsPage({Key? key}) : super(key: key);
@@ -42,7 +42,7 @@ class _OptionsPageState extends State<OptionsPage> {
       }
     });
 
-    Wakelock.enabled.then((value) => isScreenOn = value);
+    WakelockPlus.enabled.then((value) => isScreenOn = value);
 
     sizeControler.add(0);
 

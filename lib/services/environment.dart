@@ -29,7 +29,7 @@ import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/time_report.dart';
 import 'package:statitikcard/services/tools.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class StatitikException implements Exception {
     String msg;
@@ -85,7 +85,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '2.3.3';
+    final String version = '2.3.4';
 
     // State
     bool isInitialized          = false;
@@ -881,9 +881,9 @@ class Environment
         SharedPreferences.getInstance().then((prefs) {
             prefs.setBool("ScreenOn", enable);
             if( enable) {
-                Wakelock.enable();
+                WakelockPlus.enable();
             } else {
-                Wakelock.disable();
+                WakelockPlus.disable();
             }
         });
     }

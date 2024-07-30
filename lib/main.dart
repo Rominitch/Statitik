@@ -24,7 +24,7 @@ void configureEasyLoading() {
 }
 
 class StatitikApp extends StatelessWidget {
-  const StatitikApp({Key? key}) : super(key: key);
+  const StatitikApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -33,7 +33,7 @@ class StatitikApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // Define the default brightness and colors.
-        colorScheme: ColorScheme.dark(secondary: Colors.orange.shade300, background: Colors.grey.shade900),
+        colorScheme: ColorScheme.dark(secondary: Colors.orange.shade300, surface: Colors.grey.shade900),
         appBarTheme: AppBarTheme(backgroundColor: Colors.grey.shade900),
         textSelectionTheme: TextSelectionThemeData(
           cursorColor: Colors.white,
@@ -59,14 +59,14 @@ class StatitikApp extends StatelessWidget {
             foregroundColor: Colors.white,
           ),
         ),
-        checkboxTheme: CheckboxThemeData(fillColor: MaterialStateProperty.resolveWith((Set<MaterialState> states)
+        checkboxTheme: CheckboxThemeData(fillColor: WidgetStateProperty.resolveWith((Set<WidgetState> states)
           {
-              return states.contains(MaterialState.selected) ? Colors.orange.shade300 : states.contains(MaterialState.disabled) ? Colors.grey[700] : Colors.white;
+              return states.contains(WidgetState.selected) ? Colors.orange.shade300 : states.contains(WidgetState.disabled) ? Colors.grey[700] : Colors.white;
           }),
         ),
-        radioTheme: RadioThemeData(fillColor: MaterialStateProperty.resolveWith((Set<MaterialState> states)
+        radioTheme: RadioThemeData(fillColor: WidgetStateProperty.resolveWith((Set<WidgetState> states)
           {
-            return states.contains(MaterialState.selected) ? Colors.orange.shade300 : states.contains(MaterialState.disabled) ? Colors.grey[700] : Colors.white;
+            return states.contains(WidgetState.selected) ? Colors.orange.shade300 : states.contains(WidgetState.disabled) ? Colors.grey[700] : Colors.white;
           }),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(

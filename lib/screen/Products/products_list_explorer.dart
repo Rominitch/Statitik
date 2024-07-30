@@ -8,7 +8,7 @@ import 'package:statitikcard/services/models/product.dart';
 class ProductsListExplorer extends StatefulWidget {
   final Language language;
 
-  const ProductsListExplorer(this.language, {Key? key}) : super(key: key);
+  const ProductsListExplorer(this.language, {super.key});
 
   @override
   State<ProductsListExplorer> createState() => _ProductsListExplorerState();
