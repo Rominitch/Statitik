@@ -22,8 +22,8 @@ class ImageStoredLocally extends StatefulWidget {
   final BoxFit?      fit;
 
   const ImageStoredLocally(this.path, this.imageName, this.webAddress, {
-    this.quality, this.width, this.height, this.alternativeRendering, this.reloader=false, this.fit, this.photoView=false, Key? key
-  }) : super(key: key);
+    this.quality, this.width, this.height, this.alternativeRendering, this.reloader=false, this.fit, this.photoView=false, super.key
+  });
 
   @override
   State<ImageStoredLocally> createState() => _ImageStoredLocallyState();

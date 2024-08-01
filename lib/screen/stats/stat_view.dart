@@ -32,7 +32,7 @@ class StatsView extends StatelessWidget {
   final StatsData data;
   final StatsViewOptions options;
 
-  const StatsView({required this.data, required this.options, Key? key}) : super(key: key);
+  const StatsView({required this.data, required this.options, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -161,7 +161,7 @@ class ProductWidget extends StatelessWidget {
   final ProductRequested  pr;
   final bool              showCount;
 
-  const ProductWidget(this.pr, this.showCount, {Key? key}) : super(key: key);
+  const ProductWidget(this.pr, this.showCount, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +196,7 @@ class ProductWidget extends StatelessWidget {
 class StatsCompletionBooster extends StatefulWidget {
   final StatsData data;
 
-  const StatsCompletionBooster(this.data, {Key? key}) : super(key: key);
+  const StatsCompletionBooster(this.data, {super.key});
 
   @override
   State<StatsCompletionBooster> createState() => _StatsCompletionBoosterState();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class FilterExtensions extends StatelessWidget {
-  const FilterExtensions({Key? key}) : super(key: key);
+  const FilterExtensions({super.key});
 
   @override
   Widget build(BuildContext context) {

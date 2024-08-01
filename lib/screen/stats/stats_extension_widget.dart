@@ -15,7 +15,7 @@ class StatsExtensionWidget extends StatefulWidget {
   final StatsConfiguration info;
   final PageController     pageController;
 
-  const StatsExtensionWidget(this.info, this.pageController, {Key? key}) : super(key: key);
+  const StatsExtensionWidget(this.info, this.pageController, {super.key});
 
   @override
   State<StatsExtensionWidget> createState() => _StatsExtensionWidgetState();

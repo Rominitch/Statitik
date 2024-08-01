@@ -25,7 +25,7 @@ class PokeSpaceCardExplorer extends StatefulWidget {
   final SubExtension subExtension;
   final PokeSpace    pokeSpace;
 
-  const PokeSpaceCardExplorer(this.subExtension, this.pokeSpace, {Key? key}) : super(key: key);
+  const PokeSpaceCardExplorer(this.subExtension, this.pokeSpace, {super.key});
 
   @override
   State<PokeSpaceCardExplorer> createState() => _PokeSpaceCardExplorerState();
@@ -112,8 +112,8 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: returnTo,
+    return PopScope(
+      onPopInvoked: (pop) => Navigator.of(context).pop(true),
       child: Scaffold(
         appBar: AppBar(
           title: Row(

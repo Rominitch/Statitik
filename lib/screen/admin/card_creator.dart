@@ -40,16 +40,15 @@ class CardCreator extends StatefulWidget {
   final List?                 secondTypes;
   final CardEditorOptions     options;
 
-  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, this.options, {Key? key}):
+  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, this.options, {super.key}):
     editor=true, onAppendCard=null, onChangeList=null, onNeedRefresh=null,
     listRarity = (se.extension.language.isWorld() ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity)
       ..removeWhere((element) => element == Environment.instance.collection.unknownRarity),
-    secondTypes = [TypeCard.unknown] + energies,
-    super(key: key);
+    secondTypes = [TypeCard.unknown] + energies;
 
-  CardCreator.quick(this.activeLanguage, this.se, this.card, this.idCard, this.onAppendCard, this.onNeedRefresh, bool isWorldCard, {Key? key, this.onChangeList}):
+  CardCreator.quick(this.activeLanguage, this.se, this.card, this.idCard, this.onAppendCard, this.onNeedRefresh, bool isWorldCard, {super.key, this.onChangeList}):
     editor=false, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity), title="",
-    secondTypes=null, options = CardEditorOptions(), super(key: key);
+    secondTypes=null, options = CardEditorOptions();
 
   @override
   State<CardCreator> createState() => _CardCreatorState();
@@ -661,7 +660,7 @@ class PokeCardNaming extends StatefulWidget {
   final CardIdentifier        idCard;
   final int                   idName;
 
-  const PokeCardNaming(this.language, this.idCard, this.card, this.idName, {Key? key}) : super(key: key);
+  const PokeCardNaming(this.language, this.idCard, this.card, this.idName, {super.key});
 
   Pokemon nameInfo() {
     return card.data.title[idName];
@@ -826,7 +825,7 @@ class CardImageCreator extends StatefulWidget {
   final Language             activeLanguage;
   final CardEditorOptions    options;
 
-  const CardImageCreator(this.se, this.card, this.idCard, this.idImage, this.activeLanguage, this.options, {Key? key}) : super(key: key);
+  const CardImageCreator(this.se, this.card, this.idCard, this.idImage, this.activeLanguage, this.options, {super.key});
 
   static void computeJPCardID(SubExtension se, PokemonCardExtension card, CardIdentifier idCard, CardImageIdentifier idImage) {
     try {

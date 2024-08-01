@@ -14,7 +14,7 @@ class ExtensionPage extends StatefulWidget {
   final Function afterSelected;
   final bool     addMode;
 
-  const ExtensionPage({ required this.language, required this.afterSelected, required this.addMode, Key? key}) : super(key: key);
+  const ExtensionPage({ required this.language, required this.afterSelected, required this.addMode, super.key});
 
   @override
   State<ExtensionPage> createState() => _ExtensionPageState();

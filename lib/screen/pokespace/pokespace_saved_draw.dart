@@ -9,7 +9,7 @@ import 'package:statitikcard/services/internationalization.dart';
 
 class PokeSpaceSavedDraw extends StatefulWidget {
   final List<UserDrawFile> localDraws;
-  const PokeSpaceSavedDraw(this.localDraws, {Key? key}) : super(key: key);
+  const PokeSpaceSavedDraw(this.localDraws, {super.key});
 
   @override
   State<PokeSpaceSavedDraw> createState() => _PokeSpaceSavedDrawState();

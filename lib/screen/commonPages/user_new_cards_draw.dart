@@ -5,7 +5,7 @@ import 'package:statitikcard/services/models/sub_extension.dart';
 
 class UserNewCardDraw extends StatelessWidget {
   final NewCardsReport report;
-  const UserNewCardDraw(this.report, {Key? key}) : super(key: key);
+  const UserNewCardDraw(this.report, {super.key});
 
   List<Widget> createCards(SubExtension subExtension, List<NewCardReport> reports) {
     var list = <Widget>[];

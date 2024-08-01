@@ -10,7 +10,7 @@ import 'package:statitikcard/services/models/product.dart';
 class SideProductCreator extends StatefulWidget {
   final Language    language;
   final Product?    product;
-  const SideProductCreator(this.language, {this.product, Key? key}) : super(key: key);
+  const SideProductCreator(this.language, {this.product, super.key});
 
   @override
   State<SideProductCreator> createState() => _SideProductCreatorState();

@@ -15,7 +15,7 @@ class CardFilterSelector extends StatefulWidget {
   final CardResults result;
   final Language    language;
 
-  const CardFilterSelector(this.language, this.result, {Key? key}) : super(key: key);
+  const CardFilterSelector(this.language, this.result, {super.key});
 
   @override
   State<CardFilterSelector> createState() => _CardFilterSelectorState();

@@ -28,7 +28,7 @@ class CardStatisticOptions {
 }
 
 class CardStatisticPage extends StatefulWidget {
-  const CardStatisticPage({Key? key}) : super(key: key);
+  const CardStatisticPage({super.key});
 
   @override
   State<CardStatisticPage> createState() => _CardStatisticPageState();
@@ -114,7 +114,7 @@ class CardFilteredReport extends StatefulWidget {
   final Language language;
   final CardStatisticOptions options;
 
-  const CardFilteredReport(this.language, this.options, {Key? key}) : super(key: key);
+  const CardFilteredReport(this.language, this.options, {super.key});
 
   @override
   State<CardFilteredReport> createState() => _CardFilteredReportState();

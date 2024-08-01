@@ -27,16 +27,14 @@ class PokeSpaceDrawResume extends StatefulWidget {
   @override
   State<PokeSpaceDrawResume> createState() => _PokeSpaceDrawResumeState();
 
-  PokeSpaceDrawResume({activeSession, Key? key}) :
+  PokeSpaceDrawResume({activeSession, super.key}) :
     _file = null,
     _readOnly      = activeSession != null,
-    _activeSession = activeSession != null ? activeSession! : Environment.instance.currentDraw,
-    super(key: key);
+    _activeSession = activeSession != null ? activeSession! : Environment.instance.currentDraw;
 
-  PokeSpaceDrawResume.fromSave(SessionDraw session, this._file, {Key? key}) :
+  PokeSpaceDrawResume.fromSave(SessionDraw session, this._file, {super.key}) :
     _readOnly      = false,
-    _activeSession = session,
-    super(key: key)
+    _activeSession = session
   {
     Environment.instance.currentDraw = session;
   }
@@ -293,11 +291,8 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
       }
     }
 
-    return WillPopScope(
-      onWillPop: () {
-        bool exit = backAction(context);
-        return Future.value(exit);
-        },
+    return PopScope(
+      canPop: backAction(context),
       child: Scaffold(
       appBar: AppBar(
         title: Text(widget._activeSession.product.name, style: const TextStyle(fontSize: 15)),

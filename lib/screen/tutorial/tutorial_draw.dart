@@ -3,7 +3,7 @@ import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 class DrawTutorial extends StatefulWidget {
-  const DrawTutorial({Key? key}) : super(key: key);
+  const DrawTutorial({super.key});
 
   @override
   State<DrawTutorial> createState() => _DrawTutorialState();

@@ -33,8 +33,7 @@ class PokemonInfo extends CardTitleData
   int         generation;
   int         idPokedex;
 
-  PokemonInfo(MultiLanguageString names, this.generation, this.idPokedex) :
-        super(names);
+  PokemonInfo(super.names, this.generation, this.idPokedex);
 
   @override
   String fullname(Language l) {

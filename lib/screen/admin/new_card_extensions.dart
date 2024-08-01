@@ -23,7 +23,7 @@ class NewCardExtensions extends StatefulWidget {
   final Language     language;
   final SubExtension se;
 
-  const NewCardExtensions(this.language, this.se, {Key? key}) : super(key: key);
+  const NewCardExtensions(this.language, this.se, {super.key});
 
   @override
   State<NewCardExtensions> createState() => _NewCardExtensionsState();
@@ -300,11 +300,8 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () {
-        bool exit = backAction(context);
-        return Future.value(exit);
-    },
+    return PopScope(
+    canPop: backAction(context),
     child: Scaffold(
       appBar: AppBar(
         title: Row(

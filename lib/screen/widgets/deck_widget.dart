@@ -45,7 +45,7 @@ List<Widget> computeDeckInfo(Deck deck, BuildContext context) {
 
 class DeckStatisticWidget extends StatelessWidget {
   final Deck deck;
-  const DeckStatisticWidget(this.deck, {Key? key}) : super(key: key);
+  const DeckStatisticWidget(this.deck, {super.key});
 
   Widget miniBox(Widget top, int? count, [int? other]) {
     return Expanded(

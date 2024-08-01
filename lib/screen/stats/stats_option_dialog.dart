@@ -13,7 +13,7 @@ SimpleDialog createOptionDialog(BuildContext context, options) {
 class StatsOptions extends StatefulWidget {
   final StatsViewOptions options;
 
-  const StatsOptions(this.options, {Key? key}) : super(key: key);
+  const StatsOptions(this.options, {super.key});
 
   @override
   State<StatsOptions> createState() => _StatsOptionsState();

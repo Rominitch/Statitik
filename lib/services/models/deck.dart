@@ -146,7 +146,7 @@ class DeckStats
 
         // Weakness
         if(card.data.weakness != null) {
-          if( !countWeakness.containsKey(card.data.weakness!) ) {
+          if( !countWeakness.containsKey(card.data.weakness!.energy) ) {
             countWeakness[card.data.weakness!.energy] = 1;
           } else {
             countWeakness[card.data.weakness!.energy] = countWeakness[card.data.weakness!.energy]! + 1;
@@ -155,7 +155,7 @@ class DeckStats
 
         // Resistance
         if(card.data.resistance != null) {
-          if( !countResistance.containsKey(card.data.resistance!) ) {
+          if( !countResistance.containsKey(card.data.resistance!.energy) ) {
             countResistance[card.data.resistance!.energy] = 1;
           } else {
             countResistance[card.data.resistance!.energy] = countResistance[card.data.resistance!.energy]! + 1;

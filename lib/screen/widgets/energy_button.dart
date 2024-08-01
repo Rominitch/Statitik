@@ -51,7 +51,7 @@ class EBEnergyValueController extends EnergyButtonController {
 class EnergyButton extends StatefulWidget {
   final EnergyButtonController controller;
 
-  const EnergyButton(this.controller, {Key? key}) : super(key: key);
+  const EnergyButton(this.controller, {super.key});
 
   @override
   State<EnergyButton> createState() => _EnergyButtonState();

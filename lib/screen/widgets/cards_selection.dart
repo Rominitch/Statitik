@@ -23,7 +23,7 @@ class CardsSelection extends StatefulWidget {
   final Language     language;
   final SubExtension subExtension;
 
-  const CardsSelection(this.language, this.subExtension, {Key? key}) : super(key: key);
+  const CardsSelection(this.language, this.subExtension, {super.key});
 
   @override
   State<CardsSelection> createState() => _CardsSelectionState();

@@ -15,7 +15,7 @@ class ExtensionProductsCreator extends StatefulWidget {
   final Language     language;
   final SubExtension subExtension;
 
-  const ExtensionProductsCreator(this.language, this.subExtension, {Key? key}) : super(key: key);
+  const ExtensionProductsCreator(this.language, this.subExtension, {super.key});
 
   @override
   State<ExtensionProductsCreator> createState() => _ExtensionProductsCreatorState();

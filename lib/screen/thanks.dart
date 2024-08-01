@@ -5,7 +5,7 @@ import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 class ThanksPage extends StatelessWidget {
-  const ThanksPage({Key? key}) : super(key: key);
+  const ThanksPage({super.key});
 
   @override
   Widget build(BuildContext context) {

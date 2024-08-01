@@ -10,7 +10,7 @@ import 'package:statitikcard/services/models/product.dart';
 class ProductViewer extends StatefulWidget {
   final Language language;
   final Product  product;
-  const ProductViewer(this.language, this.product, {Key? key}) : super(key: key);
+  const ProductViewer(this.language, this.product, {super.key});
 
   @override
   State<ProductViewer> createState() => _ProductViewerState();

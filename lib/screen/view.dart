@@ -29,7 +29,7 @@ class ExtensionButton extends StatefulWidget {
   final void Function()     press;
   final SubExtension subExtension;
 
-  const ExtensionButton({required this.subExtension, required this.press, Key? key}) : super(key: key);
+  const ExtensionButton({required this.subExtension, required this.press, super.key});
 
   @override
   State<ExtensionButton> createState() => _ExtensionButtonState();
@@ -280,7 +280,7 @@ List<Widget> createRegionsWidget(context, regionController, Language language) {
 class MovingImageWidget extends StatefulWidget {
   final Widget child;
 
-  const MovingImageWidget(this.child, {Key? key}) : super(key: key);
+  const MovingImageWidget(this.child, {super.key});
 
   @override
   State<MovingImageWidget> createState() => _MovingImageWidgetState();

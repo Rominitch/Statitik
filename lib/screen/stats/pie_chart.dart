@@ -10,7 +10,7 @@ import 'package:statitikcard/services/models/models.dart';
 class PieChartEnergies extends StatefulWidget {
   final StatsBooster allStats;
 
-  const PieChartEnergies({required this.allStats, Key? key}) : super(key: key);
+  const PieChartEnergies({required this.allStats, super.key});
 
   @override
   State<StatefulWidget> createState() => PieChartEnergiesState();
@@ -75,7 +75,7 @@ class PieExtension extends StatefulWidget {
   final SubExtension subExtension;
   final Visualize visu;
 
-  const PieExtension(this.subExtension, this.visu, {Key? key}) : super(key: key);
+  const PieExtension(this.subExtension, this.visu, {super.key});
 
   @override
   State<PieExtension> createState() => _PieExtensionState();
@@ -168,7 +168,7 @@ class _PieExtensionState extends State<PieExtension> {
 class PieDeckType extends StatefulWidget {
   final DeckStats stats;
 
-  const PieDeckType(this.stats, {Key? key}) : super(key: key);
+  const PieDeckType(this.stats, {super.key});
 
   @override
   State<PieDeckType> createState() => _PieDeckTypeState();

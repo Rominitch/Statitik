@@ -16,8 +16,8 @@ class CardEditor extends StatefulWidget {
   final PokemonCardExtension card;
   final CardEditorOptions    options;
 
-  CardEditor(this.se, this.id, this.options, {Key? key}) :
-    card = se.cardFromId(id), super(key: key);
+  CardEditor(this.se, this.id, this.options, {super.key}) :
+    card = se.cardFromId(id);
 
   String titleCard() {
     var cardId = id.numberId;

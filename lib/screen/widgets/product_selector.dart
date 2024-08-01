@@ -23,7 +23,7 @@ class ProductSelection {
 
 class ProductSelector extends StatefulWidget {
   final Language language;
-  const ProductSelector(this.language, {Key? key}) : super(key: key);
+  const ProductSelector(this.language, {super.key});
 
   @override
   State<ProductSelector> createState() => _ProductSelectorState();
@@ -164,7 +164,7 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
 class ProductPerYearSelector extends StatefulWidget {
   final Map       selection;
   final List      productList;
-  const ProductPerYearSelector(this.selection, this.productList, {Key? key}) : super(key: key);
+  const ProductPerYearSelector(this.selection, this.productList, {super.key});
 
   @override
   State<ProductPerYearSelector> createState() => _ProductPerYearSelectorState();

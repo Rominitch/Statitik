@@ -19,7 +19,7 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class OptionsPage extends StatefulWidget {
-  const OptionsPage({Key? key}) : super(key: key);
+  const OptionsPage({super.key});
 
   @override
   State<OptionsPage>  createState() => _OptionsPageState();

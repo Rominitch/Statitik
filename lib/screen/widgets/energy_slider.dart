@@ -12,7 +12,7 @@ class EnergySlider extends StatefulWidget {
   final dynamic minValue;
   final dynamic maxValue;
   final int?    division;
-  const EnergySlider(this.energyValue, this.defaultValue, this.minValue, this.maxValue, {this.division, Key? key}) : super(key: key);
+  const EnergySlider(this.energyValue, this.defaultValue, this.minValue, this.maxValue, {this.division, super.key});
 
   @override
   State<EnergySlider> createState() => _EnergySliderState();

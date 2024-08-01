@@ -15,7 +15,7 @@ import 'package:statitikcard/services/models/product.dart';
 class UserReport extends StatefulWidget {
   final StatsData data;
 
-  const UserReport({required this.data, Key? key}) : super(key: key);
+  const UserReport({required this.data, super.key});
 
   @override
   State<UserReport> createState() => _UserReportState();

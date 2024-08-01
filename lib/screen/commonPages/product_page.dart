@@ -20,7 +20,7 @@ class ProductPage extends StatefulWidget {
   final Function(BuildContext, Language, ProductRequested?, ProductCategory?) afterSelected;
   final ProductPageMode mode;
 
-  const ProductPage({ required this.mode, required this.language, required this.subExt, required this.afterSelected, Key? key}) : super(key: key);
+  const ProductPage({ required this.mode, required this.language, required this.subExt, required this.afterSelected, super.key});
 
   @override
   State<ProductPage> createState() => _ProductPageState();

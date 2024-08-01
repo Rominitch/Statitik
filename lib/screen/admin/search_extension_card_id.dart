@@ -17,7 +17,7 @@ class SearchExtensionsCardId extends StatelessWidget {
   final String title;
   final int currentId;
 
-  const SearchExtensionsCardId(this.type, this.name, this.title, this.currentId, {Key? key}) : super(key: key);
+  const SearchExtensionsCardId(this.type, this.name, this.title, this.currentId, {super.key});
 
   void createWidgetCard(BuildContext context, PokemonCardExtension cardEx, SubExtension subExtension, CardIdentifier id,
                         Set<PokemonCardData> cards, List<Widget> cardImageWidget, List<Widget> cardsWidgets) {

@@ -11,7 +11,7 @@ import 'package:statitikcard/services/models/language.dart';
 
 
 class PokeSpaceMyProducts extends StatefulWidget {
-  const PokeSpaceMyProducts({Key? key}) : super(key: key);
+  const PokeSpaceMyProducts({super.key});
 
   @override
   State<PokeSpaceMyProducts> createState() => _PokeSpaceMyProductsState();
@@ -101,11 +101,8 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
       productTab.add(PokeSpaceProductsExplorer(language, (){ needToSave = true; }));
     }
 
-    return WillPopScope(
-      onWillPop: () async {
-        savePokeSpace();
-        return true;
-      },
+    return PopScope(
+      onPopInvoked: (pop) => savePokeSpace(),
       child: Scaffold(
         appBar: AppBar(
           title: Text(StatitikLocale.of(context).read('DC_B17'), style: Theme.of(context).textTheme.displaySmall),

@@ -8,7 +8,7 @@ import 'package:statitikcard/services/models/type_card.dart';
 
 class CardNameSelector extends StatefulWidget {
   final Language language;
-  const CardNameSelector(this.language, {Key? key}) : super(key: key);
+  const CardNameSelector(this.language, {super.key});
 
   @override
   State<CardNameSelector> createState() => _CardNameSelectorState();

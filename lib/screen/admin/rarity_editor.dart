@@ -6,7 +6,7 @@ import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/rarity.dart';
 
 class RarityEditor extends StatefulWidget {
-  const RarityEditor({Key? key}) : super(key: key);
+  const RarityEditor({super.key});
 
   @override
   State<RarityEditor> createState() => _RarityEditorState();

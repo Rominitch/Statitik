@@ -40,7 +40,7 @@ abstract class ButtonCheck<ValueType> extends StatefulWidget {
 
   final StreamController<dynamic> afterChange = StreamController<dynamic>();
 
-  ButtonCheck(this.editableList, this.value, this._controller, {Key? key}) : super(key: key);
+  ButtonCheck(this.editableList, this.value, this._controller, {super.key});
 
   Widget makeWidget(BuildContext context);
 
@@ -113,7 +113,7 @@ class MarkerButtonCheck extends ButtonCheck<CardMarker> {
 }
 
 class TypeButtonCheck extends ButtonCheck<TypeCard> {
-  TypeButtonCheck(typesList, value, CustomButtonCheckController? controller, {Key? key}) : super(typesList, value, controller, key: key);
+  TypeButtonCheck(super.typesList, super.value, super.controller, {super.key});
 
   @override
   Widget makeWidget(BuildContext context) {
@@ -133,7 +133,7 @@ class RarityButtonCheck extends ButtonCheck<Rarity> {
 }
 
 class DescriptionEffectButtonCheck extends ButtonCheck<DescriptionEffect> {
-  DescriptionEffectButtonCheck(effectList, value, controller, {Key? key}) : super(effectList, value, controller, key: key);
+  DescriptionEffectButtonCheck(super.effectList, super.value, super.controller, {super.key});
 
   @override
   Widget makeWidget(BuildContext context) {

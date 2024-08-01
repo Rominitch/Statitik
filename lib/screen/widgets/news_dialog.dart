@@ -25,7 +25,7 @@ SimpleDialog createNewDialog(BuildContext context, List<News> news)
 class CarouselNews extends StatefulWidget {
   final List<News> news;
 
-  const CarouselNews(this.news, {Key? key}) : super(key: key);
+  const CarouselNews(this.news, {super.key});
 
   @override
   State<CarouselNews> createState() => _CarouselNewsState();

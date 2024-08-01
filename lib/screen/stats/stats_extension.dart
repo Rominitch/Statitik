@@ -11,7 +11,7 @@ class StatsExtensionsPage extends StatefulWidget {
   final StatsBooster stats;
   final StatsData data;
 
-  const StatsExtensionsPage({required this.stats, required this.data, Key? key}) : super(key: key);
+  const StatsExtensionsPage({required this.stats, required this.data, super.key});
 
   @override
   State<StatsExtensionsPage> createState() => _StatsExtensionsPageState();

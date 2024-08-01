@@ -359,7 +359,7 @@ class BoostersInfo extends StatefulWidget {
   final ProductBooster? newProd;
   final Language        l;
 
-  const BoostersInfo(this.productAdd, this.newProd, this.l, {Key? key}) : super(key: key);
+  const BoostersInfo(this.productAdd, this.newProd, this.l, {super.key});
 
   @override
   State<BoostersInfo> createState() => _BoostersInfoState();
@@ -430,7 +430,7 @@ class SideProductCount extends StatefulWidget {
   final ProductSide productSide;
   final Function    refresh;
 
-  const SideProductCount(this.product, this.productSide, this.refresh, {Key? key}) : super(key: key);
+  const SideProductCount(this.product, this.productSide, this.refresh, {super.key});
 
   @override
   State<SideProductCount> createState() => _SideProductCountState();

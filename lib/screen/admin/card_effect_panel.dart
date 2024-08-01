@@ -17,7 +17,7 @@ class CardEffectsPanel extends StatefulWidget {
   final Language             l;
   final PokemonCardExtension card;
 
-  const CardEffectsPanel(this.card, this.l, {Key? key}) : super(key: key);
+  const CardEffectsPanel(this.card, this.l, {super.key});
 
   @override
   State<CardEffectsPanel> createState() => _CardEffectsPanelState();
@@ -59,7 +59,7 @@ class CardEffectPanel extends StatefulWidget {
   final CardEffect effect;
   final CardEffectsPanel parent;
 
-  const CardEffectPanel(this.parent, this.effect, {Key? key}) : super(key: key);
+  const CardEffectPanel(this.parent, this.effect, {super.key});
 
   @override
   State<CardEffectPanel> createState() => _CardEffectPanelState();

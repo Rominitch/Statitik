@@ -81,6 +81,10 @@ class StatitikApp extends StatelessWidget {
             borderSide: BorderSide(color: Colors.orange.shade300),
           ),
         ),
+        tabBarTheme: const TabBarTheme(
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white,
+        )
       ),
       title: 'StatitikCard',
       initialRoute: '/',

@@ -246,7 +246,7 @@ class SliderInfo extends StatefulWidget {
   final dynamic minValue;
   final dynamic maxValue;
   final int? division;
-  const SliderInfo(this.controller, this.minValue, this.maxValue, {this.division, Key? key}) : super(key: key);
+  const SliderInfo(this.controller, this.minValue, this.maxValue, {this.division, super.key});
 
   @override
   State<SliderInfo> createState() => _SliderInfoState();

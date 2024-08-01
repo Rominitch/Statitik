@@ -13,7 +13,7 @@ import 'package:statitikcard/services/internationalization.dart';
 class StatsExtensionCards extends StatefulWidget {
   final StatsConfiguration info;
 
-  const StatsExtensionCards(this.info, {Key? key}) : super(key: key);
+  const StatsExtensionCards(this.info, {super.key});
 
   @override
   State<StatsExtensionCards> createState() => _StatsExtensionCardsState();

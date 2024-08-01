@@ -17,7 +17,7 @@ class PokeSpaceMyDecksCreator extends StatefulWidget {
   final Language  language;
   final Deck      deck;
 
-  const PokeSpaceMyDecksCreator(this.language, this.deck, {Key? key}) : super(key: key);
+  const PokeSpaceMyDecksCreator(this.language, this.deck, {super.key});
 
   @override
   State<PokeSpaceMyDecksCreator> createState() => _PokeSpaceMyDecksCreatorState();
@@ -177,8 +177,8 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
       DeckStatisticWidget(widget.deck)
     ];
 
-    return WillPopScope(
-      onWillPop: returnTo,
+    return PopScope(
+      onPopInvoked: (pop) => Navigator.of(context).pop(true),
       child:Scaffold(
         appBar: AppBar(
           title:

@@ -6,7 +6,7 @@ import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
 
 class ApplicationWidget extends StatefulWidget {
-  const ApplicationWidget({Key? key}) : super(key: key);
+  const ApplicationWidget({super.key});
 
   @override
   State<ApplicationWidget> createState() => _ApplicationWidgetState();

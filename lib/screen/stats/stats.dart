@@ -40,7 +40,7 @@ class StatsConfiguration {
     sData.stats     = null;
     sData.cardStats.stats = CardStats();
 
-    var product = sData.pr != null ? sData.pr!.product : null;
+    var product = sData.pr?.product;
     // Get data from DB
     Environment env = Environment.instance;
     env.getStats(statsData.subExt!, product, sData.category).then( (stats) {
@@ -71,7 +71,7 @@ class StatsConfiguration {
 class StatsPage extends StatefulWidget {
   final StatsConfiguration info = StatsConfiguration();
 
-  StatsPage({Key? key}) : super(key: key);
+  StatsPage({super.key});
 
   @override
   State<StatsPage> createState() => _StatsPageState();

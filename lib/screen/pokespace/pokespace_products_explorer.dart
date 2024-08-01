@@ -9,7 +9,7 @@ class PokeSpaceProductsExplorer extends StatefulWidget {
   final Language? language;
   final Function  onChangeMyProduct;
 
-  const PokeSpaceProductsExplorer(this.language, this.onChangeMyProduct, {Key? key}) : super(key: key);
+  const PokeSpaceProductsExplorer(this.language, this.onChangeMyProduct, {super.key});
 
   @override
   State<PokeSpaceProductsExplorer> createState() => _PokeSpaceProductsExplorerState();

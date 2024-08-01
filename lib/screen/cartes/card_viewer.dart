@@ -27,7 +27,7 @@ class CardViewerBody extends StatefulWidget {
   final SubExtension          se;
   final CardIdentifier        idCard;
   final PokemonCardExtension  card;
-  const CardViewerBody(this.se, this.idCard, this.card, {Key? key}) : super(key: key);
+  const CardViewerBody(this.se, this.idCard, this.card, {super.key});
 
   static const double maxHP      = 340.0;
   static const double maxRetreat = 5.0;
@@ -273,7 +273,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
 class EffectViewer extends StatelessWidget {
   final Language   l;
   final CardEffect effect;
-  const EffectViewer(this.effect, this.l,  {Key? key}) : super(key: key);
+  const EffectViewer(this.effect, this.l,  {super.key});
 
   static const double valueSpace = 40.0;
 
@@ -343,7 +343,7 @@ class CardViewer extends StatelessWidget {
   final CardIdentifier id;
   final PokemonCardExtension card;
 
-  const CardViewer(this.se, this.id, this.card, {Key? key}) : super(key: key);
+  const CardViewer(this.se, this.id, this.card, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -363,7 +363,7 @@ class CardSEViewer extends StatefulWidget {
   final SubExtension se;
   final CardIdentifier idCard;
 
-  const CardSEViewer(this.se, this.idCard, {Key? key}) : super(key: key);
+  const CardSEViewer(this.se, this.idCard, {super.key});
 
   @override
   State<CardSEViewer> createState() => _CardSEViewerState();
@@ -416,7 +416,7 @@ class CardImageViewer extends StatefulWidget {
   final SubExtension   selectSE;
   final CardIdentifier selectIdCard;
   final List<CardViewerIdentifier> ids;
-  const CardImageViewer(this.ids, this.selectSE, this.selectIdCard, {Key? key}) : super(key: key);
+  const CardImageViewer(this.ids, this.selectSE, this.selectIdCard, {super.key});
 
   @override
   State<CardImageViewer> createState() => _CardImageViewerState();

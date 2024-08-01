@@ -43,7 +43,7 @@ class CardSelector extends StatefulWidget {
   final Function? refresh;
   final bool      readOnly;
 
-  const CardSelector(this.cardSelector, {Key? key, this.refresh, this.readOnly=false}) : super(key: key);
+  const CardSelector(this.cardSelector, {super.key, this.refresh, this.readOnly=false});
 
   @override
   State<CardSelector> createState() => _CardSelectorState();
@@ -154,7 +154,7 @@ class IconCard extends StatefulWidget {
   final Function?     refresh;
   final bool          readOnly;
 
-  const IconCard(this.cardSelector, this.setId, this.set, {Key? key, required this.refresh, required this.readOnly}) : super(key: key);
+  const IconCard(this.cardSelector, this.setId, this.set, {super.key, required this.refresh, required this.readOnly});
 
   @override
   State<IconCard> createState() => _IconCardState();
@@ -238,7 +238,7 @@ class ImageSetCounter extends StatefulWidget {
   final Function?     refresh;
   final bool          readOnly;
 
-  const ImageSetCounter(this.cardSelector, this.imageId, {required this.refresh, required this.readOnly, Key? key}) : super(key: key);
+  const ImageSetCounter(this.cardSelector, this.imageId, {required this.refresh, required this.readOnly, super.key});
 
   @override
   State<ImageSetCounter> createState() => _ImageSetCounterState();

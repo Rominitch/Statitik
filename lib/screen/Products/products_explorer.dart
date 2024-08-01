@@ -7,7 +7,7 @@ import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 
 class ProductsExplorer extends StatefulWidget {
-  const ProductsExplorer({Key? key}) : super(key: key);
+  const ProductsExplorer({super.key});
 
   @override
   State<ProductsExplorer> createState() => _ProductsExplorerState();

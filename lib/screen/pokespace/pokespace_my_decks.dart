@@ -10,7 +10,7 @@ import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/tools.dart';
 
 class PokeSpaceMyDeck extends StatefulWidget {
-  const PokeSpaceMyDeck({Key? key}) : super(key: key);
+  const PokeSpaceMyDeck({super.key});
 
   @override
   State<PokeSpaceMyDeck> createState() => _PokeSpaceMyCardsState();

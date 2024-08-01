@@ -6,7 +6,7 @@ import 'package:statitikcard/services/models/language.dart';
 
 class TutorialCaption extends StatelessWidget {
   final Language l;
-  const TutorialCaption(this.l, {Key? key}) : super(key: key);
+  const TutorialCaption(this.l, {super.key});
 
   Widget createIconDescribe(String text, Widget icon) {
     return Padding(

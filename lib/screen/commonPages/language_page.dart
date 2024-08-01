@@ -11,7 +11,7 @@ class LanguagePage extends StatefulWidget {
   final Function(BuildContext, Language, SubExtension) afterSelected;
   final bool addMode;
 
-  const LanguagePage({required this.afterSelected, required this.addMode, Key? key}) : super(key: key);
+  const LanguagePage({required this.afterSelected, required this.addMode, super.key});
 
   @override
   State<LanguagePage> createState() => _LanguagePageState();
@@ -56,7 +56,7 @@ class _LanguagePageState extends State<LanguagePage> {
 class LanguageSelector extends StatelessWidget {
   final Function(BuildContext, Language) onClickLanguage;
 
-  const LanguageSelector(this.onClickLanguage, {Key? key}) : super(key: key);
+  const LanguageSelector(this.onClickLanguage, {super.key});
 
   @override
   Widget build(BuildContext context) {

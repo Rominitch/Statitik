@@ -11,7 +11,7 @@ class SideProductSelection extends StatefulWidget {
   final Language activeLanguage;
   final bool     edition;
   final Product? productInfo;
-  const SideProductSelection(this.activeLanguage, {this.edition=false, this.productInfo, Key? key}) : super(key: key);
+  const SideProductSelection(this.activeLanguage, {this.edition=false, this.productInfo, super.key});
 
   @override
   State<SideProductSelection> createState() => _SideProductSelectionState();

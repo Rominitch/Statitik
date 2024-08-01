@@ -15,7 +15,7 @@ class BoosterPage extends StatefulWidget {
   final Language    language;
   final bool        readOnly;
 
-  const BoosterPage({required this.language, required this.boosterDraw, required this.readOnly, Key? key}) : super(key: key);
+  const BoosterPage({required this.language, required this.boosterDraw, required this.readOnly, super.key});
 
   @override
   State<BoosterPage> createState() => _BoosterPageState();

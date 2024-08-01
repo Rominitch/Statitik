@@ -32,7 +32,7 @@ class StatsCard extends StatefulWidget {
   final CardResults          stats;
   final CardStatisticOptions options;
 
-  const StatsCard(this.l, this.stats, this.options, {Key? key}) : super(key: key);
+  const StatsCard(this.l, this.stats, this.options, {super.key});
 
   @override
   State<StatsCard> createState() => _StatsCardState();
@@ -105,7 +105,7 @@ class CardSubExtensionReport extends StatefulWidget {
   final CardStatisticOptions options;
   final StreamController?    onFilterChanged;
 
-  const CardSubExtensionReport(this.stats, this.options, {this.onFilterChanged, Key? key}) : super(key: key);
+  const CardSubExtensionReport(this.stats, this.options, {this.onFilterChanged, super.key});
 
   @override
   State<CardSubExtensionReport> createState() => _CardSubExtensionReportState();
@@ -229,7 +229,7 @@ class CardStatisticReport extends StatefulWidget {
   final CardResults stats;
   final CardStatisticOptions options;
 
-  const CardStatisticReport(this.language, this.stats, this.options, {Key? key}) : super(key: key);
+  const CardStatisticReport(this.language, this.stats, this.options, {super.key});
 
   @override
   State<CardStatisticReport> createState() => _CardStatisticReportState();

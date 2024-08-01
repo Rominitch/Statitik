@@ -43,7 +43,7 @@ class CustomRadio extends StatefulWidget {
   final StreamController<dynamic> afterChange = StreamController<dynamic>();
   final double? widthBox;
 
-  CustomRadio({required this.value, required this.controller, required this.widget, this.widthBox, Key? key}) : super(key: key) {
+  CustomRadio({required this.value, required this.controller, required this.widget, this.widthBox, super.key}) {
     controller.register(this);
   }
 

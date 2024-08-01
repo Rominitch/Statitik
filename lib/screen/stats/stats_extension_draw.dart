@@ -14,7 +14,7 @@ import 'package:statitikcard/services/tools.dart';
 class StatsExtensionDraw extends StatefulWidget {
   final StatsConfiguration info;
 
-  const StatsExtensionDraw(this.info, {Key? key}) : super(key: key);
+  const StatsExtensionDraw(this.info, {super.key});
 
   @override
   State<StatsExtensionDraw> createState() => _StatsExtensionDrawState();

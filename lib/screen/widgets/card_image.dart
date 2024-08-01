@@ -36,8 +36,8 @@ class CardImage extends StatefulWidget {
   final Language? language;
   final CardImageIdentifier idImage;
 
-  CardImage(SubExtension currentSE, PokemonCardExtension currentCard, this.idCard, this.idImage, {this.height=400, this.language, Key? key}) :
-    cardImage = computeImageLabel(currentSE, currentCard, idCard, idImage), card = currentCard, se = currentSE, super(key: key);
+  CardImage(SubExtension currentSE, PokemonCardExtension currentCard, this.idCard, this.idImage, {this.height=400, this.language, super.key}) :
+    cardImage = computeImageLabel(currentSE, currentCard, idCard, idImage), card = currentCard, se = currentSE;
 
   static String convertRomaji(String name, bool alternative) {
     const kanaKit = KanaKit();

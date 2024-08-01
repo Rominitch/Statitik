@@ -10,7 +10,7 @@ class PokemonCard extends StatefulWidget {
   final bool                 readOnly;
   final bool                 singlePress;   // Access to menu with single press
 
-  const PokemonCard(this.selector, { required this.refresh, required this.readOnly, this.singlePress=false, this.afterOpenSelector, Key? key}) : super(key: key);
+  const PokemonCard(this.selector, { required this.refresh, required this.readOnly, this.singlePress=false, this.afterOpenSelector, super.key});
 
   @override
   State<PokemonCard> createState() => _PokemonCardState();

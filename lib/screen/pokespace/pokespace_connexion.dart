@@ -25,7 +25,7 @@ import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/product.dart';
 
 class DrawHomePage extends StatefulWidget {
-  const DrawHomePage({Key? key}) : super(key: key);
+  const DrawHomePage({super.key});
 
   @override
   State<DrawHomePage> createState() => _DrawHomePageState();
