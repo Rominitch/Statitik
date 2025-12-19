@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'bytes_coder.dart';
+
 class Language
 {
   int id;
@@ -12,10 +14,10 @@ class Language
     return AssetImage('assets/langue/$image.png');
   }
 
-  Image barIcon() {
+  Image barIcon([double? newHeight]) {
     return Image(
       image: create(),
-      height: AppBar().preferredSize.height * 0.4,
+      height: newHeight ?? AppBar().preferredSize.height * 0.4,
     );
   }
 
@@ -25,5 +27,14 @@ class Language
 
   bool isJapanese() {
     return id == 3;
+  }
+
+  Language.fromBytes(ByteParser parser):
+    id    = parser.extractInt32(),
+    image = parser.extractString16();
+
+  List<int> toBytes() {
+    return ByteEncoder.encodeInt32(id)
+         + ByteEncoder.encodeString16(image.codeUnits);
   }
 }

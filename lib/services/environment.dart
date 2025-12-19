@@ -4,30 +4,33 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
-
 import 'package:mysql1/mysql1.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:sprintf/sprintf.dart';
-import 'package:statitikcard/services/Draw/BoosterDraw.dart';
+import 'package:statitikcard/services/collection_serializer.dart';
+import 'package:statitikcard/services/models/multi_language_string.dart';
+import 'package:statitikcard/services/saved_instance_state.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'package:statitikcard/services/draw/booster_draw.dart';
+import 'package:statitikcard/services/draw/card_draw_data.dart';
+import 'package:statitikcard/services/draw/session_draw.dart';
 
 import 'package:statitikcard/services/connection.dart';
-import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/collection.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/ImageStorage.dart';
+import 'package:statitikcard/services/models/image_storage.dart';
 import 'package:statitikcard/services/models/models.dart';
-import 'package:statitikcard/services/models/NewCardsReport.dart';
-import 'package:statitikcard/services/models/PokeSpace.dart';
+import 'package:statitikcard/services/models/new_cards_report.dart';
+import 'package:statitikcard/services/models/pokespace.dart';
 import 'package:statitikcard/services/models/product.dart';
-import 'package:statitikcard/services/models/ProductCategory.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
-import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/Draw/SessionDraw.dart';
-import 'package:statitikcard/services/TimeReport.dart';
-import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/models/product_category.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
+import 'package:statitikcard/services/models/type_card.dart';
+import 'package:statitikcard/services/time_report.dart';
+import 'package:statitikcard/services/tools.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class StatitikException implements Exception {
     String msg;
@@ -36,10 +39,10 @@ class StatitikException implements Exception {
 
 class Database
 {
-    final String version = '3.2';
+    final String version = '3.5';
     final ConnectionSettings settings = createConnection();
 
-    Future<bool> transactionR(Function queries) async
+    Future<bool> transactionR(Future Function(TransactionContext) queries) async
     {
         bool valid=false;
 
@@ -83,7 +86,7 @@ class Environment
 
     // Const data
     final String nameApp = 'StatitikCard';
-    final String version = '1.8.20';
+    final String version = '3.0.0';
 
     // State
     bool isInitialized          = false;
@@ -96,6 +99,8 @@ class Environment
 
     bool storeImageLocally      = true;
 
+    SavedInstanceState state = SavedInstanceState();
+
     // Cached data
     Collection collection = Collection();
 
@@ -104,6 +109,11 @@ class Environment
     SessionDraw? currentDraw;
 
     ImageStorage storage = ImageStorage();
+
+    static const double heightTabHeader     = 40.0;
+    static const double heightCircleAvatar  = 25.0;
+    static const double heightNewsCircle    = 36.0;
+    static const double heightLanguage      = 30.0;
 
     void initialize()
     {
@@ -116,58 +126,82 @@ class Environment
             // Sync event
             try {
                 bool isDBReady       = false;
-                bool isDatabaseMatch = false;
+                double currentDataDB  = 0.0;
+                String currentVersion = db.version;
+
                 db.transactionR( (connection) async {
                     var info = await connection.query("SELECT * FROM `BaseInfo`");
 
                     for (var row in info) {
-                        isDatabaseMatch = (row[0] == db.version);
+                        currentVersion         = row[0];
                         showPressImages        = (row[2] == 1);
                         showPressProductImages = (row[3] == 1);
                         showTCGImages          = (row[4] == 1);
                         isMaintenance          = (row[5] == 1);
+                        currentDataDB          = row[6];
                     }
                 }).then( (result) {
                     isDBReady = result;
-                }).whenComplete( () {
-                    if(!isDBReady) {
-                        throw StatitikException('DB_0');
+                }).whenComplete( () async {
+                    // Need to update software ?
+                    if( db.version != currentVersion) {
+                      throw StatitikException('DB_1');
                     }
-                    if(!isDatabaseMatch) {
-                        throw StatitikException('DB_1');
-                    }
-
                     // Load user
                     onInfoLoading.add('LOAD_0');
-                    credential.initialize().whenComplete(() {
-                        // Load database
-                        onInfoLoading.add('LOAD_1');
-                        readStaticData().whenComplete(() async {
-                            if (isAdministrator()) {
-                                await db.transactionR( collection.migration );
-                                printOutput("Admin is launched !");
-                                onInfoLoading.add('LOAD_2');
-                                collection.adminReverse();
-                            } else {
-                                if(isMaintenance) {
-                                    throw StatitikException('DB_2');
-                                }
-                            }
-                            onInfoLoading.add('LOAD_5');
-                            (readPokeSpace()).whenComplete( () async {
 
-                                SharedPreferences.getInstance().then((prefs) {
-                                    storeImageLocally = prefs.getBool("storeImageLocaly") ?? false;
-                                }).whenComplete(() {
-                                    isInitialized = true;
-                                    onInitialize.add(isInitialized);
-                                });
-                            });
-                        }).catchError((error) {
-                            isInitialized = false;
-                            onServerError.add(error.message);
+                    // Load local data
+                    final serialize = CollectionSerializer();
+                    final localVersion = await serialize.decode(collection);
+
+                    // No data available (local or network)
+                    if(!isDBReady && collection.languages.isEmpty) {
+                      throw StatitikException('DB_0');
+                    }
+
+                    // Load database
+                    if( localVersion < currentDataDB ) {
+                      onInfoLoading.add('LOAD_1');
+                      readStaticData().whenComplete(() async {
+                        if (isAdministrator()) {
+                          await db.transactionR(collection.migration);
+                          printOutput("admin is launched !");
+                          onInfoLoading.add('LOAD_2');
+                          collection.adminReverse();
+                          collection.databaseSafety();
+                        } else {
+                          if (isMaintenance) {
+                            throw StatitikException('DB_2');
+                          }
+                        }
+                        // Save data to disk
+                        final serialize = CollectionSerializer();
+                        await serialize.serialize(currentDataDB, collection);
+
+                        onInfoLoading.add('LOAD_5');
+                        (readPokeSpace()).whenComplete(() async {
+                          SharedPreferences.getInstance().then((prefs) {
+                            storeImageLocally =
+                                prefs.getBool("storeImageLocaly") ??
+                                    storeImageLocally;
+                            setScreenOn(prefs.getBool("ScreenOn") ?? false);
+                          }).whenComplete(() {
+                            try {
+                              Environment.instance.tryChangeUserConnexionDate(
+                                  Environment.instance.user!.uid);
+                            } catch (e) {
+                              printOutput(e.toString());
+                            }
+
+                            isInitialized = true;
+                            onInitialize.add(isInitialized);
+                          });
                         });
-                    });
+                      }).catchError((error) {
+                        isInitialized = false;
+                        onServerError.add(error.message);
+                      });
+                    }
                 }).catchError((error) {
                     isInitialized = false;
                     var message = error is StatitikException ? error.msg : error.toString();
@@ -216,39 +250,71 @@ class Environment
         await db.transactionR( collection.migration );
         // Finalize data
         collection.adminReverse();
+        // Security
+        collection.databaseSafety();
         // Change poke space
         user!.pokeSpace = PokeSpace();
         await readPokeSpace();
     }
 
-    Future<void> registerUser(String uid) async {
+    Future<void> registerUser(String oldUID, String uid, bool isTest) async {
         if (user == null) {
             var time = TimeReport();
             await db.transactionR( (connection) async {
-                String query = 'SELECT `idUtilisateur`, `ban`, `su` FROM `Utilisateur` WHERE `identifiant` = \'$uid\';';
+                String query = 'SELECT `idUtilisateur`, `ban`, `su` FROM `Utilisateur` WHERE `identifiant` = \'$oldUID\';';
                 var reqUser = await connection.query(query);
                 if( reqUser.length == 1 ) {
                     for (var row in reqUser) {
-                        if(row[1] != 0)
-                            throw StatitikException("Utilisateur banni pour non respect des règles.");
+                        if(row[1] != 0) {
+                          throw StatitikException("Utilisateur banni pour non respect des règles.");
+                        }
+                        // Migrate to new ID
+                        var reqQuery = "UPDATE `Utilisateur` SET `identifiant` = '$uid' WHERE `identifiant` = '$oldUID';";
+                        await connection.query(reqQuery);
+
                         user = UserPoke(row[0]);
                         user!.admin = row[2] == 1 ? true : false;
                     }
                 } else {
-                    // Check user data exists into database
-                    int idNewID=-1;
-                    var reqCountUser = await connection.query(
-                        'SELECT MAX(`idUtilisateur`) FROM `Utilisateur`;');
-                    for (var row in reqCountUser) {
-                        idNewID = row[0] + 1;
+                    String query = 'SELECT `idUtilisateur`, `ban`, `su` FROM `Utilisateur` WHERE `identifiant` = \'$uid\';';
+                    var reqUser = await connection.query(query);
+                    if( reqUser.length == 1 ) {
+                        for (var row in reqUser) {
+                            if(row[1] != 0) {
+                                throw StatitikException("Utilisateur banni pour non respect des règles.");
+                            }
+                            user = UserPoke(row[0]);
+                            user!.admin = row[2] == 1 ? true : false;
+                        }
+                    } else {
+                        // Check user data exists into database
+                        int idNewID=-1;
+                        var reqCountUser = await connection.query(
+                            'SELECT MAX(`idUtilisateur`) FROM `Utilisateur`;');
+                        for (var row in reqCountUser) {
+                            idNewID = row[0] + 1;
+                        }
+                        var nowDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+                        await connection.query("INSERT INTO `Utilisateur` (idUtilisateur, identifiant, dernierConnexion) VALUES ($idNewID, '$uid', '$nowDate');");
+                        user = UserPoke(idNewID);
                     }
-
-                    await connection.query('INSERT INTO `Utilisateur` (idUtilisateur, identifiant, ban) VALUES ($idNewID, \'$uid\', 0);');
-                    user = UserPoke(idNewID);
                 }
                 user!.uid = uid;
+                user!.isRobotTest = isTest;
             });
             time.tick("My User");
+        }
+    }
+
+    Future<void> tryChangeUserConnexionDate(String uid) async {
+        if (uid.isNotEmpty) {
+            var time = TimeReport();
+            await db.transactionR( (connection) async {
+                var nowDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+                String query = "UPDATE `Utilisateur` SET `dernierConnexion` = '$nowDate' WHERE (`identifiant` = '$uid');";
+                await connection.query(query);
+            });
+            time.tick("Update connexion time");
         }
     }
 
@@ -256,87 +322,98 @@ class Environment
         if (user != null) {
             var time = TimeReport();
             await db.transactionR( (connection) async {
-                String query = 'SELECT `pokeSpace` FROM `Utilisateur` WHERE `idUtilisateur` = \'${user!.idDB}\';';
+                String query = 'SELECT `pokespace` FROM `Utilisateur` WHERE `idUtilisateur` = \'${user!.idDB}\';';
                 var reqUser = await connection.query(query);
-                assert( reqUser.length == 1 );
+                if(reqUser.isEmpty) {
+                    // Disconnect user
+                    printOutputError("User invalid: ${user!.idDB}");
+                    user = null;
+                } else {
+                    assert( reqUser.length == 1 );
 
-                for (var row in reqUser) {
-                    if(row[0] != null)
-                        user!.pokeSpace = PokeSpace.fromBytes((row[0] as Blob).toBytes(),
-                            collection.subExtensions,
-                            collection.products, collection.productSides);
-                    else {
-                        // Retrieve from draw (do one time)
-                        String query = 'SELECT `idSousExtension`, `cartesBin`'
-                            ' FROM `TirageBooster`, `UtilisateurProduit`'
-                            ' WHERE `idUtilisateur` = \'${user!.idDB}\''
-                            ' AND `TirageBooster`.`idAchat` = `UtilisateurProduit`.`idAchat`;';
-                        var reqUser = await connection.query(query);
-                        for (var row in reqUser) {
-                            var subExt = collection.subExtensions[row[0]]!;
-                            var bytes = (row[1] as Blob).toBytes().toList();
-                            ExtensionDrawCards edc = ExtensionDrawCards.fromBytes(subExt, bytes);
+                    for (var row in reqUser) {
+                        if(row[0] != null) {
+                          user!.pokeSpace = PokeSpace.fromBytes((row[0] as Blob).toBytes(),
+                                collection.subExtensions,
+                                collection.products, collection.productSides);
+                        } else {
+                            // Retrieve from draw (do one time)
+                            String query = 'SELECT `idSousExtension`, `cartesBin`'
+                                ' FROM `TirageBooster`, `UtilisateurProduit`'
+                                ' WHERE `idUtilisateur` = \'${user!.idDB}\''
+                                ' AND `TirageBooster`.`idAchat` = `UtilisateurProduit`.`idAchat`;';
+                            var reqUser = await connection.query(query);
+                            for (var row in reqUser) {
+                                var subExt = collection.subExtensions[row[0]]!;
+                                var bytes = (row[1] as Blob).toBytes().toList();
+                                ExtensionDrawCards edc = ExtensionDrawCards.fromBytes(subExt, bytes);
 
-                            user!.pokeSpace.add(subExt, edc);
+                                user!.pokeSpace.add(subExt, edc);
+                            }
+
+                            // Added product
+                            String queryProd = 'SELECT `idProduit`'
+                                ' FROM `UtilisateurProduit`'
+                                ' WHERE `idUtilisateur` = \'${user!.idDB}\';';
+                            var reqProdUser = await connection.query(queryProd);
+                            for (var row in reqProdUser) {
+                                user!.pokeSpace.insertProduct(collection.products[row[0]]!, UserProductCounter.fromOpened());
+                            }
+                            // Finally compute all stats
+                            user!.pokeSpace.computeStats();
                         }
-
-                        // Added product
-                        String queryProd = 'SELECT `idProduit`'
-                            ' FROM `UtilisateurProduit`'
-                            ' WHERE `idUtilisateur` = \'${user!.idDB}\';';
-                        var reqProdUser = await connection.query(queryProd);
-                        for (var row in reqProdUser) {
-                            user!.pokeSpace.insertProduct(collection.products[row[0]]!, UserProductCounter.fromOpened());
-                        }
-                        // Finally compute all stats
-                        user!.pokeSpace.computeStats();
                     }
                 }
             });
-            time.tick("My PokeSpace");
+            time.tick("My pokespace");
         }
     }
 
     Future<void> sendPokeSpace(connection) {
-        return connection.queryMulti('UPDATE `Utilisateur` SET `pokeSpace` = ?'
+        return connection.queryMulti('UPDATE `Utilisateur` SET `pokespace` = ?'
             ' WHERE `idUtilisateur` = \'${user!.idDB}\';',
             [[Int8List.fromList(user!.pokeSpace.toBytes())]]);
     }
 
     Future<NewCardsReport?> sendDraw([bool registerPokeSpace=true]) async {
-        if( !isLogged() )
-            return null;
+        if( !isLogged() ) {
+          return null;
+        }
         try {
             var report = NewCardsReport();
 
             await db.transactionR( (connection) async {
                 var time = TimeReport();
-                // Get new ID
-                int idAchat = 1;
-                var req = await connection.query('SELECT MAX(idAchat) FROM `UtilisateurProduit`;');
-                for (var row in req) {
-                    idAchat = row[0] + 1;
+                // NEVER send stats data if robot test BUT save into personal Pokespace
+                if(!user!.isRobotTest) {
+                    // Get new ID
+                    int idAchat = 1;
+                    var req = await connection.query('SELECT MAX(idAchat) FROM `UtilisateurProduit`;');
+                    for (var row in req) {
+                        idAchat = row[0] + 1;
+                    }
+
+                    // Add new product
+                    final queryStr = 'INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user!.idDB}, ${currentDraw!.product.idDB}, ${currentDraw!.productAnomaly ? 1 : 0})';
+                    await connection.query(queryStr);
+
+                    // Prepare data
+                    List<List<Object?>> draw = [];
+                    for(BoosterDraw booster in currentDraw!.boosterDraws) {
+                        draw.add(<Object?>[idAchat, booster.subExtension!.id, booster.abnormal ? 1 : 0, Int8List.fromList(booster.cardDrawing!.toBytes())]);
+                    }
+                    // Send data
+                    await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, cartesBin) VALUES (?, ?, ?, ?);',
+                                                draw);
+                } else {
+                    printOutput("RobotTest skip data send");
                 }
-
-                // Add new product
-                final queryStr = 'INSERT INTO `UtilisateurProduit` (idAchat, idUtilisateur, idProduit, anomalie) VALUES ($idAchat, ${user!.idDB}, ${currentDraw!.product.idDB}, ${currentDraw!.productAnomaly ? 1 : 0})';
-                await connection.query(queryStr);
-
-                // Prepare data
-                List<List<Object?>> draw = [];
-                for(BoosterDraw booster in currentDraw!.boosterDraws) {
-                    draw.add(<Object?>[idAchat, booster.subExtension!.id, booster.abnormal ? 1 : 0, Int8List.fromList(booster.cardDrawing!.toBytes())]);
-                }
-                // Send data
-                await connection.queryMulti('INSERT INTO `TirageBooster` (idAchat, idSousExtension, anomalie, cartesBin) VALUES (?, ?, ?, ?);',
-                                            draw);
-
                 time.tick("Register draw");
-                // Update PokeSpace and save into db
+                // Update pokespace and save into db
                 if(registerPokeSpace) {
                     report = user!.pokeSpace.insertSessionDraw(currentDraw!);
                     await sendPokeSpace(connection);
-                    time.tick("Save PokeSpace");
+                    time.tick("Save pokespace");
                 }
             });
             return report;
@@ -347,8 +424,9 @@ class Environment
     }
 
     Future<void> removeUser() async {
-        if( !isLogged() )
-            return;
+        if( !isLogged() ) {
+          return;
+        }
 
         try {
             await db.transactionR( (connection) async {
@@ -357,16 +435,16 @@ class Environment
                 user = null;
             });
         }
-        catch( e ) {
-        }
+        catch( _ ) {}
     }
 
     Future<StatsBooster> getStats(SubExtension subExt, Product? product, ProductCategory? category, [int? user]) async {
-        StatsBooster stats = new StatsBooster(subExt: subExt);
+        StatsBooster stats = StatsBooster(subExt: subExt);
         try {
             String userReq = '';
-            if(user != null)
-                userReq = 'AND `UtilisateurProduit`.`idUtilisateur` = $user ';
+            if(user != null) {
+              userReq = 'AND `UtilisateurProduit`.`idUtilisateur` = $user ';
+            }
 
             await db.transactionR( (connection) async {
                 String query;
@@ -405,8 +483,9 @@ class Environment
             });
         }
         catch( e ) {
-            if( e is StatitikException)
-                printOutput(e.msg);
+            if( e is StatitikException) {
+              printOutput(e.msg);
+            }
         }
         return stats;
     }
@@ -423,14 +502,17 @@ class Environment
     }
 
     void showDisclaimer(context) {
-        showDialog(
-            context: context,
-            builder: (_) => new AlertDialog(
-                title: new Text(StatitikLocale.of(context).read('disclaimer_T0')),
-                content: SingleChildScrollView( child:Text( nameApp + StatitikLocale.of(context).read('disclaimer'),
-                textAlign: TextAlign.justify),
-            ), )
-        );
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text(StatitikLocale.of(context).read('disclaimer_T0'), style: Theme.of(context).textTheme.displaySmall),
+          content: SingleChildScrollView(
+            child: Text( nameApp + StatitikLocale.of(context).read('disclaimer'),
+              textAlign: TextAlign.justify
+            ),
+          )
+        )
+      );
     }
 
     bool isLogged() {
@@ -456,70 +538,44 @@ class Environment
         });
     }
 
-    void login(CredentialMode mode, context, {Function([String?])? afterLogOrError}) async {
-        var onSuccess = (uid) {
+
+    void login(CredentialMode mode, context, {Function()? afterLog, Function(String)? afterError}) async {
+        onSuccess(googleID, oldUID, bool? isTest) {
             //printOutput("Credential Success: "+uid);
             SharedPreferences.getInstance().then((prefs) {
+                var isRobotTest = isTest ?? false;
                 // Save to preferences
-                prefs.setString('uid', uid);
+                prefs.setString('userID', googleID);
+                prefs.setString('uid',    oldUID);
+                prefs.setBool('isTest',   isRobotTest);
 
                 // Register and check access
-                assert(uid != null);
-                registerUser(uid).then((value){
-                    if(afterLogOrError != null)
-                        afterLogOrError();
+                assert(googleID != null);
+                assert(oldUID != null);
+                registerUser(oldUID, googleID, isRobotTest).then((value){
+                    if(afterLog != null) {
+                      afterLog();
+                    }
                 });
             });
-        };
-        var onError = (codeMessage, [code]) {
+        }
+        onError(codeMessage, [code]) {
             //printOutput("Credential Error: "+message);
             var message = sprintf(StatitikLocale.of(context).read(codeMessage), [code]);
             Environment.instance.user = null;
 
-            if(afterLogOrError != null)
-                afterLogOrError(message);
-        };
-        try {
-            // Log system
-            if(mode==CredentialMode.Phone) {
-                credential.signInWithPhone(context, onError, onSuccess);
-            } else if(mode==CredentialMode.Google) {
-                credential.signInWithGoogle(onSuccess);
-            } else if(mode==CredentialMode.AutoLog) {
-                SharedPreferences.getInstance().then((prefs) {
-                    onSuccess(prefs.getString('uid'));
-                });
-            } else {
-                onError('LOG_3');
+            if(afterError != null) {
+              afterError(message);
             }
+        }
+        try {
+          SharedPreferences.getInstance().then((prefs) {
+            onSuccess(prefs.getString('userID'), prefs.getString('uid'), prefs.getBool('isTest'));
+          });
         } catch(e) {
             onError('LOG_4');
         }
     }
-
-  Future<bool> sendRequestProduct(String info, String eac) async
-  {
-      if( !isLogged() )
-          return false;
-      try {
-          return await db.transactionR( (connection) async {
-              // Get new ID
-              int idRequest = 1;
-              var req = await connection.query('SELECT MAX(idDemande) FROM `Demande`;');
-              for (var row in req) {
-                  idRequest = row[0] + 1;
-              }
-
-              // Add new request
-              final queryStr = 'INSERT INTO `Demande` (idDemande, Information, EAC) VALUES (?, ?, ?)';
-
-              await connection.queryMulti(queryStr, [[idRequest, info, eac]]);
-          });
-      } catch( e ) {
-          printOutput("Database error $e");
-      }
-      return false;
-  }
 
     Future<List<SessionDraw>> getMyDraw([bool showAll=false]) async
     {
@@ -546,7 +602,7 @@ class Environment
                         // Read user data
                         var reqUserBoosters = await connection.query("SELECT `idSousExtension`, `anomalie`, `cartesBin` "
                             " FROM `TirageBooster`"
-                            " WHERE `idAchat` = \'${session.idAchat}\'");
+                            " WHERE `idAchat` = '${session.idAchat}'");
                         int id=0;
                         for (var rowUserBooster in reqUserBoosters) {
                             BoosterDraw booster;
@@ -625,6 +681,96 @@ class Environment
         return id;
     }
 
+    Future<int?> addNewEffectName(MultiLanguageString names) async {
+        int? id;
+        if( isAdministrator() ) {
+
+            try {
+                await db.transactionR( (connection) async {
+
+                    id = await collection.addNewEffectName(names, connection);
+                });
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
+        }
+        return id;
+    }
+
+    Future<int?> addNewDescriptionData(MultiLanguageString names) async {
+        int? id;
+        if( isAdministrator() ) {
+
+            try {
+                await db.transactionR( (connection) async {
+
+                    id = await collection.addNewDescriptionData(names, connection);
+                });
+            } catch( e ) {
+                printOutput("Database error $e");
+            }
+        }
+        return id;
+    }
+
+    Future<bool> duplicateProducts(Product product) async {
+
+        // Need world
+        if( !product.language!.isWorld() ) {
+          return false;
+        }
+
+        // All world languages
+        var languages = [collection.languages[1], collection.languages[2]];
+        // Remove current
+        languages.remove(product.language!);
+
+        List<Product> products = [];
+        for( var newLanguage in languages) {
+            // Copy Booster
+            List<ProductBooster> boosters = [];
+            for(var booster in product.boosters) {
+                SubExtension? subExtension;
+                if( booster.subExtension != null ) {
+                    // Search subextension with same extension cards in new language
+                    subExtension = collection.subExtensions.values.firstWhere((element) {
+                        return element.extension.language == newLanguage && booster.subExtension!.seCards == element.seCards;
+                    });
+                }
+
+                var newBooster = ProductBooster(subExtension, booster.nbBoosters, booster.nbCardsPerBooster);
+                boosters.add(newBooster);
+            }
+            Product newProduct = Product(0, newLanguage, product.name, product.imageURL, product.releaseDate, product.category, boosters);
+
+            // Cards
+            for(var card in product.otherCards) {
+                // Search subextension with same extension cards in new language
+                SubExtension? subExtension = collection.subExtensions.values.firstWhere((element) {
+                    return element.extension.language == newLanguage && card.subExtension.seCards == element.seCards;
+                });
+                if(subExtension == null) {
+                    printOutput("Impossible to find card SubExtension: ${card.subExtension.name}");
+                } else {
+                    ProductCard newCard = ProductCard(
+                        subExtension, card.idCard, card.design, card.jumbo,
+                        card.isRandom, card.counter);
+                    newProduct.otherCards.add(newCard);
+                }
+            }
+
+            // Other products
+            for(var other in product.sideProducts.entries) {
+                newProduct.sideProducts[other.key] = other.value;
+            }
+
+            products.add(newProduct);
+        }
+
+        // Send to DB
+        return sendProducts(products, true);
+    }
+
     Future<bool> sendProducts(List<Product> products, bool creation) async {
         try {
            return await db.transactionR( (connection) async {
@@ -645,7 +791,7 @@ class Environment
                     ' WHERE `idProduit` = ?;';
             }
 
-            products.forEach((product) {
+            for (var product in products) {
                 var outDate = DateFormat('yyyy-MM-dd 00:00:00').format(
                     product.releaseDate);
 
@@ -664,7 +810,7 @@ class Environment
                 }
 
                 productInfo.add(myData);
-            });
+            }
             // Go
             await connection.queryMulti(query, productInfo);
         } );
@@ -695,7 +841,7 @@ class Environment
                         ' WHERE `idProduitAnnexe` = ?;';
                 }
 
-                products.forEach((product) {
+                for (var product in products) {
                     var outDate = DateFormat('yyyy-MM-dd 00:00:00').format(
                         product.releaseDate);
 
@@ -710,7 +856,7 @@ class Environment
                     }
 
                     productInfo.add(myData);
-                });
+                }
                 // Go
                 await connection.queryMulti(query, productInfo);
             } );
@@ -719,5 +865,34 @@ class Environment
             printOutput("Database error $e");
             return false;
         }
+    }
+
+    Widget createDiscordButton() {
+        return Card(
+            color: const Color(0xFF5865f2),
+            child: TextButton(
+            onPressed: () => Environment.launchURL(Uri.parse('https://discord.gg/mnJNEka2zN')),
+            child: drawCachedImage('press', 'discordBlanc', height: 30.0)
+            ),
+        );
+    }
+
+    static void launchURL(Uri url) async {
+        if (await canLaunchUrl(url)) {
+            await launchUrl(
+              url,
+              mode: LaunchMode.externalApplication);
+        }
+    }
+
+    void setScreenOn(bool enable) {
+        SharedPreferences.getInstance().then((prefs) {
+            prefs.setBool("ScreenOn", enable);
+            if( enable) {
+                WakelockPlus.enable();
+            } else {
+                WakelockPlus.disable();
+            }
+        });
     }
 }

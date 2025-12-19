@@ -1,18 +1,19 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/models/CardIdentifier.dart';
-import 'package:statitikcard/services/Draw/BoosterDraw.dart';
-import 'package:statitikcard/services/Tools.dart';
-import 'package:statitikcard/services/Draw/cardDrawData.dart';
+import 'package:statitikcard/services/collection.dart';
+import 'package:statitikcard/services/models/card_identifier.dart';
+import 'package:statitikcard/services/draw/booster_draw.dart';
+import 'package:statitikcard/services/draw/card_draw_data.dart';
+import 'package:statitikcard/services/tools.dart';
 
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/BytesCoder.dart';
-import 'package:statitikcard/services/models/Language.dart';
-import 'package:statitikcard/services/models/PokemonCardExtension.dart';
-import 'package:statitikcard/services/models/ProductCategory.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
+import 'package:statitikcard/services/models/bytes_coder.dart';
+import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/pokemon_card_extension.dart';
+import 'package:statitikcard/services/models/product_category.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
+import 'package:statitikcard/services/models/pokemon_card_data.dart';
 
 abstract class ProductGeneric
 {
@@ -25,17 +26,34 @@ abstract class ProductGeneric
   ProductGeneric(this.idDB, this.category, this.name, this.imageURL, this.releaseDate);
 
   Widget image();
+
+  ProductGeneric.fromBytes(ByteParser parser, Collection collection) :
+    idDB      = parser.extractInt32(),
+    category  = parser.extractOptional((parser) => collection.categories[parser.extractInt32()]),
+    name      = parser.extractString16(),
+    imageURL  = parser.extractString16(),
+    releaseDate = parser.extractDateTime()
+  ;
+
+  List<int> toBytes() {
+    return ByteEncoder.encodeInt32(idDB)
+    + ByteEncoder.encodeOptional(category, () => ByteEncoder.encodeInt32(category!.idDB))
+    + ByteEncoder.encodeString16(name.codeUnits)
+    + ByteEncoder.encodeString16(imageURL.codeUnits)
+    + ByteEncoder.encodeDateTime(releaseDate);
+  }
 }
 
 class ProductSide extends ProductGeneric
 {
   ProductSide.empty() : super(0, null, "", "", DateTime.now());
 
-  ProductSide(idDB, category, name, imageURL, releaseDate) : super(idDB, category, name, imageURL, releaseDate);
+  ProductSide(super.idDB, super.category, super.name, super.imageURL, super.releaseDate);
 
-  Widget image()
+  @override
+  Widget image({alternativeRendering})
   {
-    return drawCachedImage('sideProducts', imageURL, height: 70);
+    return drawCachedImage('sideProducts', imageURL, height: 70, alternativeRendering: alternativeRendering);
   }
 }
 
@@ -46,10 +64,22 @@ class ProductBooster
   int           nbCardsPerBooster;
 
   ProductBooster(this.subExtension, this.nbBoosters, this.nbCardsPerBooster);
+
+  ProductBooster.fromBytes(ByteParser parser, Collection collection):
+    subExtension = parser.extractOptional( (parser) => collection.subExtensions[parser.extractInt32()]),
+    nbBoosters = parser.extractInt8(),
+    nbCardsPerBooster = parser.extractInt8();
+
+  List<int> toBytes() {
+    return ByteEncoder.encodeOptional(subExtension, () => ByteEncoder.encodeInt32(subExtension!.id))
+      + ByteEncoder.encodeInt8(nbBoosters)
+      + ByteEncoder.encodeInt8(nbCardsPerBooster);
+  }
 }
 
 class ProductCard {
   SubExtension          subExtension;
+  late CardIdentifier   idCard;
   late PokemonCardExtension  card;
   AlternativeDesign     design;       /// Think more about it but keep space !
   bool                  jumbo;
@@ -59,9 +89,10 @@ class ProductCard {
   static const int _jumboMask  = 1;
   static const int _randomMask = 2;
 
-  ProductCard(this.subExtension, this.card, this.design, this.jumbo, this.isRandom, this.counter);
+  ProductCard(this.subExtension, this.idCard, this.design, this.jumbo, this.isRandom, this.counter):
+    card = subExtension.cardFromId(idCard);
 
-  ProductCard.fromBytes(ByteParser parser, Map mapSubExtensions):
+  ProductCard.fromBytesV1(ByteParser parser, Map mapSubExtensions):
     subExtension = mapSubExtensions[parser.extractInt16()],
     design    = AlternativeDesign.values[parser.extractInt8()],
     jumbo     = false,
@@ -73,20 +104,61 @@ class ProductCard {
     isRandom  = mask(code, _randomMask);
 
     // Retrieve card
-    var cardId = CardIdentifier.fromBytes(parser);
-    card = subExtension.cardFromId(cardId);
+    idCard = CardIdentifier.fromBytes(parser);
+    card = subExtension.cardFromId(idCard);
 
     // Restore counter
-    counter = CodeDraw.fromSet(this.card.sets.length);
+    counter = CodeDraw.fromPokeCardExtension(card);
     var count = parser.extractInt8();
     for(int id=0; id < count; id +=1){
-      if( id < card.sets.length)
-        counter.countBySet[id] = parser.extractInt8();
+      if( id < card.sets.length) {
+        counter.setCount(parser.extractInt8(), id);
+      }
     }
   }
 
+  ProductCard.fromBytes(ByteParser parser, Collection collection):
+    subExtension = collection.subExtensions[parser.extractInt32()],
+    idCard    = CardIdentifier.fromBytes(parser),
+    design    = AlternativeDesign.values[parser.extractInt8()],
+    jumbo     = parser.extractBool(),
+    isRandom  = parser.extractBool(),
+    counter   = CodeDraw.fromBytes(parser)
+  {
+    card = subExtension.cardFromId(idCard);
+  }
+
   List<int> toBytes() {
-    assert(counter.countBySet.isNotEmpty);
+    assert(counter.nbSetsRegistred() > 0);
+    return ByteEncoder.encodeInt16(subExtension.id)
+    + idCard.toBytes()
+    + ByteEncoder.encodeInt8(design.index)
+    + ByteEncoder.encodeBool(jumbo)
+    + ByteEncoder.encodeBool(isRandom)
+    + counter.toBytes();
+  }
+
+  ProductCard.fromBytesDB(ByteParser parser, Map mapSubExtensions):
+        subExtension = mapSubExtensions[parser.extractInt16()],
+        design    = AlternativeDesign.values[parser.extractInt8()],
+        jumbo     = false,
+        isRandom  = false,
+        counter   = CodeDraw.fromSet(1)
+  {
+    var code = parser.extractInt8();
+    jumbo     = mask(code, _jumboMask);
+    isRandom  = mask(code, _randomMask);
+
+    // Retrieve card
+    idCard = CardIdentifier.fromBytes(parser);
+    card = subExtension.cardFromId(idCard);
+
+    // Restore counter
+    counter = CodeDraw.fromBytes(parser);
+  }
+
+  List<int> toBytesDB() {
+    assert(counter.nbSetsRegistred() > 0);
     List<int> bytes = [];
     bytes += ByteEncoder.encodeInt16(subExtension.id);
     bytes += ByteEncoder.encodeInt8(design.index);
@@ -98,11 +170,7 @@ class ProductCard {
     bytes += id.toBytes();
 
     // Encode counter
-    bytes += ByteEncoder.encodeInt8(counter.countBySet.length);
-    counter.countBySet.forEach((count) {
-      assert(count <= 255);
-      bytes += ByteEncoder.encodeInt8(count);
-    });
+    bytes += counter.toBytes();
     return bytes;
   }
 }
@@ -116,23 +184,47 @@ class Product extends ProductGeneric
   Map<ProductSide, int>    sideProducts = {};
   List<ProductCard>        otherCards   = [];
   int                      nbRandomPerProduct = 0;
-  static const int version = 2;
+  static const int version = 3;
 
   Product.empty():
-    this.boosters = [],
+    boosters = [],
     super(-1, null, "", "", DateTime.now());
 
-  Product(idDB, this.language, name, imageURL, outDate, category, this.boosters):
+  Product(int idDB, this.language, name, imageURL, outDate, category, this.boosters):
     super(idDB, category, name, imageURL, outDate);
 
-  Product.fromBytes(idDB, this.language, name, imageURL, outDate, category,
-                    List<int> data, Map mapSubExtensions, Map productSides):
-    this.boosters = [],
-    super(idDB, category, name, imageURL, outDate)
+  Product.fromBytes(super.parser, super.collection):
+    boosters = parser.extractArray16<ProductBooster>((parser) => ProductBooster.fromBytes(parser, collection)),
+    language = parser.extractOptional((parser) => Language.fromBytes(parser)),
+    sideProducts = parser.extractMap<ProductSide, int>(
+      (parser) => collection.productSides[parser.extractInt32()],
+      (parser) => parser.extractInt8()),
+    otherCards = parser.extractArray16<ProductCard>((parser) => ProductCard.fromBytes(parser, collection)),
+    nbRandomPerProduct = parser.extractInt8(),
+    super.fromBytes();
+  
+  @override
+  List<int> toBytes() {
+    return super.toBytes()
+      + ByteEncoder.encodeArray16<ProductBooster>(boosters, (e) => e.toBytes())
+      + ByteEncoder.encodeOptional(language, () => language!.toBytes() )
+      + ByteEncoder.encodeMap<ProductSide, int>(sideProducts,
+          (ProductSide e) => ByteEncoder.encodeInt32(e.idDB),
+          (int e) => ByteEncoder.encodeInt8(e) )
+      + ByteEncoder.encodeArray16<ProductCard>(otherCards, (ProductCard e) => e.toBytes())
+      + ByteEncoder.encodeInt8(nbRandomPerProduct)
+    ;
+  }
+
+  Product.fromBytesDB(idDB, this.language, name, imageURL, outDate, category,
+      List<int> data, Map mapSubExtensions, Map productSides):
+        boosters = [],
+        super(idDB, category, name, imageURL, outDate)
   {
     int currentVersion = data[0];
-    if(!(currentVersion <= version))
+    if(!(currentVersion <= version)) {
       throw StatitikException("Unknown Product version: ${data[0]}");
+    }
 
     // Is Zip ?
     List<int> bytes = (data[1] == 1) ? gzip.decode(data.sublist(2)) : data.sublist(2);
@@ -156,29 +248,36 @@ class Product extends ProductGeneric
     }
 
     // Read other cards
-    var nbOtherCards = parser.extractInt8();
-    for(int id=0; id < nbOtherCards; id +=1){
-      otherCards.add(ProductCard.fromBytes(parser, mapSubExtensions));
+    if(currentVersion == 2) {
+      var nbOtherCards = parser.extractInt8();
+      for(int id=0; id < nbOtherCards; id +=1){
+        otherCards.add(ProductCard.fromBytesV1(parser, mapSubExtensions));
+      }
+    } else if(currentVersion == 3) {
+      var nbOtherCards = parser.extractInt8();
+      for(int id=0; id < nbOtherCards; id +=1) {
+        otherCards.add(ProductCard.fromBytesDB(parser, mapSubExtensions));
+      }
     }
 
-    if(currentVersion == 2) {
+    if(currentVersion == 2 || currentVersion == 3) {
       nbRandomPerProduct = parser.extractInt8();
     }
   }
 
-  List<int> toBytes() {
+  List<int> toBytesDB() {
     List<int> bytes = [];
 
     // Save boosters
     assert(boosters.length <= 255);
     bytes += ByteEncoder.encodeInt8(boosters.length);
-    boosters.forEach((booster) {
+    for (var booster in boosters) {
       bytes += ByteEncoder.encodeInt16(booster.subExtension != null ? booster.subExtension!.id : 0);
       assert(booster.nbBoosters <= 255);
       bytes += ByteEncoder.encodeInt8(booster.nbBoosters);
       assert(booster.nbCardsPerBooster <= 255);
       bytes += ByteEncoder.encodeInt8(booster.nbCardsPerBooster);
-    });
+    }
 
     // Save other products
     assert(sideProducts.length <= 255);
@@ -192,9 +291,9 @@ class Product extends ProductGeneric
     // Save other cards
     assert(otherCards.length <= 255);
     bytes += ByteEncoder.encodeInt8(otherCards.length);
-    otherCards.forEach((card) {
-      bytes += card.toBytes();
-    });
+    for (var card in otherCards) {
+      bytes += card.toBytesDB();
+    }
     
     assert(nbRandomPerProduct <= 255);
     bytes += ByteEncoder.encodeInt8(nbRandomPerProduct);
@@ -212,32 +311,32 @@ class Product extends ProductGeneric
     return imageURL.isNotEmpty;
   }
 
-  Widget image()
-  {
-    return drawCachedImage('products', imageURL, height: 70);
+  @override
+  Widget image({double? height=70.0, alternativeRendering, photoView=false}) {
+    return drawCachedImage('products', imageURL, height: height, alternativeRendering: alternativeRendering, photoView: photoView);
   }
 
   int countBoosters() {
     int count=0;
-    boosters.forEach((value) { count += value.nbBoosters; });
+    for (var value in boosters) { count += value.nbBoosters; }
     return count;
   }
 
   List<BoosterDraw> buildBoosterDraw() {
     var list = <BoosterDraw>[];
     int id=1;
-    boosters.forEach((value) {
+    for (var value in boosters) {
       for( int i=0; i < value.nbBoosters; i+=1) {
-        list.add(new BoosterDraw(creation: value.subExtension, id: id, nbCards: value.nbCardsPerBooster));
+        list.add( BoosterDraw(creation: value.subExtension, id: id, nbCards: value.nbCardsPerBooster) );
         id += 1;
       }
-    });
+    }
     return list;
   }
 
   /// Validate before send request
   bool validate() {
-    return boosters.length > 0 && language != null && category != null;
+    return boosters.isNotEmpty && language != null && category != null;
   }
 }
 
@@ -267,8 +366,9 @@ bool filter(Product product, Language l, SubExtension se, ProductCategory? categ
       if(!onlyShowRandom) {
         // Keep product of extension
         keep = booster.subExtension == se;
-        if(keep)
+        if(keep) {
           break;
+        }
       } else {
         if(se.seCards.notInsideRandom()) {
           keep = false;
@@ -281,18 +381,21 @@ bool filter(Product product, Language l, SubExtension se, ProductCategory? categ
                 break;
               }
             }
-            if (keep)
+            if (keep) {
               break;
+            }
           } else {
             // Search product with random
             for (var booster in product.boosters) {
               keep = booster.subExtension == null;
-              if (keep)
+              if (keep) {
                 break;
+              }
             }
             // Keep product if after extension
-            if (keep)
+            if (keep) {
               keep = (product.releaseDate.compareTo(se.out) >= 0);
+            }
           }
         }
       }
@@ -323,14 +426,16 @@ Future<Map> filterProducts(Language l, SubExtension se, ProductCategory? categor
       String query = "SELECT DISTINCT `idProduit`, `idSousExtension`"
       " FROM `UtilisateurProduit`, `TirageBooster`"
       " WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat`";
-      if(onlyLocalUser)
+      if(onlyLocalUser) {
         query += " AND `UtilisateurProduit`.`idUtilisateur` = ${Environment.instance.user!.idDB};";
+      }
 
       var exts = await connection.query(query);
       for(var row in exts) {
         var p = Environment.instance.collection.products[row[0]]!;
-        if( !userExtension.containsKey(p))
+        if( !userExtension.containsKey(p)) {
           userExtension[p] = [];
+        }
 
         userExtension[p]!.add( Environment.instance.collection.subExtensions[row[1]]! );
       }
@@ -342,29 +447,31 @@ Future<Map> filterProducts(Language l, SubExtension se, ProductCategory? categor
   Environment.instance.collection.categories.forEach((key, category) { products[category] = [];});
 
   // Product of current extension
-  Environment.instance.collection.products.values.forEach((product) {
+  for (var product in Environment.instance.collection.products.values) {
     // Add to list
     if(filter(product, l, se, category, userExtension)) {
       products[product.category]!.add(ProductRequested(product, Colors.grey.shade600, userCounts[product] ?? 0));
     }
-  });
+  }
   if(showAll) {
     // Product of with random booster
-    Environment.instance.collection.products.values.forEach((product) {
+    for (var product in Environment.instance.collection.products.values) {
       // Add to list
       if(filter(product, l, se, category, userExtension, onlyShowRandom: true)) {
         // Search product inside list
         bool find = false;
         for(var p in products[product.category]!) {
           find = (p.product == product);
-          if(find)
+          if(find) {
             break;
+          }
         }
         // Add if missing
-        if(!find)
+        if(!find) {
           products[product.category]!.add(ProductRequested(product, Colors.deepOrange.shade700, userCounts[product] ?? 0));
+        }
       }
-    });
+    }
   }
   return products;
 }

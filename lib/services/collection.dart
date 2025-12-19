@@ -1,32 +1,34 @@
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:mysql1/mysql1.dart';
-import 'package:statitikcard/services/models/CardIdentifier.dart';
+import 'package:statitikcard/services/models/card_design.dart';
+import 'package:statitikcard/services/models/card_identifier.dart';
 
-import 'package:statitikcard/services/CardEffect.dart';
-import 'package:statitikcard/services/CardSet.dart';
+import 'package:statitikcard/services/models/card_effect.dart';
+import 'package:statitikcard/services/models/card_set.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/BytesCoder.dart';
-import 'package:statitikcard/services/models/CardIntoSubExtensions.dart';
-import 'package:statitikcard/services/models/CardTitleData.dart';
-import 'package:statitikcard/services/models/Extension.dart';
-import 'package:statitikcard/services/models/Language.dart';
-import 'package:statitikcard/services/models/Marker.dart';
-import 'package:statitikcard/services/models/MultiLanguageString.dart';
-import 'package:statitikcard/services/models/ProductCategory.dart';
-import 'package:statitikcard/services/models/Rarity.dart';
-import 'package:statitikcard/services/models/SerieType.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
-import 'package:statitikcard/services/models/SubExtensionCards.dart';
-import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/models/bytes_coder.dart';
+import 'package:statitikcard/services/models/card_into_sub_extensions.dart';
+import 'package:statitikcard/services/models/card_title_data.dart';
+import 'package:statitikcard/services/models/extension.dart';
+import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/marker.dart';
+import 'package:statitikcard/services/models/multi_language_string.dart';
+import 'package:statitikcard/services/models/product_category.dart';
+import 'package:statitikcard/services/models/rarity.dart';
+import 'package:statitikcard/services/models/serie_type.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
+import 'package:statitikcard/services/models/sub_extension_cards.dart';
+import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/product.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
-import 'package:statitikcard/services/Draw/SessionDraw.dart';
-import 'package:statitikcard/services/TimeReport.dart';
-import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/models/pokemon_card_data.dart';
+import 'package:statitikcard/services/draw/session_draw.dart';
+import 'package:statitikcard/services/time_report.dart';
+import 'package:statitikcard/services/tools.dart';
 
 class Collection
 {
@@ -48,16 +50,19 @@ class Collection
   Map rarities        = {};
   Map markers         = {};
   Map products        = {};
-  Map productSides   = {};
+  Map productSides    = {};
+  Map designs         = {};
+  Map convertKanji    = {};
+  List orderedKanji   = [];
 
   // Rarity Information
   static const int idUnknownRarity = 28;
   static const int idEmptyRarity   = 29;
-  static const int RarityMaskWorldCard        = 1;
-  static const int RarityMaskAsianCard        = 2;
-  static const int RarityMaskOtherReverseCard = 4;
-  static const int RarityMaskGoodCard         = 8;
-  static const int RarityMaskRotateIcon       = 16;
+  static const int rarityMaskWorldCard        = 1;
+  static const int rarityMaskAsianCard        = 2;
+  static const int rarityMaskOtherReverseCard = 4;
+  static const int rarityMaskGoodCard         = 8;
+  static const int rarityMaskRotateIcon       = 16;
   Rarity? unknownRarity;
   List<Rarity> orderedRarity    = [];
   List<Rarity> worldRarity      = [];
@@ -70,7 +75,9 @@ class Collection
   Map<CardMarker, Widget?> cachedMarkers = {};
   List<CardMarker>         longMarkers   = [];
 
-  // Admin part
+  List<CardDesign>         validDesigns = [];
+
+  // admin part
   Map rIllustrators    = {};
   Map rRegions         = {};
   Map rPokemonCards    = {};
@@ -81,6 +88,7 @@ class Collection
   Map rSets            = {};
   Map rRarities        = {};
   Map rMarkers         = {};
+  List<int> cardIssues = [];
 
   void clear() {
     languages.clear();
@@ -101,6 +109,9 @@ class Collection
     otherNames.clear();
     descriptions.clear();
     categories.clear();
+    designs.clear();
+    convertKanji.clear();
+    orderedKanji.clear();
 
     unknownRarity = null;
     orderedRarity.clear();
@@ -112,6 +123,7 @@ class Collection
 
     cachedMarkers.clear();
     longMarkers.clear();
+    validDesigns.clear();
 
     rIllustrators.clear();
     rRegions.clear();
@@ -123,6 +135,7 @@ class Collection
     rSets.clear();
     rRarities.clear();
     rMarkers.clear();
+    cardIssues.clear();
   }
 
   List<Extension> getExtensions(Language language) {
@@ -159,7 +172,7 @@ class Collection
   }
 
   // Temporary: need to understand tree shake
-  IconData getIcon(int id) {
+  static IconData getIcon(int id) {
     switch(id) {
       case 0xe163: return Icons.circle;
       case 0xe606: return Icons.stop;
@@ -184,8 +197,10 @@ class Collection
       var setResult = await connection.query("SELECT * FROM `Set`");
       for (var row in setResult) {
         try {
-          var isStandard = row[0] < 2;
-          sets[row[0]] = CardSet(MultiLanguageString([row[1] ?? "", row[2] ?? "", row[3] ?? ""]), Color(row[4]), row[5], isStandard);
+          sets[row[0]] = CardSet(MultiLanguageString([row[1] ?? "", row[2] ?? "", row[3] ?? ""]), Color(row[4]), row[5],
+              mask(row[6], CardSet.setMaskSystem),
+              mask(row[6], CardSet.setMaskParallel),
+              mask(row[6], CardSet.setMaskReplaceRevertIntoBooster));
         } catch(e) {
           printOutput("Bad Set: ${row[0]} $e");
         }
@@ -196,7 +211,7 @@ class Collection
       var rarityResult = await connection.query("SELECT * FROM `Rarete` ORDER BY `order` ASC");
       for (var row in rarityResult) {
         try {
-          var name;
+          MultiLanguageString? name;
           if(row[2] != null) {
             var allName = (row[2] as String).split(";");
             if(allName.length == 3){
@@ -207,30 +222,35 @@ class Collection
           }
 
           // Build
-          var rarity;
+          Rarity rarity;
           if(row[1] != null) {
-            rarity = Rarity.fromIcon(row[0], getIcon(row[1]), name, Color(row[6]), rotate: mask(row[4], RarityMaskRotateIcon));
-          }
-          else if(row[2] != null)
+            rarity = Rarity.fromIcon(row[0], getIcon(row[1]), name, Color(row[6]), rotate: mask(row[4], rarityMaskRotateIcon));
+          } else if(row[2] != null) {
             rarity = Rarity.fromText(row[0], name, Color(row[6]));
-          else if(row[3] != null)
+          } else if(row[3] != null) {
             rarity = Rarity.fromImage(row[0], row[3], Color(row[6]));
-          assert(rarity != null);
+          } else {
+            throw StatitikException("Impossible to build rarity !");
+          }
 
           // register into list
-          if(mask(row[4],RarityMaskAsianCard))
+          if(mask(row[4],rarityMaskAsianCard)) {
             japanRarity.add(rarity);
-          if(mask(row[4],RarityMaskWorldCard))
+          }
+          if(mask(row[4],rarityMaskWorldCard)) {
             worldRarity.add(rarity);
+          }
 
           // Order
           orderedRarity.add(rarity);
           // Good card
-          if(mask(row[4], RarityMaskGoodCard))
+          if(mask(row[4], rarityMaskGoodCard)) {
             goodCard.add(rarity);
+          }
           // Other than  reverse
-          if(mask(row[4], RarityMaskOtherReverseCard))
+          if(mask(row[4], rarityMaskOtherReverseCard)) {
             otherThanReverse.add(rarity);
+          }
 
           // Save
           rarities[row[0]] = rarity;
@@ -245,12 +265,13 @@ class Collection
       var markersResult = await connection.query("SELECT * FROM `Markers`");
       for (var row in markersResult) {
         try {
-          var mark = CardMarker(MultiLanguageString([row[1], row[2], row[3]]), Color(row[4]), mask(row[5], 1));
+          var mark = CardMarker(row[0], MultiLanguageString([row[1], row[2], row[3]]), Color(row[4]), mask(row[5], 1));
           markers[row[0]] = mark;
 
           // long markers
-          if( mask(row[5], 2) )
+          if( mask(row[5], 2) ) {
             longMarkers.add(mark);
+          }
         } catch(e) {
           printOutput("Bad Marker: ${row[0]} $e");
         }
@@ -297,7 +318,7 @@ class Collection
       var regionRes = await connection.query("SELECT * FROM `Region`");
       for (var row in regionRes) {
         try {
-          regions[row[0]] = Region(
+          regions[row[0]] = Region(row[0],
               MultiLanguageString(row[1].split('|')),
               MultiLanguageString(row[2].split('|')));
         } catch(e) {
@@ -318,10 +339,39 @@ class Collection
       time.tick("Formes");
       assert(formes.isNotEmpty);
 
+      var designRes = await connection.query("SELECT * FROM `Design`");
+      for (var row in designRes) {
+        if(!designs.containsKey(row[0])) {
+          designs[row[0]] = {};
+        }
+
+        var cardDesign = CardDesignData(row[5], MultiLanguageString([row[2], row[3], row[4]]));
+        designs[row[0]][row[1]] = cardDesign;
+
+        if(cardDesign.image.isNotEmpty) {
+          validDesigns.add(CardDesign(row[0], row[1]));
+        }
+      }
+
+      time.tick("Design");
+      assert(designs.isNotEmpty);
+
+      var kanjiRes = await connection.query("SELECT * FROM `KanjiConvert`");
+      for (var row in kanjiRes) {
+        convertKanji[row[0]] = row[1];
+      }
+      orderedKanji = convertKanji.keys.toList();
+      orderedKanji.sort((a, b){
+        return a.length.compareTo(b.length);
+      });
+
+      time.tick("Kanji");
+      assert(convertKanji.isNotEmpty);
+
       var illustratorRes = await connection.query("SELECT * FROM `Illustrateur`");
       for (var row in illustratorRes) {
         try {
-          illustrators[row[0]] = Illustrator(row[1]);
+          illustrators[row[0]] = Illustrator(row[0], row[1]);
         } catch(e) {
           printOutput("Bad Illustrateur: ${row[0]} $e");
         }
@@ -338,7 +388,7 @@ class Collection
         }
       }
       time.tick("Descriptions");
-      assert(descriptions.isNotEmpty);
+      //assert(descriptions.isNotEmpty);
 
       var effectRes = await connection.query("SELECT * FROM `EffetsCarte`");
       for (var row in effectRes) {
@@ -352,6 +402,7 @@ class Collection
       assert(effects.isNotEmpty);
 
       // Read cards info
+      int countCardEffectIssue = 0;
       var cardsReq = await connection.query("SELECT * FROM `Cartes`");
       for (var row in cardsReq) {
         // 0 = id
@@ -373,7 +424,14 @@ class Collection
           ByteParser nameBytes = ByteParser((row[1] as Blob).toBytes().toList());
 
           while(nameBytes.canParse) {
-            namePokemons.add(Pokemon.fromBytes(nameBytes, this));
+            try
+            {
+              var name = Pokemon.fromBytes(nameBytes, this);
+              namePokemons.add(name);
+            } catch(e) {
+              cardIssues.add(row[0]);
+              printOutputError("DB ${row[0]} - Pokémon/Trainer name was deleted.");
+            }
           }
         }
 
@@ -384,14 +442,14 @@ class Collection
         // Extract markers
         CardMarkers cardMarkers;
         if( row[5] != null) {
-          cardMarkers = CardMarkers.fromBytes((row[5] as Blob).toBytes().toList(), markers);
+          cardMarkers = CardMarkers.fromBytesArray((row[5] as Blob).toBytes().toList(), markers);
         } else {
           cardMarkers = CardMarkers();
         }
-        var effects      = row[6] != null ? CardEffects.fromBytes((row[6] as Blob).toBytes().toList()) : null;
+        var effects      = row[6] != null ? CardEffects.fromBytesArray((row[6] as Blob).toBytes().toList()) : null;
         var retreat      = row[7] != null ? (row[7] as Blob).toBytes().toList()[0] : 0;
-        var weakness     = row[8] != null ? EnergyValue.fromBytes((row[8] as Blob).toBytes().toList()) : null;
-        var resistance   = row[9] != null ? EnergyValue.fromBytes((row[9] as Blob).toBytes().toList()) : null;
+        var weakness     = row[8] != null ? EnergyValue.fromBytesArray((row[8] as Blob).toBytes().toList()) : null;
+        var resistance   = row[9] != null ? EnergyValue.fromBytesArray((row[9] as Blob).toBytes().toList()) : null;
         var illustrator  = row[10] != null ? illustrators[row[10]]: null;
 
         //Build card
@@ -402,12 +460,20 @@ class Collection
         }
         //Extract effects
         if( effects != null ) {
-          effects.effects.forEach((element) {
-            if( element.description != null ) {
-              element.description!.computeDescriptionEffects(descriptions, languages[1]);
+          try {
+            for (var element in effects.effects) {
+              if (element.description != null) {
+                element.description!.computeDescriptionEffects(
+                    descriptions, languages[1]);
+              }
             }
-          });
-          p.cardEffects = effects;
+            p.cardEffects = effects;
+          } catch(e) {
+            // Reset effect
+            //printOutput("Reset effect of card id ${row[0]}");
+            countCardEffectIssue += 1;
+            p.cardEffects = CardEffects();
+          }
         }
         //Extract illustrator
         if( illustrator != null ) {
@@ -416,8 +482,13 @@ class Collection
         pokemonCards[row[0]] = p;
       }
 
-      if(!Environment.instance.onInfoLoading.isClosed)
+      if(countCardEffectIssue > 0) {
+        printOutputError("Effect with issue: $countCardEffectIssue");
+      }
+
+      if(!Environment.instance.onInfoLoading.isClosed) {
         Environment.instance.onInfoLoading.add('LOAD_3');
+      }
       var cardsExtensionRes = await connection.query("SELECT * FROM `CartesExtension`;");
       for(var row in cardsExtensionRes) {
         try {
@@ -434,16 +505,17 @@ class Collection
             });
           }
 
+          var cardByteInfo = row[1] != null ? (row[1] as Blob).toBytes().toList() : null;
           var energyList   = row[3] != null ? (row[3] as Blob).toBytes().toList() : null;
           var noNumberList = row[4] != null ? (row[4] as Blob).toBytes().toList() : null;
 
-          cardsExtensions[row[0]] = (row[1] != null)
-              ? SubExtensionCards.build((row[1] as Blob).toBytes().toList(), codeNaming, pokemonCards, sets, rarities, row[5], energyList, noNumberList)
-              : SubExtensionCards.emptyDraw(codeNaming, row[5], sets);
+          cardsExtensions[row[0]] = cardByteInfo != null
+              ? SubExtensionCards.build(row[0], cardByteInfo, codeNaming, pokemonCards, sets, rarities, row[5], energyList, noNumberList)
+              : SubExtensionCards.emptyDraw(row[0], codeNaming, row[5], sets);
         } catch(e, callStack) {
           var msg = e is StatitikException ? e.msg : e.toString();
           printOutput("Bad SubExtensionCards: ${row[0]} - $msg\n$callStack");
-          cardsExtensions[row[0]] = SubExtensionCards.emptyDraw([], 0, sets);
+          cardsExtensions[row[0]] = SubExtensionCards.emptyDraw(row[0], [], 0, sets);
         }
       }
       time.tick("CardsExtensions");
@@ -468,8 +540,9 @@ class Collection
       time.tick("Categories");
       assert(categories.isNotEmpty);
 
-      if(!Environment.instance.onInfoLoading.isClosed)
+      if(!Environment.instance.onInfoLoading.isClosed) {
         Environment.instance.onInfoLoading.add('LOAD_4');
+      }
       
       // Read static other product
       var otherProductsRequest = await connection.query("SELECT * FROM `ProduitAnnexe`");
@@ -486,7 +559,7 @@ class Collection
           assert(row[6] != null);
 
           // Start session
-          products[row[0]] = Product.fromBytes(row[0], languages[row[1]], row[2], row[3], row[4], categories[row[5]],
+          products[row[0]] = Product.fromBytesDB(row[0], languages[row[1]], row[2], row[3], row[4], categories[row[5]],
               (row[6] as Blob).toBytes(), subExtensions, productSides);
         } catch(e) {
           printOutput("Bad Product: ${row[0]} $e");
@@ -510,14 +583,42 @@ class Collection
     rMarkers         = markers.map((k, v)         => MapEntry(v, k));
   }
 
+  void databaseSafety() {
+    // Check data integrity
+    if(kDebugMode && cardIssues.isNotEmpty) {
+      try {
+        for (var seCard in cardsExtensions.entries) {
+          int countCard = 1;
+          if(seCard.value.isValid) {
+            for (var listCard in seCard.value.cards) {
+              for (var card in listCard) {
+                try {
+                  int id = rPokemonCards[card.data];
+                  if (cardIssues.contains(id)) {
+                    printOutputError("Issue Naming: ${seCard.key} - $countCard");
+                  }
+                } catch( e ) {
+                  printOutputError("Issue not found: ${seCard.key} - $countCard");
+                }
+              }
+              countCard += 1;
+            }
+          }
+        }
+      } catch (e) {
+        printOutputError("databaseSafety crash !");
+      }
+    }
+  }
+
   Future<bool> saveDatabase(PokemonCardData card, int nextId, connection) async {
     // Search if card Id
     int? idCard = rPokemonCards[card];
 
     List<int> nameBytes = [];
-    card.title.forEach((element) {
+    for (var element in card.title) {
       nameBytes += element.toBytes(this);
-    });
+    }
 
     int? idIllustrator = card.illustrator != null ? rIllustrators[card.illustrator] : null;
 
@@ -526,23 +627,23 @@ class Collection
       typesByte.add(card.typeExtended!.index);
     }
     var namedData = nameBytes.isNotEmpty ? Int8List.fromList(nameBytes) : null;
-    var resistance;
-    if( card.resistance != null && card.resistance!.energy != TypeCard.Unknown) {
+    Int8List? resistance;
+    if( card.resistance != null && card.resistance!.energy != TypeCard.unknown) {
       resistance = Int8List.fromList(card.resistance!.toBytes());
     }
     var retreat = Int8List.fromList([card.retreat]);
 
-    var weakness;
-    if( card.weakness != null && card.weakness!.energy != TypeCard.Unknown) {
+    Int8List? weakness;
+    if( card.weakness != null && card.weakness!.energy != TypeCard.unknown) {
       weakness = Int8List.fromList(card.weakness!.toBytes());
     }
-    var effects;
+    Int8List? effects;
     card.cardEffects.removeUseless();
     if( card.cardEffects.effects.isNotEmpty ) {
       effects = Int8List.fromList(card.cardEffects.toBytes());
     }
 
-    List data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life,
+    List<Object?> data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life,
       Int8List.fromList(card.markers.toBytes(rMarkers)),
       effects, retreat, weakness, resistance, idIllustrator,
     ];
@@ -569,8 +670,8 @@ class Collection
         rPokemonCards[card] = nextId;
       }
     } catch(e) {
-      printOutput("Request error: "+e.toString());
-      throw e;
+      printOutput("Request error: $e");
+      rethrow;
     }
     return idCard == null;
   }
@@ -621,7 +722,7 @@ class Collection
         ' WHERE `CartesExtension`.`idCartesExtension` = $idSEC';
     await connection.queryMulti(query, [
       [
-        Int8List.fromList(seCards.toBytes(rPokemonCards, rSets, rRarities)),
+        Int8List.fromList(seCards.toBytesLocal(rPokemonCards, rSets, rRarities)),
         seCards.energyCard.isEmpty     ? null : Int8List.fromList(seCards.otherToBytes(seCards.energyCard,     rPokemonCards, rSets, rRarities)),
         seCards.noNumberedCard.isEmpty ? null : Int8List.fromList(seCards.otherToBytes(seCards.noNumberedCard, rPokemonCards, rSets, rRarities))
       ]]);
@@ -629,7 +730,7 @@ class Collection
 
   List<CardIntoSubExtensions> searchCardIntoAllSubExtension(PokemonCardData searchCard) {
     List<CardIntoSubExtensions> result = [];
-    subExtensions.values.forEach((subExtension) {
+    for (var subExtension in subExtensions.values) {
       int id=0;
       subExtension.seCards.cards.forEach((cards) {
         int subId=0;
@@ -657,15 +758,15 @@ class Collection
         }
         id += 1;
       });
-    });
+    }
     return result;
   }
 
   List<CardIntoSubExtensions> searchCardIntoSubExtension(PokemonCardData searchCard, [bool supportedDuplicateSeCard=false]) {
     List<CardIntoSubExtensions> result = [];
-    var alreadyFind = Set();
+    var alreadyFind = <dynamic>{};
 
-    subExtensions.values.forEach((subExtension) {
+    for (var subExtension in subExtensions.values) {
       if( supportedDuplicateSeCard || !alreadyFind.contains(subExtension.seCards) ) {
         int id=0;
         subExtension.seCards.cards.forEach((cards) {
@@ -696,7 +797,7 @@ class Collection
           id += 1;
         });
       }
-    });
+    }
     return result;
   }
 
@@ -780,7 +881,7 @@ class Collection
       printOutput("Next id of card is $nextId");
     }
     // Prepare data
-    List<String> names = [ "", "", ""];
+    List<String> names = [ "<$newText>", "<$newText>", "<$newText>"];
     names[idLangue-1] = newText;
 
     List<Object> values = <Object>[nextId] + names;
@@ -804,5 +905,58 @@ class Collection
     //Insert HERE all requests
 
     //printOutput('Migration Done !');
+  }
+
+  Future<int> addNewEffectName(MultiLanguageString names, connection) async {
+    // Compute next Id of name
+    int nextId = 0;
+    {
+      var nextIdReq = await connection.query(
+          "SELECT MAX(`idEffetsCarte`) as maxId FROM `EffetsCarte`;");
+      for (var row in nextIdReq) {
+        nextId = row[0];
+      }
+      nextId += 1;
+      //printOutput("Next id of card is $nextId");
+    }
+    // Prepare data
+    List<String> allNames = names.names();
+
+    // Run request
+    var query = 'INSERT INTO `EffetsCarte` (`idEffetsCarte`, `frNom`, `enNom`, `jpNom`) VALUES (?, ?, ?, ?);';
+    List<Object> values = <Object>[nextId] + allNames;
+    await connection.queryMulti(query, [values]);
+
+    // Edit local Db (avoid big refresh)
+    effects[nextId] = names;
+
+    return nextId;
+  }
+
+  Future<int> addNewDescriptionData(MultiLanguageString names, connection) async {
+    // Compute next Id of name
+    int nextId = 0;
+    {
+      var nextIdReq = await connection.query(
+          "SELECT MAX(`idDescription`) as maxId FROM `Description`;");
+      for (var row in nextIdReq) {
+        nextId = row[0] ?? 0;
+      }
+      nextId += 1;
+      //printOutput("Next id of card is $nextId");
+    }
+    // Prepare data
+    List<String> allNames = names.names();
+
+    // Run request
+    var query = 'INSERT INTO `Description` (`idDescription`, `frNom`, `enNom`, `jpNom`) VALUES (?, ?, ?, ?);';
+
+    List<Object> values = <Object>[nextId] + allNames;
+    await connection.queryMulti(query, [values]);
+
+    // Edit local Db (avoid big refresh)
+    descriptions[nextId] = DescriptionData.fromDb(names, 0);
+
+    return nextId;
   }
 }

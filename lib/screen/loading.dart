@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/screen/view.dart';
-import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 class Loading extends StatefulWidget {
+  const Loading({super.key});
+
   @override
-  _LoadingState createState() => _LoadingState();
+  State<Loading> createState() => _LoadingState();
 }
 
 class _LoadingState extends State<Loading> {
@@ -66,7 +68,7 @@ class _LoadingState extends State<Loading> {
               Center(
                 child: Text(
                     env.nameApp,
-                    style: Theme.of(context).textTheme.headline1,
+                    style: Theme.of(context).textTheme.displayLarge,
                     ),
                 ),
               Center(
@@ -81,17 +83,17 @@ class _LoadingState extends State<Loading> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      SizedBox(height: 80.0),
+                      const SizedBox(height: 80.0),
                       Card(
                         color: Colors.red[700],
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(StatitikLocale.of(context).read(msgError),
-                            style: TextStyle(color: Colors.white)
+                            style: const TextStyle(color: Colors.white)
                           ),
                         ),
                       ),
-                      SizedBox(height: 10.0),
+                      const SizedBox(height: 10.0),
                       Card(
                         child: TextButton(
                             child: Text(StatitikLocale.of(context).read('retry')),
@@ -108,7 +110,7 @@ class _LoadingState extends State<Loading> {
               else if(loadingInfo != null)
                 Center(
                   child: Text(StatitikLocale.of(context).read(loadingInfo!),
-                        style: Theme.of(context).textTheme.headline5,
+                        style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ),
             ],

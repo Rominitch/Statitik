@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
-import 'package:statitikcard/screen/widgets/CustomRadio.dart';
-import 'package:statitikcard/services/Draw/BoosterDraw.dart';
-import 'package:statitikcard/services/Draw/SessionDraw.dart';
+import 'package:statitikcard/screen/widgets/custom_radio.dart';
+import 'package:statitikcard/services/draw/booster_draw.dart';
+import 'package:statitikcard/services/draw/session_draw.dart';
+import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/Language.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
-import 'package:statitikcard/services/models/TypeCard.dart';
+import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
+import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/models/models.dart';
 
 Widget createLanguage(Language l, BuildContext context, Widget Function(BuildContext) press)
 {
-  return Container(
-    child: TextButton(
-      child: Image(
-        image: AssetImage('assets/langue/${l.image}.png'),
-      ),
-      onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: press));
-      },
+  return TextButton(
+    child: Image(
+      image: AssetImage('assets/langue/${l.image}.png'),
     ),
+    onPressed: () {
+      Navigator.push(context, MaterialPageRoute(builder: press));
+    },
   );
 }
 
@@ -30,10 +29,10 @@ class ExtensionButton extends StatefulWidget {
   final void Function()     press;
   final SubExtension subExtension;
 
-  ExtensionButton({required this.subExtension, required this.press});
+  const ExtensionButton({required this.subExtension, required this.press, super.key});
 
   @override
-  _ExtensionButtonState createState() => _ExtensionButtonState();
+  State<ExtensionButton> createState() => _ExtensionButtonState();
 }
 
 class _ExtensionButtonState extends State<ExtensionButton> {
@@ -41,11 +40,12 @@ class _ExtensionButtonState extends State<ExtensionButton> {
   Widget build(BuildContext context) {
     return Card(
       color: Colors.grey[850],
-      child: Container(
+      child: SizedBox(
         height: 40.0,
         child: TextButton(
           style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0),
-                                      minimumSize: Size(30.0, 40.0)),
+                                      minimumSize: const Size(30.0, 40.0)),
+          onPressed: widget.press,
           child: Environment.instance.showExtensionName
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -55,7 +55,6 @@ class _ExtensionButtonState extends State<ExtensionButton> {
                             ]
               )
               : widget.subExtension.image(),
-          onPressed: widget.press,
         ),
       ),
     );
@@ -67,16 +66,16 @@ Widget createSubExtension(SubExtension se, BuildContext context, void Function()
   return Card(
     color: Colors.grey[850],
     child: TextButton(
-      style: TextButton.styleFrom(minimumSize: Size(0.0, 40.0)),
+      style: TextButton.styleFrom(minimumSize: const Size(0.0, 40.0)),
+      onPressed: press,
       child: withName ? Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           se.image(),
-          SizedBox(width: 10.0),
-          Text( '${se.name}' ),
+          const SizedBox(width: 10.0),
+          Text( se.name ),
         ])
       : se.image(),
-      onPressed: press,
     ),
   );
 }
@@ -85,7 +84,7 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
   Color? color = Colors.grey[900];
   if( bd.isFinished() ) {
     final valid = bd.validationWorld(current.language);
-    color = (valid == Validator.Valid) ? greenValid : Colors.deepOrange;
+    color = (valid == Validator.valid) ? greenValid : Colors.deepOrange;
   }
 
   return Card(
@@ -95,43 +94,44 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Expanded(child: (bd.subExtension != null) ? bd.subExtension!.image(hSize: iconSize) : Icon(Icons.add_to_photos)),
+            Expanded(child: (bd.subExtension != null) ? bd.subExtension!.image(hSize: iconSize) : const Icon(Icons.add_to_photos)),
             Text(bd.id.toString()),
         ]),
       ),
       onPressed: () => press(context),
       onLongPress: () {
-        if(current.productAnomaly || bd.isRandom())
-        showDialog(
-          context: context,
-          builder: (_) => new AlertDialog(
-            title: new Text(StatitikLocale.of(context).read('V_B2')),
-            actions: [
-              Card(
-                color: Colors.grey[700],
-                child: TextButton(
-                  child: Text(StatitikLocale.of(context).read('V_B3')),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    bd.resetExtensions();
-                    press(context);
-                  }
-                ),
-              ),
-              if( current.productAnomaly && current.canDelete() ) Card(
-                color: Colors.red,
-                child: TextButton(
-                  child: Text(StatitikLocale.of(context).read('delete'), style: TextStyle(color: Colors.white),),
+        if(current.productAnomaly || bd.isRandom()) {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: Text(StatitikLocale.of(context).read('V_B2')),
+              actions: [
+                Card(
+                  color: Colors.grey[700],
+                  child: TextButton(
+                    child: Text(StatitikLocale.of(context).read('V_B3')),
                     onPressed: () {
-                      current.deleteBooster(bd.id-1);
                       Navigator.of(context).pop();
-                      update();
+                      bd.resetExtensions();
+                      press(context);
                     }
                   ),
                 ),
-            ],
-          )
-        );
+                if( current.productAnomaly && current.canDelete() ) Card(
+                  color: Colors.red,
+                  child: TextButton(
+                    child: Text(StatitikLocale.of(context).read('delete'), style: const TextStyle(color: Colors.white),),
+                      onPressed: () {
+                        current.deleteBooster(bd.id-1);
+                        Navigator.of(context).pop();
+                        update();
+                      }
+                    ),
+                  ),
+              ],
+            )
+          );
+        }
       },
     )
   );
@@ -139,7 +139,7 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
 
 
 
-Widget signInButton(String nameId, CredentialMode mode, Function([String?]) press, BuildContext context) {
+Widget signInButton(String nameId, CredentialMode mode, Function(String) showMessageError, Function refresh, BuildContext context) {
   return  Card(
     color: Colors.grey.shade600,
     child: TextButton(
@@ -147,33 +147,36 @@ Widget signInButton(String nameId, CredentialMode mode, Function([String?]) pres
           try {
             // Login
             Environment.instance.login(mode, context,
-              afterLogOrError: ([String? messageError]) {
-                // Try to restore PokeSpace if exists
+              afterLog: () {
+                // Try to restore pokespace if exists
                 if(Environment.instance.user != null) {
                   EasyLoading.show();
                   Environment.instance.readPokeSpace().then((value) {
                   }).whenComplete(() {
+                    // Try to update latest connexion time (but not critical)
+                    try {
+                      Environment.instance.tryChangeUserConnexionDate(Environment.instance.user!.uid);
+                    } catch(e) {
+                      printOutput(e.toString());
+                    }
                     EasyLoading.dismiss();
-
-                    // Show error and refresh
-                    press(messageError);
+                    refresh();
                   });
                 }
-                else
-                  // Show error and refresh
-                  press(messageError);
-              }
+                else {
+                  showMessageError(StatitikLocale.of(context).read('LOG_4'));
+                }
+              },
+              afterError: showMessageError
             );
           }
-          catch (e) {
-
-          }
+          catch (_) {}
         },
         child:Padding(
           padding: const EdgeInsets.only(left: 10),
           child: Text(
             StatitikLocale.of(context).read(nameId),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 20,
             ),
           ),
@@ -188,15 +191,17 @@ Widget signOutButton(Function press, context) {
         backgroundColor: Theme.of(context).primaryColor, // background
       ),
     onPressed: () {
+      /*
       Environment.instance.credential.signOutGoogle().then((result) {
         press();
       });
+      */
     },
     child:Padding(
       padding: const EdgeInsets.only(left: 10),
       child: Text(
         StatitikLocale.of(context).read('deconnexion'),
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 20,
         ),
       ),
@@ -253,34 +258,34 @@ List<Widget> createRegionsWidget(context, regionController, Language language) {
           children: [
             Flexible(child: Center(child: Text(
               StatitikLocale.of(context).read('REG_0'),
-              style: TextStyle(fontSize: 9),)))
+              style: const TextStyle(fontSize: 9),)))
           ])
     )
   );
 
   // parse region
-  Environment.instance.collection.regions.values.forEach((region) {
+  for (var region in Environment.instance.collection.regions.values) {
     regionsWidget.add(CustomRadio(value: region, controller: regionController,
         widget: Row(mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Flexible(child: Center(child: Text(
                 region.name(language),
-                style: TextStyle(fontSize: 9),)))
+                style: const TextStyle(fontSize: 9),)))
             ])
       )
     );
-  });
+  }
   return regionsWidget;
 }
 
 class MovingImageWidget extends StatefulWidget {
   final Widget child;
 
-  const MovingImageWidget(this.child, {Key? key}) : super(key: key);
+  const MovingImageWidget(this.child, {super.key});
 
   @override
-  _MovingImageWidgetState createState() => _MovingImageWidgetState();
+  State<MovingImageWidget> createState() => _MovingImageWidgetState();
 }
 
 class _MovingImageWidgetState extends State<MovingImageWidget> with SingleTickerProviderStateMixin {
@@ -290,8 +295,8 @@ class _MovingImageWidgetState extends State<MovingImageWidget> with SingleTicker
       value: 0,
       lowerBound: -maxAngle,
       upperBound: maxAngle,
-      duration: Duration(seconds: 2),
-      reverseDuration: Duration(seconds: 2), vsync: this
+      duration: const Duration(seconds: 2),
+      reverseDuration: const Duration(seconds: 2), vsync: this
   );
 
   @override
@@ -309,12 +314,14 @@ class _MovingImageWidgetState extends State<MovingImageWidget> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
+    return RepaintBoundary(
+      child:AnimatedBuilder(
         animation: animationControler,
         builder: (context, child) => Transform.rotate(
           angle: animationControler.value,
           child: Center(child: widget.child),
         )
+      )
     );
   }
 }

@@ -1,10 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/models/bytes_coder.dart';
+import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/Language.dart';
-import 'package:statitikcard/services/models/MultiLanguageString.dart';
+import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/multi_language_string.dart';
 
 class Rarity {
   final int id;
@@ -14,11 +15,12 @@ class Rarity {
   final bool rotate;
   final Color color;
 
-  const Rarity.fromText(this.id,  this.value, this.color) : this.iconId = null, this.image = "", this.rotate = false;
-  const Rarity.fromIcon(this.id,  this.iconId, this.value, this.color, {this.rotate=false}): this.image = "";
-  const Rarity.fromImage(this.id, this.image, this.color) : this.iconId = null, this.value = null, this.rotate = false;
+  const Rarity.fromText(this.id,  this.value, this.color) : iconId = null, image = "", rotate = false;
+  const Rarity.fromIcon(this.id,  this.iconId, this.value, this.color, {this.rotate=false}): image = "";
+  const Rarity.fromImage(this.id, this.image, this.color) : iconId = null, value = null, rotate = false;
 
   List<Widget> icon(Language l, {iconSize, fontSize=12.0, textureSize=20.0}) {
+    var text = (value != null) ? value!.name(l) : "";
     return [
       if(image.isNotEmpty)
         textureSize != null ? drawCachedImage('logo', image, height: textureSize)
@@ -26,12 +28,29 @@ class Rarity {
       if(iconId != null)
         rotate ? Transform.rotate(angle: pi / 4.0, child: Icon(iconId, size: iconSize))
                : Icon(iconId, size: iconSize),
-      if(value != null)  Text(value!.name(l), style: TextStyle(fontSize: fontSize)),
+      if(value != null)
+        Text(text, style: TextStyle(fontSize: text.length > 2 ? fontSize-3 : fontSize)),
     ];
   }
 
   bool isValid() {
     return this == Environment.instance.collection.unknownRarity!;
+  }
+
+  Rarity.fromBytes(ByteParser parser):
+    id     = parser.extractInt32(),
+    iconId = parser.extractIconData(),
+    value  = parser.extractMultiLanguage(),
+    image  = parser.extractString16(),
+    rotate = parser.extractBool(),
+    color  = parser.extractColor();
+
+  List<int> toBytes() {
+    return ByteEncoder.encodeInt32(id)
+        + ByteEncoder.encodeIconData(iconId)
+        + ByteEncoder.encodeMultiLanguage(value)
+        + ByteEncoder.encodeString16(image.codeUnits)
+        + ByteEncoder.encodeBool(rotate) + ByteEncoder.encodeColor(color);
   }
 }
 
@@ -42,10 +61,11 @@ List<Widget> getImageRarity(Rarity rarity, Language l,{iconSize, textureSize=20.
 
   if(generate || Environment.instance.collection.cachedImageRarity[l]![rarity] == null) {
     List<Widget> rendering = rarity.icon(l, iconSize: iconSize, fontSize: fontSize, textureSize: textureSize);
-    if(generate)
+    if(generate) {
       return rendering;
-    else
+    } else {
       Environment.instance.collection.cachedImageRarity[l]![rarity] = rendering;
+    }
   }
   return Environment.instance.collection.cachedImageRarity[l]![rarity]!;
 }

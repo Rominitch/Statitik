@@ -8,21 +8,26 @@ import 'package:intl/intl.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'package:statitikcard/screen/view.dart';
-import 'package:statitikcard/screen/widgets/ImageStoredLocally.dart';
+import 'package:statitikcard/screen/widgets/image_stored_locally.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
 
 import 'connection.dart';
 
-Widget drawCachedImage(folder, image, {double? width, double? height, alternativeRendering}){
+Color cardMenuColor    = Colors.blueAccent.shade200;
+const Color productMenuColor = Colors.deepOrange;
+const Color deckMenuColor    = Colors.deepPurpleAccent;
+
+Widget drawCachedImage(folder, image, {double? width, double? height, alternativeRendering, photoView=false}){
   if(Environment.instance.storeImageLocally) {
     return ImageStoredLocally(["images", folder], '$image',
       [Uri.parse('$adresseHTTPS/StatitikCard/$folder/$image.webp'),
        Uri.parse('$adresseHTTPS/StatitikCard/$folder/$image.png')],
       width: width,
       height: height,
-      alternativeRendering : alternativeRendering
+      alternativeRendering : alternativeRendering,
+      photoView: photoView
     );
   } else {
     return CachedNetworkImage(
@@ -31,9 +36,9 @@ Widget drawCachedImage(folder, image, {double? width, double? height, alternativ
         if(Environment.instance.isAdministrator()) {
           return Tooltip(
               message: '$adresseHTTPS\r\n$image\r\n$url\r\n$error\r\n',
-              child: alternativeRendering ?? Icon(Icons.help_outline));
+              child: alternativeRendering ?? const Icon(Icons.help_outline));
         } else {
-          return alternativeRendering ?? Icon(Icons.help_outline);
+          return alternativeRendering ?? const Icon(Icons.help_outline);
         }
       },
       placeholder: (context, url) => CircularProgressIndicator(color: Colors.orange[300]),
@@ -51,12 +56,12 @@ Widget drawOut(BuildContext context, SubExtension se) {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(sprintf(StatitikLocale.of(context).read('SEC_0'), [DateFormat.yMMMMd(StatitikLocale.of(context).locale.toLanguageTag()).format(se.out)]),
-              style: Theme.of(context).textTheme.headline3, textAlign: TextAlign.center),
-          SizedBox(height: 30),
+              style: Theme.of(context).textTheme.displaySmall, textAlign: TextAlign.center),
+          const SizedBox(height: 30),
           drawImagePress(context, 'zorua', 300),
-          SizedBox(height: 30),
+          const SizedBox(height: 30),
           Center(child: Text(sprintf(StatitikLocale.of(context).read('SEC_1'), [DateFormat.yMMMMd(StatitikLocale.of(context).locale.toLanguageTag()).format(se.out)]),
-            style: Theme.of(context).textTheme.headline5),
+            style: Theme.of(context).textTheme.headlineSmall),
           ),
       ]),
     ),
@@ -69,28 +74,35 @@ Widget drawImagePress(BuildContext context, String image, double imgHeight) {
     double finalH = (mediaH / 1000 * imgHeight).clamp(30.0, imgHeight);
     return drawCachedImage('press', image, height: finalH);
   } else {
-    return SizedBox();
+    return const SizedBox();
   }
 }
 
 Widget drawImage(BuildContext context, String image, double imgHeight) {
   double mediaH = MediaQuery.of(context).size.height;
   double finalH = (mediaH / 1000 * imgHeight).clamp(40.0, imgHeight);
-  return Image(image: AssetImage("assets/"+image), height: finalH);
+  return Image(image: AssetImage("assets/$image"), height: finalH);
+}
+
+void printOutputError(String s) {
+  if (kDebugMode) {
+    print("\x1B[31m📕 $s\x1B[0m");
+  }
 }
 
 void printOutput(String s) {
-  if(!kReleaseMode)
+  if (kDebugMode) {
     print(s);
+  }
 }
 
 Widget drawLoading(BuildContext context) {
   return MovingImageWidget( Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      SizedBox(height: 40),
-      Center(child: Text(StatitikLocale.of(context).read('loading'), style: Theme.of(context).textTheme.headline3)),
-      SizedBox(height: 20),
+      const SizedBox(height: 40),
+      Center(child: Text(StatitikLocale.of(context).read('loading'), style: Theme.of(context).textTheme.displaySmall)),
+      const SizedBox(height: 20),
       drawImagePress(context, 'Snorlax', 300),
     ]));
 }
@@ -99,13 +111,17 @@ Widget drawNothing(BuildContext context, String code) {
   return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(height: 40),
-        Center(child: Text(StatitikLocale.of(context).read(code), style: Theme.of(context).textTheme.headline3)),
-        SizedBox(height: 20),
+        const SizedBox(height: 40),
+        Center(child: Text(StatitikLocale.of(context).read(code), style: Theme.of(context).textTheme.displaySmall)),
+        const SizedBox(height: 20),
         drawImagePress(context, 'Arrozard', 300),
       ]);
 }
 
 bool mask(int value, int mask) {
-  return value & mask == mask;
+  return (value & mask) == mask;
+}
+
+int setMask(int data, int value, int mask) {
+  return (data & ~mask) | (value & mask);
 }

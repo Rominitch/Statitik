@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 
-import 'package:statitikcard/services/Tools.dart';
+import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/BytesCoder.dart';
-import 'package:statitikcard/services/models/Language.dart';
-import 'package:statitikcard/services/models/MultiLanguageString.dart';
+import 'package:statitikcard/services/models/bytes_coder.dart';
+import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/multi_language_string.dart';
 
 class CardMarker
 {
+  final int                 id;
   final MultiLanguageString name;
   final Color               color;
   final bool                toTitle;
 
-  const CardMarker(this.name, this.color, this.toTitle);
+  const CardMarker(this.id, this.name, this.color, this.toTitle);
+
+  String titleName(Language l) {
+    var title = name.name(l);
+    return title.toUpperCase().replaceAll("_SV", "");
+  }
 
   Widget icon(Language l, {height}) {
     var val = name.name(l);
@@ -20,24 +26,36 @@ class CardMarker
         alternativeRendering: Text(val, style: TextStyle(fontSize: val.length > 9 ? 7
             : (val.length > 6 ? 9 : 12) )));
   }
+
+  CardMarker.fromBytes(ByteParser parser):
+    id      = parser.extractInt32(),
+    name    = parser.extractMultiLanguage()!,
+    color   = parser.extractColor(),
+    toTitle = parser.extractBool();
+
+  List<int> toBytes() {
+    return ByteEncoder.encodeInt32(id)
+      + ByteEncoder.encodeMultiLanguage(name)
+      + ByteEncoder.encodeColor(color)
+      + ByteEncoder.encodeBool(toTitle);
+  }
 }
 
 class CardMarkers {
   List<CardMarker> markers = [];
 
   CardMarkers();
+  CardMarkers.from(List<CardMarker> currentMarkers) :
+    markers = currentMarkers;
 
-  CardMarkers.from(List<CardMarker> markers) : this.markers = markers;
-
-  static const int byteLength=5;
-  CardMarkers.fromBytes(List<int> bytes, Map allMarkers) {
-    var fullcode = <int>[
+  void _extract(List<int> bytes, Map allMarkers) {
+    final List<int> fullcode = <int>[
       bytes[0],
       ((bytes[1] << 8 | bytes[2]) << 8 | bytes[3]) << 8 | bytes[4]
     ];
     int nextId = 33;
     int id = 1;
-    fullcode.reversed.forEach((code) {
+    for (var code in fullcode.reversed) {
       while(code > 0)
       {
         if((code & 0x1) == 0x1) {
@@ -52,12 +70,20 @@ class CardMarkers {
       }
       id = nextId;
       nextId += 32;
-    });
+    }
+  }
+
+  static const int byteLength=5;
+  CardMarkers.fromBytesArray(List<int> bytes, Map allMarkers) {
+    _extract(bytes, allMarkers);
+  }
+  CardMarkers.fromBytes(ByteParser parser, Map allMarkers) {
+    _extract([parser.extractInt8(), parser.extractInt32()], allMarkers);
   }
 
   List<int> toBytes(Map rMarkers) {
     List<int> codeMarkers = [0, 0];
-    markers.forEach((element) {
+    for (var element in markers) {
       int id = rMarkers[element];
       if(id < 33) {
         codeMarkers[1] |= (1<<(id-1));
@@ -65,7 +91,7 @@ class CardMarkers {
         var multiple = id-33;
         codeMarkers[0] |= (1<<(multiple));
       }
-    });
+    }
     return <int>[
       codeMarkers[0] & 0xFF,
     ]+ByteEncoder.encodeInt32(codeMarkers[1]);

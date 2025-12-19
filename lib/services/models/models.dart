@@ -1,23 +1,25 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/models/bytes_coder.dart';
 
-import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/Draw/cardDrawData.dart';
+import 'package:statitikcard/services/models/card_set.dart';
+import 'package:statitikcard/services/draw/card_draw_data.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/CardIdentifier.dart';
-import 'package:statitikcard/services/models/CardTitleData.dart';
-import 'package:statitikcard/services/models/Language.dart';
-import 'package:statitikcard/services/models/Marker.dart';
-import 'package:statitikcard/services/models/MultiLanguageString.dart';
-import 'package:statitikcard/services/models/PokeSpace.dart';
-import 'package:statitikcard/services/models/PokemonCardExtension.dart';
+import 'package:statitikcard/services/models/card_design.dart';
+import 'package:statitikcard/services/models/card_identifier.dart';
+import 'package:statitikcard/services/models/card_title_data.dart';
+import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/marker.dart';
+import 'package:statitikcard/services/models/multi_language_string.dart';
+import 'package:statitikcard/services/models/pokespace.dart';
+import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/product.dart';
-import 'package:statitikcard/services/models/ProductCategory.dart';
-import 'package:statitikcard/services/models/Rarity.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
-import 'package:statitikcard/services/models/TypeCard.dart';
-import 'package:statitikcard/services/PokemonCardData.dart';
+import 'package:statitikcard/services/models/product_category.dart';
+import 'package:statitikcard/services/models/rarity.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
+import 'package:statitikcard/services/models/type_card.dart';
+import 'package:statitikcard/services/models/pokemon_card_data.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';
 
 final Color greenValid = Colors.green[500]!;
@@ -44,6 +46,7 @@ class UserPoke {
   int       idDB;
   String    uid       = "";
   bool      admin     = false;
+  bool      isRobotTest = false; /// For cloudtestlabaccounts
   PokeSpace pokeSpace = PokeSpace();
 
   UserPoke(this.idDB);
@@ -51,19 +54,20 @@ class UserPoke {
 
 
 enum Validator {
-  Valid,
-  ErrorReverse,
-  ErrorEnergy,
-  ErrorTooManyGood,
+  valid,
+  errorReverse,
+  errorEnergy,
+  errorTooManyGood,
 }
 
 enum Level {
-  Base,
-  Level1,
-  Level2,
+  base,
+  level1,
+  level2,
+  withoutLevel,
 }
 
-const List<String> levelString = ['LEVEL_0', 'LEVEL_1', 'LEVEL_2'];
+const List<String> levelString = ['LEVEL_0', 'LEVEL_1', 'LEVEL_2', 'LEVEL_3'];
 String getLevelText(context, Level element) {
   return StatitikLocale.of(context).read(levelString[element.index]);
 }
@@ -86,18 +90,18 @@ const String emptyMode = '_';
 
 
 enum DescriptionEffect {
-  Unknown,          // 0
-  Attack,           // 1
-  Draw,             // 2
-  FlipCoin,         // 4
-  Poison,           // 8
-  Burn,             // 16
-  Sleep,            // 32
-  Paralyzed,        // 64
-  Search,           // 128
-  Heal,             // 256
-  Mix,              // 512
-  Confusion,        // 1024
+  unknown,          // 0
+  attack,           // 1
+  draw,             // 2
+  flipCoin,         // 4
+  poison,           // 8
+  burn,             // 16
+  sleep,            // 32
+  paralyzed,        // 64
+  search,           // 128
+  heal,             // 256
+  mix,              // 512
+  confusion,        // 1024
 }
 
 String labelDescriptionEffect(BuildContext context, DescriptionEffect de) {
@@ -106,28 +110,28 @@ String labelDescriptionEffect(BuildContext context, DescriptionEffect de) {
 
 Widget getDescriptionEffectWidget(DescriptionEffect de, {size}) {
   switch(de) {
-    case DescriptionEffect.Attack:
-      return Icon(StatitikFont.font_09_attack, size: size);
-    case DescriptionEffect.Draw:
-      return Icon(StatitikFont.font_02_pioche, size: size);
-    case DescriptionEffect.FlipCoin:
-      return Icon(StatitikFont.font_03_coin, size: size);
-    case DescriptionEffect.Poison:
-      return Icon(StatitikFont.font_05_poison, size: size);
-    case DescriptionEffect.Burn:
-      return Icon(StatitikFont.font_04_burn, size: size);
-    case DescriptionEffect.Sleep:
-      return Icon(StatitikFont.font_07_sleep, size: size);
-    case DescriptionEffect.Paralyzed:
-      return Icon(StatitikFont.font_06_paralized, size: size);
-    case DescriptionEffect.Search:
-      return Icon(StatitikFont.font_08_search, size: size);
-    case DescriptionEffect.Heal:
-      return Icon(StatitikFont.font_12_heal, size: size);
-    case DescriptionEffect.Mix:
-      return Icon(StatitikFont.font_10_mix, size: size);
-    case DescriptionEffect.Confusion:
-      return Icon(StatitikFont.font_11_confusion, size: size);
+    case DescriptionEffect.attack:
+      return Icon(StatitikFont.font09Attack, size: size);
+    case DescriptionEffect.draw:
+      return Icon(StatitikFont.font02Pioche, size: size);
+    case DescriptionEffect.flipCoin:
+      return Icon(StatitikFont.font03Coin, size: size);
+    case DescriptionEffect.poison:
+      return Icon(StatitikFont.font05Poison, size: size);
+    case DescriptionEffect.burn:
+      return Icon(StatitikFont.font04Burn, size: size);
+    case DescriptionEffect.sleep:
+      return Icon(StatitikFont.font07Sleep, size: size);
+    case DescriptionEffect.paralyzed:
+      return Icon(StatitikFont.font06Paralized, size: size);
+    case DescriptionEffect.search:
+      return Icon(StatitikFont.font08Search, size: size);
+    case DescriptionEffect.heal:
+      return Icon(StatitikFont.font12Heal, size: size);
+    case DescriptionEffect.mix:
+      return Icon(StatitikFont.font10Mix, size: size);
+    case DescriptionEffect.confusion:
+      return Icon(StatitikFont.font11Confusion, size: size);
     default:
       return Icon(Icons.help_outline, size: size);
   }
@@ -162,36 +166,37 @@ class StatsBooster {
 
   bool hasEnergy() {
     for(int e in countEnergy ) {
-      if(e > 0)
+      if(e > 0) {
         return true;
+      }
     }
     return false;
   }
 
   void addBoosterDraw(ExtensionDrawCards edc, int anomaly) {
-    if( edc.drawCards.length > subExt.seCards.cards.length)
+    if( edc.drawCards.length > subExt.seCards.cards.length) {
       throw StatitikException('Corruption des données de tirages');
+    }
 
-    var computeStatsBySet = (cardInfo, CodeDraw code) {
-      int setId=0;
-      code.countBySet.forEach((element) {
+    computeStatsBySet(PokemonCardExtension cardInfo, CodeDraw code) {
+      for(int setId=0; setId < cardInfo.sets.length; setId += 1) {
+        var countSet = code.countBySet(setId);
         var setCard = cardInfo.sets[setId];
-        if(countBySet.containsKey(setCard))
-          countBySet[setCard] = countBySet[setCard]! + element;
-        else
-          countBySet[setCard] = element;
+        if(countBySet.containsKey(setCard)) {
+          countBySet[setCard] = countBySet[setCard]! + countSet;
+        } else {
+          countBySet[setCard] = countSet;}
 
-        if(!countBySetByRarity.containsKey(setCard))
+        if(!countBySetByRarity.containsKey(setCard)) {
           countBySetByRarity[setCard] = {};
-
-        if(!countBySetByRarity[setCard]!.containsKey(cardInfo.rarity))
-          countBySetByRarity[setCard]![cardInfo.rarity] = element;
-        else
-          countBySetByRarity[setCard]![cardInfo.rarity] = countBySetByRarity[setCard]![cardInfo.rarity]! + element;
-
-        setId += 1;
-      });
-    };
+        }
+        if(!countBySetByRarity[setCard]!.containsKey(cardInfo.rarity)) {
+          countBySetByRarity[setCard]![cardInfo.rarity] = countSet;
+        } else {
+          countBySetByRarity[setCard]![cardInfo.rarity] = countBySetByRarity[setCard]![cardInfo.rarity]! + countSet;
+        }
+      }
+    }
 
     anomaly += anomaly;
     nbBoosters += 1;
@@ -201,7 +206,7 @@ class StatsBooster {
 
     var idEnergy = 0;
     var energyCard = subExt.seCards.energyCard.iterator;
-    edc.drawEnergies.forEach((code) {
+    for (var code in edc.drawEnergies) {
       if(energyCard.moveNext()) {
         var count = code.count();
         if(count > 0) {
@@ -209,36 +214,36 @@ class StatsBooster {
           countEnergy[idEnergy]                 += count;
           countByType[cardInfo.data.type.index] += count;
 
-          if(countByRarity.containsKey(cardInfo.rarity))
+          if(countByRarity.containsKey(cardInfo.rarity)) {
             countByRarity[cardInfo.rarity] = countByRarity[cardInfo.rarity]! + count;
-          else
+          } else {
             countByRarity[cardInfo.rarity] = count;
-
+          }
           // Energy can be reversed
           computeStatsBySet(cardInfo, code);
         }
       }
       idEnergy += 1;
-    });
+    }
 
     var noNumberCards = subExt.seCards.noNumberedCard.iterator;
-    edc.drawNoNumber.forEach((code) {
+    for (var code in edc.drawNoNumber) {
       if(noNumberCards.moveNext()) {
         var count = code.count();
         if(count > 0) {
           var cardInfo = noNumberCards.current;
           countByType[cardInfo.data.type.index] += count;
 
-          if(countByRarity.containsKey(cardInfo.rarity))
+          if(countByRarity.containsKey(cardInfo.rarity)) {
             countByRarity[cardInfo.rarity] = countByRarity[cardInfo.rarity]! + count;
-          else
+          } else {
             countByRarity[cardInfo.rarity] = count;
-
+          }
           // No Number can be reversed
           computeStatsBySet(cardInfo, code);
         }
       }
-    });
+    }
 
     int cardsId=0;
     for(List<CodeDraw> cards in edc.drawCards) {
@@ -251,23 +256,24 @@ class StatsBooster {
             var cardInfo = subExt.seCards.cards[cardsId][cardId];
             // Count
             countByType[cardInfo.data.type.index] += nbCard;
-            if(countByRarity.containsKey(cardInfo.rarity))
+            if(countByRarity.containsKey(cardInfo.rarity)) {
               countByRarity[cardInfo.rarity] = countByRarity[cardInfo.rarity]! + nbCard;
-            else
+            } else {
               countByRarity[cardInfo.rarity] = nbCard;
+            }
 
             computeStatsBySet(cardInfo, code);
           } else {
-            int setId=0;
-            code.countBySet.forEach((element) {
+            for(var setId=0; setId < code.nbSetsRegistred(); setId += 1) {
+              var countSet = code.countBySet(setId);
               var setCard = Environment.instance.collection.sets[setId];
-              if(countBySet.containsKey(setCard))
-                countBySet[setCard] = countBySet[setCard]! + element;
-              else
-                countBySet[setCard] = element;
-
+              if(countBySet.containsKey(setCard)) {
+                countBySet[setCard] = countBySet[setCard]! + countSet;
+              } else {
+                countBySet[setCard] = countSet;
+              }
               setId += 1;
-            });
+            }
           }
           totalCards             += nbCard;
           count[cardsId][cardId] += nbCard;
@@ -304,6 +310,14 @@ class CodeNaming
   String naming = "%d";
 
   CodeNaming([this.idStart=0, this.naming="%s"]);
+  CodeNaming.fromBytes(ByteParser parser):
+    idStart = parser.extractInt16(),
+    naming = parser.extractString16();
+
+  List<int> toBytes() {
+    return ByteEncoder.encodeInt16(idStart)
+      + ByteEncoder.encodeString16(naming.codeUnits);
+  }
 }
 
 class CardStats {
@@ -338,9 +352,9 @@ class CardStats {
     } else {
       countSubExtension[se] = [idCard];
     }
-    d.markers.markers.forEach((marker) {
+    for (var marker in d.markers.markers) {
       countMarker[marker] = countMarker[marker] != null ? countMarker[marker]! + 1 : 1;
-    });
+    }
   }
 }
 
@@ -348,14 +362,16 @@ class TriState {
   bool? value;
 
   void set(bool v) {
-    if(value==null)
+    if(value==null) {
       value = v;
-    else
+    } else {
       value = value! | v;
+    }
   }
   bool isCheck() {
-    if( value == null)
+    if( value == null) {
       return true;
+    }
     return value!;
   }
 }
@@ -373,20 +389,22 @@ class CardResults {
   CardStats?      stats;
   List<TypeCard>  types    = [];
   List<Rarity>    rarities = [];
+  List<CardDesign> designs = [];
+  List<ArtFormat>  arts    = [];
 
   MultiLanguageString? effectName;
 
   // Attack
-  TypeCard?       attackType   = TypeCard.Unknown;
+  TypeCard?       attackType   = TypeCard.unknown;
   RangeValues     attackEnergy = defaultEnergyAttack;
   RangeValues     attackPower  = defaultAttack;
   List<DescriptionEffect> effects = [];
 
   // Pokémon card
   RangeValues     life           = defaultLife;
-  TypeCard        weaknessType   = TypeCard.Unknown;
+  TypeCard        weaknessType   = TypeCard.unknown;
   RangeValues     weakness       = defaultWeakness;
-  TypeCard        resistanceType = TypeCard.Unknown;
+  TypeCard        resistanceType = TypeCard.unknown;
   RangeValues     resistance     = defaultResistance;
 
   bool isSelected(PokemonCardExtension card){
@@ -405,9 +423,9 @@ class CardResults {
     }
     if(select && hasMarkersFilter()) {
       select = false;
-      filter.markers.forEach((marker) {
+      for (var marker in filter.markers) {
         select |= card.data.markers.markers.contains(marker);
-      });
+      }
     }
     if(select && types.isNotEmpty) {
       select = types.contains(card.data.type);
@@ -418,24 +436,67 @@ class CardResults {
     if(select && life != defaultLife) {
       select = life.start.round() <= card.data.life && card.data.life <= life.end.round();
     }
-    if(select && (resistance != defaultResistance || resistanceType != TypeCard.Unknown)) {
+    if(select && (resistance != defaultResistance || resistanceType != TypeCard.unknown)) {
       select = card.data.resistance != null;
       if(select) {
         var res = card.data.resistance!;
-        if(resistanceType != TypeCard.Unknown)
+        if(resistanceType != TypeCard.unknown) {
           select = res.energy == resistanceType;
-        if(select && resistance != defaultResistance)
+        }
+        if(select && resistance != defaultResistance) {
           select = resistance.start.round() <= res.value && res.value <= resistance.end.round();
+        }
       }
     }
-    if(select && (weakness != defaultWeakness || weaknessType != TypeCard.Unknown)) {
+    if(select && (weakness != defaultWeakness || weaknessType != TypeCard.unknown)) {
       select = card.data.weakness != null;
       if(select) {
         var weak = card.data.weakness!;
-        if(weaknessType != TypeCard.Unknown)
+        if(weaknessType != TypeCard.unknown) {
           select = weak.energy == weaknessType;
-        if(select && weakness != defaultWeakness)
+        }
+        if(select && weakness != defaultWeakness) {
           select = weakness.start.round() <= weak.value && weak.value <= weakness.end.round();
+        }
+      }
+    }
+
+    if(select && designs.isNotEmpty) {
+      select = false;
+      for(var subImages in card.images) {
+        if(select) {
+          break;
+        }
+        for(var design in subImages) {
+          if(select) {
+            break;
+          }
+          for(var designFilter in designs) {
+            if(designFilter.design == design.cardDesign.design && designFilter.pattern == design.cardDesign.pattern) {
+              select = true;
+              break;
+            }
+          }
+        }
+      }
+    }
+    if(select && arts.isNotEmpty) {
+      select = false;
+      for(var subImages in card.images){
+        if(select) {
+          break;
+        }
+        for(var design in subImages) {
+          if(select) {
+            break;
+          }
+          for(var art in arts) {
+            if(art == design.cardDesign.art) {
+              select = true;
+              break;
+            }
+          }
+        }
       }
     }
 
@@ -447,14 +508,16 @@ class CardResults {
         // Parse each effect to find filter item at least one time.
         //card.data.cardEffects.effects.forEach((effect) {
         for(var effect in card.data.cardEffects.effects) {
-          if(attackType != TypeCard.Unknown)
+          if(attackType != TypeCard.unknown) {
             count[0].set(effect.attack.contains(attackType));
+          }
           if(attackEnergy != defaultEnergyAttack) {
             var attackCount = effect.attack.length;
             count[1].set(attackEnergy.start.round() <= attackCount && attackCount <= attackEnergy.end.round());
           }
-          if(attackPower != defaultAttack)
+          if(attackPower != defaultAttack) {
             count[2].set(attackPower.start.round() <= effect.power && effect.power <= attackPower.end.round());
+          }
           if(effects.isNotEmpty) {
             if(effect.description != null) {
               // Check we find at least each effect demanded (on the card).
@@ -466,9 +529,9 @@ class CardResults {
               }
               // Compile all result
               bool allCheck = true;
-              checkDescriptions.forEach((element) {
+              for (var element in checkDescriptions) {
                 allCheck &= element;
-              });
+              }
               count[3].set(allCheck);
             } else {
               count[3].set(false);
@@ -482,7 +545,9 @@ class CardResults {
         for(var value in count) {
           select &= value.isCheck();
         }
-      } else select = false;
+      } else {
+        select = false;
+      }
     }
     return select;
   }
@@ -494,7 +559,7 @@ class CardResults {
   bool isFiltered() {
     return hasMarkersFilter() || hasRegionFilter()
     || hasTypeRarityFilter() || hasGeneralityFilter()
-    || hasAttackFilter();
+    || hasAttackFilter() || hasDesignFilter();
   }
 
   bool hasStats() {
@@ -514,6 +579,15 @@ class CardResults {
     types.clear();
     rarities.clear();
   }
+
+  bool hasDesignFilter() {
+    return designs.isNotEmpty || arts.isNotEmpty;
+  }
+  void clearDesignFilter() {
+    designs.clear();
+    arts.clear();
+  }
+
   bool hasMarkersFilter() {
     return filter.markers.isNotEmpty;
   }
@@ -522,12 +596,12 @@ class CardResults {
   }
 
   bool hasWeaknessFilter() {
-    return weaknessType != TypeCard.Unknown
+    return weaknessType != TypeCard.unknown
         || weakness != defaultWeakness;
   }
 
   bool hasResistanceFilter() {
-    return resistanceType != TypeCard.Unknown
+    return resistanceType != TypeCard.unknown
         || resistance != defaultResistance;
   }
 
@@ -539,21 +613,21 @@ class CardResults {
 
   void clearGeneralityFilter() {
     life           = defaultLife;
-    weaknessType   = TypeCard.Unknown;
+    weaknessType   = TypeCard.unknown;
     weakness       = defaultWeakness;
-    resistanceType = TypeCard.Unknown;
+    resistanceType = TypeCard.unknown;
     resistance     = defaultResistance;
   }
 
   bool hasAttackFilter() {
-    return attackType != TypeCard.Unknown
+    return attackType != TypeCard.unknown
         || attackEnergy != defaultEnergyAttack
         || attackPower != defaultAttack
         || effects.isNotEmpty;
   }
 
   void clearAttackFilter() {
-    attackType   = TypeCard.Unknown;
+    attackType   = TypeCard.unknown;
     attackEnergy  = defaultEnergyAttack;
     attackPower  = defaultAttack;
     effects.clear();

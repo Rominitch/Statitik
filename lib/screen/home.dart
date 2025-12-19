@@ -3,22 +3,25 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:statitikcard/screen/Admin/AdminPage.dart';
+import 'package:statitikcard/screen/Admin/admin_page.dart';
+import 'package:statitikcard/screen/Products/products_explorer.dart';
 
-import 'package:statitikcard/screen/Cartes/CardStatistic.dart';
+import 'package:statitikcard/screen/cartes/card_statistic.dart';
 import 'package:statitikcard/screen/stats/stats.dart';
 import 'package:statitikcard/screen/options.dart';
-import 'package:statitikcard/screen/PokeSpace/PokeSpaceConnexion.dart';
-import 'package:statitikcard/screen/widgets/NewsDialog.dart';
-import 'package:statitikcard/services/News.dart';
+import 'package:statitikcard/screen/PokeSpace/pokespace_connexion.dart';
+import 'package:statitikcard/screen/widgets/news_dialog.dart';
+import 'package:statitikcard/services/news.dart';
 import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';
 
 class Home extends StatefulWidget {
+  const Home({super.key});
+
   @override
-  _HomeState createState() => _HomeState();
+  State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
@@ -29,7 +32,7 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       SharedPreferences.getInstance().then((prefs) {
         var latestId = prefs.getInt('LatestNews') ?? 0;
         News.readFromDB(StatitikLocale
@@ -58,12 +61,13 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     _widgetOptions = [
-      DrawHomePage(),
+      const DrawHomePage(),
       StatsPage(),
-      CardStatisticPage(),
-      OptionsPage(),
+      const CardStatisticPage(),
+      const ProductsExplorer(),
+      const OptionsPage(),
       if(Environment.instance.isAdministrator())
-        AdminPage(),
+        const AdminPage(),
     ];
 
     return Scaffold(
@@ -74,27 +78,31 @@ class _HomeState extends State<Home> {
       ),
       bottomNavigationBar:
        BottomNavigationBar(
-          backgroundColor: useDebug ? Color.fromARGB(255,50, 0, 0) : Environment.instance.isMaintenance ? Colors.cyan[900] : Colors.grey[900],
+          backgroundColor: useDebug ? const Color.fromARGB(255,50, 0, 0) : Environment.instance.isMaintenance ? Colors.cyan[900] : Colors.grey[900],
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.add_chart),
+              icon: const Icon(Icons.add_chart),
               label: StatitikLocale.of(context).read('H_T0'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.insert_chart_outlined_rounded),
+              icon: const Icon(Icons.insert_chart_outlined_rounded),
               label: StatitikLocale.of(context).read('H_T1'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(StatitikFont.font_01_pokecard),
+              icon: const Icon(StatitikFont.font01Pokecard),
               label: StatitikLocale.of(context).read('H_T3'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
+              icon: const Icon(Icons.card_giftcard),
+              label: StatitikLocale.of(context).read('H_T5'),
+            ),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.settings),
               label: StatitikLocale.of(context).read('H_T2'),
             ),
             if(Environment.instance.isAdministrator())
               BottomNavigationBarItem(
-                icon: Icon(Icons.admin_panel_settings_outlined),
+                icon: const Icon(Icons.admin_panel_settings_outlined),
                 label: StatitikLocale.of(context).read('H_T4'),
               ),
           ],

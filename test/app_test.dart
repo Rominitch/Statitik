@@ -3,8 +3,9 @@ import 'package:flutter_driver/flutter_driver.dart';
 import 'package:test/test.dart';
 
 import 'package:statitikcard/main.dart' as app;
-
+*/
 void main() {
+/*
   group('CheckDraw', () {
     // First, define the Finders and use them to locate widgets from the
     // test suite. Note: the Strings provided to the `byValueKey` method must
@@ -50,5 +51,6 @@ void main() {
       await driver.tap(langueButton);
     });
   });
-}
+
  */
+}

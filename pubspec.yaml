@@ -1,8 +1,7 @@
 name: statitikcard
-description: Logiciel de partage de tirage et visualisation des statistiques pour Pokémon JCC.
-
+description: "Logiciel de partage de tirage et visualisation des statistiques pour Pokémon JCC."
 # The following line prevents the package from being accidentally published to
-# pub.dev using `pub publish`. This is preferred for private packages.
+# pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
@@ -12,56 +11,81 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # build by specifying --build-name and --build-number, respectively.
 # In Android, build-name is used as versionName while build-number used as versionCode.
 # Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
+# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.8.20+241
+# In Windows, build-name is used as the major, minor, and patch parts
+# of the product and file versions while build-number is used as the build suffix.
+version: 3.0.0+306
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ^3.10.3
 
+# Dependencies specify other packages that your package needs in order to work.
+# To automatically upgrade your package dependencies to the latest versions
+# consider running `flutter pub upgrade --major-versions`. Alternatively,
+# dependencies can be manually updated by changing the version numbers below to
+# the latest version available on pub.dev. To see which dependencies have newer
+# versions available, run `flutter pub outdated`.
 dependencies:
   flutter:
     sdk: flutter
 
-  intl: ^0.17.0
-  firebase_core: ^1.7.0
-  firebase_auth_web: ^3.0.0
-  firebase_auth: ^3.1.2
-  provider: ^6.0.0
-  mysql1: ^0.19.2
-  cached_network_image: ^3.1.0
-  google_sign_in: ^5.0.5
-  percent_indicator: ^3.0.1
-  fl_chart: ^0.41.0
-  shared_preferences: ^2.0.6
-  url_launcher: ^6.0.8
-  sprintf: ^6.0.0
-  flutter_spinbox: ^0.8.0
-  permission_handler: ^8.2.2
-  path_provider: ^2.0.2
-  photo_manager: ^1.2.8
-  screenshot: ^1.2.3
-  carousel_slider: ^4.0.0
-  kana_kit: ^2.0.0
-  flutter_easyloading: ^3.0.3
-  http: ^0.13.4
-  flutter_image_compress: ^1.1.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  #cupertino_icons: ^1.0.2
+  intl: ^0.20.2
+  # Authentification
+  provider: ^6.0.0
+  mysql1: ^0.20.0
+
+  shared_preferences: ^2.0.6
+  url_launcher: ^6.1.5
+  sprintf: ^7.0.0
+  permission_handler: ^12.0.1
+  path_provider: ^2.0.2
+  screenshot: ^3.0.0
+  flutter_image_compress: ^2.0.3
+
+  # External data access auto parsing data
+  html: ^0.15.1
+  http: ^1.1.0
+  kana_kit: ^2.0.0
+
+  # System
+  wakelock_plus: ^1.2.7
+
+  # Widget package
+  flutter_spinbox: ^0.13.0
+  carousel_slider: ^5.1.1
+  photo_view: ^0.15.0
+  percent_indicator: ^4.2.0
+  fl_chart: ^1.1.1
+  photo_manager: ^3.0.0-dev.2
+  cached_network_image: ^3.2.0
+  flutter_easyloading: ^3.0.3
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.2
   flutter_localizations:
     sdk: flutter
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  # The "flutter_lints" package below contains a set of recommended lints to
+  # encourage good coding practices. The lint set provided by the package is
+  # activated in the `analysis_options.yaml` file located at the root of your
+  # package. See that file for information about deactivating specific lint
+  # rules and activating additional ones.
+  flutter_lints: ^6.0.0
+
   flutter_driver:
     sdk: flutter
   integration_test:
     sdk: flutter
   test: any
-  flutter_launcher_icons: "^0.9.0"
+  flutter_launcher_icons: ^0.14.4
 
 # Run I:\Programmation\Android\flutter\bin\flutter.bat pub run flutter_launcher_icons:main
 flutter_icons:
@@ -76,9 +100,11 @@ flutter_icons:
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
-# The following section is specific to Flutter.
+# The following section is specific to Flutter packages.
 flutter:
-
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -97,19 +123,11 @@ flutter:
     - assets/carte/set_25.png
     - assets/carte/set_energy.png
     - assets/carte/set_other.png
-    - assets/design/DesignGold.png
-    - assets/design/DesignGoldBlack.png
-    - assets/design/DesignHoloDot.png
-    - assets/design/DesignHoloVertical.png
-    - assets/design/DesignNormal.png
-    - assets/design/DesignRainbow.png
-    - assets/design/DesignReverse0.png
-    - assets/design/DesignReverse1.png
-    - assets/design/DesignShiny.png
-    - assets/design/DesignHoloLight.png
-    - assets/design/DesignFullArt.png
-    - assets/design/DesignReversePoke.png
-    - assets/design/DesignK.png
+    - assets/carte/set_Promo.png
+    - assets/carte/set_GG.png
+    - assets/design/ArtNormal.png
+    - assets/design/ArtHalf.png
+    - assets/design/ArtFull.png
     - assets/energie/plante.png
     - assets/energie/feu.png
     - assets/energie/electrique.png
@@ -125,17 +143,6 @@ flutter:
     - assets/arrowL.png
     - assets/logo.png
 
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/assets-and-images/#resolution-aware.
-
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/assets-and-images/#from-packages
-
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
   fonts:
     - family: Pacifico
       fonts:
@@ -143,7 +150,5 @@ flutter:
     - family: StatitikFont
       fonts:
         - asset: fonts/StatitikFont.ttf
-
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
+flutter_intl:
+  enabled: true

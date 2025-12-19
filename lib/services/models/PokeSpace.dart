@@ -1,15 +1,18 @@
 import 'dart:io';
 
-import 'package:statitikcard/services/models/CardIdentifier.dart';
-import 'package:statitikcard/services/CardSet.dart';
-import 'package:statitikcard/services/Draw/SessionDraw.dart';
-import 'package:statitikcard/services/Draw/cardDrawData.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/BytesCoder.dart';
-import 'package:statitikcard/services/models/Language.dart';
-import 'package:statitikcard/services/models/NewCardsReport.dart';
-import 'package:statitikcard/services/models/Rarity.dart';
-import 'package:statitikcard/services/models/SubExtension.dart';
+
+import 'package:statitikcard/services/draw/session_draw.dart';
+import 'package:statitikcard/services/draw/card_draw_data.dart';
+
+import 'package:statitikcard/services/models/bytes_coder.dart';
+import 'package:statitikcard/services/models/card_identifier.dart';
+import 'package:statitikcard/services/models/card_set.dart';
+import 'package:statitikcard/services/models/deck.dart';
+import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/new_cards_report.dart';
+import 'package:statitikcard/services/models/rarity.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/product.dart';
 
 class StatsCardUser {
@@ -28,39 +31,43 @@ class StatsCardUser {
     assert(subExtension.seCards.cards.length == cards.length);
 
     var userCards = cards.iterator;
-    subExtension.seCards.cards.forEach((subCards) {
+    for (var subCards in subExtension.seCards.cards) {
       if(userCards.moveNext()) {
         assert(userCards.current.length == subCards.length);
         var userSubCards = userCards.current.iterator;
-        subCards.forEach((card) {
+        for (var card in subCards) {
           if(userSubCards.moveNext()) {
-            if(userSubCards.current.count() > 0) {
-              if(countByRarity.containsKey(card.rarity))
+            if( userSubCards.current.count() > 0) {
+              if(countByRarity.containsKey(card.rarity)) {
                 countByRarity[card.rarity] = countByRarity[card.rarity]! + 1;
-              else
+              } else {
                 countByRarity[card.rarity] = 1;
+              }
 
-              if(card.isSecret)
+              if(card.isSecret) {
                 countSecret += 1;
-              else
+              } else {
                 countOfficial += 1;
+              }
 
-              var itUserSet = userSubCards.current.countBySet.iterator;
-              card.sets.forEach((set) {
-                if(itUserSet.moveNext()) {
-                  if(itUserSet.current > 0) {
-                    if(countBySet.containsKey(set))
+              int idSet=0;
+              for (var set in card.sets) {
+                if(idSet < userSubCards.current.nbSetsRegistred()) {
+                  if(userSubCards.current.countBySet(idSet) > 0) {
+                    if(countBySet.containsKey(set)) {
                       countBySet[set] = countBySet[set]! + 1;
-                    else
+                    } else {
                       countBySet[set] = 1;
+                    }
                   }
                 }
-              });
+                idSet += 1;
+              }
             }
           }
-        });
+        }
       }
-    });
+    }
   }
 }
 
@@ -77,28 +84,29 @@ class UserCardCounter
   UserCardCounter.fromSubExtension(this.subExtension) {
     cards = List<List<CodeDraw>>.generate(subExtension.seCards.cards.length, (index) {
       return List<CodeDraw>.generate(subExtension.seCards.cards[index].length, (subIndex) {
-        return CodeDraw.fromSet(subExtension.seCards.cards[index][subIndex].sets.length);
+        return CodeDraw.fromPokeCardExtension(subExtension.seCards.cards[index][subIndex]);
       });
     });
 
     energies = List<CodeDraw>.generate(subExtension.seCards.energyCard.length, (index) {
-      return CodeDraw.fromSet(subExtension.seCards.energyCard[index].sets.length);
+      return CodeDraw.fromPokeCardExtension(subExtension.seCards.energyCard[index]);
     });
 
     noNumbers = List<CodeDraw>.generate(subExtension.seCards.noNumberedCard.length, (index) {
-      return CodeDraw.fromSet(subExtension.seCards.noNumberedCard[index].sets.length);
+      return CodeDraw.fromPokeCardExtension(subExtension.seCards.noNumberedCard[index]);
     });
   }
 
-  void fill(ByteParser parser) {
+  void fromByte(ByteParser parser) {
     int countCards = parser.extractInt16();
     for(var idCards = 0; idCards < countCards; idCards += 1) {
       int countSub  = parser.extractInt8();
       for(var idSubCards = 0; idSubCards < countSub; idSubCards += 1) {
         var code = CodeDraw.fromBytes(parser);
         // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
-        if(idCards < cards.length && idSubCards < cards[idCards].length)
-          cards[idCards][idSubCards] = code;
+        if(idCards < cards.length && idSubCards < cards[idCards].length) {
+          cards[idCards][idSubCards].add(code);
+        }
       }
     }
 
@@ -106,18 +114,51 @@ class UserCardCounter
     for(var idCards = 0; idCards < countECards; idCards += 1) {
       var code = CodeDraw.fromBytes(parser);
       // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
-      if(idCards < energies.length )
-        energies[idCards] = code;
+      if(idCards < energies.length ) {
+        energies[idCards].add(code);
+      }
     }
 
     var countNCards = parser.extractInt16();
     for(var idCards = 0; idCards < countNCards; idCards += 1) {
       var code = CodeDraw.fromBytes(parser);
       // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
-      if(idCards < noNumbers.length )
-        noNumbers[idCards] = code;
+      if(idCards < noNumbers.length ) {
+        noNumbers[idCards].add(code);
+      }
     }
-    //computeStats();
+  }
+
+  void fromByteV1(ByteParser parser) {
+    int countCards = parser.extractInt16();
+    for(var idCards = 0; idCards < countCards; idCards += 1) {
+      int countSub  = parser.extractInt8();
+      for(var idSubCards = 0; idSubCards < countSub; idSubCards += 1) {
+        var code = CodeDraw.fromBytesV1(parser);
+        // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
+        if(idCards < cards.length && idSubCards < cards[idCards].length) {
+          cards[idCards][idSubCards].add(code);
+        }
+      }
+    }
+
+    var countECards = parser.extractInt16();
+    for(var idCards = 0; idCards < countECards; idCards += 1) {
+      var code = CodeDraw.fromBytesV1(parser);
+      // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
+      if(idCards < energies.length ) {
+        energies[idCards].add(code);
+      }
+    }
+
+    var countNCards = parser.extractInt16();
+    for(var idCards = 0; idCards < countNCards; idCards += 1) {
+      var code = CodeDraw.fromBytesV1(parser);
+      // Try to save into SubExtension (WARNING: NO guaranty of same size !!!)
+      if(idCards < noNumbers.length ) {
+        noNumbers[idCards].add(code);
+      }
+    }
   }
 
   void computeStats() {
@@ -127,34 +168,34 @@ class UserCardCounter
   List<int> toBytes() {
     List<int> bytes = [];
     bytes += ByteEncoder.encodeInt16(cards.length);
-    cards.forEach((subCard) {
+    for (var subCard in cards) {
       bytes += ByteEncoder.encodeInt8(subCard.length);
-      subCard.forEach((code) {
+      for (var code in subCard) {
         bytes += code.toBytes();
-      });
-    });
+      }
+    }
 
     bytes += ByteEncoder.encodeInt16(energies.length);
-    energies.forEach((code) {
+    for (var code in energies) {
       bytes += code.toBytes();
-    });
+    }
 
     bytes += ByteEncoder.encodeInt16(noNumbers.length);
-    noNumbers.forEach((code) {
+    for (var code in noNumbers) {
       bytes += code.toBytes();
-    });
+    }
     return bytes;
   }
 
   void add(ExtensionDrawCards edc, [NewCardsReport? report]) {
     int idCard = 0;
     var subCard = cards.iterator;
-    edc.drawCards.forEach((element) {
+    for (var element in edc.drawCards) {
       if(subCard.moveNext()) {
         addList(subExtension, element, subCard.current, [0, idCard], report);
         idCard += 1;
       }
-    });
+    }
 
     addList(subExtension, edc.drawEnergies, energies, [1], report);
   }
@@ -162,7 +203,7 @@ class UserCardCounter
   void addRandomCard(ProductCard card, CodeDraw counter, [NewCardsReport? report]) {
     var idCard = card.subExtension.seCards.computeIdCard(card.card)!;
 
-    var code;
+    CodeDraw? code;
     switch(idCard.listId) {
       case 0:
         code = cards[idCard.numberId][idCard.alternativeId].add(counter);
@@ -184,7 +225,7 @@ class UserCardCounter
   void addList(SubExtension se, List<CodeDraw> from, List<CodeDraw> to, List<int> listId, [NewCardsReport? report]) {
     int idCard = 0;
     var dstCode = to.iterator;
-    from.forEach((cardCode) {
+    for (var cardCode in from) {
       if(dstCode.moveNext()) {
         var code = dstCode.current.add(cardCode);
         if(code != null && report!= null) {
@@ -192,7 +233,7 @@ class UserCardCounter
         }
         idCard +=1;
       }
-    });
+    }
   }
 
   NewCardReport? addProductCard(ProductCard productCard, [int mulFactor=1]) {
@@ -203,17 +244,20 @@ class UserCardCounter
       switch(idCards.listId) {
         case 0:
           if (idCards.numberId < cards.length &&
-              idCards.alternativeId < cards[idCards.numberId].length)
+              idCards.alternativeId < cards[idCards.numberId].length) {
             report = cards[idCards.numberId][idCards.alternativeId].add(
                 productCard.counter, mulFactor);
+          }
           break;
         case 1:
-          if (idCards.numberId < energies.length)
+          if (idCards.numberId < energies.length) {
             report = energies[idCards.numberId].add(productCard.counter, mulFactor);
+          }
           break;
         case 2:
-          if (idCards.numberId < noNumbers.length)
+          if (idCards.numberId < noNumbers.length) {
             report = noNumbers[idCards.numberId].add(productCard.counter, mulFactor);
+          }
           break;
         default:
           throw StatitikException("Unknown List");
@@ -253,9 +297,10 @@ class PokeSpace
   Map<SubExtension, UserCardCounter>    myCards        = {};
   Map<Product,      UserProductCounter> myProducts     = {};
   Map<ProductSide,  UserProductCounter> mySideProducts = {};
+  List<Deck>                            myDecks        = [];
 
   bool outOfDate = false;
-  static const int version = 1;
+  static const int version = 3;
 
   PokeSpace();
 
@@ -275,29 +320,43 @@ class PokeSpace
 
   List<Language> myLanguagesCard() {
     List<Language> languages = [];
-    myCards.keys.forEach((subExtension) {
+    for (var subExtension in myCards.keys) {
       if(!languages.contains(subExtension.extension.language)) {
         languages.add(subExtension.extension.language);
       }
-    });
+    }
     return languages;
   }
 
   List<Language> myLanguagesProduct() {
     List<Language> languages = [];
-    myProducts.keys.forEach((product) {
+    for (var product in myProducts.keys) {
       if(!languages.contains(product.language)) {
         languages.add(product.language!);
       }
-    });
+    }
     return languages;
   }
 
-  /// Build space from database
-  PokeSpace.fromBytes(List<int> data, Map subExtensions, Map products, Map sideProducts)
+  static PokeSpace fromBytes(List<int> data, Map subExtensions, Map products, Map sideProducts)
   {
-    if(data[0] != version)
+    int localVersion = data[0];
+    if(localVersion == 2) {
+      return PokeSpace.fromBytesV2(data, subExtensions, products, sideProducts);
+    } else if(localVersion == 3) {
+      return PokeSpace.fromBytesV3(data, subExtensions, products, sideProducts);
+    } else {
       throw StatitikException("Unknown Product version: ${data[0]}");
+    }
+  }
+
+  /// Build space from database
+  PokeSpace.fromBytesV2(List<int> data, Map subExtensions, Map products, Map sideProducts)
+  {
+    int localVersion = data[0];
+    if(localVersion > version) {
+      throw StatitikException("Unknown Product version: ${data[0]}");
+    }
 
     // Is Zip ?
     List<int> bytes = (data[1] == 1) ? gzip.decode(data.sublist(2)) : data.sublist(2);
@@ -309,7 +368,11 @@ class PokeSpace
       assert(subExtensions[idSE] != null, "Impossible to find SE: $idSE");
       var subExtension = subExtensions[idSE]!;
       insertSubExtension(subExtension);
-      myCards[subExtension]!.fill(parser);
+      if(localVersion == 2) {
+        myCards[subExtension]!.fromByte(parser);
+      } else {
+        myCards[subExtension]!.fromByteV1(parser);
+      }
     }
 
     int nbProducts = parser.extractInt16();
@@ -322,6 +385,53 @@ class PokeSpace
     for(var id=0; id < nbSideProducts; id +=1) {
       var product = sideProducts[parser.extractInt16()]!;
       insertSideProduct(product, UserProductCounter.fromBytes(parser));
+    }
+
+    // Finally compute all stats
+    computeStats();
+  }
+
+  /// Build space from database
+  PokeSpace.fromBytesV3(List<int> data, Map subExtensions, Map products, Map sideProducts)
+  {
+    int localVersion = data[0];
+    if(localVersion > version) {
+      throw StatitikException("Unknown Product version: ${data[0]}");
+    }
+
+    // Is Zip ?
+    List<int> bytes = (data[1] == 1) ? gzip.decode(data.sublist(2)) : data.sublist(2);
+    ByteParser parser = ByteParser(bytes);
+
+    int nbSubExtensions = parser.extractInt16();
+    for(var id=0; id < nbSubExtensions; id +=1) {
+      int idSE = parser.extractInt16();
+      assert(subExtensions[idSE] != null, "Impossible to find SE: $idSE");
+      var subExtension = subExtensions[idSE]!;
+      insertSubExtension(subExtension);
+      if(localVersion >= 2) {
+        myCards[subExtension]!.fromByte(parser);
+      } else {
+        myCards[subExtension]!.fromByteV1(parser);
+      }
+    }
+
+    int nbProducts = parser.extractInt16();
+    for(var id=0; id < nbProducts; id +=1) {
+      var product = products[parser.extractInt16()]!;
+      insertProduct(product, UserProductCounter.fromBytes(parser), addCardAndMore: false);
+    }
+
+    int nbSideProducts = parser.extractInt16();
+    for(var id=0; id < nbSideProducts; id +=1) {
+      var product = sideProducts[parser.extractInt16()]!;
+      insertSideProduct(product, UserProductCounter.fromBytes(parser));
+    }
+
+    // Extract deck
+    int nbDecks = parser.extractInt16();
+    for(var id=0; id < nbDecks; id +=1) {
+      myDecks.add(Deck.fromBytes(parser, subExtensions));
     }
 
     // Finally compute all stats
@@ -350,6 +460,12 @@ class PokeSpace
       bytes += ByteEncoder.encodeInt16(product.idDB);
       bytes += counter.toBytes();
     });
+
+    // My decks
+    bytes += ByteEncoder.encodeInt16(myDecks.length);
+    for (var deck in myDecks) {
+      bytes += deck.toBytes();
+    }
 
     // Save final data
     assert(version <= 255);
@@ -380,13 +496,13 @@ class PokeSpace
         insertSideProduct(sideProduct, UserProductCounter.fromOpened( counter.opened * count));
       });
       // Cards
-      product.otherCards.forEach((productCard) {
+      for (var productCard in product.otherCards) {
         insertSubExtension(productCard.subExtension);
         var result = myCards[productCard.subExtension]!.addProductCard(productCard, counter.opened);
         if(result != null && report!=null) {
           report.add(productCard.subExtension, result);
         }
-      });
+      }
 
       outOfDate |= product.otherCards.isNotEmpty;
     }
@@ -413,21 +529,22 @@ class PokeSpace
   }
 
   Map<SubExtension, UserCardCounter> getBy(Language? currentValue) {
-    if(currentValue != null && myCards.isNotEmpty)
+    if(currentValue != null && myCards.isNotEmpty) {
       return Map.from(myCards)..removeWhere((subExt, v) => subExt.extension.language != currentValue );
-    else
+    } else {
       return {};
+    }
   }
 
   NewCardsReport insertSessionDraw(SessionDraw draw) {
     var myNewCard = NewCardsReport();
 
-    draw.boosterDraws.forEach((booster) {
+    for (var booster in draw.boosterDraws) {
       if(booster.cardDrawing != null) {
         insertSubExtension(booster.subExtension!);
         myCards[booster.subExtension!]!.add(booster.cardDrawing!, myNewCard);
       }
-    });
+    }
 
     // Add new product
     insertProduct(draw.product, UserProductCounter.fromOpened(), report: myNewCard);
