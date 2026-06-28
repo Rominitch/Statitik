@@ -43,4 +43,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/assets
+/db
+/fonts
+/lib/generated
+/lib/l10n
+/private
+/windows
 pubspec.lock
+lib/secrets/googleAPI.dart
