@@ -38,8 +38,8 @@ class SubExtension
     icon   = parser.extractString16(),
     seCode = parser.extractArray16((parser) => parser.extractString16()),
     out    = parser.extractDateTime(),
-    seCards   = collection.cardsExtensions[parser.extractInt32()],
-    extension = collection.extensions[parser.extractInt32()],
+    seCards   = collection.cardsExtensions[parser.extractInt32()]!,
+    extension = collection.extensions[parser.extractInt32()]!,
     type      = SerieType.values[parser.extractInt8()],
     cardPerBooster = parser.extractInt8()
   {

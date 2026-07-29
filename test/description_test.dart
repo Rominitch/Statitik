@@ -97,7 +97,7 @@ void main() {
     var fr5Span = [];
     (w5Fr as RichText).text.visitChildren((span) { fr5Span.add(span); return true; });
     expect(fr5Span.length, 1);
-    var namePok = Pokemon(mapPoke[25]!, region: mapRegion[1]!);
+    var namePok = Pokemon(25, mapPoke[25]!, region: mapRegion[1]!);
     expect(fr5Span[0].text!, namePok.titleOfCard(fr));
   });
 }

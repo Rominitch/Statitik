@@ -118,7 +118,7 @@ class CardDesign {
   }
 
   CardDesignData designData() {
-    return Environment.instance.collection.designs[design][pattern];
+    return Environment.instance.collection.designs[design]![pattern]!;
   }
 
   Widget iconFullDesign({double? width, double? height}) {

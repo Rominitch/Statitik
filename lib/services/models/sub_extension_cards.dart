@@ -22,6 +22,8 @@ class SubExtensionCards {
 
   int                              configuration;
 
+  static const int                 dummyID = 0;
+
   SubExtensionCards(this.id, List<List<PokemonCardExtension>> currentCards, this.codeNaming, this.configuration) :
     cards   = currentCards,
     isValid = currentCards.isNotEmpty;
@@ -30,25 +32,25 @@ class SubExtensionCards {
     id = parser.extractInt32(),
     cards = parser.extractArray16<List<PokemonCardExtension>>(
       (parser) => parser.extractArray16<PokemonCardExtension>(
-        (parser) => PokemonCardExtension.fromBytes(parser, collection.pokemonCards, collection.sets, collection.rarities)
+        (parser) => PokemonCardExtension.fromBytes(parser, collection)
       )
     ),
-    codeNaming     = parser.extractArray16<CodeNaming>((parser) => CodeNaming.fromBytes(parser)),
+    codeNaming     = parser.extractArray16<CodeNaming>((parser) => CodeNaming.fromBytesParser(parser)),
     isValid        = parser.extractBool(),
-    energyCard     = parser.extractArray16<PokemonCardExtension>((parser) => PokemonCardExtension.fromBytes(parser, collection.pokemonCards, collection.sets, collection.rarities)),
-    noNumberedCard = parser.extractArray16<PokemonCardExtension>((parser) => PokemonCardExtension.fromBytes(parser, collection.pokemonCards, collection.sets, collection.rarities)),
+    energyCard     = parser.extractArray16<PokemonCardExtension>((parser) => PokemonCardExtension.fromBytes(parser, collection)),
+    noNumberedCard = parser.extractArray16<PokemonCardExtension>((parser) => PokemonCardExtension.fromBytes(parser, collection)),
     configuration  = parser.extractInt32();
 
-  List<int> toBytes(Collection collection) {
+  List<int> toBytes() {
     return ByteEncoder.encodeInt32(id)
     + ByteEncoder.encodeArray16<List<PokemonCardExtension>>(cards,
       (List<PokemonCardExtension> list) => ByteEncoder.encodeArray16<PokemonCardExtension>(list,
-        (PokemonCardExtension e) => e.toBytes(collection.rPokemonCards, collection.rSets, collection.rRarities)
+        (PokemonCardExtension e) => e.toBytes()
       ))
-    + ByteEncoder.encodeArray16(codeNaming, (CodeNaming e) => e.toBytes())
+    + ByteEncoder.encodeArray16(codeNaming, (CodeNaming e) => e.toBytesParser())
     + ByteEncoder.encodeBool(isValid)
-    + ByteEncoder.encodeArray16(energyCard,     (PokemonCardExtension e) => e.toBytes(collection.rPokemonCards, collection.rSets, collection.rRarities))
-    + ByteEncoder.encodeArray16(noNumberedCard, (PokemonCardExtension e) => e.toBytes(collection.rPokemonCards, collection.rSets, collection.rRarities))
+    + ByteEncoder.encodeArray16(energyCard,     (PokemonCardExtension e) => e.toBytes())
+    + ByteEncoder.encodeArray16(noNumberedCard, (PokemonCardExtension e) => e.toBytes())
     + ByteEncoder.encodeInt32(configuration);
   }
 
@@ -93,7 +95,7 @@ class SubExtensionCards {
   PokemonCardExtension extractCard(int currentVersion, parser, Map cardCollection, Map allSets, Map rarities) {
     try {
       if(currentVersion == 9) {
-        return PokemonCardExtension.fromBytes(parser, cardCollection, allSets, rarities);
+        return PokemonCardExtension.fromBytesDB(parser, cardCollection, allSets, rarities);
       } else if(currentVersion == 8) {
         return PokemonCardExtension.fromBytesV8(parser, cardCollection, allSets, rarities);
       } else if(currentVersion == 7) {
@@ -127,7 +129,7 @@ class SubExtensionCards {
         // Extract card
         while(parser.canParse) {
           try {
-            var newCard = extractCard(currentVersion, parser, cardCollection, allSets, rarities);
+            var newCard = extractCard( currentVersion, parser, cardCollection, allSets, rarities);
             listCards.add(newCard);
           } catch (e, callStack) {
             printOutput("OtherCard issue: Skip card\n$e\n$callStack");
@@ -268,7 +270,7 @@ class SubExtensionCards {
       cardBytes.add(cardById.length);
       // Add card code
       for (var card in cardById) {
-        cardBytes += card.toBytes(collectionCards, allSets, rarities);
+        cardBytes += card.toBytesDB(collectionCards, allSets, rarities);
       }
     }
 

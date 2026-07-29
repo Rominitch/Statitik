@@ -81,10 +81,10 @@ class CardMarkers {
     _extract([parser.extractInt8(), parser.extractInt32()], allMarkers);
   }
 
-  List<int> toBytes(Map rMarkers) {
+  List<int> toBytes() {
     List<int> codeMarkers = [0, 0];
     for (var element in markers) {
-      int id = rMarkers[element];
+      final int id = element.id;
       if(id < 33) {
         codeMarkers[1] |= (1<<(id-1));
       } else {
@@ -97,15 +97,15 @@ class CardMarkers {
     ]+ByteEncoder.encodeInt32(codeMarkers[1]);
   }
 
-  void add(value) {
+  void add(CardMarker value) {
     markers.add(value);
   }
 
-  void remove(value) {
+  void remove(CardMarker value) {
     markers.remove(value);
   }
 
-  bool contains(value) {
+  bool contains(CardMarker value) {
     return markers.contains(value);
   }
 }

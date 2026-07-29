@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/services/collection.dart';
 
 import 'package:statitikcard/services/models/card_set.dart';
 import 'package:statitikcard/services/models/pokemon_card_data.dart';
@@ -19,6 +20,22 @@ class ImageDesign {
   int        jpDBId = 0;
 
   String     finalImage = ""; /// Cached to retrieve final image when found
+
+  ImageDesign();
+
+  ImageDesign.fromBytes(ByteParser parser, Collection collection) :
+    cardDesign = CardDesign.fromBytes(parser),
+    image      = parser.extractString16(),
+    jpDBId     = parser.extractInt32(),
+    finalImage = parser.extractString16()
+  ;
+
+  List<int> toBytes() {
+    return cardDesign.toBytes()
+    +  ByteEncoder.encodeString16(image.codeUnits)
+    +  ByteEncoder.encodeInt32(jpDBId)
+    +  ByteEncoder.encodeString16(finalImage.codeUnits);
+  }
 }
 
 class PokemonCardExtension {
@@ -40,6 +57,24 @@ class PokemonCardExtension {
     return sets.length > 1;
   }
 
+  PokemonCardExtension.fromBytes(ByteParser parser, Collection collection) :
+    data      = collection.pokemonCards[parser.extractInt32()]!,
+    rarity    = collection.rarities[parser.extractInt32()]!,
+    specialID = parser.extractString16(),
+    isSecret  = parser.extractBool(),
+    sets      = parser.extractArray16((parser) => collection.sets[parser.extractInt32()]!),
+    images    = parser.extractArray16((parser) => parser.extractArray16((parser) => ImageDesign.fromBytes(parser, collection)))
+  ;
+
+  List<int> toBytes() {
+    return ByteEncoder.encodeInt32( data.id ) //collection.rPokemonCards[data]
+      + ByteEncoder.encodeInt32( rarity.id )
+      + ByteEncoder.encodeString16( specialID.codeUnits )
+      + ByteEncoder.encodeBool(isSecret)
+      + ByteEncoder.encodeArray16<CardSet>(sets, (CardSet e) => ByteEncoder.encodeInt32(e.id))
+      + ByteEncoder.encodeArray16<List<ImageDesign>>(images, (List<ImageDesign> list) => ByteEncoder.encodeArray16<ImageDesign>(list, (ImageDesign i) => i.toBytes()));
+  }
+
   PokemonCardExtension.empty(this.data, this.rarity, {this.specialID="", this.isSecret=false}) {
     images.add([ImageDesign()]);
   }
@@ -53,9 +88,9 @@ class PokemonCardExtension {
     if(isJapanese) {
       // Auto art
       image.cardDesign.art = rarity == Environment.instance.collection.rarities[16] ? ArtFormat.fullArt
-          : rarity == Environment.instance.collection.rarities[14] ? ArtFormat.halfArt :  ArtFormat.normal;
+        : rarity == Environment.instance.collection.rarities[14] ? ArtFormat.halfArt :  ArtFormat.normal;
       image.cardDesign.design = rarity == Environment.instance.collection.rarities[16] ? Design.full.index
-          : rarity == Environment.instance.collection.rarities[14] ? Design.full.index :  0;
+        : rarity == Environment.instance.collection.rarities[14] ? Design.full.index :  0;
     }
 
     images.add([image]);
@@ -207,7 +242,7 @@ class PokemonCardExtension {
       var nbImagesDesign = parser.extractInt8();
       for(int id=0; id < nbImagesDesign; id +=1) {
         var image = ImageDesign();
-        image.image  = parser.extractString16();
+        image.image  = parser.extractSmallString16();
         image.jpDBId = parser.extractInt32();
         image.cardDesign = CardDesign.fromBytesV1(parser);
         imageSets.add(image);
@@ -215,7 +250,7 @@ class PokemonCardExtension {
       images.add(imageSets);
     }
 
-    specialID = parser.extractString16();
+    specialID = parser.extractSmallString16();
 
     var nbSets = parser.extractInt8();
     for(int i = 0; i < nbSets; i +=1){
@@ -227,7 +262,7 @@ class PokemonCardExtension {
     assert(images.isNotEmpty && images[0].isNotEmpty);
   }
 
-  PokemonCardExtension.fromBytes(ByteParser parser, Map collection, Map allSets, Map allRarities) :
+  PokemonCardExtension.fromBytesDB(ByteParser parser, Map collection, Map allSets, Map allRarities) :
         data   = collection[parser.extractInt16()],
         rarity = Environment.instance.collection.unknownRarity!
   {
@@ -244,7 +279,7 @@ class PokemonCardExtension {
       var nbImagesDesign = parser.extractInt8();
       for(int id=0; id < nbImagesDesign; id +=1) {
         var image = ImageDesign();
-        image.image  = parser.extractString16();
+        image.image  = parser.extractSmallString16();
         image.jpDBId = parser.extractInt32();
         image.cardDesign = CardDesign.fromBytes(parser);
         imageSets.add(image);
@@ -252,7 +287,7 @@ class PokemonCardExtension {
       images.add(imageSets);
     }
 
-    specialID = parser.extractString16();
+    specialID = parser.extractSmallString16();
 
     var nbSets = parser.extractInt8();
     for(int i = 0; i < nbSets; i +=1){
@@ -264,13 +299,13 @@ class PokemonCardExtension {
     assert(images.isNotEmpty && images[0].isNotEmpty);
   }
 
-  List<int> toBytes(Map rCollection, Map rSet, Map rRarity) {
+  List<int> toBytesDB(Map rCollection, Map rSet, Map rRarity) {
     assert(rCollection.isNotEmpty); // admin condition
 
     int idCard = rCollection[data];
     assert(idCard != 0);
 
-    var specialImage = ByteEncoder.encodeString16(specialID.codeUnits);
+    var specialImage = ByteEncoder.encodeSmallString16(specialID.codeUnits);
     var setsInfo     = [sets.length];
     for(var s in sets) {
       setsInfo.add(rSet[s]);
@@ -280,7 +315,7 @@ class PokemonCardExtension {
     for(var imageBySets in images) {
       imagesBytes += ByteEncoder.encodeInt8(imageBySets.length);
       for(var image in imageBySets) {
-        imagesBytes += ByteEncoder.encodeString16(image.image.codeUnits);
+        imagesBytes += ByteEncoder.encodeSmallString16(image.image.codeUnits);
         imagesBytes += ByteEncoder.encodeInt32(image.jpDBId);
         imagesBytes += image.cardDesign.toBytes();
       }

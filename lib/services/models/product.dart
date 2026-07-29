@@ -29,7 +29,7 @@ abstract class ProductGeneric
 
   ProductGeneric.fromBytes(ByteParser parser, Collection collection) :
     idDB      = parser.extractInt32(),
-    category  = parser.extractOptional((parser) => collection.categories[parser.extractInt32()]),
+    category  = parser.extractOptional((parser) => collection.categories[parser.extractInt32()]!),
     name      = parser.extractString16(),
     imageURL  = parser.extractString16(),
     releaseDate = parser.extractDateTime()
@@ -50,6 +50,8 @@ class ProductSide extends ProductGeneric
 
   ProductSide(super.idDB, super.category, super.name, super.imageURL, super.releaseDate);
 
+  ProductSide.fromBytes(super.parser, super.collection) : super.fromBytes();
+
   @override
   Widget image({alternativeRendering})
   {
@@ -66,7 +68,7 @@ class ProductBooster
   ProductBooster(this.subExtension, this.nbBoosters, this.nbCardsPerBooster);
 
   ProductBooster.fromBytes(ByteParser parser, Collection collection):
-    subExtension = parser.extractOptional( (parser) => collection.subExtensions[parser.extractInt32()]),
+    subExtension = parser.extractOptional( (parser) => collection.subExtensions[parser.extractInt32()]!),
     nbBoosters = parser.extractInt8(),
     nbCardsPerBooster = parser.extractInt8();
 
@@ -118,7 +120,7 @@ class ProductCard {
   }
 
   ProductCard.fromBytes(ByteParser parser, Collection collection):
-    subExtension = collection.subExtensions[parser.extractInt32()],
+    subExtension = collection.subExtensions[parser.extractInt32()]!,
     idCard    = CardIdentifier.fromBytes(parser),
     design    = AlternativeDesign.values[parser.extractInt8()],
     jumbo     = parser.extractBool(),
@@ -197,7 +199,7 @@ class Product extends ProductGeneric
     boosters = parser.extractArray16<ProductBooster>((parser) => ProductBooster.fromBytes(parser, collection)),
     language = parser.extractOptional((parser) => Language.fromBytes(parser)),
     sideProducts = parser.extractMap<ProductSide, int>(
-      (parser) => collection.productSides[parser.extractInt32()],
+      (parser) => collection.productSides[parser.extractInt32()]!,
       (parser) => parser.extractInt8()),
     otherCards = parser.extractArray16<ProductCard>((parser) => ProductCard.fromBytes(parser, collection)),
     nbRandomPerProduct = parser.extractInt8(),

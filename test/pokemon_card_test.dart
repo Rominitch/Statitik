@@ -50,16 +50,16 @@ void main() {
       CardMarkers.from([markers[36], markers[37]]),
     ];
 
-    expect([0, 0, 0 ,0 ,20], c[0].toBytes(rmarkers));
-    expect([0, 0, 0 ,0, 0],  c[1].toBytes(rmarkers));
-    expect([0, 0, 0 ,0, 4],  c[2].toBytes(rmarkers));
-    expect([0, 0, 0 ,4, 1],  c[3].toBytes(rmarkers));
-    expect([0, 2, 0 ,4, 0],  c[4].toBytes(rmarkers));
-    expect([1, 128, 0 ,0, 0],c[5].toBytes(rmarkers));
-    expect([24, 0, 0 ,0, 0], c[6].toBytes(rmarkers));
+    expect([0, 0, 0 ,0 ,20], c[0].toBytes());
+    expect([0, 0, 0 ,0, 0],  c[1].toBytes());
+    expect([0, 0, 0 ,0, 4],  c[2].toBytes());
+    expect([0, 0, 0 ,4, 1],  c[3].toBytes());
+    expect([0, 2, 0 ,4, 0],  c[4].toBytes());
+    expect([1, 128, 0 ,0, 0],c[5].toBytes());
+    expect([24, 0, 0 ,0, 0], c[6].toBytes());
 
     for(CardMarkers code in c) {
-      CardMarkers codeS = CardMarkers.fromBytesArray(code.toBytes(rmarkers), markers);
+      CardMarkers codeS = CardMarkers.fromBytesArray(code.toBytes(), markers);
       expect(codeS.markers, code.markers);
     }
   });
@@ -70,8 +70,8 @@ void main() {
     var r  = Rarity.fromText(0, MultiLanguageString(["S0","S0","S0"]), Colors.green);
     var defaultCard = PokemonCardData.empty();
     var sets = [
-      CardSet(MultiLanguageString(["S0","S0","S0"]), Colors.green, "normal", false, false, false),
-      CardSet(MultiLanguageString(["S1","S1","S1"]), Colors.blue, "normal", false, false, false),
+      CardSet(0, MultiLanguageString(["S0","S0","S0"]), Colors.green, "normal", false, false, false),
+      CardSet(1, MultiLanguageString(["S1","S1","S1"]), Colors.blue, "normal", false, false, false),
     ];
     var card = [
       PokemonCardExtension.empty(defaultCard, r),
@@ -166,7 +166,7 @@ void main() {
 
   test('PokemonCardExtension', () {
     Map allSets = {
-      0: CardSet(MultiLanguageString(["set", "set", "set"]), Colors.green, "normal", false, false, false),
+      0: CardSet(0, MultiLanguageString(["set", "set", "set"]), Colors.green, "normal", false, false, false),
     };
 
     Map raritySets = {
@@ -178,9 +178,9 @@ void main() {
     Environment.instance.collection.unknownRarity = raritySets[0];
 
     Map collection = {
-      1: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Pika", "Pika", "Pika"]), 1, 25),)], Level.base,   TypeCard.eau, CardMarkers()),
-      2: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Chu", "Chu", "Chu"]), 2, 25),)],    Level.level1, TypeCard.electrique, CardMarkers()),
-      3: PokemonCardData([Pokemon(PokemonInfo(MultiLanguageString(["Jp", "Jp", "Jp"]), 2, 25),)],       Level.level2, TypeCard.electrique, CardMarkers()),
+      1: PokemonCardData(1, [Pokemon(25, PokemonInfo(MultiLanguageString(["Pika", "Pika", "Pika"]), 1, 25),)], Level.base,   TypeCard.eau, CardMarkers()),
+      2: PokemonCardData(2, [Pokemon(26, PokemonInfo(MultiLanguageString(["Chu", "Chu", "Chu"]), 2, 25),)],    Level.level1, TypeCard.electrique, CardMarkers()),
+      3: PokemonCardData(3, [Pokemon(27, PokemonInfo(MultiLanguageString(["Jp", "Jp", "Jp"]), 2, 25),)],       Level.level2, TypeCard.electrique, CardMarkers()),
     };
     Map rCollection = collection.map((k, v) => MapEntry(v, k));
     Map rAllSets    = allSets.map((k, v) => MapEntry(v, k));
@@ -197,7 +197,7 @@ void main() {
     c[2].images.add([img]);
 
     for(PokemonCardExtension code in c) {
-      PokemonCardExtension codeS = PokemonCardExtension.fromBytes(ByteParser(code.toBytes(rCollection, rAllSets, rRaritySets)), collection, allSets, raritySets);
+      PokemonCardExtension codeS = PokemonCardExtension.fromBytesDB(ByteParser(code.toBytesDB(rCollection, rAllSets, rRaritySets)), collection, allSets, raritySets);
       expect(codeS.data,   code.data); // Pointer comparison
       expect(codeS.rarity, code.rarity);
       expect(codeS.images.length,  code.images.length);

@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:statitikcard/services/models/multi_language_string.dart';
@@ -49,6 +48,16 @@ class ByteEncoder
     return imageCode;
   }
 
+  static List<int> encodeSmallString16(List<int> stringInfo) {
+    assert(stringInfo.length * 2 <= pow(2,8));
+    var imageCode = ByteEncoder.encodeInt8(stringInfo.length * 2);
+    for (var element in stringInfo) {
+      assert(element < 65536);
+      imageCode += ByteEncoder.encodeInt16(element);
+    }
+    return imageCode;
+  }
+
   static List<int> encodeBytesArray16(List<int> byteArray) {
     assert(byteArray.length < 65536);
     return encodeInt16(byteArray.length) + byteArray;
@@ -71,13 +80,13 @@ class ByteEncoder
 
   static List<int> encodeArray16<ValueType>(List array, List<int> Function(ValueType) encodeValue) {
     var bytes = ByteEncoder.encodeInt16(array.length);
-    for(final iterator in array) {
-      bytes += encodeValue(iterator.value);
+    for(ValueType value in array) {
+      bytes += encodeValue(value);
     }
     return bytes;
   }
 
-  static List<int> encodeMap<IDType, ValueType>(Map map, List<int> Function(IDType id) encodeId, List<int> Function(ValueType) encodeValue) {
+  static List<int> encodeMap<IDType, ValueType>(Map<IDType, ValueType> map, List<int> Function(IDType id) encodeId, List<int> Function(ValueType) encodeValue) {
     var bytes = ByteEncoder.encodeInt32(map.length);
     for(final iterator in map.entries) {
       bytes += encodeId(iterator.key);
@@ -128,6 +137,16 @@ class ByteParser
 
   ByteParser(this.byteArray) : it = byteArray.iterator {
     canParse = it.moveNext();
+  }
+
+  String extractSmallString16() {
+    List<int> charCodes = [];
+    int length = extractInt8();
+    assert(length % 2 == 0);
+    for(int i = 0; i < length/2; i +=1) {
+      charCodes.add(extractInt16());
+    }
+    return String.fromCharCodes(charCodes);
   }
 
   String extractString16() {
@@ -255,9 +274,9 @@ class ByteParser
     }
     return map;
   }
-  Map extractMapWithOrder<IDType, ValueType>( IDType Function(ByteParser parser) extractId, ValueType Function(ByteParser parser) extractValue, List<ValueType> ordered) {
+  Map<IDType, ValueType> extractMapWithOrder<IDType, ValueType>( IDType Function(ByteParser parser) extractId, ValueType Function(ByteParser parser) extractValue, List<ValueType> ordered) {
     var nbValues = extractInt32();
-    Map map = {};
+    Map<IDType, ValueType> map = {};
     for(var i = 0; i < nbValues; i += 1) {
       final value = extractValue(this);
       map[extractId(this)] = value;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/services/models/card_set.dart';
 import 'package:statitikcard/services/draw/card_draw_data.dart';
 import 'package:statitikcard/services/models/extension.dart';
@@ -40,8 +41,8 @@ void main() {
     var r  = Rarity.fromText(0, MultiLanguageString(["S0","S0","S0"]), Colors.green);
     var defaultCard = PokemonCardData.empty();
     var sets = [
-      CardSet(MultiLanguageString(["S0","S0","S0"]), Colors.green, "normal", false, false, false),
-      CardSet(MultiLanguageString(["S1","S1","S1"]), Colors.blue, "normal", false, false, false),
+      CardSet(0, MultiLanguageString(["S0","S0","S0"]), Colors.green, "normal", false, false, false),
+      CardSet(1, MultiLanguageString(["S1","S1","S1"]), Colors.blue, "normal", false, false, false),
     ];
     Map cards = {
       0: PokemonCardExtension.empty(defaultCard, r),
@@ -77,7 +78,9 @@ void main() {
     p.sideProducts[sideProduct[2]] = 5;
     var code = CodeDraw.fromSet(2);
     code.setCount(1, 0);
-    p.otherCards.add(ProductCard(se, cards[1], AlternativeDesign.basic, false, false, code));
+
+    final cardId = CardIdentifier.from([1, 1]);
+    p.otherCards.add(ProductCard(se, cardId, AlternativeDesign.basic, false, false, code));
 
     var newP = Product.fromBytesDB(idP, prodL, name, img, date, cat,
         p.toBytes(), subExts, sideProduct);

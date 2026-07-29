@@ -14,7 +14,7 @@ class Extension
   Extension.fromBytes(Collection collection, ByteParser parser):
         id       = parser.extractInt32(),
         name     = parser.extractString16(),
-        language = collection.languages[parser.extractInt32()];
+        language = collection.languages[parser.extractInt32()]!;
 
   List<int> toBytes() {
     return ByteEncoder.encodeInt32(id)

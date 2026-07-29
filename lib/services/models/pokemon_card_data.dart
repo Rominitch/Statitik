@@ -41,29 +41,33 @@ class Region {
 /// Special name to give (flying pikachu, ...)
 class Forme
 {
+  final int _id;
   final MultiLanguageString _applyPokemonName;
 
-  const Forme(this._applyPokemonName);
+  const Forme(this._id, this._applyPokemonName);
 
   String applyToPokemonName(Language l) {
     return _applyPokemonName.name(l);
   }
 
   Forme.fromBytes(ByteParser parser):
+      _id               = parser.extractInt16(),
       _applyPokemonName = parser.extractMultiLanguage()!;
 
   List<int> toBytes() {
-    return ByteEncoder.encodeMultiLanguage(_applyPokemonName);
+    return ByteEncoder.encodeInt16(_id)
+    + ByteEncoder.encodeMultiLanguage(_applyPokemonName);
   }
 }
 
 /// Full pokemon definition
 class Pokemon {
+  int             _id;
   CardTitleData   name;
   Region?         region;
   Forme?          forme;
 
-  Pokemon(this.name, {this.region, this.forme});
+  Pokemon(this._id, this.name, {this.region, this.forme});
 
   static Pokemon fromBytes(ByteParser parser, collection) {
     // Extract all leave parser in good state if issue
@@ -72,7 +76,7 @@ class Pokemon {
     int idRegion = parser.extractInt8();
     assert(idName != 0);
 
-    Pokemon p = Pokemon(idName < 10000
+    Pokemon p = Pokemon(idName, idName < 10000
           ? collection.getPokemonID(idName)
           : collection.getNamedID(idName));
 
@@ -86,7 +90,8 @@ class Pokemon {
     return p;
   }
 
-  List<int> toBytes(collection) {
+  List<int> toBytes() {
+    /*
     int id=0;
     if (name.isPokemon()) {
       assert(collection.rPokemon.containsKey(name), name.defaultName());
@@ -95,14 +100,15 @@ class Pokemon {
       assert(collection.rOther.containsKey(name), name.defaultName());
       id = collection.rOther[name];
     }
-    assert(id != 0);
+    */
+    assert(_id != 0);
 
     var bytes = <int>
     [
-      (id & 0xFF00) >> 8,
-      id & 0xFF,
-      region != null ? collection.rRegions[region] : 0,
-      forme  != null ? collection.rFormes[forme]   : 0,
+      (_id & 0xFF00) >> 8,
+      _id & 0xFF,
+      region != null ? region!._id : 0,
+      forme  != null ? forme!._id  : 0,
     ];
     assert((bytes[0] | bytes[1]) != 0);
     assert(bytes[0] <= 0xFF && bytes[1] <= 0xFF);
@@ -165,6 +171,7 @@ enum AlternativeDesign {
 
 /// Full card definition except Number/Extension/Rarity
 class PokemonCardData {
+  final int        id;
   List<Pokemon>    title;
   Level            level;
   TypeCard         type;
@@ -177,18 +184,19 @@ class PokemonCardData {
   EnergyValue?     resistance;
   EnergyValue?     weakness;
 
-  PokemonCardData(this.title, this.level, this.type, this.markers, [this.life=0, this.retreat=0, this.resistance, this.weakness]) {
+  PokemonCardData(this.id, this.title, this.level, this.type, this.markers, [this.life=0, this.retreat=0, this.resistance, this.weakness]) {
     if( retreat > 5) {
       retreat = 0;
     }
   }
 
   PokemonCardData.fromBytes(ByteParser parser, Collection collection) :
+    id          = parser.extractInt32(),
     title        = parser.extractArray16<Pokemon>( (parser) => Pokemon.fromBytes(parser, collection) ),
     level        = Level.values[parser.extractInt8()],
     type         = TypeCard.values[parser.extractInt8()],
     typeExtended = parser.extractOptional((parser) => TypeCard.values[parser.extractInt8()]),
-    illustrator  = parser.extractOptional((parser) => collection.illustrators[parser.extractInt32()]),
+    illustrator  = parser.extractOptional((parser) => collection.illustrators[parser.extractInt32()]!),
     markers      = CardMarkers.fromBytes(parser, collection.markers),
     cardEffects  = CardEffects.fromBytes(parser),
     life         = parser.extractInt16(),
@@ -205,19 +213,20 @@ class PokemonCardData {
     return name.join("&");
   }
 
-  PokemonCardData.empty() : title=[], level=Level.base, type=TypeCard.unknown, markers=CardMarkers(), life=0, retreat=0;
+  PokemonCardData.empty() : id=0, title=[], level=Level.base, type=TypeCard.unknown, markers=CardMarkers(), life=0, retreat=0;
 
   bool missingMainData() {
     return isPokemonType(type) && life == 0;
   }
 
-  List<int> toBytes(Collection collection) {
-    return ByteEncoder.encodeArray16<Pokemon>( title, (Pokemon p) => p.toBytes(collection) )
+  List<int> toBytes() {
+    return ByteEncoder.encodeInt32(id)
+    + ByteEncoder.encodeArray16<Pokemon>( title, (Pokemon p) => p.toBytes() )
     + ByteEncoder.encodeInt8(level.index)
     + ByteEncoder.encodeInt8(type.index)
     + ByteEncoder.encodeOptional(typeExtended, () => ByteEncoder.encodeInt8(typeExtended!.index) )
     + ByteEncoder.encodeOptional(illustrator,  () => ByteEncoder.encodeInt32(illustrator!.id) )
-    + markers.toBytes(collection.markers)
+    + markers.toBytes()
     + cardEffects.toBytes()
     + ByteEncoder.encodeInt16(life)
     + ByteEncoder.encodeInt16(retreat)

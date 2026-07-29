@@ -32,27 +32,27 @@ import 'package:statitikcard/services/tools.dart';
 
 class Collection
 {
-  Map languages       = {};
-  Map sets            = {};
-  Map extensions      = {};
-  Map subExtensions   = {};
-  Map cardsExtensions = {};
-  Map categories      = {};
+  Map<int, Language>            languages       = {};
+  Map<int, CardSet>             sets            = {};
+  Map<int, Extension>           extensions      = {};
+  Map<int,SubExtension>         subExtensions   = {};
+  Map<int,SubExtensionCards>    cardsExtensions = {};
+  Map<int,ProductCategory>      categories      = {};
 
-  Map pokemons        = {};
-  Map otherNames      = {};
-  Map regions         = {};
-  Map formes          = {};
-  Map pokemonCards    = {};
-  Map illustrators    = {};
-  Map descriptions    = {};
-  Map effects         = {};
-  Map rarities        = {};
-  Map markers         = {};
-  Map products        = {};
-  Map productSides    = {};
-  Map designs         = {};
-  Map convertKanji    = {};
+  Map<int, PokemonInfo>         pokemons        = {};
+  Map<int, CardTitleData>       otherNames      = {};
+  Map<int, Region>              regions         = {};
+  Map<int, Forme>               formes          = {};
+  Map<int,PokemonCardData>      pokemonCards    = {};
+  Map<int,Illustrator>          illustrators    = {};
+  Map<int,DescriptionData>      descriptions    = {};
+  Map<int,MultiLanguageString>  effects         = {};
+  Map<int, Rarity>              rarities        = {};
+  Map<int, CardMarker>          markers         = {};
+  Map<int, Product>             products        = {};
+  Map<int,ProductSide>          productSides    = {};
+  Map<int, Map<int, CardDesignData>> designs         = {};
+  Map<String, String>                convertKanji    = {};
   List orderedKanji   = [];
 
   // Rarity Information
@@ -161,14 +161,14 @@ class Collection
   PokemonInfo getPokemonID(int id) {
     assert(pokemons.isNotEmpty);
     assert(0 < id && id < (pokemons.length+1));
-    return pokemons[id];
+    return pokemons[id]!;
   }
 
   CardTitleData getNamedID(int id) {
     assert(otherNames.isNotEmpty);
     assert(10000 <= id );
     assert((id-10000) < otherNames.length);
-    return otherNames[id];
+    return otherNames[id]!;
   }
 
   // Temporary: need to understand tree shake
@@ -197,7 +197,7 @@ class Collection
       var setResult = await connection.query("SELECT * FROM `Set`");
       for (var row in setResult) {
         try {
-          sets[row[0]] = CardSet(MultiLanguageString([row[1] ?? "", row[2] ?? "", row[3] ?? ""]), Color(row[4]), row[5],
+          sets[row[0]] = CardSet(row[0], MultiLanguageString([row[1] ?? "", row[2] ?? "", row[3] ?? ""]), Color(row[4]), row[5],
               mask(row[6], CardSet.setMaskSystem),
               mask(row[6], CardSet.setMaskParallel),
               mask(row[6], CardSet.setMaskReplaceRevertIntoBooster));
@@ -283,7 +283,7 @@ class Collection
       var exts = await connection.query("SELECT * FROM `Extension` ORDER BY `code` DESC");
       for (var row in exts) {
         try {
-          extensions[row[0]] = Extension(row[0], row[2], languages[row[1]]);
+          extensions[row[0]] = Extension(row[0], row[2], languages[row[1]]!);
         } catch(e) {
           printOutput("Bad Extension: ${row[0]} $e");
         }
@@ -331,7 +331,7 @@ class Collection
       var formeRes = await connection.query("SELECT * FROM `Forme`");
       for (var row in formeRes) {
         try {
-          formes[row[0]] = Forme(MultiLanguageString([row[1], row[2], row[3]]));
+          formes[row[0]] = Forme(row[0], MultiLanguageString([row[1], row[2], row[3]]));
         } catch(e) {
           printOutput("Bad Forme: ${row[0]} $e");
         }
@@ -346,7 +346,7 @@ class Collection
         }
 
         var cardDesign = CardDesignData(row[5], MultiLanguageString([row[2], row[3], row[4]]));
-        designs[row[0]][row[1]] = cardDesign;
+        designs[row[0]]![row[1]] = cardDesign;
 
         if(cardDesign.image.isNotEmpty) {
           validDesigns.add(CardDesign(row[0], row[1]));
@@ -453,7 +453,7 @@ class Collection
         var illustrator  = row[10] != null ? illustrators[row[10]]: null;
 
         //Build card
-        PokemonCardData p = PokemonCardData(namePokemons, level, type, cardMarkers, life, retreat, resistance, weakness);
+        PokemonCardData p = PokemonCardData(row[0], namePokemons, level, type, cardMarkers, life, retreat, resistance, weakness);
         //Extract typeExtended (for double energy card)
         if(typeBytes.length > 1) {
           p.typeExtended = TypeCard.values[typeBytes[1]];
@@ -464,7 +464,7 @@ class Collection
             for (var element in effects.effects) {
               if (element.description != null) {
                 element.description!.computeDescriptionEffects(
-                    descriptions, languages[1]);
+                    descriptions, languages[1]!);
               }
             }
             p.cardEffects = effects;
@@ -524,8 +524,8 @@ class Collection
       var subExts = await connection.query("SELECT * FROM `SousExtension` ORDER BY `code` DESC");
       for (var row in subExts) {
         try {
-          SubExtensionCards seCards = cardsExtensions[row[4]];
-          subExtensions[row[0]] = SubExtension(row[0], row[2], row[3], extensions[row[1]], row[6], seCards, SerieType.values[row[7]], row[8].split(";"), row[9]);
+          SubExtensionCards seCards = cardsExtensions[row[4]]!;
+          subExtensions[row[0]] = SubExtension(row[0], row[2], row[3], extensions[row[1]]!, row[6], seCards, SerieType.values[row[7]], row[8].split(";"), row[9]);
         } catch(e) {
           printOutput("Bad SubExtension: ${row[0]} $e");
         }
@@ -617,7 +617,7 @@ class Collection
 
     List<int> nameBytes = [];
     for (var element in card.title) {
-      nameBytes += element.toBytes(this);
+      nameBytes += element.toBytes();
     }
 
     int? idIllustrator = card.illustrator != null ? rIllustrators[card.illustrator] : null;
@@ -644,7 +644,7 @@ class Collection
     }
 
     List<Object?> data = [namedData, card.level.index, Int8List.fromList(typesByte), card.life,
-      Int8List.fromList(card.markers.toBytes(rMarkers)),
+      Int8List.fromList(card.markers.toBytes()),
       effects, retreat, weakness, resistance, idIllustrator,
     ];
 

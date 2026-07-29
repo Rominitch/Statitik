@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:statitikcard/services/collection.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/card_design.dart';
 import 'package:statitikcard/services/models/card_effect.dart';
 import 'package:statitikcard/services/models/card_title_data.dart';
@@ -24,35 +25,44 @@ class CollectionSerializer {
   final String fileName = "Database";
 
   Future<String> databaseFileName() async {
-     final path = getApplicationDocumentsDirectory();
-     return [path, fileName].join(Platform.pathSeparator);
+     final path = await getApplicationDocumentsDirectory();
+     return [path.path, fileName].join(Platform.pathSeparator);
   }
 
-  Future<bool> serialize(double version, Collection collection) async {
+  Future<bool> serialize(int version, Collection collection) async {
     List<int> bodyBytes = [];
+
+    Environment.instance.onProgression.add(0.0);
     bodyBytes += ByteEncoder.encodeDouble(serializeVersion);
-    bodyBytes += ByteEncoder.encodeDouble(version);
+    bodyBytes += ByteEncoder.encodeInt32(version);
+
     // Encode language
+    Environment.instance.onProgression.add(0.01);
     bodyBytes += ByteEncoder.encodeMap<int, Language>(collection.languages,
         (id) => ByteEncoder.encodeInt32(id),
         (Language lang) => lang.toBytes()
     );
+
     // Encode sets
+    Environment.instance.onProgression.add(0.02);
     bodyBytes += ByteEncoder.encodeMap<int, CardSet>(collection.sets,
         (id) => ByteEncoder.encodeInt32(id),
         (CardSet set) => set.toBytes()
     );
     // Encode rarities
+    Environment.instance.onProgression.add(0.03);
     bodyBytes += ByteEncoder.encodeMap<int, Rarity>(collection.rarities,
             (id) => ByteEncoder.encodeInt32(id),
             (Rarity rarity) => rarity.toBytes()
     );
+    Environment.instance.onProgression.add(0.04);
     bodyBytes += ByteEncoder.encodeBytesArray16(getIds(collection.japanRarity));
     bodyBytes += ByteEncoder.encodeBytesArray16(getIds(collection.worldRarity));
     bodyBytes += ByteEncoder.encodeBytesArray16(getIds(collection.goodCard));
     bodyBytes += ByteEncoder.encodeBytesArray16(getIds(collection.otherThanReverse));
 
     // Encode markers
+    Environment.instance.onProgression.add(0.05);
     bodyBytes += ByteEncoder.encodeMap<int, CardMarker>(collection.markers,
       (id) => ByteEncoder.encodeInt32(id),
       (CardMarker m) => m.toBytes()
@@ -60,88 +70,107 @@ class CollectionSerializer {
     bodyBytes += ByteEncoder.encodeBytesArray16(getIds(collection.longMarkers));
 
     // Encode Extensions
+    Environment.instance.onProgression.add(0.06);
     bodyBytes += ByteEncoder.encodeMap<int, Extension>(collection.extensions,
       (id) => ByteEncoder.encodeInt32(id),
       (Extension e) => e.toBytes()
     );
 
     // Encode Pokemons
+    Environment.instance.onProgression.add(0.07);
     bodyBytes += ByteEncoder.encodeMap<int, PokemonInfo>(collection.pokemons,
       (id) => ByteEncoder.encodeInt32(id),
       (PokemonInfo e) => e.toBytes()
     );
 
     // Encode otherNames
+    Environment.instance.onProgression.add(0.2);
     bodyBytes += ByteEncoder.encodeMap<int, CardTitleData>(collection.otherNames,
       (id) => ByteEncoder.encodeInt32(id),
       (CardTitleData e) => e.toBytes()
     );
 
     // Encode Region
+    Environment.instance.onProgression.add(0.3);
     bodyBytes += ByteEncoder.encodeMap<int, Region>(collection.regions,
       (id) => ByteEncoder.encodeInt32(id),
       (Region e) => e.toBytes()
     );
     // Encode Forme
+    Environment.instance.onProgression.add(0.35);
     bodyBytes += ByteEncoder.encodeMap<int, Forme>(collection.formes,
       (id) => ByteEncoder.encodeInt32(id),
       (Forme e) => e.toBytes()
     );
     // Encode CardDesignData
-    bodyBytes += ByteEncoder.encodeMap<int, CardDesignData>(collection.designs,
-      (id) => ByteEncoder.encodeInt32(id),
-      (CardDesignData e) => e.toBytes()
+    Environment.instance.onProgression.add(0.4);
+    bodyBytes += ByteEncoder.encodeMap<int, Map<int, CardDesignData>>(collection.designs,
+      (int id) => ByteEncoder.encodeInt32(id),
+      (Map<int, CardDesignData> map) => ByteEncoder.encodeMap<int, CardDesignData>(map,
+        (id2) => ByteEncoder.encodeInt32(id2),
+        (CardDesignData e) => e.toBytes())
     );
     // Encode CardDesignData
+    Environment.instance.onProgression.add(0.41);
     bodyBytes += ByteEncoder.encodeArray16<CardDesign>(collection.validDesigns,
       (CardDesign e) => e.toBytes()
     );
     // Encode Kanji
-    bodyBytes += ByteEncoder.encodeMap<int,String>(collection.convertKanji,
-      (id) => ByteEncoder.encodeInt32(id),
-      (String e) => ByteEncoder.encodeString16(e.codeUnits)
+    Environment.instance.onProgression.add(0.42);
+    bodyBytes += ByteEncoder.encodeMap<String,String>(collection.convertKanji,
+      (String id) => ByteEncoder.encodeString16(id.codeUnits),
+      (String  e) => ByteEncoder.encodeString16(e.codeUnits)
     );
     // Encode Illustrators
+    Environment.instance.onProgression.add(0.43);
     bodyBytes += ByteEncoder.encodeMap<int,Illustrator>(collection.illustrators,
       (id) => ByteEncoder.encodeInt32(id),
       (Illustrator e) => e.toBytes()
     );
     // Encode Descriptions
+    Environment.instance.onProgression.add(0.44);
     bodyBytes += ByteEncoder.encodeMap<int,DescriptionData>(collection.descriptions,
       (id) => ByteEncoder.encodeInt32(id),
       (DescriptionData e) => e.toBytes()
     );
     // Encode Effects
+    Environment.instance.onProgression.add(0.45);
     bodyBytes += ByteEncoder.encodeMap<int,MultiLanguageString>(collection.effects,
       (id) => ByteEncoder.encodeInt32(id),
       (MultiLanguageString e) => ByteEncoder.encodeMultiLanguage(e)
     );
     // Encode Cards
+    Environment.instance.onProgression.add(0.46);
     bodyBytes += ByteEncoder.encodeMap<int,PokemonCardData>(collection.pokemonCards,
       (id) => ByteEncoder.encodeInt32(id),
-      (PokemonCardData e) => e.toBytes(collection)
+      (PokemonCardData e) => e.toBytes()
     );
     // Encode CardExtensions
+    Environment.instance.onProgression.add(0.6);
     bodyBytes += ByteEncoder.encodeMap<int,SubExtensionCards>(collection.cardsExtensions,
       (id) => ByteEncoder.encodeInt32(id),
-      (SubExtensionCards e) => e.toBytes(collection)
+      (SubExtensionCards e) => e.toBytes()
     );
     // Encode SubExtension
+    Environment.instance.onProgression.add(0.7);
     bodyBytes += ByteEncoder.encodeMap<int,SubExtension>(collection.subExtensions,
       (id) => ByteEncoder.encodeInt32(id),
       (SubExtension e) => e.toBytes()
     );
     // Encode ProductCategory
+    Environment.instance.onProgression.add(0.8);
     bodyBytes += ByteEncoder.encodeMap<int,ProductCategory>(collection.categories,
       (id) => ByteEncoder.encodeInt32(id),
       (ProductCategory e) => e.toBytes()
     );
-    // Encode ProductCategory
+    // Encode ProductSide
+    Environment.instance.onProgression.add(0.9);
     bodyBytes += ByteEncoder.encodeMap<int,ProductSide>(collection.productSides,
       (id) => ByteEncoder.encodeInt32(id),
       (ProductSide e) => e.toBytes()
     );
     // Encode Product
+    Environment.instance.onProgression.add(0.91);
     bodyBytes += ByteEncoder.encodeMap<int,Product>(collection.products,
       (id) => ByteEncoder.encodeInt32(id),
       (Product e) => e.toBytes()
@@ -150,6 +179,8 @@ class CollectionSerializer {
     final appPath = await databaseFileName();
     var file = File(appPath);
     final info = await file.writeAsBytes(gzip.encode(bodyBytes.toList(growable: false)));
+
+    Environment.instance.onProgression.add(1.0);
     return info.exists();
   }
 
@@ -159,16 +190,21 @@ class CollectionSerializer {
     return ids;
   }
 
-  Future<double> decode(Collection collection) async {
+  Future<int> decode(Collection collection) async {
+    final int badDB = -1;
     final appPath = await databaseFileName();
     var file = File(appPath);
+    final exists = await file.exists();
+    if( !exists ) return badDB;
+
+    // Extract data
     final info = await file.readAsBytes();
     ByteParser parser = ByteParser(gzip.decode(info.toList(growable: false)));
 
     final localVersion = parser.extractDouble();
-    if (localVersion != serializeVersion) return 0.0;
+    if (localVersion != serializeVersion) return badDB;
 
-    final version = parser.extractDouble();
+    final version = parser.extractInt32();
 
     // Extract language
     collection.languages = parser.extractMap<int, Language>(
@@ -229,17 +265,20 @@ class CollectionSerializer {
             (parser) => Forme.fromBytes(parser)
     );
     // Extract CardDesignData
-    collection.designs = parser.extractMap<int, CardDesignData>(
+    collection.designs = parser.extractMap<int, Map<int, CardDesignData>>(
             (parser) => parser.extractInt32(),
-            (parser) => CardDesignData.fromBytes(parser)
+            (parser) => parser.extractMap<int, CardDesignData>(
+                (parser) => parser.extractInt32(),
+                (parser) => CardDesignData.fromBytes(parser)
+            )
     );
     // Extract CardDesignData
     collection.validDesigns = parser.extractArray16<CardDesign>(
       (parser) => CardDesign.fromBytes(parser)
     );
     // Extract Kanji
-    collection.convertKanji = parser.extractMap<int,String>(
-            (parser) => parser.extractInt32(),
+    collection.convertKanji = parser.extractMap<String,String>(
+            (parser) => parser.extractString16(),
             (parser) => parser.extractString16()
     );
     // Extract Illustrators
@@ -262,16 +301,29 @@ class CollectionSerializer {
       (parser) => parser.extractInt32(),
       (parser) => SubExtensionCards.fromBytes(parser, collection)
     );
-    // Extract CardExtensions
+    // Extract SubExtension
     collection.subExtensions = parser.extractMap<int,SubExtension>(
       (parser) => parser.extractInt32(),
       (parser) => SubExtension.fromBytes(parser, collection)
     );
-    // Extract CardExtensions
+    // Extract ProductCategory
     collection.categories = parser.extractMap<int,ProductCategory>(
       (parser) => parser.extractInt32(),
       (parser) => ProductCategory.fromBytes(parser)
     );
+    // Extract ProductSides
+    collection.productSides = parser.extractMap<int,ProductSide>(
+      (parser) => parser.extractInt32(),
+      (parser) => ProductSide.fromBytes(parser, collection)
+    );
+
+    // Extract Product
+    Environment.instance.onProgression.add(0.91);
+    collection.products = parser.extractMap<int,Product>(
+      (parser) => parser.extractInt32(),
+      (parser) => Product.fromBytes(parser, collection)
+    );
+
     return version;
   }
 

@@ -27,8 +27,8 @@ void main() {
     Environment.instance.collection.unknownRarity = raritySets[0];
 
     // Build card
-    Pokemon title = Pokemon(CardTitleData(MultiLanguageString(["TestName", "TestName", "TestName"])));
-    PokemonCardData base = PokemonCardData([title], Level.base, TypeCard.combat, CardMarkers.from([markers[1]]) );
+    Pokemon title = Pokemon(0, CardTitleData(MultiLanguageString(["TestName", "TestName", "TestName"])));
+    PokemonCardData base = PokemonCardData(0, [title], Level.base, TypeCard.combat, CardMarkers.from([markers[1]]) );
 
     var effect = CardEffect();
     effect.power = 100;

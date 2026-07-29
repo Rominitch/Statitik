@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:http/http.dart';
 import 'package:http/retry.dart';
+
+import 'package:image/image.dart' as img;
 
 import 'package:path_provider/path_provider.dart';
 import 'package:statitikcard/services/tools.dart';
@@ -52,18 +53,18 @@ class ImageStorage {
           // Try to convert png data to webp (better format ?)
           if(ext != "webp") {
             try {
-              var newData = await FlutterImageCompress.compressWithList(
-                bodyBytes,
-                quality: 98,
-                format: CompressFormat.webp,
-              );
-              //Replace data
-              if( newData.length <= bodyBytes.length ) {
-                printOutput("ImageStorage: Convert from $ext to webp: from ${bodyBytes.length} to ${newData.length}");
-                bodyBytes = newData;
-                ext = "webp";
-              } else {
-                printOutput("ImageStorage: Keep original: size ${bodyBytes.length} (webp: ${newData.length})");
+              final image = img.decodePng(bodyBytes);
+              if( image != null )
+              {
+                final newData = img.encodeWebP(image);
+                //Replace data
+                if( newData.length <= bodyBytes.length ) {
+                  printOutput("ImageStorage: Convert from $ext to webp: from ${bodyBytes.length} to ${newData.length}");
+                  bodyBytes = newData;
+                  ext = "webp";
+                } else {
+                  printOutput("ImageStorage: Keep original: size ${bodyBytes.length} (webp: ${newData.length})");
+                }
               }
             } catch(e) {
               printOutput("ImageStorage: convert Error: ${e.toString()}");

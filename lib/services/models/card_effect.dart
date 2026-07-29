@@ -154,7 +154,7 @@ class CardDescription {
           assert(info.length == 2);
           final pokemonId = pokemonCollection[int.parse(info[0])];
           final region    = regionCollection[int.parse(info[1])];
-          final pokemonName = Pokemon(pokemonId, region: region);
+          final pokemonName = Pokemon(int.parse(info[0]), pokemonId, region: region);
           children.add(TextSpan(text: pokemonName.titleOfCard(l)));
         } else {
           children.add(TextSpan(text: finalText));

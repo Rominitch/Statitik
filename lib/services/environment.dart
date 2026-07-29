@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -6,7 +7,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/models/poke_collection.dart';
+import 'package:statitikcard/models/poke_configuration.dart';
 import 'package:statitikcard/services/collection_serializer.dart';
 import 'package:statitikcard/services/models/multi_language_string.dart';
 import 'package:statitikcard/services/saved_instance_state.dart';
@@ -40,7 +42,10 @@ class StatitikException implements Exception {
 class Database
 {
     final String version = '3.5';
-    final ConnectionSettings settings = createConnection();
+    final ConnectionSettings settings;
+
+    Database():         settings = createConnection();
+    Database.poke():    settings = createConnectionPoke();
 
     Future<bool> transactionR(Future Function(TransactionContext) queries) async
     {
@@ -79,16 +84,23 @@ class Environment
     final StreamController<bool>   onInitialize  = StreamController<bool>();
     final StreamController<String> onServerError = StreamController<String>();
     final StreamController<String> onInfoLoading = StreamController<String>();
+    final StreamController<double> onProgression = StreamController<double>();
 
     // Manager
     Credential credential = Credential();
     Database   db         = Database();
+    final Database _db_poke   = Database.poke();
 
     // Const data
     final String nameApp = 'StatitikCard';
     final String version = '3.0.0';
 
+    // GUI
+    static const double iconSize = 25.0;
+
     // State
+    final PokeConfiguration _config = PokeConfiguration();
+    final Locale locale = Locale(Platform.localeName);
     bool isInitialized          = false;
     bool startDB                = false;
     bool showExtensionName      = false;
@@ -103,6 +115,7 @@ class Environment
 
     // Cached data
     Collection collection = Collection();
+    final PokeCollection _collectionPK = PokeCollection();
 
     // Current draw
     UserPoke? user;
@@ -115,6 +128,8 @@ class Environment
     static const double heightNewsCircle    = 36.0;
     static const double heightLanguage      = 30.0;
 
+    PokeCollection pkCollection() { return _collectionPK; }
+
     void initialize()
     {
         // General data control
@@ -123,83 +138,102 @@ class Environment
         assert(TypeCard.values.length == typeColors.length);
 
         if(!isInitialized) {
+            // Try to load user if already connected
+            credential.initialize();
+
             // Sync event
             try {
                 bool isDBReady       = false;
-                double currentDataDB  = 0.0;
+                int  currentDataDB   = 0;
                 String currentVersion = db.version;
 
-                db.transactionR( (connection) async {
-                    var info = await connection.query("SELECT * FROM `BaseInfo`");
+                // Load user
+                onInfoLoading.add('LOAD_0');
 
-                    for (var row in info) {
-                        currentVersion         = row[0];
-                        showPressImages        = (row[2] == 1);
-                        showPressProductImages = (row[3] == 1);
-                        showTCGImages          = (row[4] == 1);
-                        isMaintenance          = (row[5] == 1);
-                        currentDataDB          = row[6];
-                    }
-                }).then( (result) {
+                _db_poke.transactionR( (connection) async {
+                    _config.readFrom(connection);
+                }).then( (result) async {
                     isDBReady = result;
-                }).whenComplete( () async {
-                    // Need to update software ?
-                    if( db.version != currentVersion) {
-                      throw StatitikException('DB_1');
-                    }
-                    // Load user
-                    onInfoLoading.add('LOAD_0');
 
+                    // Need to update software ?
+                    if( db.version != _config.currentVersion) {
+                        throw StatitikException('DB_1');
+                    }
+
+                    if( isDBReady ) {
+                        onInfoLoading.add('LOAD_1');
+
+                        // Read Database
+                        await _db_poke.transactionR((connection) async {
+                            await _collectionPK.readStaticData(connection);
+                        });
+                    }
+
+                    isInitialized = true;
+                    onInitialize.add(isInitialized);
+
+                }).catchError((error) {
+                    isInitialized = false;
+                    var message = error is StatitikException ? error.msg : error.toString();
+                    onServerError.add(message);
+                }).onError((error, stackTrace) {
+                    isInitialized = false;
+                    onServerError.add('Error');
+                });
+                /*.whenComplete( () async {
                     // Load local data
                     final serialize = CollectionSerializer();
-                    final localVersion = await serialize.decode(collection);
+                    final localVersion = -1;
+                    //final localVersion = await serialize.decode(collection);
 
                     // No data available (local or network)
                     if(!isDBReady && collection.languages.isEmpty) {
                       throw StatitikException('DB_0');
                     }
 
-                    // Load database
+                    // Load database (if possible and useful)
+                    onInfoLoading.add('LOAD_1');
                     if( localVersion < currentDataDB ) {
-                      onInfoLoading.add('LOAD_1');
-                      readStaticData().whenComplete(() async {
-                        if (isAdministrator()) {
-                          await db.transactionR(collection.migration);
-                          printOutput("admin is launched !");
-                          onInfoLoading.add('LOAD_2');
-                          collection.adminReverse();
-                          collection.databaseSafety();
-                        } else {
-                          if (isMaintenance) {
-                            throw StatitikException('DB_2');
-                          }
-                        }
-                        // Save data to disk
-                        final serialize = CollectionSerializer();
-                        await serialize.serialize(currentDataDB, collection);
-
-                        onInfoLoading.add('LOAD_5');
-                        (readPokeSpace()).whenComplete(() async {
-                          SharedPreferences.getInstance().then((prefs) {
-                            storeImageLocally =
-                                prefs.getBool("storeImageLocaly") ??
-                                    storeImageLocally;
-                            setScreenOn(prefs.getBool("ScreenOn") ?? false);
-                          }).whenComplete(() {
-                            try {
-                              Environment.instance.tryChangeUserConnexionDate(
-                                  Environment.instance.user!.uid);
-                            } catch (e) {
-                              printOutput(e.toString());
-                            }
-
-                            isInitialized = true;
-                            onInitialize.add(isInitialized);
-                          });
-                        });
-                      }).catchError((error) {
+                      await readStaticData().catchError((error) {
                         isInitialized = false;
                         onServerError.add(error.message);
+                        return;
+                      });
+                    }
+
+                    if (isAdministrator()) {
+                      await db.transactionR(collection.migration);
+                      printOutput("admin is launched !");
+                      onInfoLoading.add('LOAD_2');
+                      collection.adminReverse();
+                      collection.databaseSafety();
+                    } else {
+                      if (isMaintenance) {
+                        throw StatitikException('DB_2');
+                      }
+                    }
+                    // Save data to disk
+                    //final valid = await serialize.serialize(currentDataDB, collection);
+                    final valid = true;
+                    if(valid) {
+                      onInfoLoading.add('LOAD_5');
+                      (readPokeSpace()).whenComplete(() async {
+                        SharedPreferences.getInstance().then((prefs) {
+                          storeImageLocally =
+                              prefs.getBool("storeImageLocaly") ??
+                                  storeImageLocally;
+                          setScreenOn(prefs.getBool("ScreenOn") ?? false);
+                        }).whenComplete(() {
+                          try {
+                            Environment.instance.tryChangeUserConnexionDate(
+                                Environment.instance.user!.uid);
+                          } catch (e) {
+                            printOutput(e.toString());
+                          }
+
+                          isInitialized = true;
+                          onInitialize.add(isInitialized);
+                        });
                       });
                     }
                 }).catchError((error) {
@@ -210,6 +244,7 @@ class Environment
                     isInitialized = false;
                     onServerError.add('Error');
                 });
+                */
             }
             on StatitikException catch(e) {
                 isInitialized = false;
@@ -257,50 +292,43 @@ class Environment
         await readPokeSpace();
     }
 
-    Future<void> registerUser(String oldUID, String uid, bool isTest) async {
+    Future<bool> readUserData(connection, String uid, bool isTest) async {
+        String query = 'SELECT `idUtilisateur`, `ban`, `su` FROM `Utilisateur` WHERE `identifiant` = \'$uid\';';
+        var reqUser = await connection.query(query);
+        if( reqUser.length == 1 ) {
+            for (var row in reqUser) {
+                if(row[1] != 0) {
+                    throw StatitikException("Utilisateur banni pour non respect des règles.");
+                }
+                user = UserPoke(row[0]);
+                user!.admin = row[2] == 1 ? true : false;
+                user!.uid = uid;
+                user!.isRobotTest = isTest;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    Future<void> registerUser(String uid, bool isTest) async {
         if (user == null) {
             var time = TimeReport();
             await db.transactionR( (connection) async {
-                String query = 'SELECT `idUtilisateur`, `ban`, `su` FROM `Utilisateur` WHERE `identifiant` = \'$oldUID\';';
-                var reqUser = await connection.query(query);
-                if( reqUser.length == 1 ) {
-                    for (var row in reqUser) {
-                        if(row[1] != 0) {
-                          throw StatitikException("Utilisateur banni pour non respect des règles.");
-                        }
-                        // Migrate to new ID
-                        var reqQuery = "UPDATE `Utilisateur` SET `identifiant` = '$uid' WHERE `identifiant` = '$oldUID';";
-                        await connection.query(reqQuery);
-
-                        user = UserPoke(row[0]);
-                        user!.admin = row[2] == 1 ? true : false;
+                final exist = await readUserData(connection, uid, isTest);
+                if( !exist ) {
+                    // Check user data exists into database
+                    int idNewID=-1;
+                    var reqCountUser = await connection.query(
+                        'SELECT MAX(`idUtilisateur`) FROM `Utilisateur`;');
+                    for (var row in reqCountUser) {
+                        idNewID = row[0] + 1;
                     }
-                } else {
-                    String query = 'SELECT `idUtilisateur`, `ban`, `su` FROM `Utilisateur` WHERE `identifiant` = \'$uid\';';
-                    var reqUser = await connection.query(query);
-                    if( reqUser.length == 1 ) {
-                        for (var row in reqUser) {
-                            if(row[1] != 0) {
-                                throw StatitikException("Utilisateur banni pour non respect des règles.");
-                            }
-                            user = UserPoke(row[0]);
-                            user!.admin = row[2] == 1 ? true : false;
-                        }
-                    } else {
-                        // Check user data exists into database
-                        int idNewID=-1;
-                        var reqCountUser = await connection.query(
-                            'SELECT MAX(`idUtilisateur`) FROM `Utilisateur`;');
-                        for (var row in reqCountUser) {
-                            idNewID = row[0] + 1;
-                        }
-                        var nowDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
-                        await connection.query("INSERT INTO `Utilisateur` (idUtilisateur, identifiant, dernierConnexion) VALUES ($idNewID, '$uid', '$nowDate');");
-                        user = UserPoke(idNewID);
-                    }
+                    var nowDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+                    await connection.query("INSERT INTO `Utilisateur` (idUtilisateur, identifiant, dernierConnexion) VALUES ($idNewID, '$uid', '$nowDate');");
+                    user = UserPoke(idNewID);
+                    user!.uid = uid;
+                    user!.isRobotTest = isTest;
                 }
-                user!.uid = uid;
-                user!.isRobotTest = isTest;
             });
             time.tick("My User");
         }
@@ -540,40 +568,41 @@ class Environment
 
 
     void login(CredentialMode mode, context, {Function()? afterLog, Function(String)? afterError}) async {
-        onSuccess(googleID, oldUID, bool? isTest) {
+        onSuccess(String? googleID, bool? isTest) {
             //printOutput("Credential Success: "+uid);
             SharedPreferences.getInstance().then((prefs) {
                 var isRobotTest = isTest ?? false;
                 // Save to preferences
-                prefs.setString('userID', googleID);
-                prefs.setString('uid',    oldUID);
+                prefs.setString('userID', googleID!);
                 prefs.setBool('isTest',   isRobotTest);
 
                 // Register and check access
-                assert(googleID != null);
-                assert(oldUID != null);
-                registerUser(oldUID, googleID, isRobotTest).then((value){
+                registerUser(googleID, isRobotTest).then((value){
                     if(afterLog != null) {
-                      afterLog();
+                        afterLog();
                     }
                 });
             });
         }
-        onError(codeMessage, [code]) {
+
+        try {
+            final prefs = await SharedPreferences.getInstance();
+            if ( prefs.getString('userID') != null )
+            {
+                onSuccess(prefs.getString('userID'), prefs.getBool('isTest'));
+            }
+            else
+            {
+                credential.signInWithGoogle(onSuccess);
+            }
+        } catch(e) {
             //printOutput("Credential Error: "+message);
-            var message = sprintf(StatitikLocale.of(context).read(codeMessage), [code]);
+            var message = StatitikLocale.of(context).read('LOG_4');
             Environment.instance.user = null;
 
             if(afterError != null) {
-              afterError(message);
+                afterError(message);
             }
-        }
-        try {
-          SharedPreferences.getInstance().then((prefs) {
-            onSuccess(prefs.getString('userID'), prefs.getString('uid'), prefs.getBool('isTest'));
-          });
-        } catch(e) {
-            onError('LOG_4');
         }
     }
 
@@ -611,7 +640,7 @@ class Environment
                             }
                             booster = session.boosterDraws[id];
 
-                            var subEx = collection.subExtensions[rowUserBooster[0]];
+                            var subEx = collection.subExtensions[rowUserBooster[0]]!;
                             var edc = ExtensionDrawCards.fromBytes(subEx, (rowUserBooster[2] as Blob).toBytes());
                             booster.fill(subEx, rowUserBooster[1]==1, edc);
 

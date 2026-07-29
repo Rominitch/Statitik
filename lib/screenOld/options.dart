@@ -1,0 +1,294 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:sprintf/sprintf.dart';
+
+import 'package:statitikcard/screenOld/view.dart';
+import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
+import 'package:statitikcard/screenOld/widgets/news_dialog.dart';
+import 'package:statitikcard/services/news.dart';
+import 'package:statitikcard/services/tools.dart';
+import 'package:statitikcard/services/credential.dart';
+import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/internationalization.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
+
+class OptionsPage extends StatefulWidget {
+  const OptionsPage({super.key});
+
+  @override
+  State<OptionsPage>  createState() => _OptionsPageState();
+}
+
+class _OptionsPageState extends State<OptionsPage> {
+  late CustomRadioController langueController = CustomRadioController(onChange: (value) { refreshLocale(value); });
+
+  StreamController sizeControler = StreamController();
+  double? moSize;
+  bool isScreenOn=false;
+
+  @override
+  void initState() {
+    sizeControler.stream.listen((event) async {
+      int size = await Environment.instance.storage.storageSize();
+      moSize = size.toDouble() / 1024.0 / 1024.0;
+      if(!sizeControler.isClosed) {
+        setState(() {});
+      }
+    });
+
+    WakelockPlus.enabled.then((value) => isScreenOn = value);
+
+    sizeControler.add(0);
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    sizeControler.close();
+
+    super.dispose();
+  }
+
+  void refreshLocale(String language) {
+    setState((){
+      StatitikLocale.of(context).setLocale(Locale(language));
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    langueController.currentValue = StatitikLocale.of(context).locale.languageCode;
+
+    refreshWithError(String message) {
+      EasyLoading.showError(message, dismissOnTap: true);
+    }
+    refresh() {
+      setState(() {});
+    }
+
+    Widget toolBarLanguage() {
+      return Row( children: [
+        Expanded(child: Text(StatitikLocale.of(context).read('L_T0'))),
+        CustomRadio(value: "fr", controller: langueController, widget: Environment.instance.collection.languages[1]!.barIcon(Environment.heightLanguage)),
+        CustomRadio(value: "en", controller: langueController, widget: Environment.instance.collection.languages[2]!.barIcon(Environment.heightLanguage)),
+      ]);
+    }
+
+    return Scaffold(
+        appBar: AppBar(
+        title: Center(
+          child: Text( StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.displaySmall ),
+        ),
+      ),
+    body: SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Profile Panel
+            Card(child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(child: Text(StatitikLocale.of(context).read('O_B9'), style: Theme.of(context).textTheme.headlineSmall)),
+                    if(Environment.instance.isLogged())
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          signOutButton(refresh, context),
+                          TextButton(
+                              style: TextButton.styleFrom(
+                                backgroundColor: Colors.red[800], // background
+                              ),
+                              onPressed: () {
+                                setState(()
+                                {
+                                  showDialog(
+                                      context: context,
+                                      builder: (_) => forgetMeDialog()
+                                  );
+                                });
+                              },
+                              child: Text(StatitikLocale.of(context).read('O_B0'))
+                          ),
+                        ]
+                      )
+                    else
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                        signInButton('V_B5', CredentialMode.google, refreshWithError, refresh, context),
+                        if(Credential.hasPhoneLogin())
+                          signInButton('V_B6', CredentialMode.phone, refreshWithError, refresh, context),
+                      ],)
+                  ]
+                )
+              )
+            ),
+            // Options panel
+            Card(child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headlineSmall)),
+                  toolBarLanguage(),
+                  Row( children: [
+                    Checkbox(value: isScreenOn,
+                      onChanged: (newValue) {
+                        setState(() {
+                          isScreenOn = newValue ?? false;
+                          Environment.instance.setScreenOn(isScreenOn);
+                        });
+                      }
+                    ),
+                    Expanded(child:
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(StatitikLocale.of(context).read('O_B13')),
+                          Flexible(child: Text(StatitikLocale.of(context).read('O_B14'), softWrap: true, textAlign: TextAlign.left, style: const TextStyle(fontSize: 10))),
+                      ])
+                    ),
+                    ]
+                  ),
+                  Row( children: [
+                    Checkbox(value: Environment.instance.storeImageLocally,
+                      onChanged: (newValue) {
+                        Environment.instance.storeImageLocally = newValue!;
+                        EasyLoading.show();
+
+                        SharedPreferences.getInstance().then((prefs) {
+                          prefs.setBool("storeImageLocaly",
+                              Environment.instance.storeImageLocally);
+                        }).whenComplete(() {
+                          Environment.instance.storage.clean().then((value) {
+                            setState(() {
+                              moSize = 0.0;
+                            });
+                            EasyLoading.dismiss();
+                          });
+                        });
+                      }
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(StatitikLocale.of(context).read('O_B10')),
+                            Flexible(child: Text(StatitikLocale.of(context).read('O_B11'), softWrap: true, textAlign: TextAlign.left, style: const TextStyle(fontSize: 10))),
+                            if(Environment.instance.storeImageLocally)
+                              (moSize != null) ? Text(sprintf(StatitikLocale.of(context).read('O_B12'), [moSize]), textAlign: TextAlign.left, style: const TextStyle(fontSize: 10)) : CircularProgressIndicator(color: Colors.orange[300]),
+                        ]),
+                      ),
+                    ],
+                  ),
+                ]
+              )
+            )),
+            Expanded(child: Center(child: drawImagePress(context, "PikaOption", 200.0))),
+            Row(
+              children: [
+                Expanded(child: Card(
+                  child: TextButton(
+                      onPressed: () {
+                        var latestId = 0;
+                        News.readFromDB(StatitikLocale
+                            .of(context)
+                            .locale, latestId).then((news) {
+                          if (news.isNotEmpty) {
+                            showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return createNewDialog(context, news);
+                                }
+                            );
+                          }
+                        });
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children:[
+                          drawImagePress(context, 'news', 35),
+                          const SizedBox(width: 5),
+                          Text(StatitikLocale.of(context).read('NE_T0'))
+                      ])
+                  ),
+                )),
+                Expanded(child: Environment.instance.createDiscordButton() ),
+              ]
+            ),
+            Row(
+              children: [
+                Expanded(child: Card(
+                  child: TextButton(
+                      onPressed: () {
+                        Environment.instance.showDisclaimer(context);
+                      },
+                      child: Text(StatitikLocale.of(context).read('disclaimer_T0'))
+                  ),
+                )),
+                Expanded(child: Card(
+                  child: TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pushNamed('/thanks');
+                      },
+                      child: Text(StatitikLocale.of(context).read('O_B3'))
+                  ),
+                )),
+                Expanded(child: Card(
+                  child: TextButton(
+                      onPressed: () {
+                        Environment.instance.showAbout(context);
+                      },
+                      child: Text(StatitikLocale.of(context).read('O_B5'))
+                  ),
+                )),
+              ]
+            ),
+          ],
+        ),
+      ),
+    ),
+    );
+  }
+
+  Widget forgetMeDialog() {
+    return AlertDialog(
+      title: Text(StatitikLocale.of(context).read('warning')),
+      content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children:
+          [
+            Text(StatitikLocale.of(context).read('O_B6')),
+            Text(StatitikLocale.of(context).read('O_B7'), style: TextStyle(color: Colors.red[600])),
+            Text(StatitikLocale.of(context).read('O_B8'))
+          ]
+      ),
+      actions: [
+        Card(
+          color: Colors.red[600],
+          child: TextButton( child: Text(StatitikLocale.of(context).read('confirm')),
+          onPressed: (){
+            Environment.instance.removeUser().whenComplete(() {
+              Navigator.of(context).pop();
+              setState(() {});
+            });
+          },),),
+        Card(
+          color: Theme.of(context).primaryColor,
+          child: TextButton( child: Text(StatitikLocale.of(context).read('cancel')), onPressed: (){ Navigator.of(context).pop();},),),
+      ],
+    );
+  }
+}

@@ -10,6 +10,7 @@ class CardSet {
   static const int setMaskParallel                 = 2;
   static const int setMaskReplaceRevertIntoBooster = 4;
 
+  final int                 id;
   final MultiLanguageString names;
   final Color               color;
   final String              image;
@@ -17,9 +18,10 @@ class CardSet {
   final bool                isParallel;
   final bool                replaceRevertIntoBooster;
 
-  const CardSet(this.names, this.color, this.image, this.isSystem, this.isParallel, this.replaceRevertIntoBooster);
+  const CardSet(this.id, this.names, this.color, this.image, this.isSystem, this.isParallel, this.replaceRevertIntoBooster);
 
   CardSet.fromBytes(ByteParser parser):
+    id        = parser.extractInt16(),
     names     = parser.extractMultiLanguage()!,
     color     = parser.extractColor(),
     image     = parser.extractString16(),
@@ -28,7 +30,8 @@ class CardSet {
     replaceRevertIntoBooster = parser.extractBool();
 
   List<int> toBytes() {
-    return ByteEncoder.encodeMultiLanguage(names) + ByteEncoder.encodeColor(color)
+    return ByteEncoder.encodeInt16(id)
+        + ByteEncoder.encodeMultiLanguage(names) + ByteEncoder.encodeColor(color)
         + ByteEncoder.encodeString16(image.codeUnits) + ByteEncoder.encodeBool(isSystem)
         + ByteEncoder.encodeBool(isParallel) + ByteEncoder.encodeBool(replaceRevertIntoBooster);
   }

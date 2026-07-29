@@ -1,13 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-//import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in_all_platforms/google_sign_in_all_platforms.dart';
+import 'package:googleapis/people/v1.dart' as people;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
+
+import '../secrets/googleAPI.dart';
 
 enum CredentialMode
 {
@@ -18,6 +22,17 @@ enum CredentialMode
 
 class Credential
 {
+  final _googleSignIn = GoogleSignIn(
+    params: const GoogleSignInParams(
+      clientId: Secret.googleAPIClientID,
+      clientSecret: Secret.googleAPIClientSecret,
+      scopes: ['openid', 'email'
+        //'https://www.googleapis.com/auth/userinfo.profile',
+        //'https://www.googleapis.com/auth/userinfo.email',
+        //'openid', 'profile', 'email'
+      ],
+    ),
+  );
   /*
   final GoogleSignIn googleSignIn = GoogleSignIn(
     scopes: <String>[
@@ -43,7 +58,58 @@ class Credential
     }
   }
 
+  // Try to connect silently
+  Future<GoogleSignInCredentials?> seamlessAuthentication() async {
+    // 1. Try silent first (no user interaction)
+    final silentCreds = await _googleSignIn.silentSignIn();
+    if (silentCreds != null) return silentCreds;
+
+    // 2. Try lightweight (minimal interaction)
+    final lightCreds = await _googleSignIn.lightweightSignIn();
+    if (lightCreds != null) return lightCreds;
+
+    // 3. Fallback to full flow (complete OAuth)
+    return await _googleSignIn.signInOnline();
+  }
+
   void signInWithGoogle(onSuccess) {
+    void afterConnexion(GoogleSignInCredentials? cred)
+    {
+      _googleSignIn.authenticatedClient.then( (authClient) async
+      {
+        if (authClient == null) {
+          throw Exception('Failed to get authenticated client');
+        }
+
+        final response = await authClient.read(Uri.parse('https://www.googleapis.com/oauth2/v2/userinfo'));
+
+        final email = RegExp(r'"email":\s*"([^"]+)"')
+            .firstMatch(response)
+            ?.group(1);
+        final userId = RegExp(r'"id":\s*"([^"]+)"')
+            .firstMatch(response)
+            ?.group(1);
+
+        if( email == null || userId == null )
+        {
+          throw Exception('Failed to get authenticated client');
+        }
+
+        final newId = "google-$userId";
+        // Finish connection
+        onSuccess(newId, newId, email.contains("cloudtestlabaccounts"));
+      });
+    }
+    seamlessAuthentication().then( (GoogleSignInCredentials? authClient)
+    {
+      // If not possible, we start sign in
+      if (authClient == null) {
+        _googleSignIn.lightweightSignIn().then( afterConnexion );
+      } else {
+        afterConnexion (authClient);
+      }
+    });
+
     /*
     googleSignIn.signIn().then((GoogleSignInAccount? googleSignInAccount) {
       if(googleSignInAccount != null) {
@@ -93,14 +159,13 @@ class Credential
   }
 
   Future<void> signOutGoogle() async {
-    /*
     Environment.instance.user = null;
-    await googleSignIn.signOut();
+    await _googleSignIn.signOut();
+    //await googleSignIn.signOut();
 
     var prefs = await SharedPreferences.getInstance();
     prefs.remove('uid');
     prefs.remove('userID');
-    */
   }
 
   AlertDialog showAlert(BuildContext context) {

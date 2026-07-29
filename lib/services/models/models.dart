@@ -21,6 +21,7 @@ import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/models/pokemon_card_data.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';
+import 'package:statitikcard/tools/binary_manager.dart';
 
 final Color greenValid = Colors.green[500]!;
 
@@ -266,7 +267,7 @@ class StatsBooster {
           } else {
             for(var setId=0; setId < code.nbSetsRegistred(); setId += 1) {
               var countSet = code.countBySet(setId);
-              var setCard = Environment.instance.collection.sets[setId];
+              var setCard = Environment.instance.collection.sets[setId]!;
               if(countBySet.containsKey(setCard)) {
                 countBySet[setCard] = countBySet[setCard]! + countSet;
               } else {
@@ -310,13 +311,22 @@ class CodeNaming
   String naming = "%d";
 
   CodeNaming([this.idStart=0, this.naming="%s"]);
-  CodeNaming.fromBytes(ByteParser parser):
+  CodeNaming.fromBytesParser(ByteParser parser):
     idStart = parser.extractInt16(),
     naming = parser.extractString16();
 
-  List<int> toBytes() {
+  CodeNaming.fromBytes(BinaryReader reader):
+    idStart = reader.readInt16(),
+    naming  = reader.readString();
+
+  List<int> toBytesParser() {
     return ByteEncoder.encodeInt16(idStart)
       + ByteEncoder.encodeString16(naming.codeUnits);
+  }
+
+  void toBytes(BinaryWriter w) {
+    w.writeInt16(idStart);
+    w.writeString(naming);
   }
 }
 

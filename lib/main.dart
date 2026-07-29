@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-import 'package:statitikcard/screen/cartes/card_statistic.dart';
-import 'package:statitikcard/screen/wrapper.dart';
-import 'package:statitikcard/screen/stats/stats.dart';
-import 'package:statitikcard/screen/thanks.dart';
+import 'package:statitikcard/screenOld/cartes/card_statistic.dart';
+import 'package:statitikcard/screenOld/wrapper.dart';
+import 'package:statitikcard/screenOld/stats/stats.dart';
+import 'package:statitikcard/screenOld/thanks.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 void main() {

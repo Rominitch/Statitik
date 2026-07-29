@@ -54,8 +54,8 @@ class HtmlCardParser {
     }
     final pok = Environment.instance.collection.pokemons;
     pokemonOrdered = SplayTreeMap<int, PokemonInfo>.from(pok, (k1, k2) {
-      var n1 = pok[k1].name(language);
-      var n2 = pok[k2].name(language);
+      var n1 = pok[k1]!.name(language);
+      var n2 = pok[k2]!.name(language);
 
       if (n1.length > n2.length) {
         return -1;

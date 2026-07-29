@@ -49,7 +49,7 @@ const Map imageName = {
   TypeCard.dragon: 'dragon',
 };
 
-bool isPokemonType(type) {
+bool isPokemonType(TypeCard type) {
   return type != TypeCard.energy
       && type != TypeCard.objet
       && type != TypeCard.objetPokemon
