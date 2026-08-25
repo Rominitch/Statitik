@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/PokeSpace/pokespace_products_explorer.dart';
 import 'package:statitikcard/screenOld/widgets/product_selector.dart';
 import 'package:statitikcard/screenOld/commonPages/language_page.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 
 
@@ -105,7 +106,7 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
       onPopInvoked: (pop) => savePokeSpace(),
       child: Scaffold(
         appBar: AppBar(
-          title: Text(StatitikLocale.of(context).read('DC_B17'), style: Theme.of(context).textTheme.displaySmall),
+          title: Text(AppLocalizations.of(context)!.dc_b17, style: Theme.of(context).textTheme.displaySmall),
           actions: [
             FloatingActionButton.small(
               backgroundColor: productMenuColor,
@@ -151,14 +152,14 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
                       Row(
                         children: [
                           const Spacer(),
-                          Text(StatitikLocale.of(context).read('PSMP_B0'), style: Theme.of(context).textTheme.titleLarge),
+                          Text(AppLocalizations.of(context)!.psmp_b0, style: Theme.of(context).textTheme.titleLarge),
                           const SizedBox(width: 5.0),
                           const Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
                           const SizedBox(width: 15.0),
                         ]
                       ),
                       const SizedBox(height: 40),
-                      drawNothing(context, 'PSMP_B1')
+                      drawNothing(context, AppLocalizations.of(context)!.psmp_b1)
                     ]
                 ),
               )

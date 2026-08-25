@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
 import 'package:statitikcard/models/poke_card.dart';
 import 'package:statitikcard/models/poke_card_design.dart';
 import 'package:statitikcard/models/poke_collection.dart';
@@ -50,6 +51,9 @@ class PokeCardInExpansion {
   PokeCardInExpansion.empty(this.card, this.rarity, {this.specialID="", this.isSecret=false}) :
     setInfo = {};
 
+  List<PokeSet> orderedSets() {
+    return setInfo.isEmpty ? [] : setInfo.keys.toList(growable: false)..sort( (a, b) { return a.compareTo(b); } );
+  }
   /*
   PokeCardInExpansion.creation(this.data, this.rarity, Map allSets, {jpDBId=0, this.specialID="", this.isSecret=false, bool isJapanese=false}) {
     var image = ImageDesign();
@@ -333,20 +337,27 @@ class PokeCardInExpansion {
   bool isGoodCard() {
     return isValid() && Environment.instance.collection.goodCard.contains(rarity);
   }
+*/
+  PokeCardDesign tryGetImage(PokeCardImageIdentifier idImage) {
+    assert(setInfo.isNotEmpty);
 
-  ImageDesign tryGetImage(CardImageIdentifier idImage) {
-    assert(images.isNotEmpty);
-    int finalIdSet   = idImage.idSet   < images.length             ? idImage.idSet   : 0;
-    int finalIdImage = idImage.idImage < images[finalIdSet].length ? idImage.idImage : 0;
+    if(setInfo.containsKey(idImage.set)) {
+      final v = setInfo[idImage.set]!;
+      final finalIdImage = idImage.idImage < v.length ? idImage.idImage : 0;
 
-    assert(images[finalIdSet].isNotEmpty);
-    return images[finalIdSet][finalIdImage];
+      assert(v.isNotEmpty);
+      return v[finalIdImage];
+    } else {
+      // By default return first item
+      return setInfo.values.first.first;
+    }
   }
 
-  ImageDesign? image(CardImageIdentifier idImage) {
-    assert(images.isNotEmpty);
-    if(idImage.idSet < images.length) {
-      var v = images[idImage.idSet];
+  PokeCardDesign? image(PokeCardImageIdentifier idImage) {
+    assert(setInfo.isNotEmpty);
+
+    if(setInfo.containsKey(idImage.set)) {
+      final v = setInfo[idImage.set]!;
       if(idImage.idImage < v.length) {
         return v[idImage.idImage];
       }
@@ -354,12 +365,12 @@ class PokeCardInExpansion {
     return null;
   }
 
-  void removeImage(CardImageIdentifier idImage) {
-    if(idImage.idSet < images.length) {
-      if( idImage.idImage < images[idImage.idSet].length ) {
-        images[idImage.idSet].removeAt(idImage.idImage);
+  void removeImage(PokeCardImageIdentifier idImage) {
+    if(setInfo.containsKey(idImage.set)) {
+      final v = setInfo[idImage.set]!;
+      if( idImage.idImage < v.length ) {
+        v.removeAt(idImage.idImage);
       }
     }
   }
- */
 }

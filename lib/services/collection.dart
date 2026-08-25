@@ -230,7 +230,7 @@ class Collection
           } else if(row[3] != null) {
             rarity = Rarity.fromImage(row[0], row[3], Color(row[6]));
           } else {
-            throw StatitikException("Impossible to build rarity !");
+            throw StatitikException(ErrorCode.unknown, "Impossible to build rarity !");
           }
 
           // register into list
@@ -487,7 +487,7 @@ class Collection
       }
 
       if(!Environment.instance.onInfoLoading.isClosed) {
-        Environment.instance.onInfoLoading.add('LOAD_3');
+        Environment.instance.onInfoLoading.add(LoadingCode.load_3);
       }
       var cardsExtensionRes = await connection.query("SELECT * FROM `CartesExtension`;");
       for(var row in cardsExtensionRes) {
@@ -541,7 +541,7 @@ class Collection
       assert(categories.isNotEmpty);
 
       if(!Environment.instance.onInfoLoading.isClosed) {
-        Environment.instance.onInfoLoading.add('LOAD_4');
+        Environment.instance.onInfoLoading.add(LoadingCode.load_4);
       }
       
       // Read static other product

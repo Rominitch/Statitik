@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/screenOld/cartes/card_filter_selector.dart';
 import 'package:statitikcard/screenOld/cartes/card_name_selector.dart';
@@ -65,7 +66,7 @@ class _CardStatisticPageState extends State<CardStatisticPage> with TickerProvid
     return Scaffold(
       appBar: AppBar(
         title: Center(
-          child: Text( StatitikLocale.of(context).read('CA_T0'), style: Theme.of(context).textTheme.displaySmall),
+          child: Text( AppLocalizations.of(context)!.ca_t0, style: Theme.of(context).textTheme.displaySmall),
         ),
         actions: <Widget>[
           Padding(
@@ -150,7 +151,7 @@ class _CardFilteredReportState extends State<CardFilteredReport> {
                               setState(() {});
                             });
                           },
-                          child: Text( _filterData.specificCard != null ? _filterData.specificCard!.name(widget.language) : StatitikLocale.of(context).read('CA_B3')),
+                          child: Text( _filterData.specificCard != null ? _filterData.specificCard!.name(widget.language) : AppLocalizations.of(context)!.ca_b3),
                         ),
                       ),
                     ),
@@ -166,7 +167,7 @@ class _CardFilteredReportState extends State<CardFilteredReport> {
                             setState(() {});
                           });
                         },
-                        child: Text(StatitikLocale.of(context).read('CA_B4')),
+                        child: Text(AppLocalizations.of(context)!.ca_b4),
                       ),
                     ),
                   ],
@@ -180,7 +181,7 @@ class _CardFilteredReportState extends State<CardFilteredReport> {
                   )
                 : Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: drawNothing(context, 'S_B1'),
+                  child: drawNothing(context, 's_b1'),
                 )
               ]
             );

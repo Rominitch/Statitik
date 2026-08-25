@@ -109,7 +109,7 @@ class SubExtensionCards {
       } else if (currentVersion == 3) {
         return PokemonCardExtension.fromBytesV3(parser, cardCollection, allSets, rarities);
       } else {
-        throw StatitikException("Unknown version of card");
+        throw StatitikException(ErrorCode.unknown, "Unknown version of card");
       }
     }
     catch(error) {
@@ -136,7 +136,7 @@ class SubExtensionCards {
           }
         }
       } else {
-        throw StatitikException("SubExtensionCards: need migration ($currentVersion < $version");
+        throw StatitikException(ErrorCode.unknown, "SubExtensionCards: need migration ($currentVersion < $version");
       }
     }
     return listCards;
@@ -157,7 +157,7 @@ class SubExtensionCards {
         cards.add(numberedCard);
       }
     } else {
-      throw StatitikException("SubExtensionCards: need migration ($currentVersion < $version");
+      throw StatitikException(ErrorCode.unknown, "SubExtensionCards: need migration ($currentVersion < $version");
     }
 
     energyCard     = extractOtherCards(energy,   cardCollection, allSets, rarities);
@@ -200,7 +200,7 @@ class SubExtensionCards {
         return noNumberedCard[cardId.numberId];
       }
       default:
-        throw StatitikException("Unknown list");
+        throw StatitikException(ErrorCode.unknown, "Unknown list");
     }
   }
 
@@ -307,7 +307,7 @@ class SubExtensionCards {
         return nextId < noNumberedCard.length ? CardIdentifier.from([id.listId, nextId]): null;
       }
       default:
-        throw StatitikException("Unknown list");
+        throw StatitikException(ErrorCode.unknown, "Unknown list");
     }
   }
 
@@ -323,7 +323,7 @@ class SubExtensionCards {
         return noNumberedCard;
       }
       default:
-        throw StatitikException("Unknown list");
+        throw StatitikException(ErrorCode.unknown, "Unknown list");
     }
   }
 }

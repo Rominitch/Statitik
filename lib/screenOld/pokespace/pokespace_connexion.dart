@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/screenOld/PokeSpace/pokespace_my_decks.dart';
 import 'package:statitikcard/screenOld/commonPages/language_page.dart';
@@ -18,7 +19,6 @@ import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/user_draw_file.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/product_category.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
@@ -73,7 +73,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
       createButton([
           const Icon(Icons.add_box_outlined),
           Flexible(
-            child: Text(StatitikLocale.of(context).read('DC_B1'),
+            child: Text(AppLocalizations.of(context)!.dc_b1,
                 style: Theme.of(context).textTheme.titleLarge,
                 softWrap: true, maxLines: 2),
           ),
@@ -84,7 +84,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
       ),
       createButton([
           const Icon(Icons.info_outline),
-          Text(StatitikLocale.of(context).read('DC_B10'),
+          Text(AppLocalizations.of(context)!.dc_b10,
               style: Theme.of(context).textTheme.headlineSmall
           ),
         ], () {
@@ -104,7 +104,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
               children: [
                 drawImagePress(context, 'Snorlax_Pikachu_Pose', 60.0),
                 const SizedBox(width: 15.0),
-                Text(StatitikLocale.of(context).read('DC_B14'),
+                Text(AppLocalizations.of(context)!.dc_b14,
                     style: Theme.of(context).textTheme.headlineMedium),
                 const SizedBox(width: 15.0),
                 drawImagePress(context, 'Snorlax_Pikachu', 60.0),
@@ -125,7 +125,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Icon(Icons.history),
-                      Text(StatitikLocale.of(context).read('DC_B19'), style: Theme.of(context).textTheme.headlineSmall),
+                      Text(AppLocalizations.of(context)!.dc_b19, style: Theme.of(context).textTheme.headlineSmall),
                     ],
                   ),
                   onPressed: () {
@@ -144,7 +144,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
   Widget myProfilePanel() {
     var buttons = [
       createButtonGradient([
-        Text(StatitikLocale.of(context).read('DC_B16'),
+        Text(AppLocalizations.of(context)!.dc_b16,
           style: Theme.of(context).textTheme.headlineSmall)
         ],(){
         if(Environment.instance.isLogged()) {
@@ -154,7 +154,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
         color: cardMenuColor
       ),
       createButtonGradient([
-        Text(StatitikLocale.of(context).read('DC_B17'),
+        Text(AppLocalizations.of(context)!.dc_b17,
           style: Theme.of(context).textTheme.headlineSmall),
         ],(){
         if(Environment.instance.isLogged()) {
@@ -167,9 +167,9 @@ class _DrawHomePageState extends State<DrawHomePage> {
         Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text(StatitikLocale.of(context).read('DC_B18'),
+            Text(AppLocalizations.of(context)!.dc_b18,
               style: Theme.of(context).textTheme.headlineSmall),
-            Text(StatitikLocale.of(context).read('devBeta'), style: TextStyle(color: Colors.grey.shade300, fontSize: 12.0)),
+            Text(AppLocalizations.of(context)!.devBeta, style: TextStyle(color: Colors.grey.shade300, fontSize: 12.0)),
           ]
         )
       ],(){
@@ -180,7 +180,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
         color: deckMenuColor
       ),
       createButton([
-        Text(StatitikLocale.of(context).read('DC_B11'), style: Theme.of(context).textTheme.headlineSmall),
+        Text(AppLocalizations.of(context)!.dc_b11, style: Theme.of(context).textTheme.headlineSmall),
       ], () {
         Navigator.push(context, MaterialPageRoute(builder: (context) => const DrawHistory()));
       }),
@@ -200,7 +200,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
                     children: [
                       drawImagePress(context, 'CafeMix_Pikachu', 60.0),
                       const SizedBox(width: 15.0),
-                      Text(StatitikLocale.of(context).read('DC_B15'),
+                      Text(AppLocalizations.of(context)!.dc_b15,
                           style: Theme.of(context).textTheme.headlineMedium),
                       const SizedBox(width: 15.0),
                       drawImagePress(context, 'Piplup', 60.0),
@@ -250,7 +250,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
       return Scaffold(
           appBar: AppBar(
           title: Center(
-          child: Text(StatitikLocale.of(context).read('H_T0'), style: Theme.of(context).textTheme.displaySmall),
+          child: Text(AppLocalizations.of(context)!.h_t0, style: Theme.of(context).textTheme.displaySmall),
          ),
         ),
         body: SafeArea(
@@ -273,12 +273,12 @@ class _DrawHomePageState extends State<DrawHomePage> {
                 Padding(padding: const EdgeInsets.all(6.0),
                   child: Column(
                     children: [
-                      Text(StatitikLocale.of(context).read('DC_B2'), style: const TextStyle(fontSize: 13, decoration: TextDecoration.underline, )),
+                      Text(AppLocalizations.of(context)!.dc_b2, style: const TextStyle(fontSize: 13, decoration: TextDecoration.underline, )),
                       const SizedBox(height: 8.0),
                       Row(children: [
                         const Icon(Icons.help_outline),
                         const SizedBox(width: 10.0),
-                        Flexible(child: Text(StatitikLocale.of(context).read('DC_B3'), style: const TextStyle(fontSize: 11))),
+                        Flexible(child: Text(AppLocalizations.of(context)!.dc_b3, style: const TextStyle(fontSize: 11))),
                       ])
                     ]
                   )
@@ -300,7 +300,7 @@ class _DrawHomePageState extends State<DrawHomePage> {
       return Scaffold(
         appBar: AppBar(
           title: Center(
-            child: Text( StatitikLocale.of(context).read('H_T0'), style: Theme.of(context).textTheme.displaySmall ),
+            child: Text( AppLocalizations.of(context)!.h_t0, style: Theme.of(context).textTheme.displaySmall ),
           ),
         ),
         body:SafeArea(
@@ -314,22 +314,22 @@ class _DrawHomePageState extends State<DrawHomePage> {
                   const SizedBox(width: 10),
                   drawImagePress(context, 'CafeMix_Pikachu', 50),
                   const SizedBox(width: 10),
-                  Text(StatitikLocale.of(context).read('DC_B4'), style: Theme.of(context).textTheme.displaySmall),
+                  Text(AppLocalizations.of(context)!.dc_b4, style: Theme.of(context).textTheme.displaySmall),
                 ]
               ),
               const SizedBox(height: 10),
-              Text(StatitikLocale.of(context).read('DC_B5')),
-              textBullet(StatitikLocale.of(context).read('DC_B6')),
-              textBullet(StatitikLocale.of(context).read('DC_B7')),
-              textBullet(StatitikLocale.of(context).read('DC_B21')),
-              textBullet(StatitikLocale.of(context).read('DC_B22')),
+              Text(AppLocalizations.of(context)!.dc_b5),
+              textBullet(AppLocalizations.of(context)!.dc_b6),
+              textBullet(AppLocalizations.of(context)!.dc_b7),
+              textBullet(AppLocalizations.of(context)!.dc_b21),
+              textBullet(AppLocalizations.of(context)!.dc_b22),
               const SizedBox(height: 30),
               Container(
-                child: signInButton('V_B5', CredentialMode.google, refreshWithError, refresh, context)
+                child: signInButton('v_b5', CredentialMode.google, refreshWithError, refresh, context)
               ),
               if(Credential.hasPhoneLogin())
                 Container(
-                  child: signInButton('V_B6', CredentialMode.phone, refreshWithError, refresh, context)
+                  child: signInButton('v_b6', CredentialMode.phone, refreshWithError, refresh, context)
                 ),
               const SizedBox(height: 30),
               if(message != null) Center( child: Text(message!, style: const TextStyle(color: Colors.red))),
@@ -338,8 +338,8 @@ class _DrawHomePageState extends State<DrawHomePage> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(StatitikLocale.of(context).read('DC_B8')),
-                      textBullet(StatitikLocale.of(context).read('DC_B9')),
+                      Text(AppLocalizations.of(context)!.dc_b8),
+                      textBullet(AppLocalizations.of(context)!.dc_b9),
                     ]),
               ),
               const SizedBox(height: 10.0,),

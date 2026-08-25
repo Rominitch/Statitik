@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/services/models/bytes_coder.dart';
 
 import 'package:statitikcard/services/models/card_set.dart';
@@ -68,9 +69,15 @@ enum Level {
   withoutLevel,
 }
 
-const List<String> levelString = ['LEVEL_0', 'LEVEL_1', 'LEVEL_2', 'LEVEL_3'];
-String getLevelText(context, Level element) {
-  return StatitikLocale.of(context).read(levelString[element.index]);
+String levelText(BuildContext context, Level element) {
+  switch(element)
+  {
+    case Level.base:   return AppLocalizations.of(context)!.level_0;
+    case Level.level1: return AppLocalizations.of(context)!.level_1;
+    case Level.level2: return AppLocalizations.of(context)!.level_2;
+    case Level.withoutLevel: "";
+  }
+  throw("Unknow level");
 }
 
 
@@ -83,7 +90,7 @@ enum Mode {
 }
 
 const Map modeImgs   = {Mode.Normal: "normal", Mode.Reverse: "reverse", Mode.Halo: "halo", };
-const Map modeNames  = {Mode.Normal: "SET_0", Mode.Reverse: "SET_1", Mode.Halo: "SET_2"};
+const Map modeNames  = {Mode.Normal: "set_0", Mode.Reverse: "set_1", Mode.Halo: "set_2"};
 const Map modeColors = {Mode.Normal: Colors.green, Mode.Reverse: Colors.blueAccent, Mode.Halo: Colors.purple};
 
 const String emptyMode = '_';
@@ -106,7 +113,20 @@ enum DescriptionEffect {
 }
 
 String labelDescriptionEffect(BuildContext context, DescriptionEffect de) {
-  return StatitikLocale.of(context).read("STATE_${de.index}");
+  switch(de) {
+    case DescriptionEffect.unknown:   return "";
+    case DescriptionEffect.attack:    return AppLocalizations.of(context)!.state_1;
+    case DescriptionEffect.draw:      return AppLocalizations.of(context)!.state_2;
+    case DescriptionEffect.flipCoin:  return AppLocalizations.of(context)!.state_3;
+    case DescriptionEffect.poison:    return AppLocalizations.of(context)!.state_4;
+    case DescriptionEffect.burn:      return AppLocalizations.of(context)!.state_5;
+    case DescriptionEffect.sleep:     return AppLocalizations.of(context)!.state_6;
+    case DescriptionEffect.paralyzed: return AppLocalizations.of(context)!.state_7;
+    case DescriptionEffect.search:    return AppLocalizations.of(context)!.state_8;
+    case DescriptionEffect.heal:      return AppLocalizations.of(context)!.state_9;
+    case DescriptionEffect.mix:       return AppLocalizations.of(context)!.state_10;
+    case DescriptionEffect.confusion: return AppLocalizations.of(context)!.state_11;
+  }
 }
 
 Widget getDescriptionEffectWidget(DescriptionEffect de, {size}) {
@@ -176,7 +196,7 @@ class StatsBooster {
 
   void addBoosterDraw(ExtensionDrawCards edc, int anomaly) {
     if( edc.drawCards.length > subExt.seCards.cards.length) {
-      throw StatitikException('Corruption des données de tirages');
+      throw StatitikException(ErrorCode.unknown, 'Corruption des données de tirages');
     }
 
     computeStatsBySet(PokemonCardExtension cardInfo, CodeDraw code) {

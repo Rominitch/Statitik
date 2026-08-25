@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/screenOld/admin/side_product_creator.dart';
 
 import 'package:statitikcard/services/environment.dart';
@@ -82,7 +83,7 @@ class _SideProductSelectionState extends State<SideProductSelection> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(StatitikLocale.of(context).read('SPS_T0'), style: Theme.of(context).textTheme.headlineSmall),
+        title: Text(AppLocalizations.of(context)!.sps_t0, style: Theme.of(context).textTheme.headlineSmall),
         actions: widget.edition && Environment.instance.isAdministrator() ? [
           IconButton(onPressed: (){
               Navigator.push(context, MaterialPageRoute(builder: (context) => SideProductCreator(widget.activeLanguage, product: widget.productInfo))).then((value) {

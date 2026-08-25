@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/screenOld/widgets/energy_button.dart';
 import 'package:statitikcard/screenOld/widgets/list_selector.dart';
 import 'package:statitikcard/services/models/card_effect.dart';
@@ -41,7 +42,7 @@ class _CardEffectsPanelState extends State<CardEffectsPanel> {
       Card(
         color: Colors.greenAccent,
         child: TextButton(
-          child: Text( StatitikLocale.of(context).read('CA_B14') ),
+          child: Text( AppLocalizations.of(context)!.ca_b14 ),
           onPressed: (){
             setState(() {
               var newEffect = CardEffect();
@@ -86,8 +87,8 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
 
   @override
   Widget build(BuildContext context) {
-    String name= StatitikLocale.of(context).read('CA_B23');
-    String description=StatitikLocale.of(context).read('CA_B24');
+    String name= AppLocalizations.of(context)!.ca_b23;
+    String description=AppLocalizations.of(context)!.ca_b24;
     int nbParameters = 0;
     if(widget.effect.title != null) {
       name = Environment.instance.collection.effects[widget.effect.title!]!.name(widget.parent.l);
@@ -113,7 +114,7 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
         parameterWidgets.add(
           Row(
             children: [
-              Text(StatitikLocale.of(context).read('CA_B19')),
+              Text(AppLocalizations.of(context)!.ca_b19),
               Expanded(
                 child: SpinBox(value: widget.effect.description!.parameters[localId].toDouble(), max: maxParam,
                     onChanged: (value){
@@ -145,7 +146,7 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
                 setState(() {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ListSelector(Text(StatitikLocale.of(context).read('CA_T3'), style: Theme.of(context).textTheme.displaySmall), widget.parent.l, Environment.instance.collection.effects)),
+                    MaterialPageRoute(builder: (context) => ListSelector(Text(AppLocalizations.of(context)!.ca_t3, style: Theme.of(context).textTheme.displaySmall), widget.parent.l, Environment.instance.collection.effects)),
                   ).then((value) {
                     setState(() {
                       if(value != null) {
@@ -159,7 +160,7 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
             if(widget.effect.title != null)
               Row(
                   children: [
-                    Text(StatitikLocale.of(context).read('CA_B21')),
+                    Text(AppLocalizations.of(context)!.ca_b21),
                     Expanded(
                       child:SpinBox(value: widget.effect.power.toDouble(), max: 300,
                           onChanged: (value){
@@ -197,7 +198,7 @@ class _CardEffectPanelState extends State<CardEffectPanel> {
 
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ListSelector(Text(StatitikLocale.of(context).read('CA_T4'), style: Theme.of(context).textTheme.displaySmall), widget.parent.l, finalEffectList)),
+                    MaterialPageRoute(builder: (context) => ListSelector(Text(AppLocalizations.of(context)!.ca_t4, style: Theme.of(context).textTheme.displaySmall), widget.parent.l, finalEffectList)),
                   ).then((value) {
                     setState(() {
                       if(value != null) {

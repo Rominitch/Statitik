@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/screenOld/PokeSpace/pokespace_my_decks_creator.dart';
 import 'package:statitikcard/screenOld/commonPages/language_page.dart';
 import 'package:statitikcard/screenOld/widgets/deck_widget.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/deck.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/tools.dart';
@@ -55,12 +55,12 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(StatitikLocale.of(context).read('DC_B18'), style: Theme.of(context).textTheme.displaySmall),
+        title: Text(AppLocalizations.of(context)!.dc_b18, style: Theme.of(context).textTheme.displaySmall),
         actions: [
           FloatingActionButton.small(
             backgroundColor: deckMenuColor,
             onPressed: (){
-              var deck = Deck(StatitikLocale.of(context).read('PSMD_B2'));
+              var deck = Deck(AppLocalizations.of(context)!.psmd_b2);
               mySpace.myDecks.add(deck);
               goToDeckSelector(deck);
             },
@@ -80,14 +80,14 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
                   Row(
                     children: [
                       const Spacer(),
-                      Text(StatitikLocale.of(context).read('PSMD_B1'), style: Theme.of(context).textTheme.titleLarge),
+                      Text(AppLocalizations.of(context)!.psmd_b1, style: Theme.of(context).textTheme.titleLarge),
                       const SizedBox(width: 5.0),
                       const Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
                       const SizedBox(width: 15.0),
                     ]
                   ),
                   const SizedBox(height: 40),
-                  drawNothing(context, 'PSMD_B0')
+                  drawNothing(context, AppLocalizations.of(context)!.psmd_b0)
                 ]
               ),
             ) : GridView.builder(

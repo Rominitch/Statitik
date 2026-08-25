@@ -30,6 +30,8 @@ class PokeMarker
     writer.writeBool(_toTitle);
   }
 
+  bool toTitle() { return _toTitle; }
+
   void toBytesId(BinaryWriter writer) {
     _id.toBytesID(writer);
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/screenOld/view.dart';
 import 'package:statitikcard/screenOld/widgets/button_check.dart';
 import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
@@ -132,7 +133,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
       child: Row(
         children: [
-          Expanded(child: Text( StatitikLocale.of(context).read(title), style: Theme.of(context).textTheme.headlineSmall)),
+          Expanded(child: Text( title, style: Theme.of(context).textTheme.headlineSmall)),
           IconButton(
             icon: const Icon(Icons.delete),
             color: Colors.white,
@@ -156,7 +157,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text( StatitikLocale.of(context).read('CA_T2'), style: Theme.of(context).textTheme.displaySmall ),
+        title: Text( AppLocalizations.of(context)!.ca_t2, style: Theme.of(context).textTheme.displaySmall ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -171,7 +172,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                   value: 0,
                   canTapOnHeader: true,
                   headerBuilder: (context, isExpanded) {
-                    return createHeader(context, 'CA_B13', () {
+                    return createHeader(context, AppLocalizations.of(context)!.ca_b13, () {
                       widget.result.clearRegionFilter();
                       regionController.afterPress(widget.result.filterRegion);
                      });
@@ -189,7 +190,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                   value: 1,
                   canTapOnHeader: true,
                   headerBuilder: (context, isExpanded) {
-                    return createHeader(context, 'CA_B16', () {
+                    return createHeader(context, AppLocalizations.of(context)!.ca_b16, () {
                       widget.result.clearMarkersFilter();
                       refreshController.refresh();
                     });
@@ -212,7 +213,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                   value: 2,
                   canTapOnHeader: true,
                   headerBuilder: (BuildContext context, bool isExpanded) {
-                    return createHeader(context, 'CA_B15', () {
+                    return createHeader(context, AppLocalizations.of(context)!.ca_b15, () {
                       setState(() {
                         widget.result.clearTypeRarityFilter();
                         refreshController.refresh();
@@ -241,7 +242,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                   value: 3,
                   canTapOnHeader: true,
                   headerBuilder: (BuildContext context, bool isExpanded) {
-                    return createHeader(context, 'CA_B35', () {
+                    return createHeader(context, AppLocalizations.of(context)!.ca_b35, () {
                       widget.result.clearGeneralityFilter();
                       resistanceController.afterPress(widget.result.resistanceType);
                       weaknessController.afterPress(widget.result.weaknessType);
@@ -254,7 +255,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                       children: [
                         Row(
                           children: [
-                            SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B0'), style: Theme.of(context).textTheme.titleLarge)),
+                            SizedBox(width: labelWidth, child: Text(AppLocalizations.of(context)!.caview_b0, style: Theme.of(context).textTheme.titleLarge)),
                             Expanded(
                               child: RangeSlider(
                                 values: widget.result.life,
@@ -276,14 +277,14 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                         ),
                         Row(
                           children: [
-                            SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B3'), style: Theme.of(context).textTheme.titleLarge)),
+                            SizedBox(width: labelWidth, child: Text(AppLocalizations.of(context)!.caview_b3, style: Theme.of(context).textTheme.titleLarge)),
                             Expanded(child: SizedBox(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: weaknessTypeWidget)))
                           ],
                         ),
 
                         Row(
                           children: [
-                            SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B2'), style: Theme.of(context).textTheme.titleLarge)),
+                            SizedBox(width: labelWidth, child: Text(AppLocalizations.of(context)!.caview_b2, style: Theme.of(context).textTheme.titleLarge)),
                             Expanded(child: SizedBox(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: resistanceTypeWidget)))
                           ],
                         )
@@ -296,7 +297,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                     value: 4,
                     canTapOnHeader: true,
                     headerBuilder: (BuildContext context, bool isExpanded) {
-                      return createHeader(context, 'CA_B36', () {
+                      return createHeader(context, AppLocalizations.of(context)!.ca_b36, () {
                         setState(() {
                           widget.result.clearAttackFilter();
                           energyAttackController.afterPress(widget.result.attackType);
@@ -311,7 +312,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                           children: [
                             Row(
                               children: [
-                                SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B7'), style: Theme.of(context).textTheme.titleLarge)),
+                                SizedBox(width: labelWidth, child: Text(AppLocalizations.of(context)!.caview_b7, style: Theme.of(context).textTheme.titleLarge)),
                                 Expanded(
                                   child: SliderTheme(
                                     data: SliderTheme.of(context).copyWith(
@@ -338,7 +339,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                             ),
                             Row(
                               children: [
-                                SizedBox(width: labelWidth, child: Text(StatitikLocale.of(context).read('CAVIEW_B8'), style: Theme.of(context).textTheme.titleLarge)),
+                                SizedBox(width: labelWidth, child: Text(AppLocalizations.of(context)!.caview_b8, style: Theme.of(context).textTheme.titleLarge)),
                                 Expanded(
                                   child: SliderTheme(
                                     data: SliderTheme.of(context).copyWith(
@@ -363,9 +364,9 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                                 ),
                               ],
                             ),
-                            Text(StatitikLocale.of(context).read('CAVIEW_B9'), style: Theme.of(context).textTheme.titleLarge),
+                            Text(AppLocalizations.of(context)!.caview_b9, style: Theme.of(context).textTheme.titleLarge),
                             SizedBox(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: effectsAttackWidget)),
-                            Text(StatitikLocale.of(context).read('CAVIEW_B10'), style: Theme.of(context).textTheme.titleLarge),
+                            Text(AppLocalizations.of(context)!.caview_b10, style: Theme.of(context).textTheme.titleLarge),
                             SizedBox(height: typeSize, child: ListView(scrollDirection: Axis.horizontal, primary: false, children: attackTypeEnergyWidget)),
                           ]
                       ),
@@ -376,14 +377,14 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                   value: 5,
                   canTapOnHeader: true,
                   headerBuilder: (context, isExpanded) {
-                    return createHeader(context, 'TUTO_CAPTION_T0', () {
+                    return createHeader(context, AppLocalizations.of(context)!.tuto_caption_t0, () {
                       widget.result.clearDesignFilter();
                       refreshController.refresh();
                     });
                   },
                   body: Column(
                     children: [
-                      Text(StatitikLocale.of(context).read('TUTO_CAPTION_T1'), style: Theme.of(context).textTheme.titleLarge),
+                      Text(AppLocalizations.of(context)!.tuto_caption_t1, style: Theme.of(context).textTheme.titleLarge),
                       GridView.count(
                         crossAxisCount: 3,
                         childAspectRatio: 3.0,
@@ -391,7 +392,7 @@ class _CardFilterSelectorState extends State<CardFilterSelector> {
                         shrinkWrap: true,
                         children: artsWidget,
                       ),
-                      Text(StatitikLocale.of(context).read('TUTO_CAPTION_T2'), style: Theme.of(context).textTheme.titleLarge),
+                      Text(AppLocalizations.of(context)!.tuto_caption_t2, style: Theme.of(context).textTheme.titleLarge),
                       GridView.count(
                         crossAxisCount: 5,
                         primary: false,

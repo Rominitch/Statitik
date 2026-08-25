@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/screenOld/admin/card_creator.dart';
 import 'package:statitikcard/screenOld/admin/card_editor_options.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/rarity.dart';
@@ -55,7 +55,7 @@ class _CardEditorState extends State<CardEditor> {
               Card(
                 color: Colors.grey[800],
                 child: TextButton(
-                  child: Text(StatitikLocale.of(context).read('NCE_B6')),
+                  child: Text(AppLocalizations.of(context)!.nce_b6),
                   onPressed: (){
                     Navigator.pushReplacement(context,
                       MaterialPageRoute(builder: (context) => CardEditor(widget.se, nextCardId, widget.options)),

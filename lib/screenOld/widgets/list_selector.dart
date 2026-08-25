@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -70,7 +71,7 @@ class _ListSelectorState extends State<ListSelector> {
                     controller: _controller,
                     decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.search, color: Colors.white),
-                      labelText: StatitikLocale.of(context).read('CA_B5')
+                      labelText: AppLocalizations.of(context)!.ca_b5
                     ),
                     onChanged: (value) {
                       setState(() {

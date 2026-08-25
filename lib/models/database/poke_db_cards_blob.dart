@@ -66,7 +66,7 @@ class PokeDbCardsBlob {
           cards.add(numberedCard);
         }
       } else {
-        throw StatitikException(
+        throw StatitikException(ErrorCode.unknown,
             "SubExtensionCards: need migration ($currentVersion < $version)");
       }
     }
@@ -94,7 +94,7 @@ class PokeDbCardsBlob {
           cards.add(read(currentVersion, reader, collection));
         }
       } else {
-        throw StatitikException("Other: need migration ($currentVersion < $version");
+        throw StatitikException(ErrorCode.unknown, "Other: need migration ($currentVersion < $version");
       }
     }
     return cards;

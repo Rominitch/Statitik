@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/services/environment.dart';
 
 import 'package:statitikcard/services/internationalization.dart';
@@ -19,7 +20,7 @@ class _RarityEditorState extends State<RarityEditor> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: Text(StatitikLocale.of(context).read('ADMIN_B8'), style: Theme.of(context).textTheme.displaySmall),
+      title: Text(AppLocalizations.of(context)!.admin_B8, style: Theme.of(context).textTheme.displaySmall),
     ),
       body: SafeArea(
         child: Padding(
@@ -32,10 +33,10 @@ class _RarityEditorState extends State<RarityEditor> {
 
               var worldAsian = [];
               if(Environment.instance.collection.worldRarity.contains(r)) {
-                worldAsian.add(StatitikLocale.of(context).read( 'RARE_B1'));
+                worldAsian.add(AppLocalizations.of(context)!.rare_b1);
               }
               if(Environment.instance.collection.japanRarity.contains(r)) {
-                worldAsian.add(StatitikLocale.of(context).read( 'RARE_B0'));
+                worldAsian.add(AppLocalizations.of(context)!.rare_b0);
               }
 
               return Card(
@@ -69,14 +70,14 @@ class _RarityEditorState extends State<RarityEditor> {
                         color: Environment.instance.collection.otherThanReverse.contains(r) ? Colors.green : Colors.grey,
                         child: SizedBox(
                           width: 80,
-                          child: Text( StatitikLocale.of(context).read('RARE_B2'), softWrap: true, textAlign: TextAlign.center)
+                          child: Text( AppLocalizations.of(context)!.rare_b2, softWrap: true, textAlign: TextAlign.center)
                         )
                       ),
                       Card(
                         color: Environment.instance.collection.goodCard.contains(r) ? Colors.green : Colors.grey,
                         child: SizedBox(
                           width: 80,
-                          child: Text( StatitikLocale.of(context).read('RARE_B3'), softWrap: true, textAlign: TextAlign.center)
+                          child: Text( AppLocalizations.of(context)!.rare_b3, softWrap: true, textAlign: TextAlign.center)
                         )
                       ),
                     ],

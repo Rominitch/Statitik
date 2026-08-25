@@ -2,6 +2,7 @@
 import 'package:statitikcard/models/poke_expansion.dart';
 import 'package:statitikcard/models/poke_langage.dart';
 import 'package:statitikcard/models/poke_serie.dart';
+import 'package:statitikcard/models/statistics/poke_stats_booster.dart';
 import 'package:statitikcard/screenOld/stats/stat_view.dart';
 import 'package:statitikcard/screenOld/stats/stats.dart';
 import 'package:statitikcard/services/models/models.dart';
@@ -15,6 +16,14 @@ class ExpansionSelection {
   PokeExpansion? expansion;
 
   ExpansionSelection({this.language, this.location, this.serie, this.expansion});
+
+  List<PokeExpansion>? allExpansions() {
+    return serie!.expansions(language!.location());
+  }
+
+  bool hasStats() {
+    return expansion != null && expansion!.type == ExpansionType.Normal;
+  }
 }
 
 class StatisticData {
@@ -22,8 +31,8 @@ class StatisticData {
 
   ProductRequested? pr;
   ProductCategory?  category;
-  StatsBooster?     stats;
-  StatsBooster?     userStats;
+  PokeStatsBooster? stats;
+  PokeStatsBooster? userStats;
   CardResults       cardStats = CardResults();
 
   StateStatsExtension state     = StateStatsExtension.cards;
@@ -31,9 +40,5 @@ class StatisticData {
 
   bool isValid() {
     return selection.language != null && selection.expansion != null && stats != null;
-  }
-
-  bool hasStats() {
-    return selection.expansion != null && selection.expansion!.type == ExpansionType.Normal;
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/cartes/card_viewer.dart';
 import 'package:statitikcard/screenOld/stats/stats.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
@@ -8,7 +10,6 @@ import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/rarity.dart';
 
 import 'package:statitikcard/services/tools.dart';
-import 'package:statitikcard/services/internationalization.dart';
 
 class StatsExtensionCards extends StatefulWidget {
   final StatsConfiguration info;
@@ -129,10 +130,10 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> with SingleTi
     );
   }
 
-  Widget menuBar(BuildContext context, String idText ) {
+  Widget menuBar(BuildContext context, String text ) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(StatitikLocale.of(context).read(idText)),
+      child: Text(text),
     );
   }
 
@@ -156,11 +157,11 @@ class _StatsExtensionCardsState extends State<StatsExtensionCards> with SingleTi
             ),
             tabs: [
               if(widget.info.statsData.subExt!.seCards.cards.isNotEmpty)
-                menuBar(context, 'S_SERIE_0'),
+                menuBar(context, AppLocalizations.of(context)!.s_serie_0),
               if(widget.info.statsData.subExt!.seCards.energyCard.isNotEmpty)
-                menuBar(context, 'S_SERIE_1'),
+                menuBar(context, AppLocalizations.of(context)!.s_serie_1),
               if(widget.info.statsData.subExt!.seCards.noNumberedCard.isNotEmpty)
-                menuBar(context, 'S_SERIE_2'),
+                menuBar(context, AppLocalizations.of(context)!.s_serie_2),
             ]
           ),
           Expanded(

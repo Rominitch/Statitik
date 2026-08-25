@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:statitikcard/screenOld/widgets/cardSelector/card_selector_product_card_viewer.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
+import 'package:statitikcard/screenOld/widgets/cardSelector/card_selector_product_card_viewer.dart';
 import 'package:statitikcard/screenOld/widgets/pokemon_card.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/product.dart';
 
@@ -54,7 +55,7 @@ class _ProductViewerState extends State<ProductViewer> with TickerProviderStateM
               children: [
                 booster.subExtension != null
                     ? booster.subExtension!.image(hSize: 35)
-                    : SizedBox(height: 35, child: Text(StatitikLocale.of(context).read('PV_B1'))),
+                    : SizedBox(height: 35, child: Text(AppLocalizations.of(context)!.pv_b1)),
                 const SizedBox(height: 5.0),
                 Text(booster.nbBoosters.toString()),
               ],
@@ -83,11 +84,11 @@ class _ProductViewerState extends State<ProductViewer> with TickerProviderStateM
               tabs: [
                 if(widget.product.hasImages()) ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: Environment.heightTabHeader),
-                  child: Text(StatitikLocale.of(context).read('PV_B4'), style: Theme.of(context).textTheme.headlineSmall)
+                  child: Text(AppLocalizations.of(context)!.pv_b4, style: Theme.of(context).textTheme.headlineSmall)
                 ),
                 ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: Environment.heightTabHeader),
-                  child: Text(StatitikLocale.of(context).read('PV_B5'), style: Theme.of(context).textTheme.headlineSmall)
+                  child: Text(AppLocalizations.of(context)!.pv_b5, style: Theme.of(context).textTheme.headlineSmall)
                 ),
               ]
             ),
@@ -111,7 +112,7 @@ class _ProductViewerState extends State<ProductViewer> with TickerProviderStateM
                                   padding: const EdgeInsets.all(8.0),
                                   child: Row(
                                       children: [
-                                        Expanded(child: Text(StatitikLocale.of(context).read('PV_B0'), style: Theme.of(context).textTheme.headlineSmall)),
+                                        Expanded(child: Text(AppLocalizations.of(context)!.pv_b0, style: Theme.of(context).textTheme.headlineSmall)),
                                         Wrap(children: boosterInfo)
                                       ]
                                   ),
@@ -123,7 +124,7 @@ class _ProductViewerState extends State<ProductViewer> with TickerProviderStateM
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row( children: [
-                                      Expanded(child: Text(StatitikLocale.of(context).read('PV_B2'), style: Theme.of(context).textTheme.headlineSmall)),
+                                      Expanded(child: Text(AppLocalizations.of(context)!.pv_b2, style: Theme.of(context).textTheme.headlineSmall)),
                                       Text(widget.product.nbRandomPerProduct.toString(), style: const TextStyle(fontSize: 20.0)),
                                     ]),
                                   ),
@@ -148,7 +149,7 @@ class _ProductViewerState extends State<ProductViewer> with TickerProviderStateM
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(
                                   children: [
-                                    Text(StatitikLocale.of(context).read('PV_B3'), style: Theme.of(context).textTheme.headlineSmall),
+                                    Text(AppLocalizations.of(context)!.pv_b3, style: Theme.of(context).textTheme.headlineSmall),
                                     const SizedBox(height: 5.0),
                                     GridView.builder(
                                       padding: const EdgeInsets.all(1.0),
@@ -172,7 +173,7 @@ class _ProductViewerState extends State<ProductViewer> with TickerProviderStateM
                                 padding: const EdgeInsets.all(8.0),
                                 child: Column(
                                   children: [
-                                    Text(StatitikLocale.of(context).read('PV_B6'), style: Theme.of(context).textTheme.headlineSmall),
+                                    Text(AppLocalizations.of(context)!.pv_b6, style: Theme.of(context).textTheme.headlineSmall),
                                     const SizedBox(height: 5.0),
                                     GridView.builder(
                                       padding: const EdgeInsets.all(1.0),

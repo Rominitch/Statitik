@@ -5,9 +5,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:statitikcard/models/database/poke_db_description.dart';
+import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
 import 'package:statitikcard/models/poke_card.dart';
 import 'package:statitikcard/models/poke_card_effect.dart';
-import 'package:statitikcard/models/poke_card_energy_value.dart';
 import 'package:statitikcard/models/poke_card_subject.dart';
 import 'package:statitikcard/models/poke_design.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
@@ -16,14 +16,15 @@ import 'package:statitikcard/models/poke_form.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_illustrator.dart';
 import 'package:statitikcard/models/poke_langage.dart';
-import 'package:statitikcard/models/poke_level.dart';
 import 'package:statitikcard/models/poke_marker.dart';
 import 'package:statitikcard/models/poke_rarity.dart';
 import 'package:statitikcard/models/poke_region.dart';
 import 'package:statitikcard/models/poke_serie.dart';
 import 'package:statitikcard/models/poke_set.dart';
+import 'package:statitikcard/models/products/poke_product.dart';
+import 'package:statitikcard/models/products/poke_product_category.dart';
+import 'package:statitikcard/models/products/poke_product_side.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/time_report.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
@@ -70,7 +71,15 @@ class PokeCollection {
   // Finally database (need others lists)
   List<PokeCard>      _cards      = [];
   List<PokeExpansion> _expansions = [];
-  //List<PokeCard>      _cardsOld   = [];
+
+  List<PokeProductCategory> _product_categories = [];
+  List<PokeProductSide>     _product_sides      = [];
+  List<PokeProduct>         _products           = [];
+
+
+  // Tools
+  Map<String, String> convertKanji   = {};
+  List<String>        orderedKanji   = [];
 
   /// TEMPORARY ACCESS----------------------------
   List<PokeMarker> markers() { return _markers; }
@@ -139,8 +148,13 @@ class PokeCollection {
 
   /// TEMPORARY ACCESS----------------------------
 
+  List<PokeLangage>   languages() { return _languages.values.toList(growable: false); }
+  PokeRarity          unknownRarity() { return _unknownRarity!; }
   List<PokeCard>      cards()      { return _cards; }
   List<PokeExpansion> expansions() { return _expansions;}
+
+  List<PokeProduct>     products()     { return _products;}
+  List<PokeProductSide> sideProducts() { return _product_sides;}
 
   PokeLangage language(Language id) { return _languages[id]!; }
   List<PokeSerie> series() { return _series; }
@@ -190,6 +204,18 @@ class PokeCollection {
 
   PokeEffectName? effectName(PokeIdentifier pid) {
     return _effectNames.firstWhere((element) => element.isEqual(pid));
+  }
+
+  PokeProductCategory? productCategory(PokeIdentifier id) {
+    return _product_categories.firstWhere((element) => element.isEqual(id));
+  }
+
+  PokeProductSide? productSide(PokeIdentifier id) {
+    return _product_sides.firstWhere((element) => element.isEqual(id));
+  }
+
+  PokeExpansion? expansion(PokeIdentifier pid) {
+    return _expansions.firstWhere((element) => element.isEqual(pid) );
   }
 
   PokeCollection();
@@ -401,6 +427,17 @@ class PokeCollection {
       _rarities.add( PokeRarity.fromDB(row[0], PokeRarity.getIcon(row[1]), row[2] ?? "", row[3] ?? "", row[4], Color(row[5]) ));
     }
     time.tick("Rarity");
+
+    var kanjiRes = await connection.query("SELECT * FROM `KanjiConvert`");
+    for (var row in kanjiRes) {
+      convertKanji[row[0]] = row[1];
+    }
+    orderedKanji = convertKanji.keys.toList();
+    orderedKanji.sort((a, b){
+      return a.length.compareTo(b.length);
+    });
+    time.tick("Kanji");
+
     /*
     var cardsOldReq = await connection.query("SELECT * FROM `PK_cartesOld`");
      for (var row in cardsOldReq) {
@@ -446,6 +483,31 @@ class PokeCollection {
       }
     }
     time.tick("Expansions");
+
+    var productCategoryReq = await connection.query("SELECT * FROM `PK_produit_categorie`");
+    for (var row in productCategoryReq) {
+      _product_categories.add(PokeProductCategory(PokeIdentifier(row[0]), row[1] != 0));
+    }
+    time.tick("Product Categories");
+
+    var productSideReq = await connection.query("SELECT * FROM `PK_produit_annexe`");
+    for (var row in productSideReq) {
+      final category = productCategory(PokeIdentifier(row[1]))!;
+      _product_sides.add(PokeProductSide(PokeIdentifier(row[0]), category, row[2], PokeIdentifier(row[3]) ));
+    }
+    time.tick("Side Products");
+
+    var productsReq = await connection.query("SELECT * FROM `PK_produit`");
+    for (var row in productsReq) {
+      if(row[3] != null) {
+        final category = productCategory(PokeIdentifier(row[1]))!;
+        final product = PokeProduct.fromDB(
+            PokeIdentifier(row[0]), category, row[2], row[3]);
+        product.readOldData(readBlob(row[4]), this);
+        _products.add(product);
+      }
+    }
+    time.tick("Products");
 
     // Link
     _linkItems();
@@ -517,9 +579,10 @@ class PokeCollection {
     await updatePokeExpansionCards(expansion.pid(), expansion.cards, connection);
 
     // Save expansions
-    var query = 'REPLACE INTO `PK_expansion` (`id`, `info`)'
-        ' VALUES (? ,?);';
-    await connection.queryMulti(query, queries);
+    var query = 'REPLACE INTO `PK_expansion` (`id`, `sortie`, `icone`, `nbCarteBooster`, `type`, `nameCode`)'
+        ' VALUES (?, ?, ?, ?, ?, ?);';
+    await connection.queryMulti(query, [[expansion.pid().id(), expansion.released(), expansion.icon(),
+      expansion.nbCardsPerBooster(), expansion.type(), expansion.codes()]]);
   }
 
   Future<void> updatePokeCard(List<List<Object?>> queries, TransactionContext connection) async
@@ -527,5 +590,312 @@ class PokeCollection {
     var query = 'REPLACE INTO `PK_cartes` (`id`, `info`)'
         ' VALUES (? ,?);';
     await connection.queryMulti(query, queries);
+  }
+
+  Future<void> updateProducts(TransactionContext connection) async
+  {
+    List<List<Object?>> queries = [];
+    for(final product in _products) {
+      final writer = BinaryWriter();
+      product.dataToBytes(writer);
+      queries.add([product.pid().id(), product.category.pid().id(), product.releaseDate, writer.toBytes()]);
+    }
+    updateProduct(queries, connection);
+  }
+  Future<void> updateProduct(List<List<Object?>> queries, TransactionContext connection) async
+  {
+    var query = 'REPLACE INTO `PK_produit` (`id`, `id_categorie`, `sortie`, `contenu`)'
+        ' VALUES (? ,?, ? ,?);';
+    await connection.queryMulti(query, queries);
+  }
+
+  // ------------------------------------------------------------------------
+  //    Search
+  // ------------------------------------------------------------------------
+  List<PokeCardViewerIdentifier> searchCardIntoSubExtension(PokeCard searchCard, [bool supportedDuplicateSeCard=false]) {
+    List<PokeCardViewerIdentifier> result = [];
+    for (var expansion in _expansions) {
+      if( supportedDuplicateSeCard ) {
+        int id=0;
+        for (var cards in expansion.cards.cards) {
+          int subId=0;
+          for (var card in cards) {
+            if(card.card == searchCard) {
+              result.add(PokeCardViewerIdentifier(expansion, PokeCardIdentifier.from([0, id, subId])));
+            }
+            subId += 1;
+          }
+          id += 1;
+        }
+
+        id=0;
+        for (var card in expansion.cards.energyCard) {
+          if(card.card == searchCard) {
+            result.add(PokeCardViewerIdentifier(expansion, PokeCardIdentifier.from([1, id])));
+          }
+          id += 1;
+        }
+
+        id=0;
+        for (var card in expansion.cards.noNumberedCard) {
+          if(card.card == searchCard) {
+            result.add(PokeCardViewerIdentifier(expansion, PokeCardIdentifier.from([2, id])));
+          }
+          id += 1;
+        }
+      }
+    }
+    return result;
+  }
+
+  PokeSerie serieFrom(PokeExpansion expansion) {
+    return _series.firstWhere((element) => expansion.isSameSerie(element.id()));
+  }
+
+  (PokeLangage?, PokeExpansion?) expansionFromOldDB(int oldID) {
+    final Map<int, (Language, int)> convert = {
+      1	: (Language.fr,1108040000),
+      2	: (Language.fr,1108030000),
+      3	: (Language.fr,1108020000),
+      4	: (Language.fr,1108010000),
+      5	: (Language.fr,1108035000),
+      6	: (Language.fr,1108045000),
+      7	: (Language.fr,1108050000),
+      8	: (Language.fr,1107120000),
+      9	: (Language.fr,1107115000),
+      10	: (Language.fr,1107110000),
+      11	: (Language.fr,1107100000),
+      12	: (Language.fr,1107090000),
+      13	: (Language.fr,1107080000),
+      14	: (Language.en,1108040000),
+      15	: (Language.en,1108030000),
+      16	: (Language.en,1108020000),
+      17	: (Language.en,1108010000),
+      18	: (Language.en,1108035000),
+      19	: (Language.en,1108045000),
+      20	: (Language.en,1108050000),
+      21	: (Language.en,1107120000),
+      22	: (Language.en,1107115000),
+      23	: (Language.en,1107110000),
+      24	: (Language.en,1107100000),
+      25	: (Language.en,1107090000),
+      26	: (Language.en,1107080000),
+      27	: (Language.jp,1008040000),
+      28	: (Language.jp,1008030000),
+      29	: (Language.jp,1008020000),
+      30	: (Language.jp,1008010000),
+      31	: (Language.jp,1008050000),
+      32	: (Language.fr,1107050000),
+      33	: (Language.en,1107050000),
+      34	: (Language.fr,1107060000),
+      35	: (Language.fr,1107070000),
+      36	: (Language.en,1107060000),
+      37	: (Language.en,1107070000),
+      38	: (Language.fr,1107040000),
+      39	: (Language.fr,1107030000),
+      40	: (Language.en,1107040000),
+      41	: (Language.en,1107030000),
+      42	: (Language.fr,1107020000),
+      43	: (Language.fr,1107010000),
+      44	: (Language.en,1107020000),
+      45	: (Language.en,1107010000),
+      46	: (Language.fr,1106120000),
+      47	: (Language.en,1106120000),
+      48	: (Language.jp,1008011000),
+      49	: (Language.jp,1008051000),
+      50	: (Language.fr,1108060000),
+      51	: (Language.en,1108060000),
+      52	: (Language.jp,1008060000),
+      53	: (Language.jp,1008061000),
+      54	: (Language.jp,1008062000),
+      55	: (Language.jp,1008052000),
+      56	: (Language.fr,1108070000),
+      57	: (Language.en,1108070000),
+      58	: (Language.fr,1107075000),
+      59	: (Language.en,1107075000),
+      60	: (Language.fr,1107035000),
+      61	: (Language.en,1107035000),
+      62	: (Language.fr,1100000000),
+      63	: (Language.en,1100000000),
+      64	: (Language.fr,1106110000),
+      65	: (Language.fr,1106100000),
+      66	: (Language.fr,1106090000),
+      67	: (Language.en,1106110000),
+      68	: (Language.en,1106100000),
+      69	: (Language.en,1106090000),
+      70	: (Language.fr,1108075000),
+      71	: (Language.en,1108075000),
+      72	: (Language.jp,1008070000),
+      73	: (Language.jp,1008071000),
+      74	: (Language.jp,1008080000),
+      75	: (Language.jp,1008041000),
+      76	: (Language.jp,1008031000),
+      77	: (Language.jp,1008021000),
+      78	: (Language.jp,1008012000),
+      79	: (Language.fr,1108080000),
+      80	: (Language.en,1108080000),
+      81	: (Language.fr,1106080000),
+      82	: (Language.en,1106080000),
+      83	: (Language.fr,1106070000),
+      84	: (Language.en,1106070000),
+      85	: (Language.fr,1106060000),
+      86	: (Language.en,1106060000),
+      87	: (Language.fr,1106050000),
+      88	: (Language.en,1106050000),
+      89	: (Language.fr,1106040000),
+      90	: (Language.en,1106040000),
+      91	: (Language.fr,1106030000),
+      92	: (Language.en,1106030000),
+      93	: (Language.fr,1106020000),
+      94	: (Language.en,1106020000),
+      95	: (Language.fr,1106010000),
+      96	: (Language.en,1106010000),
+      97	: (Language.fr,1106000000),
+      98	: (Language.en,1106000000),
+      99	: (Language.jp,1008000000),
+      100	: (Language.jp,1008081000),
+      101	: (Language.jp,1008083000),
+      102	: (Language.jp,1008082000),
+      103	: (Language.fr,1108090000),
+      104	: (Language.en,1108090000),
+      105	: (Language.jp,1008090000),
+      106	: (Language.jp,1008918000),
+      107	: (Language.jp,1008916000),
+      108	: (Language.jp,1008004000),
+      109	: (Language.jp,1008005000),
+      110	: (Language.jp,1008914000),
+      111	: (Language.jp,1008915000),
+      112	: (Language.jp,1008003000),
+      113	: (Language.jp,1008002000),
+      114	: (Language.jp,1008001000),
+      115	: (Language.jp,1008913000),
+      116	: (Language.jp,1008909000),
+      117	: (Language.jp,1008911000),
+      118	: (Language.jp,1008912000),
+      119	: (Language.jp,1008910000),
+      120	: (Language.jp,1008907000),
+      121	: (Language.jp,1008908000),
+      122	: (Language.jp,1008906000),
+      123	: (Language.jp,1008905000),
+      124	: (Language.jp,1008904000),
+      125	: (Language.jp,1008903000),
+      126	: (Language.jp,1008902000),
+      127	: (Language.jp,1008901000),
+      128	: (Language.jp,1008917000),
+      129	: (Language.jp,1008923000),
+      130	: (Language.fr,1108000000),
+      131	: (Language.en,1108000000),
+      132	: (Language.jp,1007120000),
+      133	: (Language.jp,1007121000),
+      134	: (Language.jp,1008919000),
+      135	: (Language.jp,1008091000),
+      136	: (Language.jp,1008920000),
+      137	: (Language.jp,1008921000),
+      138	: (Language.jp,1008103000),
+      139	: (Language.fr,1108100000),
+      140	: (Language.en,1108100000),
+      141	: (Language.jp,1008101000),
+      142	: (Language.jp,1008100000),
+      143	: (Language.jp,1007112000),
+      144	: (Language.jp,1007111000),
+      145	: (Language.jp,1007110000),
+      146	: (Language.jp,1007912000),
+      147	: (Language.jp,1007102000),
+      148	: (Language.jp,1007101000),
+      149	: (Language.jp,1007100000),
+      150	: (Language.jp,1007002000),
+      151	: (Language.jp,1007911000),
+      152	: (Language.jp,1007913000),
+      153	: (Language.jp,1007092000),
+      154	: (Language.jp,1007091000),
+      155	: (Language.jp,1007090000),
+      156	: (Language.jp,1007910000),
+      157	: (Language.jp,1007909000),
+      158	: (Language.jp,1007908000),
+      159	: (Language.jp,1007082000),
+      160	: (Language.jp,1007081000),
+      161	: (Language.jp,1007080000),
+      162	: (Language.jp,1007072000),
+      163	: (Language.jp,1007071000),
+      164	: (Language.jp,1007907000),
+      165	: (Language.jp,1007070000),
+      166	: (Language.jp,1007000000),
+      167	: (Language.jp,1007062000),
+      168	: (Language.jp,1007061000),
+      169	: (Language.jp,1007060000),
+      170	: (Language.jp,1008102000),
+      171	: (Language.jp,1007906000),
+      172	: (Language.jp,1007052000),
+      173	: (Language.jp,1007051000),
+      174	: (Language.jp,1007050000),
+      175	: (Language.jp,1007905000),
+      176	: (Language.jp,1007904000),
+      177	: (Language.jp,1007042000),
+      178	: (Language.jp,1007041000),
+      179	: (Language.jp,1007040000),
+      180	: (Language.fr,1108115000),
+      181	: (Language.en,1108115000),
+      182	: (Language.jp,1007032000),
+      183	: (Language.jp,1007031000),
+      184	: (Language.jp,1007030000),
+      185	: (Language.jp,1007022000),
+      186	: (Language.jp,1007903000),
+      187	: (Language.jp,1007021000),
+      188	: (Language.jp,1007020000),
+      189	: (Language.jp,1007902000),
+      190	: (Language.jp,1007012000),
+      191	: (Language.jp,1007011000),
+      192	: (Language.jp,1007010000),
+      193	: (Language.jp,1007001000),
+      194	: (Language.jp,1007901000),
+      195	: (Language.fr,1108110000),
+      196	: (Language.en,1108110000),
+      197	: (Language.jp,1008006000),
+      198	: (Language.jp,1008110000),
+      199	: (Language.jp,1008925000),
+      200	: (Language.jp,1008926000),
+      201	: (Language.jp,1008111000),
+      202	: (Language.fr,1108120000),
+      203	: (Language.en,1108120000),
+      204	: (Language.jp,1008120000),
+      205	: (Language.jp,1008121000),
+      206	: (Language.jp,1008924000),
+      207	: (Language.en,1108125000),
+      208	: (Language.fr,1108125000),
+      209	: (Language.fr,1109010000),
+      210	: (Language.en,1109010000),
+      211	: (Language.jp,1009010000),
+      212	: (Language.jp,1009011000),
+      213	: (Language.fr,1109000000),
+      214	: (Language.en,1109000000),
+      215	: (Language.jp,1009901000),
+      216	: (Language.jp,1009902000),
+      217	: (Language.jp,1009903000),
+      218	: (Language.jp,1009904000),
+      219	: (Language.jp,1009000000),
+      220	: (Language.jp,1009012000),
+      221	: (Language.jp,1009905000),
+      222	: (Language.jp,1009020000),
+      223	: (Language.jp,1009021000),
+      224	: (Language.jp,1009906000),
+      225	: (Language.jp,1009022000),
+      226	: (Language.fr,1109020000),
+      227	: (Language.en,1109020000),
+      228	: (Language.fr,1109030000),
+      229	: (Language.en,1109030000),
+      230	: (Language.jp,1009030000),
+      231	: (Language.fr,1109021000),
+      232	: (Language.en,1109021000)
+    };
+    if( oldID == 0) {
+      return (null, null);
+    }
+    try {
+      final (idL, idExp) = convert[oldID]!;
+      return (_languages[idL], expansion(PokeIdentifier(idExp)));
+    } catch(_,e) {
+      printOutput("Not found: $oldID");
+      rethrow;
+    }
   }
 }

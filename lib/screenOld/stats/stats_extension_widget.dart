@@ -2,13 +2,14 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/stats/stats.dart';
 import 'package:statitikcard/screenOld/stats/stats_extension.dart';
 import 'package:statitikcard/screenOld/stats/stats_extension_cards.dart';
 import 'package:statitikcard/screenOld/stats/stats_extension_draw.dart';
 
 import 'package:statitikcard/services/tools.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/serie_type.dart';
 
 class StatsExtensionWidget extends StatefulWidget {
@@ -28,10 +29,10 @@ class _StatsExtensionWidgetState extends State<StatsExtensionWidget> with Ticker
     return widget.info.statsData.subExt != null && widget.info.statsData.subExt!.type == SerieType.normal;
   }
 
-  Widget menuBar(BuildContext context, String idText ) {
+  Widget menuBar(BuildContext context, String text ) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(StatitikLocale.of(context).read(idText)),
+      child: Text(text),
     );
   }
 
@@ -64,10 +65,10 @@ class _StatsExtensionWidgetState extends State<StatsExtensionWidget> with Ticker
               color: Colors.green,
             ),
             tabs: [
-              menuBar(context, 'SMENU_0'),
-              menuBar(context, 'SMENU_1'),
+              menuBar(context, AppLocalizations.of(context)!.smenu_0),
+              menuBar(context, AppLocalizations.of(context)!.smenu_1),
               if(hasStats())
-                menuBar(context, 'SMENU_2'),
+                menuBar(context, AppLocalizations.of(context)!.smenu_2),
             ]
           ),
           Expanded(

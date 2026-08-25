@@ -66,6 +66,8 @@ class PokeDesign {
     return Design.values[_id.id() % 100];
   }
 
+  String image() { return _image; }
+
   ShiningPattern shining() {
     return ShiningPattern.values[(_id.id() ~/10000) % 100];
   }

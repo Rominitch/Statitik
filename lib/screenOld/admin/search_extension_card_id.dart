@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/screenOld/widgets/card_image.dart';
 import 'package:statitikcard/services/tools.dart';
@@ -139,7 +140,7 @@ class SearchExtensionsCardId extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(sprintf("%s %s - %d", [StatitikLocale.of(context).read('CA_B31'), title, currentId])),
+        title: Text(sprintf("%s %s - %d", [AppLocalizations.of(context)!.ca_b31, title, currentId])),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

@@ -3,6 +3,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/Admin/admin_page.dart';
 import 'package:statitikcard/screenOld/Products/products_explorer.dart';
 
@@ -14,7 +17,6 @@ import 'package:statitikcard/screenOld/widgets/news_dialog.dart';
 import 'package:statitikcard/services/news.dart';
 import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';
 
 class Home extends StatefulWidget {
@@ -32,12 +34,11 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
 
+    final currentLocale = Localizations.localeOf(context);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       SharedPreferences.getInstance().then((prefs) {
         var latestId = prefs.getInt('LatestNews') ?? 0;
-        News.readFromDB(StatitikLocale
-            .of(context)
-            .locale, latestId).then((news) {
+        News.readFromDB( currentLocale, latestId).then((news) {
           if (news.isNotEmpty) {
             showDialog(
                 context: context,
@@ -78,32 +79,32 @@ class _HomeState extends State<Home> {
       ),
       bottomNavigationBar:
        BottomNavigationBar(
-          backgroundColor: useDebug ? const Color.fromARGB(255,50, 0, 0) : Environment.instance.isMaintenance ? Colors.cyan[900] : Colors.grey[900],
+          backgroundColor: useDebug ? const Color.fromARGB(255,50, 0, 0) : Environment.instance.pkConfig().isMaintenance ? Colors.cyan[900] : Colors.grey[900],
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: const Icon(Icons.add_chart),
-              label: StatitikLocale.of(context).read('H_T0'),
+              label: AppLocalizations.of(context)!.h_t0,
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.insert_chart_outlined_rounded),
-              label: StatitikLocale.of(context).read('H_T1'),
+              label: AppLocalizations.of(context)!.h_t1,
             ),
             BottomNavigationBarItem(
               icon: const Icon(StatitikFont.font01Pokecard),
-              label: StatitikLocale.of(context).read('H_T3'),
+              label: AppLocalizations.of(context)!.h_t3,
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.card_giftcard),
-              label: StatitikLocale.of(context).read('H_T5'),
+              label: AppLocalizations.of(context)!.h_t5,
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.settings),
-              label: StatitikLocale.of(context).read('H_T2'),
+              label: AppLocalizations.of(context)!.h_t2,
             ),
             if(Environment.instance.isAdministrator())
               BottomNavigationBarItem(
                 icon: const Icon(Icons.admin_panel_settings_outlined),
-                label: StatitikLocale.of(context).read('H_T4'),
+                label: AppLocalizations.of(context)!.h_t4,
               ),
           ],
           currentIndex: _selectedIndex,

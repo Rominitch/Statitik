@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/commonPages/product_page.dart';
 import 'package:statitikcard/screenOld/stats/stat_view.dart';
 import 'package:statitikcard/screenOld/stats/stats.dart';
 import 'package:statitikcard/screenOld/stats/stats_option_dialog.dart';
 import 'package:statitikcard/screenOld/stats/user_report.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/product_category.dart';
 import 'package:statitikcard/services/models/product.dart';
@@ -37,7 +38,7 @@ class _StatsExtensionDrawState extends State<StatsExtensionDraw> {
     var sData = widget.info.statsData;
 
     final String productButton = sData.pr == null
-        ? (sData.category != null ? sData.category!.name.name(sData.language!) : StatitikLocale.of(context).read('S_B9') )
+        ? (sData.category != null ? sData.category!.name.name(sData.language!) : AppLocalizations.of(context)!.s_b9 )
         : sData.pr!.product.name;
 
     return Column(
@@ -79,7 +80,7 @@ class _StatsExtensionDrawState extends State<StatsExtensionDraw> {
                   children: [
                     const Icon(Icons.account_circle),
                     const SizedBox(width: 5),
-                    Text(StatitikLocale.of(context).read('S_B14'), style: Theme.of(context).textTheme.headlineSmall),
+                    Text(AppLocalizations.of(context)!.s_b14, style: Theme.of(context).textTheme.headlineSmall),
                   ],
                 ),
                 onPressed: () {
@@ -89,8 +90,8 @@ class _StatsExtensionDrawState extends State<StatsExtensionDraw> {
             )
         ] : [
           const SizedBox(height: 20.0),
-          Center(child: Text(StatitikLocale.of(context).read('S_B1'), style: Theme.of(context).textTheme.displayLarge)),
-          Center(child: Text(StatitikLocale.of(context).read('S_B8'))),
+          Center(child: Text(AppLocalizations.of(context)!.s_b1, style: Theme.of(context).textTheme.displayLarge)),
+          Center(child: Text(AppLocalizations.of(context)!.s_b8)),
           const SizedBox(height: 20.0),
           Padding(
             padding: const EdgeInsets.all(16.0),

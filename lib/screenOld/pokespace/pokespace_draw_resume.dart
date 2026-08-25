@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/screenOld/commonPages/user_new_cards_draw.dart';
 import 'package:statitikcard/screenOld/commonPages/extension_page.dart';
@@ -14,7 +15,6 @@ import 'package:statitikcard/services/draw/session_draw.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/user_draw_file.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/models.dart';
@@ -44,7 +44,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
   @override
   void initState() {
     if( widget._activeSession.boosterDraws.isEmpty ) {
-      throw StatitikException(StatitikLocale.of(context).read('TR_B0'));
+      throw StatitikException(ErrorCode.unknown, AppLocalizations.of(context)!.tr_b0);
     }
     super.initState();
   }
@@ -166,7 +166,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
               padding: const EdgeInsets.all(2.0),
               child: TextButton(
                 style: TextButton.styleFrom( backgroundColor: button, ),
-                child: Text(StatitikLocale.of(context).read('send')),
+                child: Text(AppLocalizations.of(context)!.send),
                 onPressed: () {
                   EasyLoading.show();
                   Environment env = Environment.instance;
@@ -182,23 +182,23 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                           context: context,
                           barrierDismissible: false,
                           builder: (_) => AlertDialog(
-                            title: Center(child: Text(StatitikLocale.of(context).read('TR_B1'), style: Theme.of(context).textTheme.headlineMedium)),
+                            title: Center(child: Text(AppLocalizations.of(context)!.tr_b1, style: Theme.of(context).textTheme.headlineMedium)),
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(StatitikLocale.of(context).read('TR_B2')),
+                                Text(AppLocalizations.of(context)!.tr_b2),
                                 const SizedBox(height: 10),
                                 Card(
                                   color: Colors.green,
                                   child: TextButton(
-                                    child: Text(StatitikLocale.of(context).read('TR_B12')),
+                                    child: Text(AppLocalizations.of(context)!.tr_b12),
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                     },
                                   )
                                 ),
                                 const SizedBox(height: 30),
-                                Text(StatitikLocale.of(context).read( report.result.isNotEmpty ? 'TR_B14': 'TR_B13')),
+                                Text(report.result.isNotEmpty ? AppLocalizations.of(context)!.tr_b14 : AppLocalizations.of(context)!.tr_b13),
                                 const SizedBox(height: 10),
                                 if(report.result.isNotEmpty)
                                   SizedBox(
@@ -223,13 +223,13 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                       showDialog(
                         context: context,
                         builder: (_) => AlertDialog(
-                        title: Text(StatitikLocale.of(context).read('error')),
-                        content: Text(StatitikLocale.of(context).read('TR_B3')),
+                        title: Text(AppLocalizations.of(context)!.error),
+                        content: Text(AppLocalizations.of(context)!.tr_b3),
                         )
                       );
                     }
                   }).onError((error, stackTrace) {
-                    EasyLoading.showError(StatitikLocale.of(context).read('error'));
+                    EasyLoading.showError(AppLocalizations.of(context)!.error);
                     printOutput("$error\n${stackTrace.toString()}");
                   });
                 },
@@ -245,9 +245,9 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
               context: context,
               builder: (_) => AlertDialog(
                 title: Text(
-                    StatitikLocale.of(context).read('error')),
+                    AppLocalizations.of(context)!.error),
                 content: Text(
-                    StatitikLocale.of(context).read('TR_B9')),
+                    AppLocalizations.of(context)!.tr_b9),
               )
           );
         }
@@ -258,7 +258,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
               color: Colors.amber.shade600,
               margin: const EdgeInsets.all(2.0),
               child: TextButton(
-                child: Text(StatitikLocale.of(context).read('TR_B8')),
+                child: Text(AppLocalizations.of(context)!.tr_b8),
                 onPressed: () async {
                   EasyLoading.show();
                   Environment env = Environment.instance;
@@ -272,9 +272,9 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                       showDialog(
                           context: context,
                           builder: (_) => AlertDialog(
-                            title: Text(StatitikLocale.of(context).read('TR_B11'), style: Theme.of(context).textTheme.headlineMedium),
+                            title: Text(AppLocalizations.of(context)!.tr_b11, style: Theme.of(context).textTheme.headlineMedium),
                             content: Text(
-                                StatitikLocale.of(context).read('TR_B10')),
+                                AppLocalizations.of(context)!.tr_b10),
                           )
                       ).then((value) {
                         Navigator.popUntil(context, ModalRoute.withName('/'));
@@ -313,13 +313,13 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                 child:Row(
                     children: [
                       const Icon(Icons.warning),
-                      Text(StatitikLocale.of(context).read('TR_B4')),
+                      Text(AppLocalizations.of(context)!.tr_b4),
                     ],
                   ),
               ),
               CheckboxListTile(
-                title: Text(StatitikLocale.of(context).read('TR_B5')),
-                subtitle: Text(StatitikLocale.of(context).read('TR_B6'), style: const TextStyle(fontSize: 12)),
+                title: Text(AppLocalizations.of(context)!.tr_b5),
+                subtitle: Text(AppLocalizations.of(context)!.tr_b6, style: const TextStyle(fontSize: 12)),
                 value: widget._activeSession.productAnomaly,
                 onChanged: widget._readOnly ? null : (newValue) async {
                     if(widget._activeSession.productAnomaly && widget._activeSession.needReset())
@@ -349,7 +349,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
                           children: [
-                            Text(StatitikLocale.of(context).read('TR_B15'), style: Theme.of(context).textTheme.titleLarge),
+                            Text(AppLocalizations.of(context)!.tr_b15, style: Theme.of(context).textTheme.titleLarge),
                             Expanded(
                               child: Text("${widget._activeSession.productDraw.count} / ${widget._activeSession.product.nbRandomPerProduct}",
                                 textAlign: TextAlign.right,
@@ -395,11 +395,11 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
 
   AlertDialog showExit(BuildContext context) {
     return AlertDialog(
-      title: Text(StatitikLocale.of(context).read('DC_B20')),
+      title: Text(AppLocalizations.of(context)!.dc_b20),
       content: SingleChildScrollView(
         child: ListBody(
           children: <Widget>[
-            Text(StatitikLocale.of(context).read('TR_B7')),
+            Text(AppLocalizations.of(context)!.tr_b7),
           ],
         ),
       ),
@@ -407,7 +407,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
         Card(
           color: Colors.red,
           child: TextButton(
-            child: Text(StatitikLocale.of(context).read('yes')),
+            child: Text(AppLocalizations.of(context)!.yes),
             onPressed: () {
               Navigator.of(context).pop(true);
             },
@@ -415,7 +415,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
         ),
         Card(
           child: TextButton(
-            child: Text(StatitikLocale.of(context).read('cancel')),
+            child: Text(AppLocalizations.of(context)!.cancel),
             onPressed: () {
               Navigator.of(context).pop(false);
             },

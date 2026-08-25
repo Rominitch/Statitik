@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:screenshot/screenshot.dart';
 import 'package:statitikcard/screenOld/stats/stat_view.dart';
 import 'package:statitikcard/screenOld/widgets/screen_print.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/models.dart';
@@ -134,7 +135,7 @@ class _UserReportState extends State<UserReport> {
   @override
   Widget build(BuildContext context) {
     assert(finalData.stats != null);
-    var translator = StatitikLocale.of(context);
+    var translator = AppLocalizations.of(context);
 
     SystemChrome.setPreferredOrientations([current]);
 
@@ -148,7 +149,7 @@ class _UserReportState extends State<UserReport> {
     return Scaffold(
         appBar: AppBar(
           title: Text(
-              translator.read('S_B14'), style: Theme.of(context).textTheme.headlineSmall,
+              translator!.s_b14, style: Theme.of(context).textTheme.headlineSmall,
           ),
           actions: [
             IconButton(
@@ -231,7 +232,7 @@ class _UserReportState extends State<UserReport> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(translator.read('RE_B0'), style: Theme.of(context).textTheme.headlineSmall),
+          Text(translator!.re_b0, style: Theme.of(context).textTheme.headlineSmall),
           ListView(
             shrinkWrap: true,
             primary: false,
@@ -247,7 +248,7 @@ class _UserReportState extends State<UserReport> {
         child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(translator.read('TP_T0'), style: Theme.of(context).textTheme.headlineSmall),
+              Text(translator!.tp_t0, style: Theme.of(context).textTheme.headlineSmall),
               GridView.count(
                 crossAxisCount: limit,
                 shrinkWrap: true,

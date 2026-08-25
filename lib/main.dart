@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/screenOld/cartes/card_statistic.dart';
 import 'package:statitikcard/screenOld/wrapper.dart';
 import 'package:statitikcard/screenOld/stats/stats.dart';
 import 'package:statitikcard/screenOld/thanks.dart';
-import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/services/environment.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,8 +24,28 @@ void configureEasyLoading() {
     ..dismissOnTap = false;
 }
 
-class StatitikApp extends StatelessWidget {
+class StatitikApp extends StatefulWidget {
   const StatitikApp({super.key});
+
+  @override
+  State<StatitikApp> createState() => _StatitikAppState();
+}
+
+class _StatitikAppState extends State<StatitikApp> {
+  Locale? _locale;
+
+  @override
+  void initState() {
+    Environment.instance.onChangeLocale.stream.listen(_setLocale);
+    super.initState();
+  }
+
+  void _setLocale(Locale locale) {
+    assert (AppLocalizations.supportedLocales.contains(locale));
+    setState(() {
+      _locale = locale;
+    });
+  }
 
   // This widget is the root of your application.
   @override
@@ -89,15 +110,15 @@ class StatitikApp extends StatelessWidget {
       title: 'StatitikCard',
       initialRoute: '/',
       localizationsDelegates: const [
-        StatitikLocaleDelegate(),
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
+        AppLocalizations.delegate,
+        ...GlobalMaterialLocalizations.delegates,
       ],
-      supportedLocales: const [
-        Locale('en', ''),
-        Locale('fr', ''),
-      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: _locale,
+      localeResolutionCallback: (locale, supportedLocales){
+        _locale = locale ?? supportedLocales.first;
+        return _locale;
+      },
       builder: EasyLoading.init(),
       routes: {
         '/':        (context) => const ApplicationWidget(),

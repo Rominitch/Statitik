@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/database/poke_db_cards_blob.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_expansion_cards.dart';
@@ -12,7 +13,16 @@ import 'package:statitikcard/tools/binary_manager.dart';
 enum ExpansionType {
   Normal,
   Promo,
-  Deck
+  Deck;
+}
+
+String expansionType(BuildContext context, ExpansionType type) {
+  switch(type)
+  {
+    case ExpansionType.Normal: return AppLocalizations.of(context)!.se_type_0;
+    case ExpansionType.Promo:  return AppLocalizations.of(context)!.se_type_1;
+    case ExpansionType.Deck:   return AppLocalizations.of(context)!.se_type_2;
+  }
 }
 
 class PokeExpansion {
@@ -31,7 +41,12 @@ class PokeExpansion {
 
   PokeIdentifier pid() { return _id; }
 
-  DateTime released() { return _released; }
+  DateTime      released() { return _released; }
+  String        icon()     { return _icon; }
+  List<String>  codes()    { return _codes; }
+  String        allCodes() { return _codes.join(";"); }
+  ExpansionType type()     { return _type;}
+  int nbCardsPerBooster() { return _nbCardsPerBooster;}
 
   PokeExpansion.fromBytes(BinaryReader reader, PokeCollection collection):
     _id                = PokeIdentifier.fromBytes(reader),
@@ -53,6 +68,10 @@ class PokeExpansion {
     cards.toBytes(writer);
   }
 
+  void toBytesID(BinaryWriter writer) {
+    _id.toBytesID(writer);
+  }
+
   CardLocation location() {
     return _id.type() == PokeIdentifierType.expansion_jp ? CardLocation.Asie : CardLocation.Monde;
   }
@@ -65,8 +84,6 @@ class PokeExpansion {
     return _id.serie() == id.serie();
   }
 
-  ExpansionType type() { return _type;}
-
   /// Show Extension image
   Widget image(PokeLangage l, {double? wSize, double? hSize}) {
     return drawCachedImage('extensions', _icon.replaceAll("<L>", l.code()), width: wSize, height: hSize);
@@ -75,5 +92,9 @@ class PokeExpansion {
   /// Get formated release date of product
   String outDate() {
     return DateFormat('yyyyMMdd').format(_released);
+  }
+
+  bool isEqual(PokeIdentifier pid) {
+    return _id.isEqual(pid);
   }
 }

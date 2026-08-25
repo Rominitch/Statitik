@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/models/database/poke_db_cards_blob.dart';
+import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
 import 'package:statitikcard/models/poke_card_in_expansion.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_langage.dart';
@@ -178,7 +179,7 @@ class PokeExpansionCards {
     return mask(configuration, codeNotInsideRandom);
   }
 
-  PokeCardInExpansion cardFromId(CardIdentifier cardId) {
+  PokeCardInExpansion cardFromId(PokeCardIdentifier cardId) {
     switch(cardId.listId){
       case 0: {
         return cards[cardId.numberId][cardId.alternativeId];
@@ -190,17 +191,17 @@ class PokeExpansionCards {
         return noNumberedCard[cardId.numberId];
       }
       default:
-        throw StatitikException("Unknown list");
+        throw StatitikException(ErrorCode.unknown, "Unknown list");
     }
   }
 
-  CardIdentifier? computeIdCard(PokeCardInExpansion card) {
+  PokeCardIdentifier? computeIdCard(PokeCardInExpansion card) {
     int id=0;
     for(var subCards in cards) {
       int subId=0;
       for(var subCard in subCards) {
         if (subCard == card) {
-          return CardIdentifier.from([0, id, subId]);
+          return PokeCardIdentifier.from([0, id, subId]);
         }
         subId +=1;
       }
@@ -209,14 +210,14 @@ class PokeExpansionCards {
     id=0;
     for(var subCard in energyCard) {
       if (subCard == card) {
-        return CardIdentifier.from([1, id]);
+        return PokeCardIdentifier.from([1, id, 0]);
       }
       id += 1;
     }
     id=0;
     for(var subCard in noNumberedCard) {
       if (subCard == card) {
-        return CardIdentifier.from([2, id]);
+        return PokeCardIdentifier.from([2, id, 0]);
       }
       id += 1;
     }
@@ -249,7 +250,7 @@ class PokeExpansionCards {
         : "";
   }
 
-  String readTitleOfCard(PokeLangage l, CardIdentifier idCard) {
+  String readTitleOfCard(PokeLangage l, PokeCardIdentifier idCard) {
     return cardFromId(idCard).card.titleOfCard(l);
   }
 /*
@@ -299,11 +300,11 @@ class PokeExpansionCards {
         return nextId < noNumberedCard.length ? CardIdentifier.from([id.listId, nextId]): null;
       }
       default:
-        throw StatitikException("Unknown list");
+        throw StatitikException(ErrorCode.unknown, "Unknown list");
     }
   }
 
-  cardList(CardIdentifier id) {
+  List cardList(PokeCardIdentifier id) {
     switch(id.listId){
       case 0: {
         return cards;
@@ -315,7 +316,7 @@ class PokeExpansionCards {
         return noNumberedCard;
       }
       default:
-        throw StatitikException("Unknown list");
+        throw StatitikException(ErrorCode.unknown, "Unknown list");
     }
   }
 }

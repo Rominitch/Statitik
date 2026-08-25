@@ -95,7 +95,7 @@ class CardImage extends StatefulWidget {
   }
 
   static List<Uri> computeImageLabel(SubExtension se, PokemonCardExtension card, CardIdentifier cardId, CardImageIdentifier idImage) {
-    if(Environment.instance.showTCGImages){
+    if(Environment.instance.pkConfig().showTCGImages){
       ImageDesign defaultImage = card.image(idImage)!;
 
       if(defaultImage.finalImage.isNotEmpty) {

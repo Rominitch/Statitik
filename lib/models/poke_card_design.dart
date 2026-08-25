@@ -8,17 +8,16 @@ class PokeCardDesign {
   final ArtFormat     art;
 
   final String cardImage;
-  final int    jpDBId;
+  int    jpDBId;
 
   // Computed
-  final String     finalImage ; /// Cached to retrieve final image when found
+  String     finalImage; /// Cached to retrieve final image when found
 
-  const PokeCardDesign.empty(this.design):
+  PokeCardDesign.empty(this.design):
     art = ArtFormat.normal,
     jpDBId = 0,
     cardImage = "",
     finalImage = "";
-
 
   PokeCardDesign.fromBytes(BinaryReader reader, PokeCollection collection) :
     design    = collection.design(PokeIdentifier.fromBytes(reader))!,
@@ -34,5 +33,10 @@ class PokeCardDesign {
     writer.writeUint32(jpDBId);
   }
 
-  const PokeCardDesign.fromDB(this.design, this.art, this.cardImage, this.jpDBId) : finalImage = "";
+  PokeCardDesign.fromDB(this.design, this.art, this.cardImage, this.jpDBId) : finalImage = "";
+
+  void resetCache() {
+    finalImage = "";
+    jpDBId = 0;
+  }
 }

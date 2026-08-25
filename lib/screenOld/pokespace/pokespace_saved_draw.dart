@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/PokeSpace/pokespace_draw_resume.dart';
 import 'package:statitikcard/services/draw/session_draw.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/user_draw_file.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 
 class PokeSpaceSavedDraw extends StatefulWidget {
   final List<UserDrawFile> localDraws;
@@ -42,7 +43,7 @@ class _PokeSpaceSavedDrawState extends State<PokeSpaceSavedDraw> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text( StatitikLocale.of(context).read('DC_B19'), style: Theme.of(context).textTheme.displaySmall),
+        title: Text( AppLocalizations.of(context)!.dc_b19, style: Theme.of(context).textTheme.displaySmall),
       ),
       body:SafeArea(
         child: Padding(
@@ -87,13 +88,13 @@ class _PokeSpaceSavedDrawState extends State<PokeSpaceSavedDraw> {
                             context: context,
                             builder: (BuildContext context) {
                               return SimpleDialog(
-                                title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.displaySmall)),
+                                title: Center(child: Text(AppLocalizations.of(context)!.nce_b3, style: Theme.of(context).textTheme.displaySmall)),
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                                 children: [
                                   Card(
                                     color: Colors.red,
                                     child: TextButton(
-                                      child: Text(StatitikLocale.of(context).read('NCE_B5')),
+                                      child: Text(AppLocalizations.of(context)!.nce_b5),
                                       onPressed: () {
                                         file.remove();
                                         Navigator.of(context).pop();

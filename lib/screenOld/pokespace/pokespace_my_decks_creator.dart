@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/commonPages/extension_page.dart';
 import 'package:statitikcard/screenOld/widgets/CardSelector/card_selector_deck.dart';
 import 'package:statitikcard/screenOld/widgets/cards_selection.dart';
@@ -6,8 +9,6 @@ import 'package:statitikcard/screenOld/widgets/deck_widget.dart';
 import 'package:statitikcard/screenOld/widgets/pokemon_card.dart';
 import 'package:statitikcard/services/draw/card_draw_data.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
-
 import 'package:statitikcard/services/models/deck.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
@@ -61,11 +62,11 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
     super.initState();
   }
 
-  List<Widget> showCards(int code, String codeName) {
+  List<Widget> showCards(int code, String title) {
     List<Widget> list = [];
     if(myFilteredCards[code].isNotEmpty)
     {
-      list.add(Text(StatitikLocale.of(context).read(codeName), style: Theme.of(context).textTheme.titleLarge));
+      list.add(Text(title, style: Theme.of(context).textTheme.titleLarge));
       list.add(const SizedBox(height: 4.0));
       list.add(GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -108,11 +109,11 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
     List<Widget> tabHeader = [
       ConstrainedBox(
         constraints: const BoxConstraints(minHeight: Environment.heightTabHeader),
-        child: Text(StatitikLocale.of(context).read('PSMDC_B1'), style: Theme.of(context).textTheme.titleLarge),
+        child: Text(AppLocalizations.of(context)!.psmdc_b1, style: Theme.of(context).textTheme.titleLarge),
       ),
       ConstrainedBox(
         constraints: const BoxConstraints(minHeight: Environment.heightTabHeader),
-        child: Text(StatitikLocale.of(context).read('PSMDC_B2'), style: Theme.of(context).textTheme.titleLarge),
+        child: Text(AppLocalizations.of(context)!.psmdc_b2, style: Theme.of(context).textTheme.titleLarge),
       ),
     ];
 
@@ -126,7 +127,7 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
                 padding: const EdgeInsets.all(4.0),
                 child: Row(
                   children: [
-                    Expanded(child: Text(StatitikLocale.of(context).read('PSMDC_B0'))),
+                    Expanded(child: Text(AppLocalizations.of(context)!.psmdc_b0)),
                     Card(
                       color: Colors.grey,
                       child: TextButton(
@@ -134,7 +135,7 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
                           children: [
                             const Icon(Icons.add_circle_outline),
                             const SizedBox(height: 4.0),
-                            Text(StatitikLocale.of(context).read('PSMDC_B7')),
+                            Text(AppLocalizations.of(context)!.psmdc_b7),
                           ]
                         ),
                         onPressed: () {
@@ -167,10 +168,10 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
               )
             )
           ]
-          + showCards(2, 'PSMDC_B3')
-          + showCards(0, 'PSMDC_B4')
-          + showCards(1, 'PSMDC_B5')
-          + showCards(3, 'PSMDC_B6')
+          + showCards(2, AppLocalizations.of(context)!.psmdc_b3)
+          + showCards(0, AppLocalizations.of(context)!.psmdc_b4)
+          + showCards(1, AppLocalizations.of(context)!.psmdc_b5)
+          + showCards(3, AppLocalizations.of(context)!.psmdc_b6)
         )
       ),
       // Stats

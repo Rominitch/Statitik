@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:statitikcard/screenOld/Products/products_list_explorer.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
+import 'package:statitikcard/screenOld/Products/products_list_explorer.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 
 class ProductsExplorer extends StatefulWidget {
@@ -41,7 +41,7 @@ class _ProductsExplorerState extends State<ProductsExplorer> with TickerProvider
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Center(child: Text(StatitikLocale.of(context).read('PE_T0'), style: Theme.of(context).textTheme.displaySmall)),
+          title: Center(child: Text(AppLocalizations.of(context)!.pe_t0, style: Theme.of(context).textTheme.displaySmall)),
         ),
         body: SafeArea(
           child: Column(

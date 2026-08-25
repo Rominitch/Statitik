@@ -3,17 +3,15 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sprintf/sprintf.dart';
+
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/models/poke_expansion.dart';
 import 'package:statitikcard/models/statistics/statistic_data.dart';
 
-import 'package:statitikcard/screenOld/stats/stats.dart';
-import 'package:statitikcard/screenOld/stats/stats_extension.dart';
-import 'package:statitikcard/screenOld/stats/stats_extension_cards.dart';
-import 'package:statitikcard/screenOld/stats/stats_extension_draw.dart';
+import 'package:statitikcard/screens/page_expansion_cards.dart';
 
 import 'package:statitikcard/services/tools.dart';
-import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/serie_type.dart';
 
 class PageExpansionInfo extends StatefulWidget {
   final StatisticData      _info;
@@ -28,10 +26,10 @@ class PageExpansionInfo extends StatefulWidget {
 class _PageExpansionInfoState extends State<PageExpansionInfo> with TickerProviderStateMixin {
   late TabController tabController;
 
-  Widget menuBar(BuildContext context, String idText ) {
+  Widget menuBar(BuildContext context, String text ) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(StatitikLocale.of(context).read(idText)),
+      child: Text(text),
     );
   }
 
@@ -40,18 +38,19 @@ class _PageExpansionInfoState extends State<PageExpansionInfo> with TickerProvid
   }
 
   Widget _drawOut(BuildContext context, PokeExpansion se) {
+    final tag = Localizations.localeOf(context).toLanguageTag();
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(sprintf(StatitikLocale.of(context).read('SEC_0'), [DateFormat.yMMMMd(StatitikLocale.of(context).locale.toLanguageTag()).format(se.released())]),
+              Text(sprintf(AppLocalizations.of(context)!.sec_0, [DateFormat.yMMMMd(tag).format(se.released())]),
                   style: Theme.of(context).textTheme.displaySmall, textAlign: TextAlign.center),
               const SizedBox(height: 30),
               drawImagePress(context, 'zorua', 300),
               const SizedBox(height: 30),
-              Center(child: Text(sprintf(StatitikLocale.of(context).read('SEC_1'), [DateFormat.yMMMMd(StatitikLocale.of(context).locale.toLanguageTag()).format(se.released())]),
+              Center(child: Text(sprintf(AppLocalizations.of(context)!.sec_1, [DateFormat.yMMMMd(tag).format(se.released())]),
                   style: Theme.of(context).textTheme.headlineSmall),
               ),
             ]),
@@ -61,7 +60,7 @@ class _PageExpansionInfoState extends State<PageExpansionInfo> with TickerProvid
 
   @override
   Widget build(BuildContext context) {
-    final bool hasStats = widget._info.hasStats();
+    final bool hasStats = widget._info.selection.hasStats();
     if( !widget._info.isValid() ) {
       return drawLoading(context);
     } else if(!widget._info.selection.expansion!.cards.isValid()) {
@@ -84,10 +83,10 @@ class _PageExpansionInfoState extends State<PageExpansionInfo> with TickerProvid
                   color: Colors.green,
                 ),
                 tabs: [
-                  menuBar(context, 'SMENU_0'),
-                  menuBar(context, 'SMENU_1'),
+                  menuBar(context, AppLocalizations.of(context)!.smenu_0),
+                  menuBar(context, AppLocalizations.of(context)!.smenu_1),
                   if(hasStats)
-                    menuBar(context, 'SMENU_2'),
+                    menuBar(context, AppLocalizations.of(context)!.smenu_2),
                 ]
             ),
             Expanded(
@@ -95,7 +94,7 @@ class _PageExpansionInfoState extends State<PageExpansionInfo> with TickerProvid
                 controller: tabController,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  Placeholder(), //StatsExtensionCards(widget._info),
+                  PageExtensionCards(widget._info),
                   Placeholder(), //SingleChildScrollView(child: StatsExtensionsPage(widget._info)),
                   if(hasStats)
                     Placeholder(), //SingleChildScrollView(child: StatsExtensionDraw(widget._info)),

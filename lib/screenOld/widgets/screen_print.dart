@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
 class ScreenPrint
@@ -38,8 +39,8 @@ class ScreenPrint
                  context: context,
                  builder: (_) =>
                      AlertDialog(
-                       title: Text(StatitikLocale.of(context).read('RE_B1')),
-                       content: Text(StatitikLocale.of(context).read('RE_B2')),
+                       title: Text(AppLocalizations.of(context)!.re_b1),
+                       content: Text(AppLocalizations.of(context)!.re_b2),
                  )
                );
              });

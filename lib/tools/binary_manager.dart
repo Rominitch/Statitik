@@ -18,6 +18,15 @@ class BinaryWriter {
     _builder.add(gzip.encode(w.toBytes()));
   }
 
+  void writeCompressBuffer(BinaryWriter w) {
+    final buffer = w.toBytes();
+    final zip = gzip.encode(w.toBytes());
+    // Choose best buffer
+    final isZip = buffer.length > zip.length;
+    writeBool(isZip);
+    _builder.add( isZip ? zip : buffer);
+  }
+
   void writeInt8(int value) {
     final data = ByteData(1);
     data.setInt8(0, value);
@@ -181,6 +190,16 @@ class BinaryReader {
 
   bool canParse() {
     return _offset < _buffer.lengthInBytes;
+  }
+
+  BinaryReader readCompressBuffer() {
+    // Choose best buffer
+    final isZip = readBool();
+    if( isZip  ) {
+      return BinaryReader(Uint8List.fromList(gzip.decode(readBuffer())));
+    } else {
+      return this;
+    }
   }
 
   Uint8List readBuffer() {

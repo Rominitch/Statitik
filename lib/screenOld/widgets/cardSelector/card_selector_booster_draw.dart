@@ -101,7 +101,7 @@ class CardSelectorBoosterDraw extends GenericCardSelector {
 
         return Text(name, style: TextStyle(fontSize: name.length > 8 ? 10 : 12));
       default:
-        throw StatitikException("No visual for this card");
+        throw StatitikException(ErrorCode.unknown, "No visual for this card");
     }
   }
 }

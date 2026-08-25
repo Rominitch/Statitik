@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/internationalization.dart';
 
@@ -26,7 +27,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
         appBar: AppBar(
           title: Padding(
             padding: const EdgeInsets.all(5.0),
-            child: Text( StatitikLocale.of(context).read('TUTO0_0'),
+            child: Text( AppLocalizations.of(context)!.tuto_0_0,
               maxLines: 3,
               style: Theme.of(context).textTheme.titleLarge,
             ),
@@ -35,7 +36,7 @@ class _DrawTutorialState extends State<DrawTutorial> {
             Card(
             color: Colors.green[700],
                 child: TextButton(
-                    child: Text(StatitikLocale.of(context).read('TUTO0_1')),
+                    child: Text(AppLocalizations.of(context)!.tuto_0_1),
                     onPressed: () {
                       Navigator.of(context).pop();
                     }
@@ -48,69 +49,69 @@ class _DrawTutorialState extends State<DrawTutorial> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              simpleText(StatitikLocale.of(context).read('TUTO0_2')),
-              title(StatitikLocale.of(context).read('TUTO0_3')),
-              cardTutoImage(StatitikLocale.of(context).read('TUTO0_4'), "tuto1", false),
-              cardTutoImage(StatitikLocale.of(context).read('TUTO0_5'), "tuto2", ),
-              cardTutoImage(StatitikLocale.of(context).read('TUTO0_6'), "tuto3", false),
+              simpleText(AppLocalizations.of(context)!.tuto_0_2),
+              title(AppLocalizations.of(context)!.tuto_0_3),
+              cardTutoImage(AppLocalizations.of(context)!.tuto_0_4, "tuto1", false),
+              cardTutoImage(AppLocalizations.of(context)!.tuto_0_5, "tuto2", ),
+              cardTutoImage(AppLocalizations.of(context)!.tuto_0_6, "tuto3", false),
               cardTutoColumnChildren([
-                Text(StatitikLocale.of(context).read('TUTO0_7'), textAlign: TextAlign.justify, style: Theme.of(context).textTheme.headlineSmall),
-                Text(StatitikLocale.of(context).read('TUTO0_8'), textAlign: TextAlign.justify),
+                Text(AppLocalizations.of(context)!.tuto_0_7, textAlign: TextAlign.justify, style: Theme.of(context).textTheme.headlineSmall),
+                Text(AppLocalizations.of(context)!.tuto_0_8, textAlign: TextAlign.justify),
               ]),
               cardTutoColumnChildren([
-                Text(StatitikLocale.of(context).read('TUTO0_9'), textAlign: TextAlign.justify, style: Theme.of(context).textTheme.headlineSmall),
-                cardTutoCC(StatitikLocale.of(context).read('TUTO0_10'), <Widget>[
-                  simpleText(StatitikLocale.of(context).read('TUTO0_11')),
+                Text(AppLocalizations.of(context)!.tuto_0_9, textAlign: TextAlign.justify, style: Theme.of(context).textTheme.headlineSmall),
+                cardTutoCC(AppLocalizations.of(context)!.tuto_0_10, <Widget>[
+                  simpleText(AppLocalizations.of(context)!.tuto_0_11),
                   const Icon(Icons.add_photo_alternate_outlined),
-                  conseil(StatitikLocale.of(context).read('TUTO0_12'), Colors.grey[400]!),
-                  simpleText(StatitikLocale.of(context).read('TUTO0_13')),
+                  conseil(AppLocalizations.of(context)!.tuto_0_12, Colors.grey[400]!),
+                  simpleText(AppLocalizations.of(context)!.tuto_0_13),
                   imageTuto("tuto4", 40),
-                  simpleText(StatitikLocale.of(context).read('TUTO0_14')),
+                  simpleText(AppLocalizations.of(context)!.tuto_0_14),
                 ], Colors.grey[700]!),
-                cardTutoCC(StatitikLocale.of(context).read('TUTO0_15'), [
-                  simpleText(StatitikLocale.of(context).read('TUTO0_16')),
+                cardTutoCC(AppLocalizations.of(context)!.tuto_0_15, [
+                  simpleText(AppLocalizations.of(context)!.tuto_0_16),
                 ], Colors.grey[700]!),
               ]),
-              title(StatitikLocale.of(context).read('TUTO0_17')),
-              simpleText(StatitikLocale.of(context).read('TUTO0_18')),
-              cardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_19'), "tuto5",[
-                simpleText(StatitikLocale.of(context).read('TUTO0_20')),
+              title(AppLocalizations.of(context)!.tuto_0_17),
+              simpleText(AppLocalizations.of(context)!.tuto_0_18),
+              cardTutoTitleImage(AppLocalizations.of(context)!.tuto_0_19, "tuto5",[
+                simpleText(AppLocalizations.of(context)!.tuto_0_20),
               ], true, 70),
-              cardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_21'), "tuto6",[
-                simpleText(StatitikLocale.of(context).read('TUTO0_22')),
-                conseil(StatitikLocale.of(context).read('TUTO0_23'), Colors.deepOrange),
+              cardTutoTitleImage(AppLocalizations.of(context)!.tuto_0_21, "tuto6",[
+                simpleText(AppLocalizations.of(context)!.tuto_0_22),
+                conseil(AppLocalizations.of(context)!.tuto_0_23, Colors.deepOrange),
               ], false, 80),
-              cardTutoCC(StatitikLocale.of(context).read('TUTO0_24'), [
-                simpleText(StatitikLocale.of(context).read('TUTO0_25')),
-                simpleText(StatitikLocale.of(context).read('TUTO0_26')),
+              cardTutoCC(AppLocalizations.of(context)!.tuto_0_24, [
+                simpleText(AppLocalizations.of(context)!.tuto_0_25),
+                simpleText(AppLocalizations.of(context)!.tuto_0_26),
               ], Colors.grey[700]!),
-              title(StatitikLocale.of(context).read('TUTO0_27')),
-              simpleText(StatitikLocale.of(context).read('TUTO0_28')),
-              simpleText(StatitikLocale.of(context).read('TUTO0_29')),
-              conseil(StatitikLocale.of(context).read('TUTO0_30'), Colors.deepOrange),
-              cardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_31'), "tuto7",[
-                simpleText(StatitikLocale.of(context).read('TUTO0_32')),
+              title(AppLocalizations.of(context)!.tuto_0_27),
+              simpleText(AppLocalizations.of(context)!.tuto_0_28),
+              simpleText(AppLocalizations.of(context)!.tuto_0_29),
+              conseil(AppLocalizations.of(context)!.tuto_0_30, Colors.deepOrange),
+              cardTutoTitleImage(AppLocalizations.of(context)!.tuto_0_31, "tuto7",[
+                simpleText(AppLocalizations.of(context)!.tuto_0_32),
               ]),
-              cardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_33'), "tuto9",[
-                simpleText(StatitikLocale.of(context).read('TUTO0_34')),
-                conseil(StatitikLocale.of(context).read('TUTO0_35'), Colors.deepOrange),
-              ]),
-              cardTutoColumnChildren([
-                simpleText(StatitikLocale.of(context).read('TUTO0_36')),
+              cardTutoTitleImage(AppLocalizations.of(context)!.tuto_0_33, "tuto9",[
+                simpleText(AppLocalizations.of(context)!.tuto_0_34),
+                conseil(AppLocalizations.of(context)!.tuto_0_35, Colors.deepOrange),
               ]),
               cardTutoColumnChildren([
-                simpleText(StatitikLocale.of(context).read('TUTO0_37')),
-                simpleText(StatitikLocale.of(context).read('TUTO0_38')),
-                simpleText(StatitikLocale.of(context).read('TUTO0_39')),
-                simpleText(StatitikLocale.of(context).read('TUTO0_40')),
-                conseil(StatitikLocale.of(context).read('TUTO0_41'), Colors.deepOrange),
+                simpleText(AppLocalizations.of(context)!.tuto_0_36),
               ]),
-              title(StatitikLocale.of(context).read('TUTO0_42')),
-              cardTutoTitleImage(StatitikLocale.of(context).read('TUTO0_43'), "tuto8", [
-                simpleText(StatitikLocale.of(context).read('TUTO0_44')),
-                simpleText(StatitikLocale.of(context).read('TUTO0_45'))
+              cardTutoColumnChildren([
+                simpleText(AppLocalizations.of(context)!.tuto_0_37),
+                simpleText(AppLocalizations.of(context)!.tuto_0_38),
+                simpleText(AppLocalizations.of(context)!.tuto_0_39),
+                simpleText(AppLocalizations.of(context)!.tuto_0_40),
+                conseil(AppLocalizations.of(context)!.tuto_0_41, Colors.deepOrange),
+              ]),
+              title(AppLocalizations.of(context)!.tuto_0_42),
+              cardTutoTitleImage(AppLocalizations.of(context)!.tuto_0_43, "tuto8", [
+                simpleText(AppLocalizations.of(context)!.tuto_0_44),
+                simpleText(AppLocalizations.of(context)!.tuto_0_45)
               ], true, 70),
-              simpleText(StatitikLocale.of(context).read('TUTO0_46')),
+              simpleText(AppLocalizations.of(context)!.tuto_0_46),
               Center(child: drawImagePress(context, "PikaNoResult", 250.0))
             ],
           )

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinbox/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -53,7 +54,7 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(StatitikLocale.of(context).read('PS_T0')),
+        title: Text(AppLocalizations.of(context)!.ps_t0),
         actions: [
           Card(
             color: Colors.green,
@@ -62,7 +63,7 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
                 children: [
                   const Icon(Icons.add_circle_outline),
                   const SizedBox(width: 5),
-                  Text(StatitikLocale.of(context).read('PS_B2')),
+                  Text(AppLocalizations.of(context)!.ps_b2),
                 ]
               ),
               onPressed: () {
@@ -70,29 +71,29 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
                   showDialog(
                     context: context,
                     builder: (BuildContext context) => AlertDialog(
-                      title: Center(child: Text(StatitikLocale.of(context).read('warning'), style: Theme.of(context).textTheme.headlineSmall)),
-                      content: Text(StatitikLocale.of(context).read('PS_B4')),
+                      title: Center(child: Text(AppLocalizations.of(context)!.warning, style: Theme.of(context).textTheme.headlineSmall)),
+                      content: Text(AppLocalizations.of(context)!.ps_b4),
 
                       actions: <Widget>[
                         Card(
                           color: Colors.green,
                           child: TextButton(
                             onPressed: () => Navigator.pop(context, true),
-                            child: Text(StatitikLocale.of(context).read('yes')),
+                            child: Text(AppLocalizations.of(context)!.yes),
                           ),
                         ),
                         Card(
                           color: Colors.deepOrange,
                           child: TextButton(
                             onPressed: () => Navigator.pop(context, false),
-                            child: Text(StatitikLocale.of(context).read('no')),
+                            child: Text(AppLocalizations.of(context)!.no),
                           ),
                         ),
                         Card(
                           color: Colors.grey.shade900,
                           child: TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: Text(StatitikLocale.of(context).read('cancel')),
+                            child: Text(AppLocalizations.of(context)!.cancel),
                           ),
                         ),
                       ],
@@ -128,7 +129,7 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
                 tabs: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Center(child: Text(StatitikLocale.of(context).read('PS_B0'))),
+                    child: Center(child: Text(AppLocalizations.of(context)!.ps_b0)),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -136,8 +137,8 @@ class _ProductSelectorState extends State<ProductSelector> with SingleTickerProv
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(StatitikLocale.of(context).read('PS_B1')),
-                        Text(StatitikLocale.of(context).read('PS_B3'), style: const TextStyle(fontSize: 10)),
+                        Text(AppLocalizations.of(context)!.ps_b1),
+                        Text(AppLocalizations.of(context)!.ps_b3, style: const TextStyle(fontSize: 10)),
                       ],
                     )),
                   ),
@@ -286,7 +287,7 @@ SimpleDialog createProductCounterSelection(BuildContext context, product, counte
     titlePadding: EdgeInsets.zero,
     contentPadding: EdgeInsets.zero,
     insetPadding: EdgeInsets.zero,
-    title: Center(child: Text(StatitikLocale.of(context).read('PSPE_B0'))),
+    title: Center(child: Text(AppLocalizations.of(context)!.psep_b0)),
     children: [
       Card(
         child: Padding(
@@ -299,7 +300,7 @@ SimpleDialog createProductCounterSelection(BuildContext context, product, counte
                     padding: const EdgeInsets.all(8.0),
                     child: Column(children: [
                       const Icon(Icons.lock_open, size: 60),
-                      Text(StatitikLocale.of(context).read('PSPE_B1')),
+                      Text(AppLocalizations.of(context)!.psep_b1),
                     ]),
                   )),
               SpinBox(
@@ -326,7 +327,7 @@ SimpleDialog createProductCounterSelection(BuildContext context, product, counte
                     padding: const EdgeInsets.all(8.0),
                     child: Column(children: [
                       const Icon(Icons.lock_outline, size: 60),
-                      Text(StatitikLocale.of(context).read('PSPE_B2')),
+                      Text(AppLocalizations.of(context)!.psep_b2),
                     ]),
                   )),
               SpinBox(

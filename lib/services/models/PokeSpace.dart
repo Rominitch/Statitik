@@ -215,7 +215,7 @@ class UserCardCounter
         code = noNumbers[idCard.numberId].add(counter);
         break;
       default:
-        throw StatitikException("Missing list !");
+        throw StatitikException(ErrorCode.unknown, "Missing list !");
     }
     if(code != null && report!= null) {
       report.add(card.subExtension, NewCardReport(idCard, code));
@@ -260,7 +260,7 @@ class UserCardCounter
           }
           break;
         default:
-          throw StatitikException("Unknown List");
+          throw StatitikException(ErrorCode.unknown, "Unknown List");
       }
       return (report != null) ? NewCardReport(idCards, report) : null;
     }
@@ -314,7 +314,7 @@ class PokeSpace
       case 2:
         return info.noNumbers[idCard.numberId];
       default:
-        throw StatitikException("Unknown list !");
+        throw StatitikException(ErrorCode.unknown, "Unknown list !");
     }
   }
 
@@ -346,7 +346,7 @@ class PokeSpace
     } else if(localVersion == 3) {
       return PokeSpace.fromBytesV3(data, subExtensions, products, sideProducts);
     } else {
-      throw StatitikException("Unknown Product version: ${data[0]}");
+      throw StatitikException(ErrorCode.unknown, "Unknown Product version: ${data[0]}");
     }
   }
 
@@ -355,7 +355,7 @@ class PokeSpace
   {
     int localVersion = data[0];
     if(localVersion > version) {
-      throw StatitikException("Unknown Product version: ${data[0]}");
+      throw StatitikException(ErrorCode.unknown, "Unknown Product version: ${data[0]}");
     }
 
     // Is Zip ?
@@ -396,7 +396,7 @@ class PokeSpace
   {
     int localVersion = data[0];
     if(localVersion > version) {
-      throw StatitikException("Unknown Product version: ${data[0]}");
+      throw StatitikException(ErrorCode.unknown, "Unknown Product version: ${data[0]}");
     }
 
     // Is Zip ?

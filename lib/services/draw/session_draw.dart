@@ -105,7 +105,7 @@ class SessionDraw
 
   void deleteBooster(int id) {
     if( id >= boosterDraws.length || id < 0 ) {
-      throw StatitikException("Impossible de trouver le booster $id");
+      throw StatitikException(ErrorCode.unknown, "Impossible de trouver le booster $id");
     }
     // Delete
     boosterDraws.removeAt(id);

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/screenOld/view.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 
 class Loading extends StatefulWidget {
   const Loading({super.key});
@@ -13,9 +14,9 @@ class Loading extends StatefulWidget {
 
 class _LoadingState extends State<Loading> {
   bool error = false;
-  late String msgError;
+  ErrorCode? errorInfo;
   double progression = -1.0;
-  String? loadingInfo;
+  LoadingCode? loadingInfo;
 
   @override
   void initState() {
@@ -25,7 +26,7 @@ class _LoadingState extends State<Loading> {
     Environment.instance.onServerError.stream.listen((event) {
       setState(() {
         error = true;
-        msgError = event;
+        errorInfo = event;
       });
     });
 
@@ -49,6 +50,29 @@ class _LoadingState extends State<Loading> {
   void dispose() {
     Environment.instance.onInfoLoading.close();
     super.dispose();
+  }
+
+  String codeError(BuildContext context) {
+    if(errorInfo == null) {
+      return "";
+    }
+    switch(errorInfo!) {
+      case ErrorCode.unknown: return AppLocalizations.of(context)!.error;
+      case ErrorCode.db_0: return AppLocalizations.of(context)!.db_0;
+      case ErrorCode.db_1: return AppLocalizations.of(context)!.db_1;
+      case ErrorCode.userBan: return AppLocalizations.of(context)!.error;
+      case ErrorCode.unknownFile: return AppLocalizations.of(context)!.error;
+    }
+  }
+
+  String loading(BuildContext context) {
+    switch(loadingInfo!) {
+      case LoadingCode.load_0: return AppLocalizations.of(context)!.load_0;
+      case LoadingCode.load_1: return AppLocalizations.of(context)!.load_1;
+      case LoadingCode.load_2: return AppLocalizations.of(context)!.load_2;
+      case LoadingCode.load_3: return AppLocalizations.of(context)!.load_3;
+      case LoadingCode.load_4: return AppLocalizations.of(context)!.load_4;
+    }
   }
 
   @override
@@ -100,7 +124,7 @@ class _LoadingState extends State<Loading> {
                         color: Colors.red[700],
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text(StatitikLocale.of(context).read(msgError),
+                          child: Text(codeError(context),
                             style: const TextStyle(color: Colors.white)
                           ),
                         ),
@@ -108,7 +132,7 @@ class _LoadingState extends State<Loading> {
                       const SizedBox(height: 10.0),
                       Card(
                         child: TextButton(
-                            child: Text(StatitikLocale.of(context).read('retry')),
+                            child: Text(AppLocalizations.of(context)!.retry),
                             onPressed:() {
                               setState(() {
                                 error=false;
@@ -121,8 +145,8 @@ class _LoadingState extends State<Loading> {
                 )
               else if(loadingInfo != null)
                 Center(
-                  child: Text(StatitikLocale.of(context).read(loadingInfo!),
-                        style: Theme.of(context).textTheme.headlineSmall,
+                  child: Text(loading(context),
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ),
             ],

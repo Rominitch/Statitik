@@ -97,14 +97,14 @@ class CardDescription {
           toAnalyze += data.name(l);
         } else if (code[0] == "E" || code[0] == "P" || code[0] == "A" ||
             code[0] == "R") {} else {
-          throw StatitikException("Error of code");
+          throw StatitikException(ErrorCode.unknown, "Error of code");
         }
         toAnalyze += match.group(3)!;
       } else {
         break;
       }
       count += 1;
-      if (count > 30) throw StatitikException("Loop detector");
+      if (count > 30) throw StatitikException(ErrorCode.unknown, "Loop detector");
     }
   }
 
@@ -200,7 +200,7 @@ class CardDescription {
             s.finalString.add("R:${code[1]}");
             s.finalString.add(""); // New string to cumulate
           } else {
-            throw StatitikException("Error of code");
+            throw StatitikException(ErrorCode.unknown, "Error of code");
           }
           toAnalyze += match.group(3)!;
       } else {
@@ -208,7 +208,7 @@ class CardDescription {
         break;
       }
       count += 1;
-      if(count > 30) throw StatitikException("Loop detector");
+      if(count > 30) throw StatitikException(ErrorCode.unknown, "Loop detector");
     }
     return s;
   }
@@ -267,7 +267,7 @@ class CardEffects {
 
   CardEffects.fromBytesArray(List<int> bytes) {
     if(bytes[0] != version) {
-      throw StatitikException('Bad CardEffects version');
+      throw StatitikException(ErrorCode.unknown, 'Bad CardEffects version');
     }
 
     var parser = ByteParser(bytes.sublist(1));
@@ -280,7 +280,7 @@ class CardEffects {
   }
   CardEffects.fromBytes(ByteParser parser) {
     if(parser.extractInt8() != version) {
-      throw StatitikException('Bad CardEffects version');
+      throw StatitikException(ErrorCode.unknown, 'Bad CardEffects version');
     }
     //var parser = ByteParser(gzip.decode(bytes.sublist(1)));
 

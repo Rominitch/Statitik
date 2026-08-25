@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/commonPages/extension_page.dart';
 import 'package:statitikcard/screenOld/view.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 
@@ -37,7 +38,7 @@ class _LanguagePageState extends State<LanguagePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(StatitikLocale.of(context).read('L_T0')),
+        title: Text(AppLocalizations.of(context)!.l_t0),
        ),
         body: SafeArea(
         child: GridView.count(
@@ -74,7 +75,7 @@ class LanguageSelector extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(StatitikLocale.of(context).read('L_T0')),
+        title: Text(AppLocalizations.of(context)!.l_t0),
       ),
       body: SafeArea(
         child: GridView.count(

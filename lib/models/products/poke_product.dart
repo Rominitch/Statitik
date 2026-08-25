@@ -1,0 +1,399 @@
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter/material.dart';
+import 'package:mysql1/mysql1.dart';
+import 'package:statitikcard/models/poke_collection.dart';
+import 'package:statitikcard/models/poke_identifier.dart';
+import 'package:statitikcard/models/products/poke_product_booster.dart';
+import 'package:statitikcard/models/products/poke_product_card.dart';
+import 'package:statitikcard/models/products/poke_product_generic.dart';
+import 'package:statitikcard/models/products/poke_product_side.dart';
+import 'package:statitikcard/services/collection.dart';
+import 'package:statitikcard/services/models/card_identifier.dart';
+import 'package:statitikcard/services/draw/booster_draw.dart';
+import 'package:statitikcard/services/draw/card_draw_data.dart';
+import 'package:statitikcard/services/models/product.dart';
+import 'package:statitikcard/services/tools.dart';
+
+import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/models/bytes_coder.dart';
+import 'package:statitikcard/services/models/language.dart';
+import 'package:statitikcard/services/models/pokemon_card_extension.dart';
+import 'package:statitikcard/services/models/product_category.dart';
+import 'package:statitikcard/services/models/sub_extension.dart';
+import 'package:statitikcard/services/models/pokemon_card_data.dart';
+import 'package:statitikcard/tools/binary_manager.dart';
+
+class PokeProduct extends PokeProductGeneric
+{
+  List<PokeProductBooster>     boosters = [];
+  String                  _name;
+
+  // New
+  Map<PokeProductSide, int>    sideProducts = {};
+  List<PokeProductCard>        otherCards   = [];
+  int                      nbRandomPerProduct = 0;
+  static const int version = 4;
+
+  //PokeProduct.empty():
+  //      boosters = [],
+  //      super(-1, null, "", "", DateTime.now());
+  PokeProduct.fromDB(super._pid, super.category, super.outDate, this._name);
+
+  void readOldData(BinaryReader reader, PokeCollection collection) {
+    final currentVersion = reader.readInt8();
+    if(!(currentVersion <= version)) {
+      throw StatitikException(ErrorCode.unknown, "Unknown Product version: $currentVersion");
+    }
+
+    // Is Zip ?
+    try {
+      final isZipped = reader.readInt8() == 1;
+      BinaryReader dataReader;
+      if(isZipped ) {
+        final buffer = reader.readBuffer().toList(growable: false);
+        dataReader = BinaryReader(Uint8List.fromList(gzip.decode(buffer)));
+      } else {
+        dataReader = reader;
+      }
+
+      // Ready to read data
+      // Read boosters
+      var nbBoosters = dataReader.readUint8();
+      for(int id=0; id < nbBoosters; id +=1){
+        final idSe = dataReader.tmpReadInt16BIG();
+        final (l, e) = collection.expansionFromOldDB(idSe);
+        final pb = PokeProductBooster(idSe == 0 ? null : e!, dataReader.readUint8(), dataReader.readUint8());
+        //printOutput("$name: ${pb.subExtension != null ? pb.subExtension!.name : "No se"}");
+        boosters.add(pb);
+      }
+
+      // Read other products
+      var nbSideProducts = dataReader.readUint8();
+      for(int id=0; id < nbSideProducts; id +=1){
+        final pid = PokeIdentifier( 630000000 + dataReader.tmp_readInt32BIG());
+        //final pid = PokeIdentifier( 630000000 + dataReader.tmpReadInt16BIG());
+        var sideProduct = collection.productSide(pid)!;
+        sideProducts[sideProduct] = dataReader.readUint8();
+      }
+
+      if( currentVersion >= 2 ) {
+        // Read other cards
+        var nbOtherCards = dataReader.readUint8();
+        for(int id=0; id < nbOtherCards; id +=1) {
+          if( currentVersion==2) {
+            otherCards.add(PokeProductCard.fromV2Bytes(dataReader, collection));
+          } else {
+            otherCards.add(PokeProductCard.fromV3Bytes(dataReader, collection));
+          }
+        }
+
+        nbRandomPerProduct = dataReader.readUint8();
+      }
+    }
+    catch (_, e) {
+      printOutput("Error with product: ${super.pid().id()} -> $_name\n$e");
+      rethrow;
+    }
+  }
+
+  void dataToBytes(BinaryWriter writer) {
+    // Prepare internal data
+    final internData = BinaryWriter();
+
+    internData.writeSmallList(boosters, (writer, item) => item.toBytes(writer));
+    internData.writeSmallMap(sideProducts,
+      (writer, key) => key.pid().toBytesID(writer),
+      (writer, value) => writer.writeUint8(value));
+
+    internData.writeSmallList(otherCards, (writer, item) => item.toBytes(writer));
+
+
+    // Return data
+    writer.writeUint16(version);
+    writer.writeCompressBuffer(internData);
+  }
+  /*
+  PokeProduct.fromBytes(super.parser, super.collection):
+        boosters = parser.extractArray16<PokeProductBooster>((parser) => PokeProductBooster.fromBytes(parser, collection)),
+        language = parser.extractOptional((parser) => Language.fromBytes(parser)),
+        sideProducts = parser.extractMap<PokeProductSide, int>(
+                (parser) => collection.productSides[parser.extractInt32()]!,
+                (parser) => parser.extractInt8()),
+        otherCards = parser.extractArray16<PokeProductCard>((parser) => PokeProductCard.fromBytes(parser, collection)),
+        nbRandomPerProduct = parser.extractInt8(),
+        super.fromBytes();
+
+  @override
+  List<int> toBytes() {
+    return super.toBytes()
+        + ByteEncoder.encodeArray16<PokeProductBooster>(boosters, (e) => e.toBytes())
+        + ByteEncoder.encodeOptional(language, () => language!.toBytes() )
+        + ByteEncoder.encodeMap<PokeProductSide, int>(sideProducts,
+                (PokeProductSide e) => ByteEncoder.encodeInt32(e.idDB),
+                (int e) => ByteEncoder.encodeInt8(e) )
+        + ByteEncoder.encodeArray16<PokeProductCard>(otherCards, (PokeProductCard e) => e.toBytes())
+        + ByteEncoder.encodeInt8(nbRandomPerProduct)
+    ;
+  }
+
+  PokeProduct.fromBytesDB(idDB, this.language, name, imageURL, outDate, category,
+      List<int> data, Map mapSubExtensions, Map productSides):
+        boosters = [],
+        super(idDB, category, name, imageURL, outDate)
+  {
+    int currentVersion = data[0];
+    if(!(currentVersion <= version)) {
+      throw StatitikException(ErrorCode.unknown, "Unknown Product version: ${data[0]}");
+    }
+
+    // Is Zip ?
+    List<int> bytes = (data[1] == 1) ? gzip.decode(data.sublist(2)) : data.sublist(2);
+    ByteParser parser = ByteParser(bytes);
+
+    // Read boosters
+    var nbBoosters = parser.extractInt8();
+    for(int id=0; id < nbBoosters; id +=1){
+      var idSe = parser.extractInt16();
+      var pb = ProductBooster(idSe == 0 ? null : mapSubExtensions[idSe]!, parser.extractInt8(), parser.extractInt8());
+      //printOutput("$name: ${pb.subExtension != null ? pb.subExtension!.name : "No se"}");
+      boosters.add(pb);
+    }
+    assert(boosters.isNotEmpty);
+
+    // Read other products
+    var nbSideProducts = parser.extractInt8();
+    for(int id=0; id < nbSideProducts; id +=1){
+      var idSP = parser.extractInt32();
+      sideProducts[productSides[idSP]] = parser.extractInt8();
+    }
+
+    // Read other cards
+    if(currentVersion == 2) {
+      var nbOtherCards = parser.extractInt8();
+      for(int id=0; id < nbOtherCards; id +=1){
+        otherCards.add(ProductCard.fromBytesV1(parser, mapSubExtensions));
+      }
+    } else if(currentVersion == 3) {
+      var nbOtherCards = parser.extractInt8();
+      for(int id=0; id < nbOtherCards; id +=1) {
+        otherCards.add(ProductCard.fromBytesDB(parser, mapSubExtensions));
+      }
+    }
+
+    if(currentVersion == 2 || currentVersion == 3) {
+      nbRandomPerProduct = parser.extractInt8();
+    }
+  }
+
+  List<int> toBytesDB() {
+    List<int> bytes = [];
+
+    // Save boosters
+    assert(boosters.length <= 255);
+    bytes += ByteEncoder.encodeInt8(boosters.length);
+    for (var booster in boosters) {
+      bytes += ByteEncoder.encodeInt16(booster.subExtension != null ? booster.subExtension!.id : 0);
+      assert(booster.nbBoosters <= 255);
+      bytes += ByteEncoder.encodeInt8(booster.nbBoosters);
+      assert(booster.nbCardsPerBooster <= 255);
+      bytes += ByteEncoder.encodeInt8(booster.nbCardsPerBooster);
+    }
+
+    // Save other products
+    assert(sideProducts.length <= 255);
+    bytes += ByteEncoder.encodeInt8(sideProducts.length);
+    sideProducts.forEach((pa, count) {
+      assert(count <= 255);
+      bytes += ByteEncoder.encodeInt32(pa.idDB);
+      bytes += ByteEncoder.encodeInt8(count);
+    });
+
+    // Save other cards
+    assert(otherCards.length <= 255);
+    bytes += ByteEncoder.encodeInt8(otherCards.length);
+    for (var card in otherCards) {
+      bytes += card.toBytesDB();
+    }
+
+    assert(nbRandomPerProduct <= 255);
+    bytes += ByteEncoder.encodeInt8(nbRandomPerProduct);
+
+    // Save final data
+    assert(version <= 255);
+    List<int> zipBytes = gzip.encode(bytes);
+    printOutput("Product: data: ${bytes.length} compressed: ${zipBytes.length}");
+
+    bool needZip = bytes.length < zipBytes.length;
+    return [version, needZip ? 1 : 0] + (needZip ? zipBytes : bytes);
+  }
+  bool hasImages() {
+    return imageURL.isNotEmpty;
+  }
+*/
+  @override
+  Widget image({double? height=70.0, alternativeRendering, photoView=false}) {
+    return drawCachedImage('PKProducts', super.pid().id().toString(), height: height, alternativeRendering: alternativeRendering, photoView: photoView);
+  }
+
+  int countBoosters() {
+    int count=0;
+    for (var value in boosters) { count += value.nbBoosters; }
+    return count;
+  }
+/*
+  List<BoosterDraw> buildBoosterDraw() {
+    var list = <BoosterDraw>[];
+    int id=1;
+    for (var value in boosters) {
+      for( int i=0; i < value.nbBoosters; i+=1) {
+        list.add( PokeBoosterDraw(creation: value.expansion, id: id, nbCards: value.nbCardsPerBooster) );
+        id += 1;
+      }
+    }
+    return list;
+  }
+*/
+  /// Validate before send request
+  bool validate() {
+    return boosters.isNotEmpty;
+  }
+}
+
+class PokeProductRequested
+{
+  PokeProduct     product;
+  final Color color;
+  final int   count;
+
+  PokeProductRequested(this.product, this.color, this.count);
+}
+/*
+bool filter(PokeProduct product, Language l, SubExtension se, ProductCategory? category, Map userExtension, {bool onlyShowRandom=false}) {
+  bool keep = product.language == l;
+  // Filter language
+  if( keep && category != null ) {
+    keep = product.category == category;
+  }
+  // Keep user product only
+  if( keep && userExtension.isNotEmpty ) {
+    keep = userExtension.containsKey(product);
+  }
+
+  // Filter subextension
+  if( keep ) {
+    for(var booster in product.boosters) {
+      if(!onlyShowRandom) {
+        // Keep product of extension
+        keep = booster.subExtension == se;
+        if(keep) {
+          break;
+        }
+      } else {
+        if(se.seCards.notInsideRandom()) {
+          keep = false;
+        } else {
+          if(userExtension.isNotEmpty) {
+            // Search if user contains specific
+            for (var subEx in userExtension[product]) {
+              keep = se == subEx;
+              if (keep) {
+                break;
+              }
+            }
+            if (keep) {
+              break;
+            }
+          } else {
+            // Search product with random
+            for (var booster in product.boosters) {
+              keep = booster.subExtension == null;
+              if (keep) {
+                break;
+              }
+            }
+            // Keep product if after extension
+            if (keep) {
+              keep = (product.releaseDate.compareTo(se.out) >= 0);
+            }
+          }
+        }
+      }
+    }
+  }
+  return keep;
+}
+
+Future<Map> filterProducts(Language l, SubExtension se, ProductCategory? category, {bool showAll=true, bool withUserCount=false, bool onlyWithUser=false, bool onlyLocalUser=false}) async
+{
+  printOutput("Filter: ${l.image} ${se.name} showRandom=$showAll computeUserCount=$withUserCount keepUserProduct=$onlyWithUser localUser=$onlyLocalUser");
+
+  // Count all products
+  Map<PokeProduct, int>                userCounts    = {};
+  Map<PokeProduct, List<SubExtension>> userExtension = {};
+  await Environment.instance.db.transactionR( (connection) async {
+    if(withUserCount) {
+      String query = "SELECT `idProduit`, COUNT(`idProduit`) as count"
+          " FROM `UtilisateurProduit` "
+          " GROUP BY `UtilisateurProduit`.`idProduit`;";
+      var exts = await connection.query(query);
+      for(var row in exts) {
+        userCounts[Environment.instance.collection.products[row[0]]!] = row[1];
+      }
+    }
+
+    if(onlyWithUser) {
+      String query = "SELECT DISTINCT `idProduit`, `idSousExtension`"
+          " FROM `UtilisateurProduit`, `TirageBooster`"
+          " WHERE `UtilisateurProduit`.`idAchat` = `TirageBooster`.`idAchat`";
+      if(onlyLocalUser) {
+        query += " AND `UtilisateurProduit`.`idUtilisateur` = ${Environment.instance.user!.idDB};";
+      }
+
+      var exts = await connection.query(query);
+      for(var row in exts) {
+        var p = Environment.instance.collection.products[row[0]]!;
+        if( !userExtension.containsKey(p)) {
+          userExtension[p] = [];
+        }
+
+        userExtension[p]!.add( Environment.instance.collection.subExtensions[row[1]]! );
+      }
+    }
+  });
+
+  // Internal filter
+  Map<ProductCategory, List<ProductRequested>> products = {};//.generate(Environment.instance.collection.categories.length, (index) { return []; });
+  Environment.instance.collection.categories.forEach((key, category) { products[category] = [];});
+
+  // Product of current extension
+  for (var product in Environment.instance.collection.products.values) {
+    // Add to list
+    if(filter(product, l, se, category, userExtension)) {
+      products[product.category]!.add(ProductRequested(product, Colors.grey.shade600, userCounts[product] ?? 0));
+    }
+  }
+  if(showAll) {
+    // Product of with random booster
+    for (var product in Environment.instance.collection.products.values) {
+      // Add to list
+      if(filter(product, l, se, category, userExtension, onlyShowRandom: true)) {
+        // Search product inside list
+        bool find = false;
+        for(var p in products[product.category]!) {
+          find = (p.product == product);
+          if(find) {
+            break;
+          }
+        }
+        // Add if missing
+        if(!find) {
+          products[product.category]!.add(PokeProductRequested(product, Colors.deepOrange.shade700, userCounts[product] ?? 0));
+        }
+      }
+    }
+  }
+  return products;
+}
+*/

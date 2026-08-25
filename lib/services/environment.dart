@@ -7,9 +7,12 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:intl/intl.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_configuration.dart';
-import 'package:statitikcard/services/collection_serializer.dart';
+import 'package:statitikcard/models/poke_rendering.dart';
+import 'package:statitikcard/models/poke_statistics.dart';
 import 'package:statitikcard/services/models/multi_language_string.dart';
 import 'package:statitikcard/services/saved_instance_state.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,7 +24,6 @@ import 'package:statitikcard/services/draw/session_draw.dart';
 import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/collection.dart';
 import 'package:statitikcard/services/credential.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/image_storage.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/new_cards_report.dart';
@@ -36,12 +38,14 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 class StatitikException implements Exception {
     String msg;
-    StatitikException(this.msg);
+    ErrorCode code;
+    StatitikException.fromCode(this.code) : msg="";
+    StatitikException(this.code, this.msg);
 }
 
 class Database
 {
-    final String version = '3.5';
+    final String version = '4.0';
     final ConnectionSettings settings;
 
     Database():         settings = createConnection();
@@ -56,7 +60,7 @@ class Database
         {
             connection = await MySqlConnection.connect(settings);
         } catch( e ) {
-            throw StatitikException('DB_0');
+            throw StatitikException.fromCode(ErrorCode.db_0);
         }
 
         // Execute request
@@ -74,6 +78,21 @@ class Database
         return valid;
     }
 }
+enum ErrorCode {
+    unknown,
+    db_0,
+    db_1,
+    userBan,
+    unknownFile,
+}
+
+enum LoadingCode {
+    load_0,
+    load_1,
+    load_2,
+    load_3,
+    load_4,
+}
 
 class Environment
 {
@@ -82,9 +101,10 @@ class Environment
 
     // Event
     final StreamController<bool>   onInitialize  = StreamController<bool>();
-    final StreamController<String> onServerError = StreamController<String>();
-    final StreamController<String> onInfoLoading = StreamController<String>();
+    final StreamController<ErrorCode> onServerError = StreamController<ErrorCode>();
+    final StreamController<LoadingCode> onInfoLoading = StreamController<LoadingCode>();
     final StreamController<double> onProgression = StreamController<double>();
+    final StreamController<Locale> onChangeLocale = StreamController<Locale>();
 
     // Manager
     Credential credential = Credential();
@@ -100,14 +120,8 @@ class Environment
 
     // State
     final PokeConfiguration _config = PokeConfiguration();
-    final Locale locale = Locale(Platform.localeName);
     bool isInitialized          = false;
     bool startDB                = false;
-    bool showExtensionName      = false;
-    bool showPressImages        = false;
-    bool showPressProductImages = false;
-    bool showTCGImages          = false;
-    bool isMaintenance          = false;
 
     bool storeImageLocally      = true;
 
@@ -116,6 +130,9 @@ class Environment
     // Cached data
     Collection collection = Collection();
     final PokeCollection _collectionPK = PokeCollection();
+    final PokeStatistics _statistics = PokeStatistics();
+    late  PokeRendering  _rendering;
+    final PokeSpace      _space = PokeSpace();
 
     // Current draw
     UserPoke? user;
@@ -128,10 +145,16 @@ class Environment
     static const double heightNewsCircle    = 36.0;
     static const double heightLanguage      = 30.0;
 
-    PokeCollection pkCollection() { return _collectionPK; }
+    PokeCollection      pkCollection()  { return _collectionPK; }
+    PokeRendering       pkRendering()   { return _rendering; }
+    PokeConfiguration   pkConfig()      { return _config;}
+    PokeStatistics      pkStatistics()  { return _statistics;}
+    Database            pkDB()          { return _db_poke; }
 
     void initialize()
     {
+        _rendering = PokeRendering(_collectionPK);
+
         // General data control
         assert(TypeCard.values.length <= 255);
         assert(TypeCard.values.length == orderedType.length);
@@ -148,7 +171,7 @@ class Environment
                 String currentVersion = db.version;
 
                 // Load user
-                onInfoLoading.add('LOAD_0');
+                onInfoLoading.add(LoadingCode.load_0);
 
                 _db_poke.transactionR( (connection) async {
                     _config.readFrom(connection);
@@ -157,11 +180,11 @@ class Environment
 
                     // Need to update software ?
                     if( db.version != _config.currentVersion) {
-                        throw StatitikException('DB_1');
+                        throw StatitikException.fromCode(ErrorCode.db_1);
                     }
 
                     if( isDBReady ) {
-                        onInfoLoading.add('LOAD_1');
+                        onInfoLoading.add(LoadingCode.load_1);
 
                         // Read Database
                         await _db_poke.transactionR((connection) async {
@@ -174,11 +197,14 @@ class Environment
 
                 }).catchError((error) {
                     isInitialized = false;
-                    var message = error is StatitikException ? error.msg : error.toString();
-                    onServerError.add(message);
+                    if( error is StatitikException ) {
+                        onServerError.add(error.code);
+                    } else {
+                        onServerError.add(ErrorCode.unknown);
+                    }
                 }).onError((error, stackTrace) {
                     isInitialized = false;
-                    onServerError.add('Error');
+                    onServerError.add(ErrorCode.unknown);
                 });
                 /*.whenComplete( () async {
                     // Load local data
@@ -188,11 +214,11 @@ class Environment
 
                     // No data available (local or network)
                     if(!isDBReady && collection.languages.isEmpty) {
-                      throw StatitikException('DB_0');
+                      throw StatitikException('db_0');
                     }
 
                     // Load database (if possible and useful)
-                    onInfoLoading.add('LOAD_1');
+                    onInfoLoading.add('load_1');
                     if( localVersion < currentDataDB ) {
                       await readStaticData().catchError((error) {
                         isInitialized = false;
@@ -204,19 +230,19 @@ class Environment
                     if (isAdministrator()) {
                       await db.transactionR(collection.migration);
                       printOutput("admin is launched !");
-                      onInfoLoading.add('LOAD_2');
+                      onInfoLoading.add('load_2');
                       collection.adminReverse();
                       collection.databaseSafety();
                     } else {
                       if (isMaintenance) {
-                        throw StatitikException('DB_2');
+                        throw StatitikException('db_2');
                       }
                     }
                     // Save data to disk
                     //final valid = await serialize.serialize(currentDataDB, collection);
                     final valid = true;
                     if(valid) {
-                      onInfoLoading.add('LOAD_5');
+                      onInfoLoading.add('load_5');
                       (readPokeSpace()).whenComplete(() async {
                         SharedPreferences.getInstance().then((prefs) {
                           storeImageLocally =
@@ -248,17 +274,13 @@ class Environment
             }
             on StatitikException catch(e) {
                 isInitialized = false;
-                onServerError.add(e.msg);
+                onServerError.add(e.code);
             }
             catch (e) {
                 isInitialized = false;
-                onServerError.add('error');
+                onServerError.add(ErrorCode.unknown);
             }
         }
-    }
-
-    void toggleShowExtensionName() {
-        showExtensionName = ! showExtensionName;
     }
 
     Future<void> readStaticData() async
@@ -298,7 +320,7 @@ class Environment
         if( reqUser.length == 1 ) {
             for (var row in reqUser) {
                 if(row[1] != 0) {
-                    throw StatitikException("Utilisateur banni pour non respect des règles.");
+                    throw StatitikException.fromCode(ErrorCode.userBan);
                 }
                 user = UserPoke(row[0]);
                 user!.admin = row[2] == 1 ? true : false;
@@ -533,9 +555,9 @@ class Environment
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
-          title: Text(StatitikLocale.of(context).read('disclaimer_T0'), style: Theme.of(context).textTheme.displaySmall),
+          title: Text(AppLocalizations.of(context)!.disclaimer_t0, style: Theme.of(context).textTheme.displaySmall),
           content: SingleChildScrollView(
-            child: Text( nameApp + StatitikLocale.of(context).read('disclaimer'),
+            child: Text( nameApp + AppLocalizations.of(context)!.disclaimer,
               textAlign: TextAlign.justify
             ),
           )
@@ -561,7 +583,7 @@ class Environment
         }).then((value) {
             EasyLoading.dismiss();
         }).onError((error, stackTrace) {
-            EasyLoading.showError(StatitikLocale.of(context).read('error'));
+            EasyLoading.showError(AppLocalizations.of(context)!.error);
             printOutput("$error\n${stackTrace.toString()}");
         });
     }
@@ -597,7 +619,7 @@ class Environment
             }
         } catch(e) {
             //printOutput("Credential Error: "+message);
-            var message = StatitikLocale.of(context).read('LOG_4');
+            var message = AppLocalizations.of(context)!.log_4;
             Environment.instance.user = null;
 
             if(afterError != null) {

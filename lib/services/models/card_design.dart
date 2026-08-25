@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/bytes_coder.dart';
@@ -50,14 +51,14 @@ Widget iconArt(ArtFormat design, [double? width, double? height]) {
   }
 }
 
-String codeArt(ArtFormat design) {
+String codeArt(BuildContext context, ArtFormat design) {
   switch(design) {
     case ArtFormat.normal:
-      return 'ART_N';
+      return AppLocalizations.of(context)!.art_n;
     case ArtFormat.halfArt:
-      return 'ART_HA';
+      return AppLocalizations.of(context)!.art_ha;
     case ArtFormat.fullArt:
-      return 'ART_FA';
+      return AppLocalizations.of(context)!.art_fa;
     default:
       return '';
   }

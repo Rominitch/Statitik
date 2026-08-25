@@ -1,20 +1,29 @@
-import 'package:adaptive_navigation_view/adaptive_navigation_view.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/Admin/admin_page.dart';
 import 'package:statitikcard/screenOld/Products/products_explorer.dart';
 
 import 'package:statitikcard/screenOld/cartes/card_statistic.dart';
-import 'package:statitikcard/screenOld/stats/stats.dart';
 import 'package:statitikcard/screenOld/options.dart';
 import 'package:statitikcard/screenOld/PokeSpace/pokespace_connexion.dart';
 import 'package:statitikcard/screenOld/widgets/news_dialog.dart';
 import 'package:statitikcard/screens/page_expansions.dart';
 import 'package:statitikcard/services/news.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';
+
+class NavigationData {
+  final String  label;
+  final IconData icon;
+
+  const NavigationData({required this.icon, required this.label});
+}
 
 class MainHome extends StatefulWidget {
   const MainHome({super.key});
@@ -26,7 +35,6 @@ class MainHome extends StatefulWidget {
 class _MainHomeState extends State<MainHome> with TickerProviderStateMixin {
   int _selectedIndex = 1;
   late List<Widget> _widgetOptions;
-  late final NavigationViewController _controller;
   List<News> _news = [];
   @override
   void initState() {
@@ -42,33 +50,48 @@ class _MainHomeState extends State<MainHome> with TickerProviderStateMixin {
         const AdminPage(),
     ];
 
-    _controller = NavigationViewController(
-      length: Environment.instance.isAdministrator() ? 6 : 5,
-      initialIndex: 1,
-      destinationType: DestinationTypes.byIndex,
-      onDestinationIndex: (index) {
-        setState(() => _selectedIndex = index ?? 0);
-      },
-      vsync: this,
-    );
-
+    final locale = Localizations.localeOf(context);
     SharedPreferences.getInstance().then((prefs) {
       var latestId = prefs.getInt('LatestNews') ?? 0;
-      News.readFromDB(Environment.instance.locale, latestId).then((news) {
-          setState(() {
-            if (news.isNotEmpty) {
-              prefs.setInt('LatestNews', news[0].id);
-              _news = news;
-            }
-          });
+      News.readFromDB(locale, latestId).then((news) {
+        setState(() {
+          if (news.isNotEmpty) {
+            prefs.setInt('LatestNews', news[0].id);
+            _news = news;
+          }
+        });
       });
     });
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  List<NavigationData> navigation(BuildContext context) {
+    return [
+      NavigationData(
+        icon: Icons.add_chart,
+        label: AppLocalizations.of(context)!.h_t0,
+      ),
+      NavigationData(
+        icon: Icons.insert_chart_outlined_rounded,
+        label: AppLocalizations.of(context)!.h_t1,
+      ),
+      NavigationData(
+        icon: StatitikFont.font01Pokecard,
+        label: AppLocalizations.of(context)!.h_t3,
+      ),
+      NavigationData(
+        icon: Icons.card_giftcard,
+        label: AppLocalizations.of(context)!.h_t5,
+      ),
+      NavigationData(
+        icon: Icons.settings,
+        label: AppLocalizations.of(context)!.h_t2,
+      ),
+      if(Environment.instance.isAdministrator() && Platform.isWindows)
+        NavigationData(
+          icon: Icons.admin_panel_settings_outlined,
+          label: AppLocalizations.of(context)!.h_t4,
+        )
+    ];
   }
 
   @override
@@ -84,47 +107,55 @@ class _MainHomeState extends State<MainHome> with TickerProviderStateMixin {
         }
       );
     }
-
+    final nav = navigation(context);
     return LayoutBuilder(builder: (context, constraints) {
-      return Scaffold(
-        body: SafeArea( child: NavigationView(
-          controller: _controller,
-          appBar: NavigationAppBar(
-            title: Text(Environment.instance.nameApp),
+      if( !Platform.isWindows || constraints.minWidth < 500 ) {
+        return Scaffold(
+          bottomNavigationBar: NavigationBar(
+            onDestinationSelected: (int index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+            indicatorColor: Colors.amber,
+            selectedIndex: _selectedIndex,
+            destinations: List<NavigationDestination>.generate(nav.length,
+                (id){
+                  final item = nav[id];
+                  return NavigationDestination(icon: Icon(item.icon), label: item.label);
+                },)
           ),
-          pane: NavigationPane(
-            destinations: [
-              PaneItemDestination(
-                icon: const Icon(Icons.add_chart),
-                label: Text(StatitikLocale.of(context).read('H_T0')),
-              ),
-              PaneItemDestination(
-                icon: const Icon(Icons.insert_chart_outlined_rounded),
-                label: Text(StatitikLocale.of(context).read('H_T1')),
-              ),
-              PaneItemDestination(
-                icon: const Icon(StatitikFont.font01Pokecard),
-                label: Text(StatitikLocale.of(context).read('H_T3')),
-              ),
-              PaneItemDestination(
-                icon: const Icon(Icons.card_giftcard),
-                label: Text(StatitikLocale.of(context).read('H_T5')),
-              ),
-              PaneItemDestination(
-                icon: const Icon(Icons.settings),
-                label: Text(StatitikLocale.of(context).read('H_T2')),
-              ),
-              if(Environment.instance.isAdministrator())
-              PaneItemDestination(
-                icon: const Icon(Icons.admin_panel_settings_outlined),
-                label: Text(StatitikLocale.of(context).read('H_T4')),
-              ),
-            ],
+          body: SafeArea(
+            child: _widgetOptions[_selectedIndex]
+          )
+        );
+      } else {
+        return Scaffold(
+          body: SafeArea(
+            child: Row(
+              children: [
+                NavigationRail(
+                  destinations: List<NavigationRailDestination>.generate(nav.length,
+                  (id) {
+                    final item = nav[id];
+                    return NavigationRailDestination(icon: Icon(item.icon), label: Text(item.label));
+                  }),
+                  labelType: NavigationRailLabelType.all,
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: (int index) {
+                    setState(() {
+                      _selectedIndex = index;
+                    });
+                  }
+                ),
+                Expanded(
+                  child: _widgetOptions[_selectedIndex]
+                ),
+              ]
           ),
-          body: _widgetOptions[_selectedIndex],
-        ),
-        ),
-      );
+          ),
+        );
+      }
     });
   }
 }

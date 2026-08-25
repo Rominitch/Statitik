@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -50,12 +51,12 @@ class _ProductPageState extends State<ProductPage> {
           Card(
             child: TextButton(child: Row(
                 children: [
-                  Text(StatitikLocale.of(context).read('S_B9'), style: Theme
+                  Text(AppLocalizations.of(context)!.s_b9, style: Theme
                       .of(context)
                       .textTheme
                       .headlineSmall),
                   const Expanded(child: SizedBox(width: 10)),
-                  Text(StatitikLocale.of(context).read('TP_B2'),
+                  Text(AppLocalizations.of(context)!.tp_b2,
                       style: const TextStyle(fontSize: 9)),
                   const Icon(Icons.arrow_right_outlined)
                 ]),
@@ -84,7 +85,7 @@ class _ProductPageState extends State<ProductPage> {
             nameProduct += ' (${countP.toString()})';
           }
 
-          bool productImage = pr.product.hasImages() && env.showPressProductImages;
+          bool productImage = pr.product.hasImages() && env.pkConfig().showPressProductImages;
           productCard.add(Card(
               color: pr.color,
               child: TextButton(
@@ -121,7 +122,7 @@ class _ProductPageState extends State<ProductPage> {
                     children: [
                       Text(category.name.name(widget.language), style: Theme.of(context).textTheme.headlineSmall),
                       const Expanded(child: SizedBox(width: 10)),
-                      Text(StatitikLocale.of(context).read('TP_B2'), style: const TextStyle(fontSize: 9)),
+                      Text(AppLocalizations.of(context)!.tp_b2, style: const TextStyle(fontSize: 9)),
                       const Icon(Icons.arrow_right_outlined)
                     ]),
                     onPressed: () {
@@ -161,7 +162,7 @@ class _ProductPageState extends State<ProductPage> {
       appBar: AppBar(
         title: Row(
           children:[
-            Text(StatitikLocale.of(context).read('TP_T0'), style: Theme.of(context).textTheme.headlineSmall),
+            Text(AppLocalizations.of(context)!.tp_t0, style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(width: 5),
             widget.language.barIcon(),
             widget.subExt.image( wSize: iconSize ),
@@ -189,13 +190,13 @@ class _ProductPageState extends State<ProductPage> {
                 showDialog(
                   context: context,
                   builder: (_) => AlertDialog(
-                    title: Text(StatitikLocale.of(context).read('help'), style: Theme.of(context).textTheme.headlineSmall),
+                    title: Text(AppLocalizations.of(context)!.help, style: Theme.of(context).textTheme.headlineSmall),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text( StatitikLocale.of(context).read('TP_B6'), textAlign: TextAlign.justify),
+                        Text( AppLocalizations.of(context)!.tp_b6, textAlign: TextAlign.justify),
                         const SizedBox(height: 10.0),
-                        Text( StatitikLocale.of(context).read('TP_B1'), textAlign: TextAlign.justify),
+                        Text( AppLocalizations.of(context)!.tp_b1, textAlign: TextAlign.justify),
                         Environment.instance.createDiscordButton()
                       ]
                     )
@@ -210,7 +211,7 @@ class _ProductPageState extends State<ProductPage> {
       body:
         widgetProd == null
           ? drawLoading(context)
-          : (widgetProd!.isEmpty ? Center( child: Text(StatitikLocale.of(context).read('TP_B0'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.displayLarge))
+          : (widgetProd!.isEmpty ? Center( child: Text(AppLocalizations.of(context)!.tp_b0, textAlign: TextAlign.center, style: Theme.of(context).textTheme.displayLarge))
             : SingleChildScrollView(
               padding: const EdgeInsets.all(8.0),
               child: Column(

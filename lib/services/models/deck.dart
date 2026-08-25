@@ -30,7 +30,7 @@ class Deck
   Deck.fromBytes(ByteParser parser, Map subExtensions) {
     int currentVersion = parser.extractInt8();
     if(currentVersion != version) {
-      throw StatitikException("Unknown Product version: $currentVersion");
+      throw StatitikException(ErrorCode.unknown, "Unknown Product version: $currentVersion");
     }
     name = parser.extractString16();
 

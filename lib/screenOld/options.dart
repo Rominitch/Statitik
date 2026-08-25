@@ -8,6 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:sprintf/sprintf.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+import 'package:statitikcard/models/poke_collection.dart';
+
 import 'package:statitikcard/screenOld/view.dart';
 import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
 import 'package:statitikcard/screenOld/widgets/news_dialog.dart';
@@ -15,7 +18,6 @@ import 'package:statitikcard/services/news.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 class OptionsPage extends StatefulWidget {
@@ -58,13 +60,14 @@ class _OptionsPageState extends State<OptionsPage> {
 
   void refreshLocale(String language) {
     setState((){
-      StatitikLocale.of(context).setLocale(Locale(language));
+      Environment.instance.onChangeLocale.add(Locale(language));
+      //Environment.instance.locale = Locale(language);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    langueController.currentValue = StatitikLocale.of(context).locale.languageCode;
+    langueController.currentValue = Localizations.localeOf(context).languageCode;
 
     refreshWithError(String message) {
       EasyLoading.showError(message, dismissOnTap: true);
@@ -75,16 +78,16 @@ class _OptionsPageState extends State<OptionsPage> {
 
     Widget toolBarLanguage() {
       return Row( children: [
-        Expanded(child: Text(StatitikLocale.of(context).read('L_T0'))),
-        CustomRadio(value: "fr", controller: langueController, widget: Environment.instance.collection.languages[1]!.barIcon(Environment.heightLanguage)),
-        CustomRadio(value: "en", controller: langueController, widget: Environment.instance.collection.languages[2]!.barIcon(Environment.heightLanguage)),
+        Expanded(child: Text(AppLocalizations.of(context)!.l_t0)),
+        CustomRadio(value: "fr", controller: langueController, widget: Environment.instance.pkCollection().language(Language.fr).barIcon(Environment.heightLanguage)),
+        CustomRadio(value: "en", controller: langueController, widget: Environment.instance.pkCollection().language(Language.en).barIcon(Environment.heightLanguage)),
       ]);
     }
 
     return Scaffold(
         appBar: AppBar(
         title: Center(
-          child: Text( StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.displaySmall ),
+          child: Text( AppLocalizations.of(context)!.h_t2, style: Theme.of(context).textTheme.displaySmall ),
         ),
       ),
     body: SafeArea(
@@ -99,7 +102,7 @@ class _OptionsPageState extends State<OptionsPage> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Center(child: Text(StatitikLocale.of(context).read('O_B9'), style: Theme.of(context).textTheme.headlineSmall)),
+                    Center(child: Text(AppLocalizations.of(context)!.o_b9, style: Theme.of(context).textTheme.headlineSmall)),
                     if(Environment.instance.isLogged())
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -107,7 +110,7 @@ class _OptionsPageState extends State<OptionsPage> {
                           signOutButton(refresh, context),
                           TextButton(
                               style: TextButton.styleFrom(
-                                backgroundColor: Colors.red[800], // background
+                          backgroundColor: Colors.red[800], // background
                               ),
                               onPressed: () {
                                 setState(()
@@ -118,7 +121,7 @@ class _OptionsPageState extends State<OptionsPage> {
                                   );
                                 });
                               },
-                              child: Text(StatitikLocale.of(context).read('O_B0'))
+                              child: Text(AppLocalizations.of(context)!.o_b0)
                           ),
                         ]
                       )
@@ -126,9 +129,9 @@ class _OptionsPageState extends State<OptionsPage> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                        signInButton('V_B5', CredentialMode.google, refreshWithError, refresh, context),
+                        signInButton(AppLocalizations.of(context)!.v_b5, CredentialMode.google, refreshWithError, refresh, context),
                         if(Credential.hasPhoneLogin())
-                          signInButton('V_B6', CredentialMode.phone, refreshWithError, refresh, context),
+                          signInButton(AppLocalizations.of(context)!.v_b6, CredentialMode.phone, refreshWithError, refresh, context),
                       ],)
                   ]
                 )
@@ -140,7 +143,7 @@ class _OptionsPageState extends State<OptionsPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.headlineSmall)),
+                  Center(child: Text(AppLocalizations.of(context)!.h_t2, style: Theme.of(context).textTheme.headlineSmall)),
                   toolBarLanguage(),
                   Row( children: [
                     Checkbox(value: isScreenOn,
@@ -155,8 +158,8 @@ class _OptionsPageState extends State<OptionsPage> {
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(StatitikLocale.of(context).read('O_B13')),
-                          Flexible(child: Text(StatitikLocale.of(context).read('O_B14'), softWrap: true, textAlign: TextAlign.left, style: const TextStyle(fontSize: 10))),
+                          Text(AppLocalizations.of(context)!.o_b13),
+                          Flexible(child: Text(AppLocalizations.of(context)!.o_b14, softWrap: true, textAlign: TextAlign.left, style: const TextStyle(fontSize: 10))),
                       ])
                     ),
                     ]
@@ -184,10 +187,10 @@ class _OptionsPageState extends State<OptionsPage> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(StatitikLocale.of(context).read('O_B10')),
-                            Flexible(child: Text(StatitikLocale.of(context).read('O_B11'), softWrap: true, textAlign: TextAlign.left, style: const TextStyle(fontSize: 10))),
+                            Text(AppLocalizations.of(context)!.o_b10),
+                            Flexible(child: Text(AppLocalizations.of(context)!.o_b11, softWrap: true, textAlign: TextAlign.left, style: const TextStyle(fontSize: 10))),
                             if(Environment.instance.storeImageLocally)
-                              (moSize != null) ? Text(sprintf(StatitikLocale.of(context).read('O_B12'), [moSize]), textAlign: TextAlign.left, style: const TextStyle(fontSize: 10)) : CircularProgressIndicator(color: Colors.orange[300]),
+                              (moSize != null) ? Text(sprintf(AppLocalizations.of(context)!.o_b12, [moSize]), textAlign: TextAlign.left, style: const TextStyle(fontSize: 10)) : CircularProgressIndicator(color: Colors.orange[300]),
                         ]),
                       ),
                     ],
@@ -202,9 +205,7 @@ class _OptionsPageState extends State<OptionsPage> {
                   child: TextButton(
                       onPressed: () {
                         var latestId = 0;
-                        News.readFromDB(StatitikLocale
-                            .of(context)
-                            .locale, latestId).then((news) {
+                        News.readFromDB(Localizations.localeOf(context), latestId).then((news) {
                           if (news.isNotEmpty) {
                             showDialog(
                                 context: context,
@@ -220,7 +221,7 @@ class _OptionsPageState extends State<OptionsPage> {
                         children:[
                           drawImagePress(context, 'news', 35),
                           const SizedBox(width: 5),
-                          Text(StatitikLocale.of(context).read('NE_T0'))
+                          Text(AppLocalizations.of(context)!.ne_t0)
                       ])
                   ),
                 )),
@@ -234,7 +235,7 @@ class _OptionsPageState extends State<OptionsPage> {
                       onPressed: () {
                         Environment.instance.showDisclaimer(context);
                       },
-                      child: Text(StatitikLocale.of(context).read('disclaimer_T0'))
+                      child: Text(AppLocalizations.of(context)!.disclaimer_t0)
                   ),
                 )),
                 Expanded(child: Card(
@@ -242,7 +243,7 @@ class _OptionsPageState extends State<OptionsPage> {
                       onPressed: () {
                         Navigator.of(context).pushNamed('/thanks');
                       },
-                      child: Text(StatitikLocale.of(context).read('O_B3'))
+                      child: Text(AppLocalizations.of(context)!.o_b3)
                   ),
                 )),
                 Expanded(child: Card(
@@ -250,7 +251,7 @@ class _OptionsPageState extends State<OptionsPage> {
                       onPressed: () {
                         Environment.instance.showAbout(context);
                       },
-                      child: Text(StatitikLocale.of(context).read('O_B5'))
+                      child: Text(AppLocalizations.of(context)!.o_b5)
                   ),
                 )),
               ]
@@ -264,21 +265,21 @@ class _OptionsPageState extends State<OptionsPage> {
 
   Widget forgetMeDialog() {
     return AlertDialog(
-      title: Text(StatitikLocale.of(context).read('warning')),
+      title: Text(AppLocalizations.of(context)!.warning),
       content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children:
           [
-            Text(StatitikLocale.of(context).read('O_B6')),
-            Text(StatitikLocale.of(context).read('O_B7'), style: TextStyle(color: Colors.red[600])),
-            Text(StatitikLocale.of(context).read('O_B8'))
+            Text(AppLocalizations.of(context)!.o_b6),
+            Text(AppLocalizations.of(context)!.o_b7, style: TextStyle(color: Colors.red[600])),
+            Text(AppLocalizations.of(context)!.o_b8)
           ]
       ),
       actions: [
         Card(
           color: Colors.red[600],
-          child: TextButton( child: Text(StatitikLocale.of(context).read('confirm')),
+          child: TextButton( child: Text(AppLocalizations.of(context)!.confirm),
           onPressed: (){
             Environment.instance.removeUser().whenComplete(() {
               Navigator.of(context).pop();
@@ -287,7 +288,7 @@ class _OptionsPageState extends State<OptionsPage> {
           },),),
         Card(
           color: Theme.of(context).primaryColor,
-          child: TextButton( child: Text(StatitikLocale.of(context).read('cancel')), onPressed: (){ Navigator.of(context).pop();},),),
+          child: TextButton( child: Text(AppLocalizations.of(context)!.cancel), onPressed: (){ Navigator.of(context).pop();},),),
       ],
     );
   }

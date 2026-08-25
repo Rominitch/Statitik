@@ -46,7 +46,7 @@ class ExtensionDrawCards {
     } else if(currentVersion == 4) {
       _fromBytesV4(subExtension, zipBytes);
     } else {
-      throw StatitikException("ExtensionDrawCards need migration !");
+      throw StatitikException(ErrorCode.unknown, "ExtensionDrawCards need migration !");
     }
   }
 
@@ -82,7 +82,7 @@ class ExtensionDrawCards {
         for (int idCard = 0; idCard < count; idCard += 1) {
           var code = parser.extractInt8();
           if (!cardEx.moveNext()) {
-            throw StatitikException("Unknown Card");
+            throw StatitikException(ErrorCode.unknown, "Unknown Card");
           }
           cardCode.add(CodeDraw.fromPokeCardExtension(cardEx.current, code));
         }
@@ -118,12 +118,12 @@ class ExtensionDrawCards {
 
     for (var saveCards in savedData.drawCards) {
       if(!itCurrent.moveNext()) {
-        throw StatitikException("ExtensionDrawCards - draw Data corruption : more cards into Expansion than expected ${drawCards.length} < ${savedData.drawCards.length}!");
+        throw StatitikException(ErrorCode.unknown, "ExtensionDrawCards - draw Data corruption : more cards into Expansion than expected ${drawCards.length} < ${savedData.drawCards.length}!");
       }
       var itCard = itCurrent.current.iterator;
       for (var card in saveCards) {
         if(!itCard.moveNext()) {
-          throw StatitikException("ExtensionDrawCards - draw Data corruption : more card than expected !");
+          throw StatitikException(ErrorCode.unknown, "ExtensionDrawCards - draw Data corruption : more card than expected !");
         }
         // Copy data
         itCard.current.copy(card);
@@ -135,7 +135,7 @@ class ExtensionDrawCards {
     var energyIt = drawEnergies.iterator;
     for (var drawEnergy in savedData.drawEnergies) {
       if(!energyIt.moveNext()) {
-        throw StatitikException("ExtensionDrawCards - draw Energy Data corruption : more cards into Expansion than expected ${drawEnergies.length} < ${savedData.drawEnergies.length}!");
+        throw StatitikException(ErrorCode.unknown, "ExtensionDrawCards - draw Energy Data corruption : more cards into Expansion than expected ${drawEnergies.length} < ${savedData.drawEnergies.length}!");
       }
 
       energyIt.current.copy(drawEnergy);
@@ -145,7 +145,7 @@ class ExtensionDrawCards {
     var noNumberIt = drawNoNumber.iterator;
     for (var draw in savedData.drawNoNumber) {
       if(!noNumberIt.moveNext()) {
-        throw StatitikException("ExtensionDrawCards - draw no number Data corruption : more cards into Expansion than expected ${drawNoNumber.length} < ${savedData.drawNoNumber.length}!");
+        throw StatitikException(ErrorCode.unknown, "ExtensionDrawCards - draw no number Data corruption : more cards into Expansion than expected ${drawNoNumber.length} < ${savedData.drawNoNumber.length}!");
       }
 
       noNumberIt.current.copy(draw);

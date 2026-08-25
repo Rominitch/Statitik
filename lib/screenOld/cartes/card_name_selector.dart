@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -54,7 +55,7 @@ class _CardNameSelectorState extends State<CardNameSelector> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text( StatitikLocale.of(context).read('CA_T1'), style: Theme.of(context).textTheme.displaySmall, ),
+        title: Text( AppLocalizations.of(context)!.ca_t1, style: Theme.of(context).textTheme.displaySmall, ),
       ),
       body: SafeArea(
         child: Column(
@@ -64,12 +65,12 @@ class _CardNameSelectorState extends State<CardNameSelector> {
               children: [
                 Expanded(
                   child: CustomRadio(value: pokemons, controller: cardController,
-                    widget: Text(StatitikLocale.of(context).read('CA_B0'), style: Theme.of(context).textTheme.headlineSmall)
+                    widget: Text(AppLocalizations.of(context)!.ca_b0, style: Theme.of(context).textTheme.headlineSmall)
                   ),
                 ),
                 Expanded(
                   child: CustomRadio(value: others, controller: cardController,
-                    widget: Text(StatitikLocale.of(context).read('CA_B1'), style: Theme.of(context).textTheme.headlineSmall)
+                    widget: Text(AppLocalizations.of(context)!.ca_b1, style: Theme.of(context).textTheme.headlineSmall)
                   ),
                 )
               ]
@@ -78,7 +79,7 @@ class _CardNameSelectorState extends State<CardNameSelector> {
               controller: _controller,
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
-                labelText: StatitikLocale.of(context).read('CA_B5')
+                labelText: AppLocalizations.of(context)!.ca_b5
               ),
               onChanged: (value) {
                 setState(() {

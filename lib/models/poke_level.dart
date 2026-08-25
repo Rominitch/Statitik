@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/services/internationalization.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 enum PokeLevel {
   base,
@@ -9,8 +9,12 @@ enum PokeLevel {
   withoutLevel;
 
   static String getLevelText(BuildContext context, PokeLevel element) {
-    const List<String> levelString = ['LEVEL_0', 'LEVEL_1', 'LEVEL_2', 'LEVEL_3'];
-    return StatitikLocale.of(context).read(levelString[element.index]);
+    switch(element) {
+      case PokeLevel.base: return AppLocalizations.of(context)!.level_0;
+      case PokeLevel.level1: return AppLocalizations.of(context)!.level_1;
+      case PokeLevel.level2: return AppLocalizations.of(context)!.level_2;
+      case PokeLevel.withoutLevel: return "";
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/screenOld/commonPages/extension_page.dart';
 import 'package:statitikcard/screenOld/widgets/cards_selection.dart';
 import 'package:statitikcard/services/draw/card_draw_data.dart';
@@ -32,6 +33,20 @@ enum ProductKind {
 
   simplePack,
   triPack,
+}
+
+String productName(BuildContext context, ProductKind kind) {
+  switch(kind) {
+    case ProductKind.booster:             return AppLocalizations.of(context)!.prod_kind_0;
+    case ProductKind.display:             return AppLocalizations.of(context)!.prod_kind_1;
+    case ProductKind.buildBattle:         return AppLocalizations.of(context)!.prod_kind_2;
+    case ProductKind.buildBattleStadium:  return AppLocalizations.of(context)!.prod_kind_3;
+    case ProductKind.etb:                 return AppLocalizations.of(context)!.prod_kind_4;
+    case ProductKind.etbPokeCenter:       return AppLocalizations.of(context)!.prod_kind_5;
+    case ProductKind.etbAlternative:      return AppLocalizations.of(context)!.prod_kind_6;
+    case ProductKind.simplePack:          return AppLocalizations.of(context)!.prod_kind_7;
+    case ProductKind.triPack:             return AppLocalizations.of(context)!.prod_kind_8;
+  }
 }
 
 const List<String> _languageCode = ["FR", "EN", "JP"];
@@ -102,7 +117,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
             children: [
               Row(
                 children: [
-                  Text(StatitikLocale.of(context).read('PROD_KIND_${kind.index}'), style: Theme.of(context).textTheme.headlineSmall),
+                  Text(productName(context, kind), style: Theme.of(context).textTheme.headlineSmall),
                   const Spacer(),
                   Card(
                     color: Colors.grey,
@@ -126,7 +141,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
                         padding: const EdgeInsets.all(2.0),
                         child: Row(
                           children: [
-                            Text(StatitikLocale.of(context).read('EPC_B1')),
+                            Text(AppLocalizations.of(context)!.epc_b1),
                             const SizedBox(width: 5),
                             Expanded(
                               child: TextFormField(
@@ -152,7 +167,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
 
   Product createProduct(ProductKind kind, int boosterCount, [String name=""]) {
     var image = "${_languageCode[widget.language.id-1]}_${widget.subExtension.icon}_${_productCode[kind.index]}$name";
-    var product = Product(0, widget.language, StatitikLocale.of(context).read('PROD_KIND_${kind.index}'),
+    var product = Product(0, widget.language, productName(context, kind),
                           image,
                           widget.subExtension.out,
                           Environment.instance.collection.categories[_categoryCode[kind.index]],
@@ -249,7 +264,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
           title: Row(children: [
             widget.subExtension.image(wSize: 30),
             const SizedBox(width: 5),
-            Text(StatitikLocale.of(context).read('ADMIN_B7'), style: Theme.of(context).textTheme.titleLarge),
+            Text(AppLocalizations.of(context)!.admin_B7, style: Theme.of(context).textTheme.titleLarge),
           ]),
           actions: [
             if(isValid())
@@ -275,7 +290,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
                     primary: false,
                     shrinkWrap: true,
                     itemBuilder: (context, index) {
-                      var text = StatitikLocale.of(context).read('PROD_KIND_$index');
+                      var text = productName(context, ProductKind.values[index]);
                       return Card(
                         color: productSelected[index] ? Colors.green : Colors.grey,
                         child: TextButton(child: Text(text, style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -293,7 +308,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
                       padding: const EdgeInsets.all(4.0),
                       child: Row(
                         children: [
-                          Text(StatitikLocale.of(context).read('EPC_B0'), style: Theme.of(context).textTheme.headlineSmall),
+                          Text(AppLocalizations.of(context)!.epc_b0, style: Theme.of(context).textTheme.headlineSmall),
                           const Spacer(),
                           buttonSelectCards(this)
                         ],

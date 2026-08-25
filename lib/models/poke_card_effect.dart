@@ -91,7 +91,7 @@ class PokeCardEffects {
 
   PokeCardEffects.fromBytesOld(BinaryReader reader, PokeCollection collection) {
     if(reader.readInt8() != version) {
-      throw StatitikException('Bad CardEffects version');
+      throw StatitikException(ErrorCode.unknown, 'Bad CardEffects version');
     }
     effects = reader.readSmallList((reader) => PokeCardEffect.fromBytesOld(reader, collection));
   }
@@ -112,7 +112,7 @@ class PokeCardEffects {
  */
   PokeCardEffects.fromBytes(BinaryReader reader, PokeCollection collection) {
     if(reader.readInt8() != version) {
-      throw StatitikException('Bad CardEffects version');
+      throw StatitikException(ErrorCode.unknown, 'Bad CardEffects version');
     }
     effects = reader.readSmallList((reader) => PokeCardEffect.fromBytes(reader, collection));
   }

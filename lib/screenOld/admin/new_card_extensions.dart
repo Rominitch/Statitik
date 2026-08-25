@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/screenOld/admin/card_creator.dart';
 import 'package:statitikcard/screenOld/admin/card_editor.dart';
@@ -172,13 +173,13 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
               context: context,
               builder: (BuildContext context) {
                 return SimpleDialog(
-                  title: Center(child: Text(StatitikLocale.of(context).read('NCE_B3'), style: Theme.of(context).textTheme.displaySmall)),
+                  title: Center(child: Text(AppLocalizations.of(context)!.nce_b3, style: Theme.of(context).textTheme.displaySmall)),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                   children: [
                     Card(
                       color: Colors.grey[700],
                       child: TextButton(
-                        child: Text(StatitikLocale.of(context).read('NCE_B4')),
+                        child: Text(AppLocalizations.of(context)!.nce_b4),
                         onPressed: () {
                           onAddCard(localListId, localId);
                           Navigator.of(context).pop();
@@ -188,7 +189,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
                     Card(
                       color: Colors.red,
                       child: TextButton(
-                        child: Text(StatitikLocale.of(context).read('NCE_B5')),
+                        child: Text(AppLocalizations.of(context)!.nce_b5),
                         onPressed: () {
                           removeCard(localListId, localId);
                           Navigator.of(context).pop();
@@ -328,7 +329,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
           },
         ),
         actions: [if(_modify) Card(child: TextButton(
-          child: Text(StatitikLocale.of(context).read('NCE_B1')),
+          child: Text(AppLocalizations.of(context)!.nce_b1),
           onPressed: () {
             EasyLoading.show();
             widget.se.computeStats();
@@ -443,11 +444,11 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
 
   AlertDialog showExit(BuildContext context) {
     return AlertDialog(
-      title: Text(StatitikLocale.of(context).read('warning')),
+      title: Text(AppLocalizations.of(context)!.warning),
       content: SingleChildScrollView(
         child: ListBody(
           children: <Widget>[
-            Text(StatitikLocale.of(context).read('NCE_B8')),
+            Text(AppLocalizations.of(context)!.nce_b8),
           ],
         ),
       ),
@@ -455,7 +456,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         Card(
           color: Colors.red,
           child: TextButton(
-            child: Text(StatitikLocale.of(context).read('yes')),
+            child: Text(AppLocalizations.of(context)!.yes),
             onPressed: () {
               Navigator.of(context).pop(true);
             },
@@ -463,7 +464,7 @@ class _NewCardExtensionsState extends State<NewCardExtensions> {
         ),
         Card(
           child: TextButton(
-            child: Text(StatitikLocale.of(context).read('cancel')),
+            child: Text(AppLocalizations.of(context)!.cancel),
             onPressed: () {
               Navigator.of(context).pop(false);
             },

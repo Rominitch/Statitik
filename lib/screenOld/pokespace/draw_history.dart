@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/screenOld/PokeSpace/pokespace_draw_resume.dart';
 import 'package:statitikcard/services/draw/session_draw.dart';
 import 'package:statitikcard/services/tools.dart';
@@ -39,7 +40,7 @@ class _DrawHistoryState extends State<DrawHistory> {
                             Card(
                               color: Colors.red,
                               child: TextButton(
-                                child: Text(StatitikLocale.of(context).read('delete')),
+                                child: Text(AppLocalizations.of(context)!.delete),
                                 onPressed: () {
                                   Environment.instance.removeUserProduct(draw).then((value){
                                     Navigator.of(context).pop();
@@ -87,7 +88,7 @@ class _DrawHistoryState extends State<DrawHistory> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text( StatitikLocale.of(context).read('DC_B11'), style: Theme.of(context).textTheme.displaySmall),
+        title: Text( AppLocalizations.of(context)!.dc_b11, style: Theme.of(context).textTheme.displaySmall),
       ),
       body: SafeArea(
         child: Padding(
@@ -97,7 +98,7 @@ class _DrawHistoryState extends State<DrawHistory> {
                 ListView(
                   children: myDrawWidgets!,
                 ) :
-                drawNothing(context, 'DH_B0')
+                drawNothing(context, AppLocalizations.of(context)!.dh_b0)
               ): drawLoading(context)
         )
       )

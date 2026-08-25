@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/screenOld/admin/card_editor.dart';
 import 'package:statitikcard/screenOld/admin/card_editor_options.dart';
@@ -20,7 +21,6 @@ import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/rarity.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/models/models.dart';
@@ -294,7 +294,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
 
       var codeDB = databaseCardId != null
                  ? databaseCardId.toString()
-                 : StatitikLocale.of(context).read('CA_B29');
+                 : AppLocalizations.of(context)!.ca_b29;
 
       const newResistances = <int>[3, 6, 9, 12, 13, 14];
       int defaultResistance = newResistances.contains(widget.se.extension.id) ? 30 : 20;
@@ -310,11 +310,11 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             shrinkWrap: true,
             itemBuilder: (BuildContext context, int index) {
               var element = Level.values[index];
-              return CustomRadio(value: element, controller: levelController, widget: Text( getLevelText(context, element) ));
+              return CustomRadio(value: element, controller: levelController, widget: Text( levelText(context, element) ));
             }
           ),
           Row(children: [
-            SizedBox(width: 60, child: Text(StatitikLocale.of(context).read('CA_B25'), style: const TextStyle(fontSize: 12))),
+            SizedBox(width: 60, child: Text(AppLocalizations.of(context)!.ca_b25, style: const TextStyle(fontSize: 12))),
             Expanded(
               child: SliderInfo( SliderInfoController(() {
                 return widget.card.data.life.toDouble();
@@ -328,7 +328,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           ]),
           // Retreat
           Row(children: [
-            SizedBox(width: 60, child: Text(StatitikLocale.of(context).read('CA_B26'), style: const TextStyle(fontSize: 12))),
+            SizedBox(width: 60, child: Text(AppLocalizations.of(context)!.ca_b26, style: const TextStyle(fontSize: 12))),
             Expanded(
               child: SliderInfo( SliderInfoController(() {
                 return widget.card.data.retreat.toDouble();
@@ -343,14 +343,14 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(StatitikLocale.of(context).read('CA_B28'), style: const TextStyle(fontSize: 12)),
+              Text(AppLocalizations.of(context)!.ca_b28, style: const TextStyle(fontSize: 12)),
               EnergySlider(widget.card.data.weakness!, 2, minWeakness, maxWeakness, division: 5)
             ],
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(StatitikLocale.of(context).read('CA_B27'), style: const TextStyle(fontSize: 12)),
+              Text(AppLocalizations.of(context)!.ca_b27, style: const TextStyle(fontSize: 12)),
               EnergySlider(widget.card.data.resistance!, defaultResistance, minResistance, maxResistance, division: 6)
             ],
           )
@@ -358,12 +358,12 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
       }
 
       List<Widget> tabHeaders = [
-        Text(StatitikLocale.of(context).read('CA_B22'), style: const TextStyle(fontSize: 12)),
-        const Icon(Icons.info_outline, size: 28),                 //Text(StatitikLocale.of(context).read('CA_B18'), style: TextStyle(fontSize: 10)),
-        const Icon(Icons.add_photo_alternate_outlined, size: 28), // Text(StatitikLocale.of(context).read('CA_B39'), style: TextStyle(fontSize: 10)),
-        const Icon(Icons.bookmark_border_outlined, size: 28),     //Text(StatitikLocale.of(context).read('CA_B16'), style: TextStyle(fontSize: 10)),
-        Text(StatitikLocale.of(context).read('CA_B17'), style: const TextStyle(fontSize: 12)),
-        Text(StatitikLocale.of(context).read('CA_B15'), style: const TextStyle(fontSize: 10)),
+        Text(AppLocalizations.of(context)!.ca_b22, style: const TextStyle(fontSize: 12)),
+        const Icon(Icons.info_outline, size: 28),                 //Text(AppLocalizations.of(context)!.ca_b18, style: TextStyle(fontSize: 10)),
+        const Icon(Icons.add_photo_alternate_outlined, size: 28), // Text(AppLocalizations.of(context)!.ca_b39, style: TextStyle(fontSize: 10)),
+        const Icon(Icons.bookmark_border_outlined, size: 28),     //Text(AppLocalizations.of(context)!.ca_b16, style: TextStyle(fontSize: 10)),
+        Text(AppLocalizations.of(context)!.ca_b17, style: const TextStyle(fontSize: 12)),
+        Text(AppLocalizations.of(context)!.ca_b15, style: const TextStyle(fontSize: 10)),
       ];
 
       List<Widget> tabPages = [
@@ -372,7 +372,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
           child: Column(
             children: namedWidgets + [
               Card(child: TextButton(
-                child: Text(StatitikLocale.of(context).read('NCE_B7')),
+                child: Text(AppLocalizations.of(context)!.nce_b7),
                 onPressed: () {
                   widget.card.data.title.add(Pokemon(1, Environment.instance.collection.pokemons[1]!));
                   PokeCardNaming.selectCardName(context, widget.activeLanguage, widget.idCard, widget.card, widget.card.data.title.length-1).then((value) {
@@ -418,12 +418,12 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
               ),
               Row(
                 children:[
-                  Text(StatitikLocale.of(context).read('CA_B38')),
+                  Text(AppLocalizations.of(context)!.ca_b38),
                   const SizedBox(width: 15),
                   Expanded(
                     child: TextField(
                       controller: specialIDController,
-                      decoration: InputDecoration(hintText: StatitikLocale.of(context).read('CA_B38') ),
+                      decoration: InputDecoration(hintText: AppLocalizations.of(context)!.ca_b38 ),
                       onChanged: (data) {
                       widget.card.specialID = data;
                       }
@@ -497,11 +497,11 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
             children: [
               SizedBox(height: imageSize, child: genericCardWidget(widget.se, widget.idCard, CardImageIdentifier(), height: imageSize, reloader: true)),
               const SizedBox(width:8),
-              Expanded(child: Text("${StatitikLocale.of(context).read('CA_B30')} $codeDB", style: Theme.of(context).textTheme.headlineSmall)),
+              Expanded(child: Text("${AppLocalizations.of(context)!.ca_b30} $codeDB", style: Theme.of(context).textTheme.headlineSmall)),
               Card(
                 color: widget.card.data.title.isNotEmpty ? Colors.grey.shade500 : Colors.grey.shade900,
                 child: TextButton(
-                  child: Text(StatitikLocale.of(context).read('CA_B32')),
+                  child: Text(AppLocalizations.of(context)!.ca_b32),
                   onPressed: () {
                     if(widget.card.data.title.isNotEmpty) {
                       Navigator.push(
@@ -594,7 +594,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
               Card(
                 color: _auto ? Colors.green : Colors.grey[800],
                 child: TextButton(
-                    child: Text(StatitikLocale.of(context).read('NCE_B2')),
+                    child: Text(AppLocalizations.of(context)!.nce_b2),
                     onPressed: () {
                       setState((){
                         _auto = !_auto;
@@ -619,7 +619,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
                     child: Column(
                       children: [
                         const Icon(Icons.format_color_fill),
-                        Text(StatitikLocale.of(context).read('NCE_B9'), style: const TextStyle(fontSize: 8.0))
+                        Text(AppLocalizations.of(context)!.nce_b9, style: const TextStyle(fontSize: 8.0))
                       ],
                     ),
                     onPressed: () {
@@ -855,7 +855,7 @@ class CardImageCreator extends StatefulWidget {
           });
           break;
         default:
-          throw StatitikException("Unknown list !");
+          throw StatitikException(ErrorCode.unknown, "Unknown list !");
       }
 
       // Zero propagation or next number
@@ -918,13 +918,13 @@ class _CardImageCreatorState extends State<CardImageCreator> {
     var nextCardId = widget.se.seCards.nextId(widget.idCard);
     return Scaffold(
       appBar: AppBar(
-        title: Text(StatitikLocale.of(context).read('CA_B41')),
+        title: Text(AppLocalizations.of(context)!.ca_b41),
         actions: [
           if(nextCardId != null)
             Card(
                 color: Colors.grey[800],
                 child: TextButton(
-                  child: Text(StatitikLocale.of(context).read('NCE_B6')),
+                  child: Text(AppLocalizations.of(context)!.nce_b6),
                   onPressed: () {
                     Navigator.pop(context);
                     Navigator.pushReplacement(context,
@@ -972,7 +972,7 @@ class _CardImageCreatorState extends State<CardImageCreator> {
               return CustomRadio(value: element, controller: artController, widget: iconArt(element) );
             }
           ),
-          Text(StatitikLocale.of(context).read('CA_B34'), style: const TextStyle(fontSize: 12)),
+          Text(AppLocalizations.of(context)!.ca_b34, style: const TextStyle(fontSize: 12)),
           TextField(
             controller: imageController,
             decoration: InputDecoration(

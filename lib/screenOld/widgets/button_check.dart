@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
 
 import 'package:statitikcard/services/models/card_set.dart';
@@ -149,7 +150,7 @@ class SerieTypeButtonCheck extends ButtonCheck<SerieType> {
 
   @override
   Widget makeWidget(BuildContext context) {
-    return Text(StatitikLocale.of(context).read(seTypeString[value.index]));
+    return Text(serieType(context, value));
   }
 }
 
@@ -158,7 +159,7 @@ class ExpansionTypeButtonCheck extends ButtonCheck<ExpansionType> {
 
   @override
   Widget makeWidget(BuildContext context) {
-    return Text(StatitikLocale.of(context).read(seTypeString[value.index]));
+    return Text(expansionType(context, value));
   }
 }
 

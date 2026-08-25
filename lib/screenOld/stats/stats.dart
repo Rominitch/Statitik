@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/commonPages/language_page.dart';
 import 'package:statitikcard/screenOld/stats/stat_view.dart';
 import 'package:statitikcard/screenOld/stats/stats_extension_widget.dart';
@@ -12,7 +14,6 @@ import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
 
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/extension.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/serie_type.dart';
@@ -130,10 +131,10 @@ class _StatsPageState extends State<StatsPage> {
   Widget menuBar(BuildContext context) {
     return Row( 
       children: [
-        Expanded(child: CustomRadio(value: StateStatsExtension.cards,       controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_0')))),
-        Expanded(child: CustomRadio(value: StateStatsExtension.globalStats, controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_1')))),
+        Expanded(child: CustomRadio(value: StateStatsExtension.cards,       controller: menuBarController, widget: Text(AppLocalizations.of(context)!.smenu_0))),
+        Expanded(child: CustomRadio(value: StateStatsExtension.globalStats, controller: menuBarController, widget: Text(AppLocalizations.of(context)!.smenu_1))),
         if(widget.info.statsData.subExt != null && widget.info.statsData.subExt!.type == SerieType.normal)
-          Expanded(child: CustomRadio(value: StateStatsExtension.draw,      controller: menuBarController, widget: Text(StatitikLocale.of(context).read('SMENU_2')))),
+          Expanded(child: CustomRadio(value: StateStatsExtension.draw,      controller: menuBarController, widget: Text(AppLocalizations.of(context)!.smenu_2))),
     ]);
   }
 
@@ -143,7 +144,7 @@ class _StatsPageState extends State<StatsPage> {
         child: TextButton(
           child: widget.info.statsData.language != null ? Row(
               children: [
-                Text(StatitikLocale.of(context).read('S_B0')),
+                Text(AppLocalizations.of(context)!.s_b0),
                 const SizedBox(width: 8.0),
                 Image(image: widget.info.statsData.language!.create(), height: 30),
                 const SizedBox(width: 8.0),
@@ -154,7 +155,7 @@ class _StatsPageState extends State<StatsPage> {
               children: [
                 drawImagePress(context, 'Minccino', 45),
                 const SizedBox(width: 15.0),
-                Text(StatitikLocale.of(context).read('S_B0'), style: Theme.of(context).textTheme.headlineSmall),
+                Text(AppLocalizations.of(context)!.s_b0, style: Theme.of(context).textTheme.headlineSmall),
                 const SizedBox(width: 15.0),
                 drawImagePress(context, 'pika', 45),
             ]),
@@ -174,9 +175,9 @@ class _StatsPageState extends State<StatsPage> {
           padding: const EdgeInsets.all(4.0),
           child: Column(children: [
             drawImagePress(context, image, 40.0),
-            Text(StatitikLocale.of(context).read(title), textAlign: TextAlign.center, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
+            Text(title, textAlign: TextAlign.center, style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold)),
             const SizedBox(height: 5),
-            Expanded(child: Text(StatitikLocale.of(context).read(explains), style: const TextStyle(fontSize: 8.2))),
+            Expanded(child: Text(explains, style: const TextStyle(fontSize: 8.2))),
             const Icon(Icons.arrow_drop_down_circle_outlined)
           ])
         )
@@ -197,7 +198,7 @@ class _StatsPageState extends State<StatsPage> {
             children: [
             const Image(image: AssetImage('assets/arrowL.png'), height: 20.0,),
             const SizedBox(width: 5.0),
-            Text(StatitikLocale.of(context).read('S_B2'), style: Theme.of(context).textTheme.titleLarge),
+            Text(AppLocalizations.of(context)!.s_b2, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(width: 5.0),
             const Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
           ]),
@@ -210,11 +211,11 @@ class _StatsPageState extends State<StatsPage> {
         const SizedBox(height: 5),
         Row(
           children: [
-            buildExplain(context, "Rowlet",  "S_TOOL_T0", "S_TOOL_B0"),
-            buildExplain(context, "Growl",   "S_TOOL_T1", "S_TOOL_B1"),
-            buildExplain(context, "Voltorb", "S_TOOL_T2", "S_TOOL_B2"),
-            buildExplain(context, "pika",    "S_TOOL_T5", "S_TOOL_B5"),
-            buildExplain(context, "news",    "S_TOOL_T3", "S_TOOL_B3"),
+            buildExplain(context, "Rowlet",  AppLocalizations.of(context)!.s_tool_t0, AppLocalizations.of(context)!.s_tool_b0),
+            buildExplain(context, "Growl",   AppLocalizations.of(context)!.s_tool_t1, AppLocalizations.of(context)!.s_tool_b1),
+            buildExplain(context, "Voltorb", AppLocalizations.of(context)!.s_tool_t2, AppLocalizations.of(context)!.s_tool_b2),
+            buildExplain(context, "pika",    AppLocalizations.of(context)!.s_tool_t5, AppLocalizations.of(context)!.s_tool_b5),
+            buildExplain(context, "news",    AppLocalizations.of(context)!.s_tool_t3, AppLocalizations.of(context)!.s_tool_b3),
             if(Environment.instance.isAdministrator())
               buildExplain(context, "Voltorb",    "", ""),
           ]
@@ -255,7 +256,7 @@ class _StatsPageState extends State<StatsPage> {
               icon: const Icon(Icons.info_outline),
               visualDensity: VisualDensity.comfortable,
               splashColor: Colors.orangeAccent,
-              tooltip: StatitikLocale.of(context).read('S_TOOL_T4'),
+              tooltip: AppLocalizations.of(context)!.s_tool_t4,
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => TutorialCaption(widget.info.statsData.subExt!.extension.language)));
               },

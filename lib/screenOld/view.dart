@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
 import 'package:statitikcard/services/draw/booster_draw.dart';
 import 'package:statitikcard/services/draw/session_draw.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/credential.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/type_card.dart';
@@ -46,7 +47,7 @@ class _ExtensionButtonState extends State<ExtensionButton> {
           style: TextButton.styleFrom(padding: const EdgeInsets.all(8.0),
                                       minimumSize: const Size(30.0, 40.0)),
           onPressed: widget.press,
-          child: Environment.instance.showExtensionName
+          child: Environment.instance.pkConfig().showExtensionName
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
@@ -104,12 +105,12 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
           showDialog(
             context: context,
             builder: (_) => AlertDialog(
-              title: Text(StatitikLocale.of(context).read('V_B2')),
+              title: Text(AppLocalizations.of(context)!.v_b2),
               actions: [
                 Card(
                   color: Colors.grey[700],
                   child: TextButton(
-                    child: Text(StatitikLocale.of(context).read('V_B3')),
+                    child: Text(AppLocalizations.of(context)!.v_b3),
                     onPressed: () {
                       Navigator.of(context).pop();
                       bd.resetExtensions();
@@ -120,7 +121,7 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
                 if( current.productAnomaly && current.canDelete() ) Card(
                   color: Colors.red,
                   child: TextButton(
-                    child: Text(StatitikLocale.of(context).read('delete'), style: const TextStyle(color: Colors.white),),
+                    child: Text(AppLocalizations.of(context)!.delete, style: const TextStyle(color: Colors.white),),
                       onPressed: () {
                         current.deleteBooster(bd.id-1);
                         Navigator.of(context).pop();
@@ -139,7 +140,7 @@ Widget createBoosterDrawTitle(SessionDraw current, BoosterDraw bd, BuildContext 
 
 
 
-Widget signInButton(String nameId, CredentialMode mode, Function(String) showMessageError, Function refresh, BuildContext context) {
+Widget signInButton(String label, CredentialMode mode, Function(String) showMessageError, Function refresh, BuildContext context) {
   return  Card(
     color: Colors.grey.shade600,
     child: TextButton(
@@ -164,7 +165,7 @@ Widget signInButton(String nameId, CredentialMode mode, Function(String) showMes
                   });
                 }
                 else {
-                  showMessageError(StatitikLocale.of(context).read('LOG_4'));
+                  showMessageError(AppLocalizations.of(context)!.log_4);
                 }
               },
               afterError: showMessageError
@@ -175,7 +176,7 @@ Widget signInButton(String nameId, CredentialMode mode, Function(String) showMes
         child:Padding(
           padding: const EdgeInsets.only(left: 10),
           child: Text(
-            StatitikLocale.of(context).read(nameId),
+            label,
             style: const TextStyle(
               fontSize: 20,
             ),
@@ -200,7 +201,7 @@ Widget signOutButton(Function press, context) {
     child:Padding(
       padding: const EdgeInsets.only(left: 10),
       child: Text(
-        StatitikLocale.of(context).read('deconnexion'),
+        AppLocalizations.of(context)!.deconnexion,
         style: const TextStyle(
           fontSize: 20,
         ),
@@ -211,24 +212,24 @@ Widget signOutButton(Function press, context) {
 
 AlertDialog showAlert(BuildContext context) {
   return AlertDialog(
-    title: Text(StatitikLocale.of(context).read('warning')),
+    title: Text(AppLocalizations.of(context)!.warning),
     content: SingleChildScrollView(
       child: ListBody(
         children: <Widget>[
-          Text(StatitikLocale.of(context).read('V_B0')),
-          Text(StatitikLocale.of(context).read('V_B1')),
+          Text(AppLocalizations.of(context)!.v_b0),
+          Text(AppLocalizations.of(context)!.v_b1),
         ],
       ),
     ),
     actions: <Widget>[
       TextButton(
-        child: Text(StatitikLocale.of(context).read('yes')),
+        child: Text(AppLocalizations.of(context)!.yes),
         onPressed: () {
           Navigator.of(context).pop(true);
         },
       ),
       TextButton(
-        child: Text(StatitikLocale.of(context).read('cancel')),
+        child: Text(AppLocalizations.of(context)!.cancel),
         onPressed: () {
           Navigator.of(context).pop(false);
         },
@@ -257,7 +258,7 @@ List<Widget> createRegionsWidget(context, regionController, Language language) {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Flexible(child: Center(child: Text(
-              StatitikLocale.of(context).read('REG_0'),
+              AppLocalizations.of(context)!.reg_0,
               style: const TextStyle(fontSize: 9),)))
           ])
     )

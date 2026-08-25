@@ -8,10 +8,11 @@ import 'package:intl/intl.dart';
 
 import 'package:sprintf/sprintf.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/view.dart';
 import 'package:statitikcard/screenOld/widgets/image_stored_locally.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 
 import 'connection.dart';
@@ -81,18 +82,19 @@ Widget drawCachedImages(String folder, String image, List<String> webNames, {dou
 }
 
 Widget drawOut(BuildContext context, SubExtension se) {
+  final tag = Localizations.localeOf(context).toLanguageTag();
   return Card(
     child: Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(sprintf(StatitikLocale.of(context).read('SEC_0'), [DateFormat.yMMMMd(StatitikLocale.of(context).locale.toLanguageTag()).format(se.out)]),
+          Text(sprintf(AppLocalizations.of(context)!.sec_0, [DateFormat.yMMMMd(tag).format(se.out)]),
               style: Theme.of(context).textTheme.displaySmall, textAlign: TextAlign.center),
           const SizedBox(height: 30),
           drawImagePress(context, 'zorua', 300),
           const SizedBox(height: 30),
-          Center(child: Text(sprintf(StatitikLocale.of(context).read('SEC_1'), [DateFormat.yMMMMd(StatitikLocale.of(context).locale.toLanguageTag()).format(se.out)]),
+          Center(child: Text(sprintf(AppLocalizations.of(context)!.sec_1, [DateFormat.yMMMMd(tag).format(se.out)]),
             style: Theme.of(context).textTheme.headlineSmall),
           ),
       ]),
@@ -101,7 +103,7 @@ Widget drawOut(BuildContext context, SubExtension se) {
 }
 
 Widget drawImagePress(BuildContext context, String image, double imgHeight) {
-  if(Environment.instance.showPressImages) {
+  if(Environment.instance.pkConfig().showPressImages) {
     double mediaH = MediaQuery.of(context).size.height;
     double finalH = (mediaH / 1000 * imgHeight).clamp(30.0, imgHeight);
     return drawCachedImage('press', image, height: finalH);
@@ -133,18 +135,18 @@ Widget drawLoading(BuildContext context) {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       const SizedBox(height: 40),
-      Center(child: Text(StatitikLocale.of(context).read('loading'), style: Theme.of(context).textTheme.displaySmall)),
+      Center(child: Text(AppLocalizations.of(context)!.loading, style: Theme.of(context).textTheme.displaySmall)),
       const SizedBox(height: 20),
       drawImagePress(context, 'Snorlax', 300),
     ]));
 }
 
-Widget drawNothing(BuildContext context, String code) {
+Widget drawNothing(BuildContext context, String label) {
   return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: 40),
-        Center(child: Text(StatitikLocale.of(context).read(code), style: Theme.of(context).textTheme.displaySmall)),
+        Center(child: Text(label, style: Theme.of(context).textTheme.displaySmall)),
         const SizedBox(height: 20),
         drawImagePress(context, 'Arrozard', 300),
       ]);

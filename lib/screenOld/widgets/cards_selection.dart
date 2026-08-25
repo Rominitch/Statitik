@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/screenOld/widgets/card_image.dart';
 import 'package:statitikcard/services/internationalization.dart';
@@ -100,10 +101,10 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
     );
   }
 
-  Widget menuBar(BuildContext context, String idText ) {
+  Widget menuBar(BuildContext context, String text ) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(StatitikLocale.of(context).read(idText)),
+      child: Text(text),
     );
   }
 
@@ -139,7 +140,7 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
               child: TextButton(onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop(selection);
-                }, child: Text(StatitikLocale.of(context).read('send')))
+                }, child: Text(AppLocalizations.of(context)!.send))
             )
         ],
       ),
@@ -156,11 +157,11 @@ class _CardsSelectionState extends State<CardsSelection> with TickerProviderStat
                     ),
                     tabs: [
                       if(widget.subExtension.seCards.cards.isNotEmpty)
-                        menuBar(context, 'S_SERIE_0'),
+                        menuBar(context, AppLocalizations.of(context)!.s_serie_0),
                       if(widget.subExtension.seCards.energyCard.isNotEmpty)
-                        menuBar(context, 'S_SERIE_1'),
+                        menuBar(context, AppLocalizations.of(context)!.s_serie_1),
                       if(widget.subExtension.seCards.noNumberedCard.isNotEmpty)
-                        menuBar(context, 'S_SERIE_2'),
+                        menuBar(context, AppLocalizations.of(context)!.s_serie_2),
                     ]
                 ),
                 Expanded(

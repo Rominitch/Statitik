@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/view.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 
 class ThanksPage extends StatelessWidget {
   const ThanksPage({super.key});
@@ -11,7 +12,7 @@ class ThanksPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text( StatitikLocale.of(context).read('O_B3'), style: Theme.of(context).textTheme.displaySmall ),
+        title: Text( AppLocalizations.of(context)!.o_b3, style: Theme.of(context).textTheme.displaySmall ),
       ),
       body: SafeArea(
         child: Padding(
@@ -19,7 +20,7 @@ class ThanksPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(StatitikLocale.of(context).read('TH_B0')),
+              Text(AppLocalizations.of(context)!.th_b0),
               textBullet('Kyuubi'),
               textBullet('3l3ktr0'),
               const SizedBox(height: 16.0),

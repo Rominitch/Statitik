@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/stats/stat_view.dart';
-import 'package:statitikcard/services/internationalization.dart';
 
 SimpleDialog createOptionDialog(BuildContext context, options) {
   return SimpleDialog(
-    title: Center(child: Text(StatitikLocale.of(context).read('H_T2'), style: Theme.of(context).textTheme.displaySmall)),
+    title: Center(child: Text(AppLocalizations.of(context)!.h_t2, style: Theme.of(context).textTheme.displaySmall)),
     contentPadding: const EdgeInsets.symmetric(horizontal: 10),
     children: [StatsOptions(options)]
   );
@@ -26,9 +27,9 @@ class _StatsOptionsState extends State<StatsOptions> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(StatitikLocale.of(context).read('S_B17'), style: Theme.of(context).textTheme.headlineSmall),
+        Text(AppLocalizations.of(context)!.s_b17, style: Theme.of(context).textTheme.headlineSmall),
         RadioListTile<OptionShowState>(
-          title: Text(StatitikLocale.of(context).read('S_B16')),
+          title: Text(AppLocalizations.of(context)!.s_b16),
           value: OptionShowState.realCount,
           groupValue: widget.options.showOption,
           onChanged: (newValue) {
@@ -38,7 +39,7 @@ class _StatsOptionsState extends State<StatsOptions> {
           },
         ),
         RadioListTile<OptionShowState>(
-          title: Text(StatitikLocale.of(context).read('S_B15')),
+          title: Text(AppLocalizations.of(context)!.s_b15),
           value: OptionShowState.boosterLuck,
           groupValue: widget.options.showOption,
           onChanged: (newValue) {
@@ -47,9 +48,9 @@ class _StatsOptionsState extends State<StatsOptions> {
             });
           },
         ),
-        Text(StatitikLocale.of(context).read('S_B18'), style: Theme.of(context).textTheme.headlineSmall),
+        Text(AppLocalizations.of(context)!.s_b18, style: Theme.of(context).textTheme.headlineSmall),
         RadioListTile<bool>(
-          title: Text(StatitikLocale.of(context).read('S_B10')),
+          title: Text(AppLocalizations.of(context)!.s_b10),
           value: true,
           groupValue: widget.options.delta,
           onChanged: (newValue) {
@@ -59,7 +60,7 @@ class _StatsOptionsState extends State<StatsOptions> {
           },
         ),
         RadioListTile<bool>(
-          title: Text(StatitikLocale.of(context).read('S_B19')),
+          title: Text(AppLocalizations.of(context)!.s_b19),
           value: false,
           groupValue: widget.options.delta,
           onChanged: (newValue) {

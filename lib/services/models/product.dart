@@ -225,7 +225,7 @@ class Product extends ProductGeneric
   {
     int currentVersion = data[0];
     if(!(currentVersion <= version)) {
-      throw StatitikException("Unknown Product version: ${data[0]}");
+      throw StatitikException(ErrorCode.unknown, "Unknown Product version: ${data[0]}");
     }
 
     // Is Zip ?

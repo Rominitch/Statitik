@@ -4,6 +4,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter_spinbox/material.dart';
 
 import 'package:intl/intl.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/screenOld/commonPages/extension_page.dart';
 import 'package:statitikcard/screenOld/commonPages/side_product_selection.dart';
@@ -319,7 +320,7 @@ class _NewProductPageState extends State<NewProductPage> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child:Scaffold(
         appBar: AppBar(
-          title: Text(StatitikLocale.of(context).read( widget.editProduct != null ? 'NP_T1' : 'NP_T0')),
+          title: Text(widget.editProduct != null ? AppLocalizations.of(context)!.np_t1 : AppLocalizations.of(context)!.np_t0),
           actions: [
             if(widget.editProduct != null && widget.editProduct!.language!.isWorld())
               Card(

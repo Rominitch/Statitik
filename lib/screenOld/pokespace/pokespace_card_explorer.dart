@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
 
 import 'package:statitikcard/screenOld/widgets/CardSelector/card_selector_poke_space.dart';
 import 'package:statitikcard/screenOld/widgets/pokemon_card.dart';
 import 'package:statitikcard/services/tools.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/pokespace.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 
@@ -106,10 +106,6 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
     return true;
   }
 
-  Widget menuBar(BuildContext context, String idText ) {
-    return Text(StatitikLocale.of(context).read(idText));
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -152,11 +148,11 @@ class _PokeSpaceCardExplorerState extends State<PokeSpaceCardExplorer> with Sing
                   ),
                   tabs: [
                     if(widget.subExtension.seCards.cards.isNotEmpty)
-                      menuBar(context, 'S_SERIE_0'),
+                      Text(AppLocalizations.of(context)!.s_serie_0),
                     if(widget.subExtension.seCards.energyCard.isNotEmpty)
-                      menuBar(context, 'S_SERIE_1'),
+                      Text(AppLocalizations.of(context)!.s_serie_1),
                     if(widget.subExtension.seCards.noNumberedCard.isNotEmpty)
-                      menuBar(context, 'S_SERIE_2'),
+                      Text(AppLocalizations.of(context)!.s_serie_2),
                   ]
               ),
                 ),

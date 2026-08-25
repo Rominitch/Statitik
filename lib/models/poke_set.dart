@@ -22,6 +22,8 @@ class PokeSet {
     _image = reader.readString(),
     _configuration = reader.readInt16();
 
+  PokeIdentifier      pid() { return _id; }
+
   void toBytesID(BinaryWriter writer) {
     _id.toBytesID(writer);
   }
@@ -50,5 +52,17 @@ class PokeSet {
     {
       return const Icon(Icons.help_outline);
     }
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return (other is PokeSet) && other._id == _id;
+  }
+
+  @override
+  int get hashCode => _id.hashCode;
+
+  int compareTo(PokeSet other) {
+    return other._id.id().compareTo(other._id.id());
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/screenOld/view.dart';
 import 'package:statitikcard/screenOld/widgets/button_check.dart';
@@ -62,7 +63,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
                 ),
               ),
               GridView.count(
-                  crossAxisCount: Environment.instance.showExtensionName ? 3 : 5,
+                  crossAxisCount: Environment.instance.pkConfig().showExtensionName ? 3 : 5,
                   shrinkWrap: true,
                   primary: false,
                   children: subExtensions,
@@ -92,7 +93,7 @@ class _ExtensionPageState extends State<ExtensionPage> {
       appBar: AppBar(
         title: Row(
           children:[
-            Text(StatitikLocale.of(context).read('S_B0')),
+            Text(AppLocalizations.of(context)!.s_b0),
             const SizedBox(width: 10.0),
             widget.language.barIcon(),
           ],
@@ -103,15 +104,15 @@ class _ExtensionPageState extends State<ExtensionPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              widget.addMode ? Text(StatitikLocale.of(context).read('EP_B0'))
+              widget.addMode ? Text(AppLocalizations.of(context)!.ep_b0)
               : Row( children: filters,
               ),
               CheckboxListTile(
-                title: Text(StatitikLocale.of(context).read('EP_B1')),
-                value: Environment.instance.showExtensionName,
+                title: Text(AppLocalizations.of(context)!.ep_b1),
+                value: Environment.instance.pkConfig().showExtensionName,
                 onChanged: (newValue) {
                   setState(() {
-                    Environment.instance.toggleShowExtensionName();
+                    Environment.instance.pkConfig().toggleShowExtensionName();
                   });
                 },
               ),

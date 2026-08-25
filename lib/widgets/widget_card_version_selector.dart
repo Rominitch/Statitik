@@ -9,7 +9,7 @@ import 'package:statitikcard/widgets/widget_expansions_selector.dart';
 
 class WidgetCardVersionSelector extends StatefulWidget {
   final ExpansionSelection selection;
-  final Function onPress;
+  final void Function()    onPress;
 
   const WidgetCardVersionSelector(this.selection, {required this.onPress, super.key});
 

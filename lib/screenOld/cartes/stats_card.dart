@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:sprintf/sprintf.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/screenOld/cartes/card_statistic.dart';
 import 'package:statitikcard/screenOld/cartes/card_viewer.dart';
@@ -66,19 +67,19 @@ class _StatsCardState extends State<StatsCard> with TickerProviderStateMixin {
     if (widget.options.showBySubEx && (widget.stats.isSpecific() || widget.stats.isFiltered())) {
       tabHeaders.add(Padding(
         padding: const EdgeInsets.all(6.0),
-        child: Text(StatitikLocale.of(context).read('CA_B11')),
+        child: Text(AppLocalizations.of(context)!.ca_b11),
       ));
       tabPages.add(CardSubExtensionReport(widget.stats, widget.options));
     }
     tabHeaders.add(Padding(
       padding: const EdgeInsets.all(6.0),
-      child: Text(StatitikLocale.of(context).read('CA_B40')),
+      child: Text(AppLocalizations.of(context)!.ca_b40),
     ));
     tabPages.add( SingleChildScrollView(child: CardStatisticReport(widget.l, widget.stats, widget.options)));
 
     return Column(
       children: [
-        if(widget.options.showTitle) Center(child: Text(sprintf(StatitikLocale.of(context).read('CA_B6'), [widget.stats.stats!.nbCards()]), style: Theme.of(context).textTheme.headlineSmall)),
+        if(widget.options.showTitle) Center(child: Text(sprintf(AppLocalizations.of(context)!.ca_b6, [widget.stats.stats!.nbCards()]), style: Theme.of(context).textTheme.headlineSmall)),
         TabBar(
           controller: tabController,
           indicatorPadding: const EdgeInsets.all(1),
@@ -269,7 +270,7 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
 
     return Column(
       children: [
-        if(widget.options.showByRarity) Text(StatitikLocale.of(context).read('CA_B10'), style: Theme.of(context).textTheme.headlineSmall),
+        if(widget.options.showByRarity) Text(AppLocalizations.of(context)!.ca_b10, style: Theme.of(context).textTheme.headlineSmall),
         if(widget.options.showByRarity) ListView.builder(
           primary: false,
           shrinkWrap: true,
@@ -301,7 +302,7 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
           }
         ),
         if(widget.options.showByType) const SizedBox(height: 10.0),
-        if(widget.options.showByType) Text(StatitikLocale.of(context).read('CA_B9'), style: Theme.of(context).textTheme.headlineSmall),
+        if(widget.options.showByType) Text(AppLocalizations.of(context)!.ca_b9, style: Theme.of(context).textTheme.headlineSmall),
         if(widget.options.showByType) ListView.builder(
           primary:    false,
           shrinkWrap: true,
@@ -325,7 +326,7 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
         ),
 
         if(widget.options.showByMarker && s.countMarker.isNotEmpty) const SizedBox(height: 10.0),
-        if(widget.options.showByMarker && s.countMarker.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B7'), style: Theme.of(context).textTheme.headlineSmall),
+        if(widget.options.showByMarker && s.countMarker.isNotEmpty) Text(AppLocalizations.of(context)!.ca_b7, style: Theme.of(context).textTheme.headlineSmall),
         if(widget.options.showByMarker && s.countMarker.isNotEmpty) ListView.builder(
             primary:    false,
             shrinkWrap: true,
@@ -346,7 +347,7 @@ class _CardStatisticReportState extends State<CardStatisticReport> {
             }
           ),
         if(widget.options.showByRegion && s.countRegion.isNotEmpty) const SizedBox(height: 10.0),
-        if(widget.options.showByRegion && s.countRegion.isNotEmpty) Text(StatitikLocale.of(context).read('CA_B8'), style: Theme.of(context).textTheme.headlineSmall),
+        if(widget.options.showByRegion && s.countRegion.isNotEmpty) Text(AppLocalizations.of(context)!.ca_b8, style: Theme.of(context).textTheme.headlineSmall),
         if(widget.options.showByRegion && s.countRegion.isNotEmpty) ListView.builder(
           primary: false,
           shrinkWrap: true,

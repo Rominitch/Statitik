@@ -19,6 +19,8 @@ import 'package:statitikcard/services/models/product_category.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/product.dart';
 
+import '../../l10n/statitik_localizations.dart';
+
 class AdminPage extends StatefulWidget {
   const AdminPage({super.key});
 
@@ -48,15 +50,15 @@ class _AdminPageState extends State<AdminPage> {
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
-            title: Text(StatitikLocale.of(context).read('warning')),
+            title: Text(AppLocalizations.of(context)!.warning),
             content: Column(
                 children: [
-                  Text( sprintf(StatitikLocale.of(context).read('CA_B33'), [orphans.length]),
+                  Text( sprintf(AppLocalizations.of(context)!.ca_b33, [orphans.length]),
                       textAlign: TextAlign.justify),
                   if(orphans.isNotEmpty) Card(
                       color: Colors.red,
                       child: TextButton(
-                          child: Text(StatitikLocale.of(context).read('yes')),
+                          child: Text(AppLocalizations.of(context)!.yes),
                           onPressed: () {
                             try {
                               EasyLoading.show();
@@ -128,7 +130,7 @@ class _AdminPageState extends State<AdminPage> {
               color: Colors.white,
               size: 50,
             ),
-            Text(StatitikLocale.of(context).read(codeText)),
+            Text(codeText),
           ],
         ),
       ),
@@ -138,32 +140,32 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> buttons = [];
-    buttons.add(createButton('ADMIN_B0', Icons.add_shopping_cart, Colors.lightGreen, () {
+    buttons.add(createButton(AppLocalizations.of(context)!.admin_B0, Icons.add_shopping_cart, Colors.lightGreen, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => NewProductPage()));
     }));
-    buttons.add(createButton('ADMIN_B1', Icons.shopping_cart_outlined, Colors.green.shade700, () {
+    buttons.add(createButton(AppLocalizations.of(context)!.admin_B1, Icons.shopping_cart_outlined, Colors.green.shade700, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToProductPage, addMode: true)));
     }));
-    buttons.add(createButton('ADMIN_B6', Icons.shopping_bag_outlined, Colors.greenAccent.shade700, () {
+    buttons.add(createButton(AppLocalizations.of(context)!.admin_B6, Icons.shopping_bag_outlined, Colors.greenAccent.shade700, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => SideProductCreator(Environment.instance.collection.languages[1]!)));
     }));
-    buttons.add(createButton('ADMIN_B7', Icons.my_library_add_outlined, Colors.lightGreenAccent.shade700, () {
+    buttons.add(createButton(AppLocalizations.of(context)!.admin_B7, Icons.my_library_add_outlined, Colors.lightGreenAccent.shade700, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(afterSelected: goToExtensionProducts, addMode: true)));
     }));
-    buttons.add(createButton('ADMIN_B2', Icons.post_add_outlined, Colors.deepOrange, () {
+    buttons.add(createButton(AppLocalizations.of(context)!.admin_B2, Icons.post_add_outlined, Colors.deepOrange, () {
       launchEditionCards();
     }));
-    buttons.add(createButton('ADMIN_B3', Icons.remove_red_eye_rounded, Colors.blueAccent, () {
+    buttons.add(createButton(AppLocalizations.of(context)!.admin_B3, Icons.remove_red_eye_rounded, Colors.blueAccent, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => const DrawHistory(true)));
     }));
-    buttons.add(createButton('ADMIN_B8', Icons.diamond_outlined, Colors.deepPurpleAccent, () {
+    buttons.add(createButton(AppLocalizations.of(context)!.admin_B8, Icons.diamond_outlined, Colors.deepPurpleAccent, () {
       Navigator.push(context, MaterialPageRoute(builder: (context) => const RarityEditor()));
     }));
-    buttons.add(createButton('ADMIN_B4', Icons.delete_forever, Colors.orangeAccent, cleanOrphan));
+    buttons.add(createButton(AppLocalizations.of(context)!.admin_B4, Icons.delete_forever, Colors.orangeAccent, cleanOrphan));
 
     return Scaffold(
         appBar: AppBar(
-          title: Center(child: Text( StatitikLocale.of(context).read('H_T4'), style: Theme.of(context).textTheme.displaySmall )),
+          title: Center(child: Text( AppLocalizations.of(context)!.h_t4, style: Theme.of(context).textTheme.displaySmall )),
         ),
         body: SafeArea(
           child: Padding(
@@ -178,7 +180,7 @@ class _AdminPageState extends State<AdminPage> {
                       child: Row(
                         children: [
                           const Icon(Icons.warning_amber_rounded),
-                          Text(StatitikLocale.of(context).read('ADMIN_B5'), style: Theme.of(context).textTheme.headlineSmall)
+                          Text(AppLocalizations.of(context)!.admin_B5, style: Theme.of(context).textTheme.headlineSmall)
                         ]
                       )
                     )
@@ -186,7 +188,7 @@ class _AdminPageState extends State<AdminPage> {
                 Card(child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row( children: [
-                    Text(StatitikLocale.of(context).read('O_B2')),
+                    Text(AppLocalizations.of(context)!.o_b2),
                     Checkbox(value: useDebug,
                         onChanged: (newValue) {
                           useDebug = newValue!;
@@ -208,7 +210,7 @@ class _AdminPageState extends State<AdminPage> {
                               EasyLoading.dismiss();
                             });
                           },
-                          child: Text(StatitikLocale.of(context).read('O_B1'))
+                          child: Text(AppLocalizations.of(context)!.o_b1)
                       ),
                     ),
                   ]

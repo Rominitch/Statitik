@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/view.dart';
 import 'package:statitikcard/screenOld/widgets/CardSelector/card_selector_booster_draw.dart';
 import 'package:statitikcard/screenOld/widgets/pokemon_card.dart';
 import 'package:statitikcard/services/draw/booster_draw.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/type_card.dart';
@@ -64,7 +65,7 @@ class _BoosterPageState extends State<BoosterPage> {
   @override
   Widget build(BuildContext context) {
     Color buttonColor = greenValid;
-    Widget buttonLabel = Text(StatitikLocale.of(context).read('ok'));
+    Widget buttonLabel = Text(AppLocalizations.of(context)!.ok);
     if(widget.boosterDraw.isFinished()) {
       switch(widget.boosterDraw.validationWorld(widget.language))
       {
@@ -95,7 +96,7 @@ class _BoosterPageState extends State<BoosterPage> {
           ),
           title: Row(
             children:[
-              Text('${StatitikLocale.of(context).read('S_B4')} ${widget.boosterDraw.id}'),
+              Text('${AppLocalizations.of(context)!.s_b4} ${widget.boosterDraw.id}'),
               const SizedBox(width: 10.0),
               widget.boosterDraw.subExtension!.image(hSize: iconSize),
               const SizedBox(width: 10.0),
@@ -128,8 +129,8 @@ class _BoosterPageState extends State<BoosterPage> {
                   children: widgetEnergies + widgetNoNumber,
                 ),
               CheckboxListTile(
-                title: Text(StatitikLocale.of(context).read('TB_B0')),
-                subtitle: Text(StatitikLocale.of(context).read('TB_B1'), style: const TextStyle(fontSize: 12)),
+                title: Text(AppLocalizations.of(context)!.tb_b0),
+                subtitle: Text(AppLocalizations.of(context)!.tb_b1, style: const TextStyle(fontSize: 12)),
                 value: widget.boosterDraw.abnormal,
                 onChanged: widget.readOnly ? null : (newValue) async {
                     if(widget.boosterDraw.abnormal && widget.boosterDraw.needReset())

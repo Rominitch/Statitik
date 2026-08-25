@@ -7,9 +7,9 @@ import 'package:google_sign_in_all_platforms/google_sign_in_all_platforms.dart';
 import 'package:googleapis/people/v1.dart' as people;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 
 import '../secrets/googleAPI.dart';
 
@@ -171,7 +171,7 @@ class Credential
   AlertDialog showAlert(BuildContext context) {
     String smsCode="";
     return AlertDialog(
-      title: Text(StatitikLocale.of(context).read('LOG_1')),
+      title: Text(AppLocalizations.of(context)!.log_1),
       content:  TextField(
         keyboardType: TextInputType.number,
         onChanged: (value) {
@@ -182,13 +182,13 @@ class Credential
       ),
       actions: <Widget>[
         TextButton(
-          child: Text(StatitikLocale.of(context).read('confirm')),
+          child: Text(AppLocalizations.of(context)!.confirm),
           onPressed: () {
             Navigator.of(context).pop(smsCode);
           },
         ),
         TextButton(
-          child: Text(StatitikLocale.of(context).read('cancel')),
+          child: Text(AppLocalizations.of(context)!.cancel),
           onPressed: () {
             Navigator.of(context).pop("");
           },
@@ -203,21 +203,21 @@ class Credential
 
     String smsCode="";
     return AlertDialog(
-      title: Text(StatitikLocale.of(context).read('LOG_6')),
+      title: Text(AppLocalizations.of(context)!.log_6),
       content:  TextField(
           keyboardType: TextInputType.phone,
           onChanged: (value) {
             smsCode = value;
           },
           //controller: _text,
-          decoration: InputDecoration(hintText: StatitikLocale.of(context).read('LOG_7'),
+          decoration: InputDecoration(hintText: AppLocalizations.of(context)!.log_7,
             hintStyle: const TextStyle(fontSize: 10),
             //errorText: _validate ? 'Value Can\'t Be Empty' : null
           )
       ),
       actions: <Widget>[
         TextButton(
-          child: Text(StatitikLocale.of(context).read('confirm')),
+          child: Text(AppLocalizations.of(context)!.confirm),
           onPressed: () {
             //_validate = _text.text.isEmpty;
             if(smsCode.isNotEmpty) {
@@ -226,7 +226,7 @@ class Credential
           },
         ),
         TextButton(
-          child: Text(StatitikLocale.of(context).read('cancel')),
+          child: Text(AppLocalizations.of(context)!.cancel),
           onPressed: () {
             Navigator.of(context).pop("");
           },

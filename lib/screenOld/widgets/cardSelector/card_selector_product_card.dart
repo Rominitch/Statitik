@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/screenOld/widgets/card_selector.dart';
 
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/draw/card_draw_data.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/services/models/pokemon_card_extension.dart';
@@ -74,7 +74,7 @@ class CardSelectorProductCard extends GenericCardSelector {
                 child: Card(
                     color: card.jumbo ? Colors.green : Colors.grey,
                     child: TextButton(
-                      child: Text(StatitikLocale.of(context).read('CS_B0'), style: Theme.of(context).textTheme.headlineSmall),
+                      child: Text(AppLocalizations.of(context)!.cs_b0, style: Theme.of(context).textTheme.headlineSmall),
                       onPressed: () {
                         card.jumbo = !card.jumbo;
                         refresh();
@@ -86,7 +86,7 @@ class CardSelectorProductCard extends GenericCardSelector {
                 child: Card(
                     color: card.isRandom ? Colors.green : Colors.grey,
                     child: TextButton(
-                      child: Text(StatitikLocale.of(context).read('CS_B1'), style: Theme.of(context).textTheme.headlineSmall),
+                      child: Text(AppLocalizations.of(context)!.cs_b1, style: Theme.of(context).textTheme.headlineSmall),
                       onPressed: () {
                         card.isRandom = !card.isRandom;
                         refresh();

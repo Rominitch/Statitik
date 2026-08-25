@@ -23,3 +23,14 @@ ConnectionSettings createConnection()
       db: useDebug ? 'StatitikPokemonDebug' : 'StatitikPokemon'
   );
 }
+
+ConnectionSettings createConnectionPoke()
+{
+  return ConnectionSettings(
+      host: adresse,
+      port: port,
+      user: 'StatitikCreator',
+      password: 'eZ,RP-Cc^A}.Sz[,=8w-7r:G,_axcXmWk&pUpubfVe9awQPLt',
+      db: 'StatitikCardPoke'
+  );
+}

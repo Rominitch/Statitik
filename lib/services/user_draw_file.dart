@@ -58,7 +58,7 @@ class UserDrawFile {
     if(version <= currentVersion) {
       return SessionDraw.fromFile(ValueKey(file.uri.pathSegments.last), version, parser, language, products, subExtensions);
     }
-    throw StatitikException("Unknown file");
+    throw StatitikException.fromCode(ErrorCode.unknownFile);
   }
 
   Future save(SessionDraw draw) async {

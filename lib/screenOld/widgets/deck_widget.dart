@@ -1,6 +1,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/screenOld/stats/pie_chart.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/deck.dart';
@@ -83,7 +84,7 @@ class DeckStatisticWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if(deck.cards.isEmpty) {
     return SingleChildScrollView(
-        child: Text(StatitikLocale.of(context).read('PSMDC_B9'), style: Theme.of(context).textTheme.headlineMedium)
+        child: Text(AppLocalizations.of(context)!.psmdc_b9, style: Theme.of(context).textTheme.headlineMedium)
       );
     } else {
       var firstColWidth = 200.0;
@@ -129,7 +130,7 @@ class DeckStatisticWidget extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(StatitikLocale.of(context).read('PSMDC_B10'), style: Theme.of(context).textTheme.titleLarge),
+                  Text(AppLocalizations.of(context)!.psmdc_b10, style: Theme.of(context).textTheme.titleLarge),
                   Table(
                     children: [
                       TableRow(
@@ -137,9 +138,9 @@ class DeckStatisticWidget extends StatelessWidget {
                           Container(
                             width: firstColWidth,
                           ),
-                          Text(StatitikLocale.of(context).read('PSMDC_B13'), style: Theme.of(context).textTheme.titleLarge),
-                          Text(StatitikLocale.of(context).read('PSMDC_B14'), style: Theme.of(context).textTheme.titleLarge),
-                          Text(StatitikLocale.of(context).read('PSMDC_B15'), style: Theme.of(context).textTheme.titleLarge)
+                          Text(AppLocalizations.of(context)!.psmdc_b13, style: Theme.of(context).textTheme.titleLarge),
+                          Text(AppLocalizations.of(context)!.psmdc_b14, style: Theme.of(context).textTheme.titleLarge),
+                          Text(AppLocalizations.of(context)!.psmdc_b15, style: Theme.of(context).textTheme.titleLarge)
                         ]
                       ),
                       if(deck.stats.hpStats != null)
@@ -147,7 +148,7 @@ class DeckStatisticWidget extends StatelessWidget {
                           children: [
                             SizedBox(
                               width: firstColWidth,
-                              child:Text(StatitikLocale.of(context).read('PSMDC_B11'), style: Theme.of(context).textTheme.titleLarge),
+                              child:Text(AppLocalizations.of(context)!.psmdc_b11, style: Theme.of(context).textTheme.titleLarge),
                             ),
                             Text("${deck.stats.hpStats!.minV}"),
                             Text("${(deck.stats.hpStats!.sum/deck.stats.hpStats!.count).round()}"),
@@ -159,7 +160,7 @@ class DeckStatisticWidget extends StatelessWidget {
                           children: [
                             SizedBox(
                               width: firstColWidth,
-                              child: Text(StatitikLocale.of(context).read('PSMDC_B16'), style: Theme.of(context).textTheme.titleLarge),
+                              child: Text(AppLocalizations.of(context)!.psmdc_b16, style: Theme.of(context).textTheme.titleLarge),
                             ),
                             Text("${deck.stats.retreatStats!.minV}"),
                             Text("${(deck.stats.retreatStats!.sum/deck.stats.retreatStats!.count).round()}"),
@@ -174,16 +175,16 @@ class DeckStatisticWidget extends StatelessWidget {
                         children: [
                           SizedBox(
                             width: firstColWidth,
-                              child: Text(StatitikLocale.of(context).read('PSMDC_B12'), style: Theme.of(context).textTheme.titleLarge),
+                              child: Text(AppLocalizations.of(context)!.psmdc_b12, style: Theme.of(context).textTheme.titleLarge),
                           ),
-                          powerEnergies.isEmpty ? Text(StatitikLocale.of(context).read('PSMDC_B19')) : Row(children: powerEnergies)
+                          powerEnergies.isEmpty ? Text(AppLocalizations.of(context)!.psmdc_b19) : Row(children: powerEnergies)
                         ]
                       ),
                       TableRow(
                           children: [
                             SizedBox(
                               width: firstColWidth,
-                              child: Text(StatitikLocale.of(context).read('PSMDC_B17'), style: Theme.of(context).textTheme.titleLarge),
+                              child: Text(AppLocalizations.of(context)!.psmdc_b17, style: Theme.of(context).textTheme.titleLarge),
                             ),
                             Row(children: weaknessType)
                           ]
@@ -192,7 +193,7 @@ class DeckStatisticWidget extends StatelessWidget {
                           children: [
                             SizedBox(
                               width: firstColWidth,
-                              child: Text(StatitikLocale.of(context).read('PSMDC_B18'), style: Theme.of(context).textTheme.titleLarge),
+                              child: Text(AppLocalizations.of(context)!.psmdc_b18, style: Theme.of(context).textTheme.titleLarge),
                             ),
                             Row(children: resistanceType)
                           ]

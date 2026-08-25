@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/card_design.dart';
@@ -30,13 +31,13 @@ class TutorialCaption extends StatelessWidget {
     var artWidgets = <Widget>[];
     for (var art in ArtFormat.values) {
       if(art != ArtFormat.unknown) {
-        artWidgets.add( createIconDescribe(StatitikLocale.of(context).read(codeArt(art)), iconArt(art, iconSize, iconSize)));
+        artWidgets.add( createIconDescribe(codeArt(context, art), iconArt(art, iconSize, iconSize)));
       }
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(StatitikLocale.of(context).read('S_TOOL_T4'), style: Theme.of(context).textTheme.headlineMedium),
+        title: Text(AppLocalizations.of(context)!.s_tool_t4, style: Theme.of(context).textTheme.headlineMedium),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -48,7 +49,7 @@ class TutorialCaption extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children:[
-                      Text(StatitikLocale.of(context).read('TUTO_CAPTION_T0'), style: Theme.of(context).textTheme.headlineMedium),
+                      Text(AppLocalizations.of(context)!.tuto_caption_t0, style: Theme.of(context).textTheme.headlineMedium),
                       Column(children: [
                         Card(
                           color: Colors.black12,
@@ -56,7 +57,7 @@ class TutorialCaption extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Column(
                                 children:[
-                                  Text(StatitikLocale.of(context).read('TUTO_CAPTION_T1'), style: Theme.of(context).textTheme.headlineSmall),
+                                  Text(AppLocalizations.of(context)!.tuto_caption_t1, style: Theme.of(context).textTheme.headlineSmall),
                                   GridView.count(
                                     crossAxisCount: 2,
                                     childAspectRatio: 4.0,
@@ -74,7 +75,7 @@ class TutorialCaption extends StatelessWidget {
                             padding: const EdgeInsets.all(8.0),
                             child: Column(
                               children:[
-                                Center(child: Text(StatitikLocale.of(context).read('TUTO_CAPTION_T2'), style: Theme.of(context).textTheme.headlineSmall)),
+                                Center(child: Text(AppLocalizations.of(context)!.tuto_caption_t2, style: Theme.of(context).textTheme.headlineSmall)),
                                 GridView.count(
                                   crossAxisCount: 2,
                                   childAspectRatio: 4.0,

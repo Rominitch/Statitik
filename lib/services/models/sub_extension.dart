@@ -84,7 +84,7 @@ class SubExtension
         return seCards.noNumberedCard[cardId.numberId];
       }
       default:
-        throw StatitikException("Unknown list");
+        throw StatitikException(ErrorCode.unknown, "Unknown list");
     }
   }
 
@@ -102,7 +102,7 @@ class SubExtension
         return Text(card.numberOfCard(cardId.numberId));
       }
       default:
-        throw StatitikException("Unknown list");
+        throw StatitikException(ErrorCode.unknown, "Unknown list");
     }
   }
 }

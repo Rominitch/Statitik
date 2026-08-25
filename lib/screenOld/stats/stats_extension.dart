@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:statitikcard/screenOld/cartes/card_statistic.dart';
 import 'package:statitikcard/screenOld/cartes/stats_card.dart';
 
 import 'package:statitikcard/screenOld/stats/pie_chart.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/models.dart';
 
 class StatsExtensionsPage extends StatefulWidget {
@@ -26,7 +27,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(count.toString()),
-          Text(StatitikLocale.of(context).read(label), style: Theme.of(context).textTheme.titleLarge, softWrap: true)
+          Text(label, style: Theme.of(context).textTheme.titleLarge, softWrap: true)
         ]
       ),
     ));
@@ -38,9 +39,9 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
     List<Widget> infoCount = [];
 
     List info = [
-     ['SE_B3', widget.stats.count.length-statsExtension.countSecret],
-     ['SE_B4', statsExtension.countSecret],
-     ['SE_B5', statsExtension.countAllCards()],
+     [AppLocalizations.of(context)!.se_b3, widget.stats.count.length-statsExtension.countSecret],
+     [AppLocalizations.of(context)!.se_b4, statsExtension.countSecret],
+     [AppLocalizations.of(context)!.se_b5, statsExtension.countAllCards()],
     ];
     for (var element in info) {
       infoCount.add(cardInfo(context, element[0], element[1]));
@@ -51,7 +52,7 @@ class _StatsExtensionsPageState extends State<StatsExtensionsPage> {
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(StatitikLocale.of(context).read('SE_B0'), style: Theme.of(context).textTheme.headlineSmall),
+            Text(AppLocalizations.of(context)!.se_b0, style: Theme.of(context).textTheme.headlineSmall),
             GridView.count(
               crossAxisCount: 3,
               primary: false,

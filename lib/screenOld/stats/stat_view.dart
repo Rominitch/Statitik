@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
+
 import 'package:percent_indicator/linear_percent_indicator.dart';
 
 import 'package:sprintf/sprintf.dart';
@@ -10,7 +12,6 @@ import 'package:statitikcard/services/models/card_set.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/models/rarity.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/models/models.dart';
@@ -37,7 +38,7 @@ class StatsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     assert(data.stats != null);
-    final translator = StatitikLocale.of(context);
+    final translator = AppLocalizations.of(context);
 
     double divider = data.subExt != null ? data.subExt!.cardPerBooster.toDouble() : 11.0;
     List<Widget> types  = [];
@@ -88,7 +89,7 @@ class StatsView extends StatelessWidget {
       });
 
     } else {
-      rarity.add(Text(translator.read('S_B3')));
+      rarity.add(Text(translator!.s_b3));
     }
     final energyData = data.stats!.hasEnergy();
     return Card(
@@ -97,32 +98,32 @@ class StatsView extends StatelessWidget {
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(children: [Text(translator.read('S_B4'), style: Theme.of(context).textTheme.headlineSmall ),
+              Row(children: [Text(translator!.s_b4, style: Theme.of(context).textTheme.headlineSmall ),
                 const Spacer(),
-                data.stats!.anomaly > 0 ? Text(sprintf(translator.read('S_B5'), [data.stats!.nbBoosters, data.stats!.anomaly]))
-                    : Text(sprintf(translator.read('S_B13'), [data.stats!.nbBoosters]))
+                data.stats!.anomaly > 0 ? Text(sprintf(translator!.s_b5, [data.stats!.nbBoosters, data.stats!.anomaly]))
+                    : Text(sprintf(translator!.s_b13, [data.stats!.nbBoosters]))
               ]),
-              if(!options.print && options.showOption == OptionShowState.boosterLuck) Text(sprintf(translator.read('S_B6'), [divider.toInt()])),
+              if(!options.print && options.showOption == OptionShowState.boosterLuck) Text(sprintf(translator!.s_b6, [divider.toInt()])),
               if(!options.print && options.showOption == OptionShowState.boosterLuck) const SizedBox(height: 8.0,),
-              Text(translator.read('S_B21'), style: Theme.of(context).textTheme.titleLarge ),
+              Text(translator!.s_b21, style: Theme.of(context).textTheme.titleLarge ),
               ListView(
                 shrinkWrap: true,
                 primary: false,
                 children: rarity,
               ),
-              Text(translator.read('S_B20'), style: Theme.of(context).textTheme.titleLarge ),
+              Text(translator!.s_b20, style: Theme.of(context).textTheme.titleLarge ),
               ListView(
                 shrinkWrap: true,
                 primary: false,
                 children: sets,
               ),
-              Text(translator.read('S_B22'), style: Theme.of(context).textTheme.titleLarge ),
+              Text(translator!.s_b22, style: Theme.of(context).textTheme.titleLarge ),
               ListView(
                 shrinkWrap: true,
                 primary: false,
                 children: types,
               ),
-              if(!options.print && energyData) Text(translator.read('S_B12'), style: Theme.of(context).textTheme.headlineSmall ),
+              if(!options.print && energyData) Text(translator!.s_b12, style: Theme.of(context).textTheme.headlineSmall ),
               if(!options.print && energyData) PieChartEnergies(allStats: data.stats!),
             ]
         ),
@@ -165,7 +166,7 @@ class ProductWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool productImage = pr.product.hasImages() && Environment.instance.showPressProductImages;
+    bool productImage = pr.product.hasImages() && Environment.instance.pkConfig().showPressProductImages;
 
     String nameProduct = pr.product.name;
     if(showCount) {
@@ -326,7 +327,7 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
         printOutput("${key.id.toString().padRight(15)}: $value");
 
         if(value == 0) {
-          throw StatitikException("Control error");
+          throw StatitikException(ErrorCode.unknown, "Control error");
         }
       });
 
@@ -399,19 +400,19 @@ class _StatsCompletionBoosterState extends State<StatsCompletionBooster> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(child: Text(StatitikLocale.of(context).read('SCB_T0'), style: Theme.of(context).textTheme.headlineSmall)),
+            Center(child: Text(AppLocalizations.of(context)!.scb_T0, style: Theme.of(context).textTheme.headlineSmall)),
             const SizedBox(height: 8),
-            Row(mainAxisAlignment: MainAxisAlignment.end, children: [const Icon(Icons.warning_amber_rounded), Text(StatitikLocale.of(context).read('devBeta'), style: const TextStyle(color: Colors.orange))]),
+            Row(mainAxisAlignment: MainAxisAlignment.end, children: [const Icon(Icons.warning_amber_rounded), Text(AppLocalizations.of(context)!.devBeta, style: const TextStyle(color: Colors.orange))]),
             const SizedBox(height: 8),
-            Text(StatitikLocale.of(context).read('SCB_B0'), style: const TextStyle(fontSize: 12)),
+            Text(AppLocalizations.of(context)!.scb_B0, style: const TextStyle(fontSize: 12)),
             if(approximated)
               Row(children: [
                 const Icon(Icons.warning_amber_rounded),
-                Text(StatitikLocale.of(context).read('SCB_B8'), style: const TextStyle(fontSize: 9)),
+                Text(AppLocalizations.of(context)!.scb_B8, style: const TextStyle(fontSize: 9)),
               ]),
             const SizedBox(height: 8),
-            lineResult(const Text(""), "", StatitikLocale.of(context).read('SCB_B1'),StatitikLocale.of(context).read('SCB_B2')),
-            lineResult(Text(StatitikLocale.of(context).read('SCB_B5')), StatitikLocale.of(context).read('SCB_B6'), full.minimum.toString(), full.mean.toString()),
+            lineResult(const Text(""), "", AppLocalizations.of(context)!.scb_B1,AppLocalizations.of(context)!.scb_B2),
+            lineResult(Text(AppLocalizations.of(context)!.scb_B5), AppLocalizations.of(context)!.scb_B6, full.minimum.toString(), full.mean.toString()),
           ]+setsInfo,
         ),
       )

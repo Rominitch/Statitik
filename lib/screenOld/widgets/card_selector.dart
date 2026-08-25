@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/screenOld/widgets/card_image.dart';
 
 import 'package:statitikcard/services/models/card_set.dart';
@@ -71,7 +72,7 @@ class _CardSelectorState extends State<CardSelector> {
     Widget? advanced = widget.cardSelector.advancedWidget(context, () {setState(() {});} );
     if(! widget.cardSelector.fullSetsImages) {
       return SimpleDialog(
-        title: Text(StatitikLocale.of(context).read('V_B4')),
+        title: Text(AppLocalizations.of(context)!.v_b4),
         children: [
           Column(
             mainAxisSize: MainAxisSize.min,

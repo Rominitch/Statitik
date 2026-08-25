@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/screenOld/commonPages/language_page.dart';
 import 'package:statitikcard/screenOld/PokeSpace/pokespace_card_explorer.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/tools.dart';
@@ -126,14 +126,14 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
                 Row(
                   children: [
                     const Spacer(),
-                    Text(StatitikLocale.of(context).read('PSMC_B4'), style: Theme.of(context).textTheme.titleLarge),
+                    Text(AppLocalizations.of(context)!.psmc_b4, style: Theme.of(context).textTheme.titleLarge),
                     const SizedBox(width: 5.0),
                     const Image(image: AssetImage('assets/arrowR.png'), height: 20.0,),
                     const SizedBox(width: 15.0),
                   ]
                 ),
                 const SizedBox(height: 40),
-                drawNothing(context, 'PSMC_B3')
+                drawNothing(context, AppLocalizations.of(context)!.psmc_b3)
               ]
             ),
           )
@@ -143,9 +143,9 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
           var subExtension = orderedSubExt[id];
           var counter      = myCards[subExtension]!;
           List<Widget> global = [
-            buildLine(StatitikLocale.of(context).read('PSMC_B1'), Colors.lightGreen.shade900, counter.statsCards.countOfficial, subExtension.seCards.cards.length-subExtension.stats.countSecret),
+            buildLine(AppLocalizations.of(context)!.psmc_b1, Colors.lightGreen.shade900, counter.statsCards.countOfficial, subExtension.seCards.cards.length-subExtension.stats.countSecret),
             if(subExtension.stats.countSecret > 0)
-              buildLine(StatitikLocale.of(context).read('PSMC_B2'), Colors.yellowAccent, counter.statsCards.countSecret, subExtension.stats.countSecret),
+              buildLine(AppLocalizations.of(context)!.psmc_b2, Colors.yellowAccent, counter.statsCards.countSecret, subExtension.stats.countSecret),
           ];
           var validSets = subExtension.stats.allSets;
           validSets.removeWhere((element) => element.isSystem);
@@ -195,7 +195,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(StatitikLocale.of(context).read('DC_B16'), style: Theme.of(context).textTheme.displaySmall),
+        title: Text(AppLocalizations.of(context)!.dc_b16, style: Theme.of(context).textTheme.displaySmall),
         actions: [
           FloatingActionButton.small(
             backgroundColor: cardMenuColor,
