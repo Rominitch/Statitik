@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/card_design.dart';
 import 'package:statitikcard/services/models/language.dart';
 
 class TutorialCaption extends StatelessWidget {
-  final Language l;
+  final LanguageOld l;
   const TutorialCaption(this.l, {super.key});
 
   Widget createIconDescribe(String text, Widget icon) {

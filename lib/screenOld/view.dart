@@ -14,7 +14,7 @@ import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/models/models.dart';
 
-Widget createLanguage(Language l, BuildContext context, Widget Function(BuildContext) press)
+Widget createLanguage(LanguageOld l, BuildContext context, Widget Function(BuildContext) press)
 {
   return TextButton(
     child: Image(
@@ -249,7 +249,7 @@ RichText textBullet(text) {
   );
 }
 
-List<Widget> createRegionsWidget(context, regionController, Language language) {
+List<Widget> createRegionsWidget(context, regionController, LanguageOld language) {
   List<Widget> regionsWidget = [];
 
   // No region item

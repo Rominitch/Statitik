@@ -201,7 +201,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyCards> with TickerProvider
             backgroundColor: cardMenuColor,
             onPressed: (){
               Navigator.push(context, MaterialPageRoute(builder:
-                (context) => LanguagePage(afterSelected: (BuildContext c, Language l, SubExtension s)
+                (context) => LanguagePage(afterSelected: (BuildContext c, LanguageOld l, SubExtension s)
                 {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop(s);

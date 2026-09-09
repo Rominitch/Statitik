@@ -300,6 +300,15 @@ class Environment
     Future<void> restoreAdminData() async {
         // Reload full database to have all real data
         startDB=false;
+
+        _collectionPK.clear();
+
+        // Read Database
+        await _db_poke.transactionR((connection) async {
+            await _collectionPK.readStaticData(connection);
+        });
+
+        /*
         db = Database();
         // Read static
         await readStaticData();
@@ -312,6 +321,7 @@ class Environment
         // Change poke space
         user!.pokeSpace = PokeSpace();
         await readPokeSpace();
+        */
     }
 
     Future<bool> readUserData(connection, String uid, bool isTest) async {

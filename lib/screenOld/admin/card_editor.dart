@@ -21,7 +21,7 @@ class CardEditor extends StatefulWidget {
 
   String titleCard() {
     var cardId = id.numberId;
-    var l = Language(id: 1, image: "");
+    var l = LanguageOld(id: 1, image: "");
     if( id.listId == 0 ) {
       return "${se.seCards.numberOfCard(cardId)} - ${se.seCards.titleOfCard(l, cardId, id.alternativeId)}";
     } else {

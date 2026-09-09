@@ -7,19 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/models/poke_expansion.dart';
-import 'package:statitikcard/models/poke_langage.dart';
 import 'package:statitikcard/models/statistics/poke_stats_booster.dart';
 import 'package:statitikcard/models/statistics/statistic_data.dart';
-import 'package:statitikcard/screenOld/stats/stat_view.dart';
 import 'package:statitikcard/screenOld/stats/stats.dart';
-import 'package:statitikcard/screenOld/stats/stats_extension_widget.dart';
 import 'package:statitikcard/screenOld/view.dart';
 import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
 import 'package:statitikcard/screens/page_expansion_info.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/tools.dart';
-import 'package:statitikcard/widgets/widget_card_version_selector.dart';
+import 'package:statitikcard/screens/wizard/wizard_select_until_expansion.dart';
 
 class PageExpansions extends StatefulWidget {
   const PageExpansions({super.key});
@@ -110,7 +107,7 @@ class _PageExpansionsState extends State<PageExpansions> {
             width: MediaQuery.of(context).size.width / 2,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: WidgetCardVersionSelector(_statsData.selection,
+              child: WizardSelectUntilExpansion(_statsData.selection,
                 onPress: () {
                   _se = Environment.instance.pkCollection().serieFrom( _statsData.selection.expansion! )
                       .expansions(_statsData.selection.language!.location())!;

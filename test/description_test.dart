@@ -9,9 +9,9 @@ import 'package:statitikcard/services/models/pokemon_card_data.dart';
 
 void main() {
   test('CardDescription.noExtract', () {
-    Language fr = Language(id: 1, image: "");
-    Language en = Language(id: 2, image: "");
-    Language jp = Language(id: 3, image: "");
+    LanguageOld fr = LanguageOld(id: 1, image: "");
+    LanguageOld en = LanguageOld(id: 2, image: "");
+    LanguageOld jp = LanguageOld(id: 3, image: "");
 
     Map<int, DescriptionData> map =
     {
@@ -27,8 +27,8 @@ void main() {
 
   test('CardDescription.toWidget', ()
   {
-    Language fr = Language(id: 1, image: "");
-    Language en = Language(id: 2, image: "");
+    LanguageOld fr = LanguageOld(id: 1, image: "");
+    LanguageOld en = LanguageOld(id: 2, image: "");
 
     Map<int, Region> mapRegion =
     {

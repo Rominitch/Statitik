@@ -8,7 +8,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
-import 'package:statitikcard/services/internationalization.dart';
 
 class ScreenPrint
  {

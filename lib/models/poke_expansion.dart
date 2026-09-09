@@ -6,7 +6,7 @@ import 'package:statitikcard/models/database/poke_db_cards_blob.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_expansion_cards.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
@@ -72,11 +72,15 @@ class PokeExpansion {
     _id.toBytesID(writer);
   }
 
-  CardLocation location() {
-    return _id.type() == PokeIdentifierType.expansion_jp ? CardLocation.Asie : CardLocation.Monde;
+  bool isPromo() {
+    return _id.expansion() == 0 || _id.expansion() > 900;
   }
 
-  String? label(PokeLangage language) {
+  CardLocation location() {
+    return _id.location();
+  }
+
+  String? label(PokeLanguage language) {
     return language.label(_id);
   }
 
@@ -85,7 +89,7 @@ class PokeExpansion {
   }
 
   /// Show Extension image
-  Widget image(PokeLangage l, {double? wSize, double? hSize}) {
+  Widget image(PokeLanguage l, {double? wSize, double? hSize}) {
     return drawCachedImage('extensions', _icon.replaceAll("<L>", l.code()), width: wSize, height: hSize);
   }
 

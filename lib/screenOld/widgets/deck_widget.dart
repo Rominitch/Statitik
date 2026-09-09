@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/screenOld/stats/pie_chart.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/deck.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';

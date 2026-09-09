@@ -6,14 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 
-import 'package:statitikcard/screenOld/Admin/admin_page.dart';
-import 'package:statitikcard/screenOld/Products/products_explorer.dart';
-
 import 'package:statitikcard/screenOld/cartes/card_statistic.dart';
 import 'package:statitikcard/screenOld/options.dart';
 import 'package:statitikcard/screenOld/PokeSpace/pokespace_connexion.dart';
 import 'package:statitikcard/screenOld/widgets/news_dialog.dart';
+import 'package:statitikcard/screens/admin/page_admin_menu.dart';
 import 'package:statitikcard/screens/page_expansions.dart';
+import 'package:statitikcard/screens/products/page_products_explorer.dart';
 import 'package:statitikcard/services/news.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/statitik_font_icons.dart';
@@ -44,24 +43,26 @@ class _MainHomeState extends State<MainHome> with TickerProviderStateMixin {
       const DrawHomePage(),
       const PageExpansions(),
       const CardStatisticPage(),
-      const ProductsExplorer(),
+      PageProductsExplorer.view(Environment.instance.pkCollection(), Environment.instance.pkRendering()),
       const OptionsPage(),
       if(Environment.instance.isAdministrator())
-        const AdminPage(),
+        PageAdminMenu(Environment.instance.pkCollection(), Environment.instance.pkRendering(), Environment.instance.pkDB()),
     ];
 
-    final locale = Localizations.localeOf(context);
-    SharedPreferences.getInstance().then((prefs) {
-      var latestId = prefs.getInt('LatestNews') ?? 0;
-      News.readFromDB(locale, latestId).then((news) {
-        setState(() {
-          if (news.isNotEmpty) {
-            prefs.setInt('LatestNews', news[0].id);
-            _news = news;
-          }
+    final locale = null; //Localizations.maybeLocaleOf(context);
+    if(locale != null) {
+      SharedPreferences.getInstance().then((prefs) {
+        var latestId = prefs.getInt('LatestNews') ?? 0;
+        News.readFromDB(locale, latestId).then((news) {
+          setState(() {
+            if (news.isNotEmpty) {
+              prefs.setInt('LatestNews', news[0].id);
+              _news = news;
+            }
+          });
         });
       });
-    });
+    }
   }
 
   List<NavigationData> navigation(BuildContext context) {

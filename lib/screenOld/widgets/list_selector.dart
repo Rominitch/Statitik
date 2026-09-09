@@ -4,12 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 
 class ListSelector extends StatefulWidget {
   final Widget   title;
-  final Language language;
+  final LanguageOld language;
   final SplayTreeMap dataMap;
   final bool multiLangue;
   final Function(String, int)? addNewData;

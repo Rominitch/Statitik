@@ -35,7 +35,7 @@ void main() {
   }
 
   test('Product.Bytes', () async {
-    var l  = Language(id: 1, image: "FR");
+    var l  = LanguageOld(id: 1, image: "FR");
     var c  = ProductCategory(1, MultiLanguageString(["C","C", "C"]), true);
     var ex = Extension(0, "Ex", l);
     var r  = Rarity.fromText(0, MultiLanguageString(["S0","S0","S0"]), Colors.green);
@@ -110,8 +110,8 @@ void main() {
 
   test('filter', () async {
     var languages  = [
-      Language(id: 1, image: "FR"),
-      Language(id: 2, image: "EN"),
+      LanguageOld(id: 1, image: "FR"),
+      LanguageOld(id: 2, image: "EN"),
     ];
 
     var categories = [

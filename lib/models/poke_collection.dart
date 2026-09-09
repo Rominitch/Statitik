@@ -15,13 +15,14 @@ import 'package:statitikcard/models/poke_expansion_cards.dart';
 import 'package:statitikcard/models/poke_form.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_illustrator.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_marker.dart';
 import 'package:statitikcard/models/poke_rarity.dart';
 import 'package:statitikcard/models/poke_region.dart';
 import 'package:statitikcard/models/poke_serie.dart';
 import 'package:statitikcard/models/poke_set.dart';
 import 'package:statitikcard/models/products/poke_product.dart';
+import 'package:statitikcard/models/products/poke_product_booster.dart';
 import 'package:statitikcard/models/products/poke_product_category.dart';
 import 'package:statitikcard/models/products/poke_product_side.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -31,24 +32,11 @@ import 'package:statitikcard/tools/binary_manager.dart';
 
 import 'database/poke_db_cards_blob.dart';
 
-enum Language {
-  en,
-  fr,
-  jp;
 
-  static Language from(String s) {
-    switch(s) {
-      case "EN": return Language.en;
-      case "FR": return Language.fr;
-      case "JP": return Language.jp;
-    }
-    throw Exception("unknown");
-  }
-}
 
 class PokeCollection {
   static const double _version = 1.1;
-  Map<Language, PokeLangage> _languages = {};
+  Map<Language, PokeLanguage> _languages = {};
   List<PokeSerie>     _series     = [];
   List<PokemonName>   _pokemons   = [];
   List<OtherCardName> _otherCards = [];
@@ -73,13 +61,16 @@ class PokeCollection {
   List<PokeExpansion> _expansions = [];
 
   List<PokeProductCategory> _product_categories = [];
+  List<PokeProductBooster>  _product_boosters   = [];
   List<PokeProductSide>     _product_sides      = [];
   List<PokeProduct>         _products           = [];
-
 
   // Tools
   Map<String, String> convertKanji   = {};
   List<String>        orderedKanji   = [];
+
+  // Computed helper
+  Map<CardLocation, List<PokeLanguage>> _locationBylanguages = {};
 
   /// TEMPORARY ACCESS----------------------------
   List<PokeMarker> markers() { return _markers; }
@@ -88,7 +79,7 @@ class PokeCollection {
     int newId = oldId;
     if( oldId >= 10000 ) {
       for(final obj in _otherCards) {
-        final localId = obj.tmp_id();
+        final localId = obj.pid();
         if(localId.type() == PokeIdentifierType.object) {
           if( localId.number() == oldId-10000 ) {
             return obj;
@@ -130,7 +121,7 @@ class PokeCollection {
         if( oldId > 23) { oldId = oldId - 1;}
         return form(PokeIdentifier(oldId + 520000000));
       } catch(e) {
-        throw e;
+        rethrow;
       }
     }
     return null;
@@ -144,23 +135,57 @@ class PokeCollection {
     return sets(PokeIdentifier(id + 530000000));
   }
 
+  PokeProductBooster? tmpBoosterFromExp(PokeExpansion? pokeExpansion) {
+    if(pokeExpansion == null) {
+      return null;
+    }
+    for(final booster in _product_boosters) {
+      if(booster.expansion() == pokeExpansion) {
+        return booster;
+      }
+    }
+    return null;
+  }
   //List<PokeCard>      cardsOld()      { return _cardsOld; }
 
   /// TEMPORARY ACCESS----------------------------
 
-  List<PokeLangage>   languages() { return _languages.values.toList(growable: false); }
-  PokeRarity          unknownRarity() { return _unknownRarity!; }
+  List<PokemonName>   pokemons()          { return _pokemons; }
+  List<PokeRegion>    regions()           { return _regions; }
+  List<PokeLanguage>  languages()         { return _languages.values.toList(growable: false); }
+  PokeRarity          unknownRarity()     { return _unknownRarity!; }
+  List<PokeRarity>    worldRarity()       { return _worldRarity; }
+  List<PokeRarity>    japanRarity()       { return _japanRarity; }
+  List<PokeRarity>    goodCard()          { return _goodCard; }
+  List<PokeRarity>    otherThanReverse()  { return _otherThanReverse; }
+  List<PokeEffectName> effectNames()      { return _effectNames;}
+  Map<PokeIdentifier, PokeDbDescription> descriptions() { return _descriptions;}
+
+
   List<PokeCard>      cards()      { return _cards; }
   List<PokeExpansion> expansions() { return _expansions;}
 
   List<PokeProduct>     products()     { return _products;}
   List<PokeProductSide> sideProducts() { return _product_sides;}
+  List<PokeProductBooster> boosters()  { return _product_boosters; }
+  List<PokeProductCategory> productCategories() { return _product_categories; }
+  List<PokeProductSide>     productSides() { return _product_sides; }
 
-  PokeLangage language(Language id) { return _languages[id]!; }
+  PokeLanguage language(Language id) { return _languages[id]!; }
   List<PokeSerie> series() { return _series; }
   PokeSet?        sets(PokeIdentifier pid) {
     return _sets.firstWhere((element) => element.isEqual(pid) );
   }
+
+  List<PokeLanguage> languagesBy(CardLocation location) {
+    return _locationBylanguages[location]!;
+  }
+
+  PokemonName pokemon(PokeIdentifier pid) {
+    return _pokemons.firstWhere((element) => element.isEqual(pid));
+  }
+
+  List<PokeSet>  allSets() { return _sets; }
 
   PokeRarity?    rarity(int id) {
     return _rarities.firstWhere((element) => element.isEqual(id));
@@ -168,6 +193,10 @@ class PokeCollection {
 
   PokeCard?      card(PokeIdentifier pid) {
     return _cards.firstWhere((element) => element.isEqual(pid));
+  }
+
+  bool containsCard(PokeCard card) {
+    return _cards.where((element) => element.isEqual(card.pid())).isNotEmpty;
   }
 
   PokeDesign? design(PokeIdentifier pid){
@@ -218,13 +247,26 @@ class PokeCollection {
     return _expansions.firstWhere((element) => element.isEqual(pid) );
   }
 
+  PokeProductBooster? booster(PokeIdentifier pid) {
+    try {
+      return _product_boosters.firstWhere((element) => element.isEqual(pid));
+    } catch(_,_){
+      printOutput("Unknown PID: ${pid.id()}");
+      rethrow;
+    }
+  }
+
+  void add(PokeProductBooster booster) {
+    _product_boosters.add(booster);
+  }
+
   PokeCollection();
 
   PokeCollection.fromBytes(BinaryReader reader) {
     if(reader.readFloat32() == 1.0) {
       _languages = reader.readMap(
         (r) => Language.values[r.readInt8()],
-        (r) => PokeLangage.fromBytes(r)
+        (r, key) => PokeLanguage.fromBytes(key, r)
       );
       _series = reader.readList(
         (r) => PokeSerie.fromBytes(r)
@@ -255,7 +297,7 @@ class PokeCollection {
       );
       _descriptions = reader.readMap(
         (r) => PokeIdentifier.fromBytes(r),
-        (r) => PokeDbDescription.fromBytes(r)
+        (r, k) => PokeDbDescription.fromBytes(r)
       );
       _rarities = reader.readList(
         (r) => PokeRarity.fromBytes(r)
@@ -276,7 +318,7 @@ class PokeCollection {
   void toBytes(BinaryWriter w) {
     var time = TimeReport();
     w.writeFloat32(_version);
-    w.writeMap<Language, PokeLangage>(_languages,
+    w.writeMap<Language, PokeLanguage>(_languages,
       (w, key)   => w.writeInt8(key.index),
       (w, value) => value.toBytes(w)
     );
@@ -343,6 +385,44 @@ class PokeCollection {
     time.tick("Expansions");
   }
 
+  void clear() {
+    _languages.clear();
+    _series.clear();
+    _pokemons.clear();
+    _otherCards.clear();
+    _regions.clear();
+    _sets.clear();
+    _designs.clear();
+    _markers.clear();
+    _forms.clear();
+    _illustrators.clear();
+    _effectNames.clear();
+
+    _descriptions     .clear();
+    _rarities         .clear();
+    _worldRarity      .clear();
+    _japanRarity      .clear();
+    _goodCard         .clear();
+    _otherThanReverse .clear();
+
+    _cards.clear();
+    _expansions.clear();
+
+    _product_categories .clear();
+    _product_boosters   .clear();
+    _product_sides      .clear();
+    _products           .clear();
+
+    // Tools
+    convertKanji   .clear();
+    orderedKanji   .clear();
+
+    // Computed helper
+    _locationBylanguages.clear();
+
+    _unknownRarity = null;
+  }
+
   Future<void> readStaticData(TransactionContext connection) async
   {
     var time = TimeReport();
@@ -351,15 +431,18 @@ class PokeCollection {
 
     // Read language String
     for (var row in langueReq) {
-      final dbName = PokeLangage.dbName(row[1]);
+      final dbName = PokeLanguage.dbName(row[1]);
       var languageReq = await connection.query("SELECT * FROM `$dbName`");
       Map<PokeIdentifier, String> data = {};
       for (var row in languageReq) {
         data[PokeIdentifier(row[0])] = row[1];
       }
-      _languages[Language.from(row[0])] = PokeLangage.fromDB(row[1], data, CardLocation.from(row[2]) );
+      final langID = Language.from(row[0]);
+      _languages[langID] = PokeLanguage.fromDB(row[1], data, CardLocation.from(row[2]), langID);
       time.tick("Languages ${row[1]}");
     }
+
+    updateLanguageData();
 
     var seriesReq = await connection.query("SELECT * FROM `PK_serie`");
     for (var row in seriesReq) {
@@ -490,6 +573,12 @@ class PokeCollection {
     }
     time.tick("Product Categories");
 
+    var productBoosterReq = await connection.query("SELECT * FROM `PK_produit_booster`");
+    for (var row in productBoosterReq) {
+      _product_boosters.add(PokeProductBooster.read(this, PokeIdentifier(row[0]), readBlob(row[1]) ));
+    }
+    time.tick("Product boosters");
+
     var productSideReq = await connection.query("SELECT * FROM `PK_produit_annexe`");
     for (var row in productSideReq) {
       final category = productCategory(PokeIdentifier(row[1]))!;
@@ -501,10 +590,16 @@ class PokeCollection {
     for (var row in productsReq) {
       if(row[3] != null) {
         final category = productCategory(PokeIdentifier(row[1]))!;
-        final product = PokeProduct.fromDB(
-            PokeIdentifier(row[0]), category, row[2], row[3]);
-        product.readOldData(readBlob(row[4]), this);
-        _products.add(product);
+
+        try {
+          final product = PokeProduct.fromDB(
+              PokeIdentifier(row[0]), category, row[2], row[3]);
+          product.readOldData(readBlob(row[4]), this);
+          _products.add(product);
+        } catch (_, _) {
+          final p = PokeProduct.readData(this, PokeIdentifier(row[0]), category, row[2], row[3], readBlob(row[4]));
+          _products.add(p);
+        }
       }
     }
     time.tick("Products");
@@ -513,6 +608,17 @@ class PokeCollection {
     _linkItems();
 
     time.tick("Links");
+  }
+
+  void updateLanguageData() {
+    _locationBylanguages = {};
+    for( final language in _languages.values ) {
+      final location = language.location();
+      if( !_locationBylanguages.containsKey(location) ) {
+        _locationBylanguages[location] = [];
+      }
+      _locationBylanguages[location]!.add(language);
+    }
   }
 
   void _linkItems() {
@@ -592,21 +698,60 @@ class PokeCollection {
     await connection.queryMulti(query, queries);
   }
 
-  Future<void> updateProducts(TransactionContext connection) async
+  Future<void> updateProducts(TransactionContext connection, [List<PokeProduct>? products]) async
   {
     List<List<Object?>> queries = [];
-    for(final product in _products) {
+    for(final product in products ?? _products) {
       final writer = BinaryWriter();
       product.dataToBytes(writer);
-      queries.add([product.pid().id(), product.category.pid().id(), product.releaseDate, writer.toBytes()]);
+      queries.add([product.pid().id(), product.category.pid().id(), product.releaseDate, product.oldName(), writer.toBytes()]);
     }
     updateProduct(queries, connection);
   }
   Future<void> updateProduct(List<List<Object?>> queries, TransactionContext connection) async
   {
-    var query = 'REPLACE INTO `PK_produit` (`id`, `id_categorie`, `sortie`, `contenu`)'
-        ' VALUES (? ,?, ? ,?);';
+    var query = 'REPLACE INTO `PK_produit` (`id`, `id_categorie`, `sortie`, `nom`, `contenu`)'
+        ' VALUES (?, ?, ?, ?, ?);';
     await connection.queryMulti(query, queries);
+  }
+
+  Future<void> sendProducts(TransactionContext connection, List<PokeProduct> products, bool creation) async {
+    try {
+      updateProducts(connection, products);
+
+      Environment.instance.restoreAdminData();
+    }
+    catch(e){
+      printOutput("Database error $e");
+    }
+  }
+
+  Future<void> updateSideProducts(TransactionContext connection, [List<PokeProductSide>? sideProducts]) async
+  {
+    List<List<Object?>> queries = [];
+    for(final sideProduct in sideProducts ?? _product_sides) {
+
+      queries.add([sideProduct.pid().id(), sideProduct.category.pid().id(), sideProduct.releaseDate, sideProduct.idName().id()]);
+    }
+    updateProduct(queries, connection);
+  }
+
+  Future<void> updateSideProduct(List<List<Object?>> queries, TransactionContext connection) async
+  {
+    var query = 'REPLACE INTO `PK_produit_annexe` (`id`, `id_categorie`, `sortie`, `id_name`)'
+        ' VALUES (?, ?, ?, ?);';
+    await connection.queryMulti(query, queries);
+  }
+
+  Future<void> sendSideProducts(TransactionContext connection, List<PokeProductSide> sideProducts, bool creation) async {
+    try {
+      updateSideProducts(connection, sideProducts);
+
+      Environment.instance.restoreAdminData();
+    }
+    catch(e){
+      printOutput("Database error $e");
+    }
   }
 
   // ------------------------------------------------------------------------
@@ -652,7 +797,7 @@ class PokeCollection {
     return _series.firstWhere((element) => expansion.isSameSerie(element.id()));
   }
 
-  (PokeLangage?, PokeExpansion?) expansionFromOldDB(int oldID) {
+  (PokeLanguage?, PokeExpansion?) expansionFromOldDB(int oldID) {
     final Map<int, (Language, int)> convert = {
       1	: (Language.fr,1108040000),
       2	: (Language.fr,1108030000),
@@ -893,9 +1038,160 @@ class PokeCollection {
     try {
       final (idL, idExp) = convert[oldID]!;
       return (_languages[idL], expansion(PokeIdentifier(idExp)));
-    } catch(_,e) {
+    } catch(_, _) {
       printOutput("Not found: $oldID");
       rethrow;
     }
+  }
+
+  PokeIdentifier newId(PokeIdentifierType type, List allItems) {
+    int newCode = allItems.last.pid().number();
+
+    var newId = PokeIdentifier.create(type, newCode);
+
+    //Search if product id is unique
+    while(allItems.any((item){
+      return item.pid() == newId;
+    }))
+    {
+      newCode += 1;
+      newId = PokeIdentifier.create(type, newCode);
+    }
+    return newId;
+  }
+
+  List<PokeCardViewerIdentifier> searchCardIntoAllSubExtension(PokeCard searchCard) {
+    List<PokeCardViewerIdentifier> result = [];
+    for (final exp in _expansions) {
+      int id=0;
+      for (var cards in exp.cards.cards) {
+        int subId=0;
+        for (var card in cards) {
+          if(card.card == searchCard) {
+            result.add(PokeCardViewerIdentifier(exp, PokeCardIdentifier.from([0, id, subId])));
+          }
+          subId += 1;
+        }
+        id += 1;
+      }
+
+      id=0;
+      for (var card in exp.cards.energyCard) {
+        if(card.card == searchCard) {
+          result.add(PokeCardViewerIdentifier(exp, PokeCardIdentifier.from([1, id])));
+        }
+        id += 1;
+      }
+
+      id=0;
+      for (var card in exp.cards.noNumberedCard) {
+        if(card.card == searchCard) {
+          result.add(PokeCardViewerIdentifier(exp, PokeCardIdentifier.from([2, id])));
+        }
+        id += 1;
+      }
+    }
+    return result;
+  }
+
+  Future<PokeIdentifier> addNewEffectName(TransactionContext connection, String effectLabels, PokeLanguage language) async {
+    assert(effectLabels.isNotEmpty);
+    // Generate new ID
+    PokeIdentifier idEffect = newId(PokeIdentifierType.effect, _effectNames);
+
+    // Added
+    for(final l in _languages.values ) {
+      final value = (l == language)
+          ? effectLabels
+          : "<$effectLabels>";
+
+      var query = 'INSERT INTO `${l.db()}` (`id_nom`, `nom`)'
+          ' VALUES (?, ?);';
+      await connection.queryMulti(query, [[idEffect.id(), value]]);
+    }
+    return idEffect;
+  }
+
+  Future<void> saveDatabaseSEC(PokeExpansion expansion, connection) async {
+    // Compute next Id of card
+    int nextId = _cards.length + 1;
+    printOutput("Next id of card is $nextId");
+
+    // Update or create all cards
+    printOutput("Start update card data.");
+    int updated = 0;
+    int created = 0;
+    for(var cardLists in expansion.cards.cards) {
+      for(var card in cardLists) {
+        // Save and update + maintain admin DB
+        if( await saveDatabase(card.card, nextId, connection) ) {
+          created += 1;
+          nextId  += 1;
+          printOutput("New card is add. Next id will be $nextId");
+        } else {
+          updated +=1;
+        }
+      }
+    }
+    for(var cardLists in [expansion.cards.energyCard, expansion.cards.noNumberedCard]) {
+      for(var card in cardLists) {
+        // Save and update + maintain admin DB
+        if( await saveDatabase(card.card, nextId, connection) ) {
+          created += 1;
+          nextId  += 1;
+          printOutput("New card is add. Next id will be $nextId");
+        } else {
+          updated +=1;
+        }
+      }
+    }
+    printOutput("Done update card data: created: $created | updated: $updated.");
+
+    // Just change card info
+    var query = 'UPDATE `PK_cartes_expansion` SET `cartes` = ?, `energies` = ?, `cartesSansNumero` = ?'
+        ' WHERE `PK_cartes_expansion`.`id` = ${expansion.pid().id()}';
+
+    final writerCard = BinaryWriter();
+    PokeDbCardsBlob.writeCard(writerCard, expansion.cards.cards);
+    final writerEnergy = BinaryWriter();
+    PokeDbCardsBlob.writeOther(writerEnergy, expansion.cards.energyCard);
+    final writerNoNumber = BinaryWriter();
+    PokeDbCardsBlob.writeOther(writerNoNumber, expansion.cards.noNumberedCard);
+
+    await connection.queryMulti(query, [
+      [
+        writerCard.toBytes(),
+        expansion.cards.energyCard.isEmpty     ? null : writerEnergy.toBytes(),
+        expansion.cards.noNumberedCard.isEmpty ? null : writerNoNumber.toBytes()
+      ]]);
+  }
+
+  Future<bool> saveDatabase(PokeCard card, int nextId, connection) async {
+    final writer = BinaryWriter();
+    card.toBytes(writer);
+    List<Object?> data = [writer.toBytes()];
+
+    var query = "";
+
+    final isCreation = card.pid().id() == 0;
+    if (isCreation) {
+      data.insert(0, nextId);
+      query = 'INSERT INTO `PK_cartes` VALUES(?, ?);';
+
+      //printOutput("New card added at $nextId and we update internal list");
+    } else {
+      query = 'UPDATE `PK_cartes` SET `info` = ?'
+          ' WHERE `PK_cartes`.`id` = ${card.pid().id()}';
+
+      //printOutput("Update card at $idCard and we update internal list");
+    }
+
+    try {
+      await connection.queryMulti(query, [data]);
+    } catch(e) {
+      printOutput("Request error: $e");
+      rethrow;
+    }
+    return isCreation;
   }
 }

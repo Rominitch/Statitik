@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'bytes_coder.dart';
 
-class Language
+class LanguageOld
 {
   int id;
   String image;
 
-  Language({required this.id, required this.image});
+  LanguageOld({required this.id, required this.image});
 
   AssetImage create()
   {
@@ -29,7 +29,7 @@ class Language
     return id == 3;
   }
 
-  Language.fromBytes(ByteParser parser):
+  LanguageOld.fromBytes(ByteParser parser):
     id    = parser.extractInt32(),
     image = parser.extractString16();
 

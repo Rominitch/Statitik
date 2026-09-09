@@ -7,7 +7,8 @@ class CustomRadioController {
   Function  onChange;
   dynamic   currentValue;
 
-  CustomRadioController({required this.onChange});
+  CustomRadioController({required this.onChange, initialValue}):
+    currentValue = initialValue;
 
   void register(CustomRadio cr) {
     if(currentValue == cr.value) {

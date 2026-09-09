@@ -14,7 +14,7 @@ import 'package:statitikcard/services/models/pokemon_card_data.dart';
 
 class CardFilterSelector extends StatefulWidget {
   final CardResults result;
-  final Language    language;
+  final LanguageOld    language;
 
   const CardFilterSelector(this.language, this.result, {super.key});
 

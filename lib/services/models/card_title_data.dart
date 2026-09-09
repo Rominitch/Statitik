@@ -14,7 +14,7 @@ class CardTitleData
   List<int> toBytes() {
     return ByteEncoder.encodeMultiLanguage(_names);
   }
-  String fullname(Language l) {
+  String fullname(LanguageOld l) {
     return _names.name(l);
   }
 
@@ -22,7 +22,7 @@ class CardTitleData
     return _names.defaultName(separator);
   }
 
-  String name(Language l) {
+  String name(LanguageOld l) {
     return _names.name(l);
   }
 
@@ -30,7 +30,7 @@ class CardTitleData
     return false;
   }
 
-  bool search(Language? l, String searchPart) {
+  bool search(LanguageOld? l, String searchPart) {
     return _names.search(l, searchPart);
   }
 }
@@ -43,7 +43,7 @@ class PokemonInfo extends CardTitleData
   PokemonInfo(super.names, this.generation, this.idPokedex);
 
   @override
-  String fullname(Language l) {
+  String fullname(LanguageOld l) {
     return "${name(l)} - n°$idPokedex";
   }
 

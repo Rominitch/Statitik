@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
@@ -44,14 +44,14 @@ class PokeMarker
     return _image.toUpperCase().replaceAll("_SV", "");
   }
 
-  Widget icon(PokeLangage l, {height}) {
+  Widget icon(PokeLanguage l, {height}) {
     var val = _image;
     return drawCachedImage('logo', val, height: height,
         alternativeRendering: Text(val, style: TextStyle(fontSize: val.length > 9 ? 7
             : (val.length > 6 ? 9 : 12) )));
   }
 
-  Widget? pokeMarker(PokeLangage l, PokeMarker marker, {double? height=15.0, bool generate=false}) {
+  Widget? pokeMarker(PokeLanguage l, PokeMarker marker, {double? height=15.0, bool generate=false}) {
     if( _toTitle ) {
       if (generate || widget == null) {
         widget = marker.icon(l, height: height);

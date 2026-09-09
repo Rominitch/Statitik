@@ -154,7 +154,7 @@ class BoosterDraw {
     fillCard();
   }
 
-  Validator validationWorld(final Language language) {
+  Validator validationWorld(final LanguageOld language) {
     if(abnormal) {
       return Validator.valid;
     }

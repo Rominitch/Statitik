@@ -7,7 +7,7 @@ class Extension
 {
   int      id;
   String   name;
-  Language language;
+  LanguageOld language;
 
   Extension(this.id, this.name, this.language);
 

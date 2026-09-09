@@ -15,7 +15,7 @@ import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 
 class PokeSpaceMyDecksCreator extends StatefulWidget {
-  final Language  language;
+  final LanguageOld  language;
   final Deck      deck;
 
   const PokeSpaceMyDecksCreator(this.language, this.deck, {super.key});
@@ -140,7 +140,7 @@ class _PokeSpaceMyDecksCreatorState extends State<PokeSpaceMyDecksCreator> with 
                         ),
                         onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: widget.language,
-                              afterSelected: (BuildContext context, Language language, SubExtension subExtension) {
+                              afterSelected: (BuildContext context, LanguageOld language, SubExtension subExtension) {
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => CardsSelection(widget.language, subExtension)));
                               }, addMode: false))).then((value) {
                             if(value != null) {

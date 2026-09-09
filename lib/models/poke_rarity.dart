@@ -45,7 +45,6 @@ class PokeRarity {
     return Icons.help_outline;
   }
 
-
   List<Widget> icon({double? iconSize, double fontSize=12.0, double? textureSize=20.0}) {
     return [
       if(image.isNotEmpty)
@@ -61,7 +60,7 @@ class PokeRarity {
 
   PokeRarity.fromBytes(BinaryReader reader):
       _id    = reader.readInt16(),
-      iconId = reader.readOptional( () => reader.readIconData() ),
+      iconId = reader.readOptional( (r) => r.readIconData() ),
       letter = reader.readString(),
       image  = reader.readString(),
       configuration = reader.readInt16(),
@@ -69,7 +68,7 @@ class PokeRarity {
 
   void toBytes(BinaryWriter writer) {
     writer.writeInt16(_id);
-    writer.writeOptional(iconId, () => writer.writeIconData(iconId!) );
+    writer.writeOptional(iconId, (w) => w.writeIconData(iconId!) );
     writer.writeString(letter);
     writer.writeString(image);
     writer.writeInt16(configuration);

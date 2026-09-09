@@ -13,7 +13,6 @@ import 'package:statitikcard/screenOld/widgets/cards_selection.dart';
 import 'package:statitikcard/screenOld/widgets/pokemon_card.dart';
 import 'package:statitikcard/services/draw/card_draw_data.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/product_category.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
@@ -22,10 +21,10 @@ import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/models/pokemon_card_data.dart';
 
 class NewProductPage extends StatefulWidget {
-  final Language activeLanguage;
+  final LanguageOld activeLanguage;
   final Product? editProduct;
 
-  NewProductPage([this.editProduct, Language? l, key]) :
+  NewProductPage([this.editProduct, LanguageOld? l, key]) :
     activeLanguage = (l ?? Environment.instance.collection.languages[1]!),
     super(key: key);
 
@@ -56,7 +55,7 @@ class _NewProductPageState extends State<NewProductPage> {
     }
 
     radioLangue.clear();
-    for( Language l in Environment.instance.collection.languages.values)
+    for( LanguageOld l in Environment.instance.collection.languages.values)
     {
       radioLangue.add(
         Expanded(
@@ -206,7 +205,7 @@ class _NewProductPageState extends State<NewProductPage> {
             onPressed: () {
               // Go to product selector
               Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: product.language!,
-                  afterSelected: (BuildContext context, Language language, SubExtension subExtension) {
+                  afterSelected: (BuildContext context, LanguageOld language, SubExtension subExtension) {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => CardsSelection(language, subExtension)));
                   }, addMode: false))).then((value) {
                 if(value != null) {
@@ -358,7 +357,7 @@ class _NewProductPageState extends State<NewProductPage> {
 class BoostersInfo extends StatefulWidget {
   final Function        productAdd;
   final ProductBooster? newProd;
-  final Language        l;
+  final LanguageOld        l;
 
   const BoostersInfo(this.productAdd, this.newProd, this.l, {super.key});
 
@@ -368,7 +367,7 @@ class BoostersInfo extends StatefulWidget {
 
 class _BoostersInfoState extends State<BoostersInfo> {
 
-  void afterSelected(BuildContext context, Language language, SubExtension subExt) {
+  void afterSelected(BuildContext context, LanguageOld language, SubExtension subExt) {
     Navigator.pop(context);
     setState(() {
       widget.newProd!.subExtension = subExt;

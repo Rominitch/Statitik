@@ -1,11 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
 
 import 'package:statitikcard/services/models/card_set.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/card_design.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/marker.dart';
@@ -105,7 +103,7 @@ class _ButtonCheckState extends State<ButtonCheck> {
 }
 
 class MarkerButtonCheck extends ButtonCheck<CardMarker> {
-  final Language l;
+  final LanguageOld l;
   MarkerButtonCheck(this.l, cardMarkers, value, CustomButtonCheckController? controller, {Key? key}) : super(cardMarkers, value, controller, key: key);
 
   @override
@@ -124,7 +122,7 @@ class TypeButtonCheck extends ButtonCheck<TypeCard> {
 }
 
 class RarityButtonCheck extends ButtonCheck<Rarity> {
-  final Language l;
+  final LanguageOld l;
   RarityButtonCheck(this.l, raritiesList, value, CustomButtonCheckController? controller, {Key? key}) : super(raritiesList, value, controller, key: key);
 
   @override
@@ -164,7 +162,7 @@ class ExpansionTypeButtonCheck extends ButtonCheck<ExpansionType> {
 }
 
 class CardSetButtonCheck extends ButtonCheck<CardSet> {
-  final Language l;
+  final LanguageOld l;
   CardSetButtonCheck(this.l, seList, value, {controller, Key? key}) : super(seList, value, controller, key: key);
 
   @override
@@ -174,7 +172,7 @@ class CardSetButtonCheck extends ButtonCheck<CardSet> {
 }
 
 class DesignButtonCheck extends ButtonCheck<CardDesign> {
-  final Language l;
+  final LanguageOld l;
   final double iconSize;
   DesignButtonCheck(this.l, designsList, value, {controller, this.iconSize=30.0, Key? key}) : super(designsList, value, controller, key: key);
 
@@ -185,7 +183,7 @@ class DesignButtonCheck extends ButtonCheck<CardDesign> {
 }
 
 class ArtButtonCheck extends ButtonCheck<ArtFormat> {
-  final Language l;
+  final LanguageOld l;
   final double iconSize;
   ArtButtonCheck(this.l, artsList, value, {controller, this.iconSize=30.0, Key? key}) : super(artsList, value, controller, key: key);
 

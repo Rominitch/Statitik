@@ -1,17 +1,14 @@
 import 'package:statitikcard/models/draw/poke_card_draw.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
-import 'package:statitikcard/models/poke_langage.dart';
-import 'package:statitikcard/models/products/poke_product.dart';
-import 'package:statitikcard/models/products/poke_product_side.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/space/poke_deck.dart';
 import 'package:statitikcard/models/space/poke_user_card_counter.dart';
-import 'package:statitikcard/services/draw/card_draw_data.dart';
 import 'package:statitikcard/services/environment.dart';
 
 class PokeSpace
 {
-  Map<PokeLangage, Map<PokeExpansion, PokeUserCardCounter>> myCards = {};
+  Map<PokeLanguage, Map<PokeExpansion, PokeUserCardCounter>> myCards = {};
   //Map<PokeProduct,     UserProductCounter> myProducts     = {};
   //Map<PokeProductSide, UserProductCounter> mySideProducts = {};
   List<PokeDeck>                           myDecks        = [];
@@ -37,7 +34,7 @@ class PokeSpace
     }
   }
 
-  List<PokeLangage> myLanguagesCard() {
+  List<PokeLanguage> myLanguagesCard() {
     return myCards.keys.toList(growable: false);
   }
 /*

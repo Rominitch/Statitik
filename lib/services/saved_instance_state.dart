@@ -8,7 +8,7 @@ class SavedInstanceState
   bool showAllproduct = true;
 
   // Extension
-  Language?      selectedLanguage;
+  LanguageOld?      selectedLanguage;
   SubExtension?  subExtension;
 
   Map<SerieType, bool> serieFilters = {SerieType.normal: true, SerieType.promo: true, SerieType.deck: true};

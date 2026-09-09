@@ -13,7 +13,7 @@ class SessionDraw
 {
   int               idAchat=-1; // To manage draw after save into database
 
-  Language          language;
+  LanguageOld          language;
   Product           product;
   bool              productAnomaly=false;
   List<BoosterDraw> boosterDraws;

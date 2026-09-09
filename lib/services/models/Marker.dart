@@ -15,12 +15,12 @@ class CardMarker
 
   const CardMarker(this.id, this.name, this.color, this.toTitle);
 
-  String titleName(Language l) {
+  String titleName(LanguageOld l) {
     var title = name.name(l);
     return title.toUpperCase().replaceAll("_SV", "");
   }
 
-  Widget icon(Language l, {height}) {
+  Widget icon(LanguageOld l, {height}) {
     var val = name.name(l);
     return drawCachedImage('logo', val, height: height,
         alternativeRendering: Text(val, style: TextStyle(fontSize: val.length > 9 ? 7
@@ -110,7 +110,7 @@ class CardMarkers {
   }
 }
 
-Widget pokeMarker(Language l, CardMarker marker, {double? height=15.0, bool generate=false}) {
+Widget pokeMarker(LanguageOld l, CardMarker marker, {double? height=15.0, bool generate=false}) {
   if( generate || Environment.instance.collection.cachedMarkers[marker] == null ) {
     Environment.instance.collection.cachedMarkers[marker] = marker.icon(l, height: height);
   }

@@ -1,23 +1,23 @@
 
 import 'package:flutter/material.dart';
 import 'package:statitikcard/models/poke_collection.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 
 import 'package:statitikcard/models/statistics/statistic_data.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/widgets/widget_expansions_selector.dart';
+import 'package:statitikcard/widgets/expansion/widget_expansions_selector.dart';
 
-class WidgetCardVersionSelector extends StatefulWidget {
+class WizardSelectUntilExpansion extends StatefulWidget {
   final ExpansionSelection selection;
   final void Function()    onPress;
 
-  const WidgetCardVersionSelector(this.selection, {required this.onPress, super.key});
+  const WizardSelectUntilExpansion(this.selection, {required this.onPress, super.key});
 
   @override
-  State<WidgetCardVersionSelector> createState() => _WidgetCardVersionSelectorState();
+  State<WizardSelectUntilExpansion> createState() => _WizardSelectUntilExpansionState();
 }
 
-class _WidgetCardVersionSelectorState extends State<WidgetCardVersionSelector> {
+class _WizardSelectUntilExpansionState extends State<WizardSelectUntilExpansion> {
 
   @override
   void initState() {
@@ -45,7 +45,7 @@ class _WidgetCardVersionSelectorState extends State<WidgetCardVersionSelector> {
     );
   }
 
-  void _onClickLanguage(BuildContext context, PokeLangage l) {
+  void _onClickLanguage(BuildContext context, PokeLanguage l) {
     setState(() {
       widget.selection.language = l;
     });

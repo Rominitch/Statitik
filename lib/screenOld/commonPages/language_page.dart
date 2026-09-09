@@ -9,7 +9,7 @@ import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 
 class LanguagePage extends StatefulWidget {
-  final Function(BuildContext, Language, SubExtension) afterSelected;
+  final Function(BuildContext, LanguageOld, SubExtension) afterSelected;
   final bool addMode;
 
   const LanguagePage({required this.afterSelected, required this.addMode, super.key});
@@ -24,7 +24,7 @@ class _LanguagePageState extends State<LanguagePage> {
   @override
   void initState() {
     widgetLanguage = [];
-    for( Language l in Environment.instance.collection.languages.values)
+    for( LanguageOld l in Environment.instance.collection.languages.values)
     {
       Widget press(ctx) {
         return ExtensionPage(language: l, afterSelected: widget.afterSelected, addMode: widget.addMode);
@@ -55,14 +55,14 @@ class _LanguagePageState extends State<LanguagePage> {
 }
 
 class LanguageSelector extends StatelessWidget {
-  final Function(BuildContext, Language) onClickLanguage;
+  final Function(BuildContext, LanguageOld) onClickLanguage;
 
   const LanguageSelector(this.onClickLanguage, {super.key});
 
   @override
   Widget build(BuildContext context) {
     List<Widget> widgetLanguage = [];
-    for( Language l in Environment.instance.collection.languages.values)
+    for( LanguageOld l in Environment.instance.collection.languages.values)
     {
       widgetLanguage.add(TextButton(
         child: Image(image: l.create()),

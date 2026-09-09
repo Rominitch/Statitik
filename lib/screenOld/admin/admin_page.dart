@@ -90,11 +90,11 @@ class _AdminPageState extends State<AdminPage> {
     );
   }
 
-  void goToProductPage(BuildContext context, Language language, SubExtension subExt) {
+  void goToProductPage(BuildContext context, LanguageOld language, SubExtension subExt) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.allSelection, language: language, subExt: subExt, afterSelected: afterSelectProduct) ));
   }
 
-  void afterSelectProduct(BuildContext context, Language language, ProductRequested? product, ProductCategory? category) {
+  void afterSelectProduct(BuildContext context, LanguageOld language, ProductRequested? product, ProductCategory? category) {
     // Go to page
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => NewProductPage(product!.product))).then( (value)
@@ -103,7 +103,7 @@ class _AdminPageState extends State<AdminPage> {
     });
   }
 
-  void goToExtensionProducts(BuildContext context, Language language, SubExtension subExt) {
+  void goToExtensionProducts(BuildContext context, LanguageOld language, SubExtension subExt) {
     Navigator.of(context).pop();
     Navigator.of(context).pop();
     Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionProductsCreator(language, subExt) ));
@@ -111,7 +111,7 @@ class _AdminPageState extends State<AdminPage> {
 
   void launchEditionCards() {
     Navigator.push(context, MaterialPageRoute(builder: (context) => LanguagePage(
-      afterSelected: (BuildContext context, Language language, SubExtension subExtension) {
+      afterSelected: (BuildContext context, LanguageOld language, SubExtension subExtension) {
         Navigator.of(context).pop();
         Navigator.of(context).pop();
         Navigator.push(context, MaterialPageRoute(builder: (context) => NewCardExtensions(language, subExtension) ));

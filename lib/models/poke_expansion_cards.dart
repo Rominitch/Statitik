@@ -1,11 +1,12 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/models/database/poke_db_cards_blob.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
 import 'package:statitikcard/models/poke_card_in_expansion.dart';
 import 'package:statitikcard/models/poke_collection.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/bytes_coder.dart';
@@ -80,6 +81,25 @@ class PokeExpansionCards {
     }
     return count;
   }
+
+  Widget cardInfo(PokeCardIdentifier cardId) {
+    var card = cardFromId(cardId);
+    switch(cardId.listId){
+      case 0: {
+        var label = numberOfCard(cardId.numberId);
+        return Text(label, style: TextStyle(fontSize: label.length > 3 ? 10 : 12));
+      }
+      case 1: {
+        return card.imageTypeExtended() ?? card.imageType();
+      }
+      case 2: {
+        return Text(numberOfCard(cardId.numberId));
+      }
+      default:
+        throw StatitikException(ErrorCode.unknown, "Unknown list");
+    }
+  }
+
 /*
   PokemonCardExtension extractCard(int currentVersion, parser, Map cardCollection, Map allSets, Map rarities) {
     try {
@@ -179,6 +199,21 @@ class PokeExpansionCards {
     return mask(configuration, codeNotInsideRandom);
   }
 
+  void setAlternativeSet(bool enabled) {
+    int code = enabled ? codeHasAlternativeSet : 0;
+    configuration = setMask(configuration, code, codeHasAlternativeSet);
+  }
+
+  void setBoosterEnergy(bool enabled) {
+    int code = enabled ? codeHasBoosterEnergy : 0;
+    configuration = setMask(configuration, code, codeHasBoosterEnergy);
+  }
+
+  void setNotInsideRandom(bool enabled) {
+    int code = enabled ? codeNotInsideRandom : 0;
+    configuration = setMask(configuration, code, codeNotInsideRandom);
+  }
+
   PokeCardInExpansion cardFromId(PokeCardIdentifier cardId) {
     switch(cardId.listId){
       case 0: {
@@ -189,6 +224,28 @@ class PokeExpansionCards {
       }
       case 2: {
         return noNumberedCard[cardId.numberId];
+      }
+      default:
+        throw StatitikException(ErrorCode.unknown, "Unknown list");
+    }
+  }
+
+  PokeCardInExpansion? tryCardFromId(PokeCardIdentifier cardId) {
+    switch(cardId.listId){
+      case 0: {
+        return cardId.numberId < cards.length
+          ? cards[cardId.numberId][cardId.alternativeId]
+          : null;
+      }
+      case 1: {
+        return cardId.numberId < cards.length
+          ? energyCard[cardId.numberId]
+          : null;
+      }
+      case 2: {
+        return cardId.numberId < cards.length
+          ?  noNumberedCard[cardId.numberId]
+          : null;
       }
       default:
         throw StatitikException(ErrorCode.unknown, "Unknown list");
@@ -244,13 +301,13 @@ class PokeExpansionCards {
     }
   }
 
-  String titleOfCard(PokeLangage l, int idCard, [int idAlternative=0]) {
+  String titleOfCard(PokeLanguage l, int idCard, [int idAlternative=0]) {
     return idCard < cards.length
         ? cards[idCard][idAlternative].card.titleOfCard(l)
         : "";
   }
 
-  String readTitleOfCard(PokeLangage l, PokeCardIdentifier idCard) {
+  String readTitleOfCard(PokeLanguage l, PokeCardIdentifier idCard) {
     return cardFromId(idCard).card.titleOfCard(l);
   }
 /*

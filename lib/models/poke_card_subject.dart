@@ -3,7 +3,7 @@ import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_form.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_region.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
@@ -20,11 +20,11 @@ class CardTitle
     _id.toBytesID(writer);
   }
 
-  String? fullname(PokeLangage l) {
+  String? fullname(PokeLanguage l) {
     return l.label(_id);
   }
 
-  String? name(PokeLangage l) {
+  String? name(PokeLanguage l) {
     return l.label(_id);
   }
 
@@ -36,7 +36,7 @@ class CardTitle
     return _id == pid;
   }
 
-  PokeIdentifier tmp_id() {
+  PokeIdentifier pid() {
     return _id;
   }
 }
@@ -58,7 +58,7 @@ class PokemonName extends CardTitle
   }
 
   @override
-  String? fullname(PokeLangage l) {
+  String? fullname(PokeLanguage l) {
     return "${name(l)} - n°${idPokedex()}";
   }
 
@@ -107,16 +107,16 @@ class PokeFullCardPokemon {
 
   PokeFullCardPokemon.fromBytes(BinaryReader reader, PokeCollection collection):
     name   = collection.cardTitle( PokeIdentifier.fromBytes(reader))!,
-    region = reader.readOptional(() => collection.region(PokeIdentifier.fromBytes(reader))),
-    form   = reader.readOptional(() => collection.form( PokeIdentifier.fromBytes(reader)));
+    region = reader.readOptional((r) => collection.region(PokeIdentifier.fromBytes(r))),
+    form   = reader.readOptional((r) => collection.form( PokeIdentifier.fromBytes(r)));
 
   void toBytes(BinaryWriter writer) {
     name.toBytesID(writer);
-    writer.writeOptional(region, () => region!.toBytesID(writer));
-    writer.writeOptional(form,   () => form!.toBytesID(writer));
+    writer.writeOptional(region, (w) => region!.toBytesID(w));
+    writer.writeOptional(form,   (w) => form!.toBytesID(w));
   }
 
-  String titleOfCard(PokeLangage l) {
+  String titleOfCard(PokeLanguage l) {
     String title = name.name(l)!;
     if(form != null) {
       title = sprintf(l.label(form!)!, [title]);

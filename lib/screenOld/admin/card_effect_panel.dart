@@ -15,7 +15,7 @@ import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 
 class CardEffectsPanel extends StatefulWidget {
-  final Language             l;
+  final LanguageOld             l;
   final PokemonCardExtension card;
 
   const CardEffectsPanel(this.card, this.l, {super.key});

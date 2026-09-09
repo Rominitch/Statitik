@@ -307,7 +307,7 @@ class StatsBooster {
 }
 
 class StatsData {
-  Language?         language;
+  LanguageOld?         language;
   SubExtension?     subExt;
   ProductRequested? pr;
   ProductCategory?  category;

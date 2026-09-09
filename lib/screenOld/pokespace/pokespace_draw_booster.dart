@@ -13,7 +13,7 @@ import 'package:statitikcard/services/models/type_card.dart';
 
 class BoosterPage extends StatefulWidget {
   final BoosterDraw boosterDraw;
-  final Language    language;
+  final LanguageOld    language;
   final bool        readOnly;
 
   const BoosterPage({required this.language, required this.boosterDraw, required this.readOnly, super.key});

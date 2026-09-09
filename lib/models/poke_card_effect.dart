@@ -1,7 +1,7 @@
 import 'package:statitikcard/models/database/poke_db_description.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
@@ -10,16 +10,22 @@ class PokeEffectName extends PokeIdentifier {
   PokeEffectName.fromDB(super._id);
 
   PokeEffectName.fromBytes(super.reader) : super.fromBytes();
+
+  PokeIdentifier pid() {
+    return this;
+  }
 }
 
 class PokeEffectDescription {
   PokeDbDescription  description;
   List<int>          parameters = []; ///< List of parameter to substitute
 
-  List<DescriptionEffect> computeDescriptionEffects(PokeCollection collection, PokeLangage l) {
+  List<DescriptionEffect> computeDescriptionEffects(PokeCollection collection, PokeLanguage l) {
     List<DescriptionEffect> effects = [];
     return effects;
   }
+
+  PokeEffectDescription(this.description, this.parameters);
 
   PokeEffectDescription.fromBytesOld(this.description, this.parameters);
 
@@ -40,11 +46,11 @@ class PokeCardEffect {
   int             power  = 0;   /// Zero = no attack.
   List<TypeCard>  attack = [];  /// Energy to attach for attack.
 
-  PokeCardEffect();
+  PokeCardEffect( this.title, this.description, this.power, this.attack );
 
   PokeCardEffect.fromBytes(BinaryReader reader, PokeCollection collection):
-    title       = reader.readOptional(() => collection.effectName(PokeIdentifier.fromBytes(reader))),
-    description = reader.readOptional(() => PokeEffectDescription.fromBytes(reader, collection)),
+    title       = reader.readOptional((r) => collection.effectName(PokeIdentifier.fromBytes(r))),
+    description = reader.readOptional((r) => PokeEffectDescription.fromBytes(r, collection)),
     power       = reader.readInt16(),
     attack      = reader.readSmallList(((reader) => TypeCard.values[reader.readInt8()]));
   
@@ -73,8 +79,8 @@ class PokeCardEffect {
   }
 
   void toBytes(BinaryWriter writer) {
-    writer.writeOptional(title, () => title!.toBytesID(writer));
-    writer.writeOptional(description, () => description!.toBytes(writer));
+    writer.writeOptional(title, (w) => title!.toBytesID(w));
+    writer.writeOptional(description, (w) => description!.toBytes(w));
     writer.writeInt16(power);
     writer.writeSmallList(attack, (writer, element) => writer.writeInt8(element.index) );
   }

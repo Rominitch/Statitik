@@ -101,7 +101,7 @@ class _StatsPageState extends State<StatsPage> {
     });
   }
 
-  void afterSelectExtension(BuildContext context, Language language, SubExtension subExt) {
+  void afterSelectExtension(BuildContext context, LanguageOld language, SubExtension subExt) {
     Navigator.popUntil(context, ModalRoute.withName('/'));
     setState(() {
       // Set old filter

@@ -332,7 +332,7 @@ class PokemonCardExtension {
     return data.type!= TypeCard.unknown && rarity != Environment.instance.collection.unknownRarity;
   }
 
-  List<Widget> imageRarity(Language l) {
+  List<Widget> imageRarity(LanguageOld l) {
     return getImageRarity(rarity, l, iconSize: 18.0);
   }
 
@@ -351,7 +351,7 @@ class PokemonCardExtension {
     return Environment.instance.collection.goodCard.contains(rarity);
   }
 
-  Widget? showImportantMarker(Language l, {double? height}) {
+  Widget? showImportantMarker(LanguageOld l, {double? height}) {
     for(var m in data.markers.markers) {
       if(m.toTitle) {
         return pokeMarker(l, m, height: height);

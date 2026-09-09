@@ -1,4 +1,5 @@
 import 'package:statitikcard/models/poke_identifier.dart';
+import 'package:statitikcard/models/poke_language.dart';
 
 class PokeProductCategory {
   PokeIdentifier _pid;
@@ -12,6 +13,10 @@ class PokeProductCategory {
 
   bool isEqual(PokeIdentifier pid) {
     return _pid == pid;
+  }
+
+  String name(PokeLanguage language) {
+    return language.label(_pid)!;
   }
 /*
   PokeProductCategory.fromBytes(ByteParser parser):

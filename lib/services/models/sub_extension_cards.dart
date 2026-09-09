@@ -253,13 +253,13 @@ class SubExtensionCards {
     }
   }
 
-  String titleOfCard(Language l, int idCard, [int idAlternative=0]) {
+  String titleOfCard(LanguageOld l, int idCard, [int idAlternative=0]) {
     return idCard < cards.length
         ? cards[idCard][idAlternative].data.titleOfCard(l)
         : "";
   }
 
-  String readTitleOfCard(Language l, CardIdentifier idCard) {
+  String readTitleOfCard(LanguageOld l, CardIdentifier idCard) {
     return cardFromId(idCard).data.titleOfCard(l);
   }
 

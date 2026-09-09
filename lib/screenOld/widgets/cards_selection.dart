@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/screenOld/widgets/card_image.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
@@ -21,7 +20,7 @@ class CardSelectionData {
 }
 
 class CardsSelection extends StatefulWidget {
-  final Language     language;
+  final LanguageOld     language;
   final SubExtension subExtension;
 
   const CardsSelection(this.language, this.subExtension, {super.key});

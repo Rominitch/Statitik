@@ -18,11 +18,11 @@ class Region {
 
   const Region(this._id, this._fullName, this._applyPokemonName);
 
-  String name(Language l) {
+  String name(LanguageOld l) {
     return _fullName.name(l);
   }
 
-  String applyToPokemonName(Language l) {
+  String applyToPokemonName(LanguageOld l) {
     return _applyPokemonName.name(l);
   }
 
@@ -46,7 +46,7 @@ class Forme
 
   const Forme(this._id, this._applyPokemonName);
 
-  String applyToPokemonName(Language l) {
+  String applyToPokemonName(LanguageOld l) {
     return _applyPokemonName.name(l);
   }
 
@@ -115,7 +115,7 @@ class Pokemon {
     return bytes;
   }
 
-  String titleOfCard(Language l) {
+  String titleOfCard(LanguageOld l) {
     String title = name.name(l);
     if(forme != null) {
       title = sprintf(forme!._applyPokemonName.name(l), [title]);
@@ -205,7 +205,7 @@ class PokemonCardData {
     weakness     = parser.extractOptional((parser) => EnergyValue.fromBytes(parser));
 
 
-  String titleOfCard(Language l) {
+  String titleOfCard(LanguageOld l) {
     List<String> name = [];
     for (var pokemon in title) {
       name.add(pokemon.titleOfCard(l));

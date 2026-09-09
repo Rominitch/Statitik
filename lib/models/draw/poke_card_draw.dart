@@ -39,7 +39,7 @@ class PokeCardDraw {
         (readItem) => readItem.readUint8()) );
 
   void toBytes(BinaryWriter writer) {
-    writer.writeMap(_countBySetByImage, 
+    writer.writeSmallMap(_countBySetByImage,
       (writer, key)   => key.toBytesID(writer),
       (writer, value) => writer.writeSmallList(value, (writer, item) => writer.writeUint8(item)));
   }

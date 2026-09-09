@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
@@ -24,6 +25,8 @@ class PokeSet {
 
   PokeIdentifier      pid() { return _id; }
 
+  Color color() { return _color; }
+
   void toBytesID(BinaryWriter writer) {
     _id.toBytesID(writer);
   }
@@ -42,6 +45,10 @@ class PokeSet {
   bool isSystem()                 { return mask(_configuration, setMaskSystem); }
   bool isParallel()               { return mask(_configuration, setMaskParallel); }
   bool replaceRevertIntoBooster() { return mask(_configuration, setMaskReplaceRevertIntoBooster); }
+
+  String name(PokeLanguage l) {
+    return l.label(_id)!;
+  }
 
   Widget imageWidget({double? width, double? height}){
     try {

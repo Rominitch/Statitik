@@ -27,7 +27,7 @@ import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/pokemon_card_data.dart';
 
 class CardCreator extends StatefulWidget {
-  final Language              activeLanguage;
+  final LanguageOld              activeLanguage;
   final bool                  editor;
   final SubExtension          se;
   final PokemonCardExtension  card;
@@ -645,7 +645,7 @@ class _CardCreatorState extends State<CardCreator> with TickerProviderStateMixin
   }
 }
 
-Widget buildTitle(BuildContext context, Language language, PokemonCardExtension card, CardIdentifier idCard) {
+Widget buildTitle(BuildContext context, LanguageOld language, PokemonCardExtension card, CardIdentifier idCard) {
   return Row(
     children:
       [ getImageType(card.data.type, generate: false), const SizedBox(width: 8.0) ] +
@@ -655,7 +655,7 @@ Widget buildTitle(BuildContext context, Language language, PokemonCardExtension 
 }
 
 class PokeCardNaming extends StatefulWidget {
-  final Language              language;
+  final LanguageOld              language;
   final PokemonCardExtension  card;
   final CardIdentifier        idCard;
   final int                   idName;
@@ -669,7 +669,7 @@ class PokeCardNaming extends StatefulWidget {
   @override
   State<PokeCardNaming> createState() => _PokeCardNamingState();
 
-  static Future selectPokemonName(BuildContext context, Language language, CardIdentifier id, PokemonCardExtension card, int idName) {
+  static Future selectPokemonName(BuildContext context, LanguageOld language, CardIdentifier id, PokemonCardExtension card, int idName) {
 
     return Navigator.push(
       context,
@@ -686,7 +686,7 @@ class PokeCardNaming extends StatefulWidget {
     return await Environment.instance.addNewDresseurObjectName(newText, idLangue);
   }
 
-  static Future selectOtherName(BuildContext context, Language language, CardIdentifier id, PokemonCardExtension card, int idName) {
+  static Future selectOtherName(BuildContext context, LanguageOld language, CardIdentifier id, PokemonCardExtension card, int idName) {
     return Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ListSelector(buildTitle(context, language, card, id), language, Environment.instance.collection.otherNames, multiLangue:true,
@@ -698,7 +698,7 @@ class PokeCardNaming extends StatefulWidget {
     });
   }
 
-  static Future selectCardName(BuildContext context, Language language, CardIdentifier id, PokemonCardExtension card, int idName) {
+  static Future selectCardName(BuildContext context, LanguageOld language, CardIdentifier id, PokemonCardExtension card, int idName) {
     if( isPokemonCard(card.data.type) ) {
       return selectPokemonName(context, language, id, card, idName);
     } else {
@@ -822,7 +822,7 @@ class CardImageCreator extends StatefulWidget {
   final PokemonCardExtension card;
   final CardIdentifier       idCard;
   final CardImageIdentifier  idImage;
-  final Language             activeLanguage;
+  final LanguageOld             activeLanguage;
   final CardEditorOptions    options;
 
   const CardImageCreator(this.se, this.card, this.idCard, this.idImage, this.activeLanguage, this.options, {super.key});

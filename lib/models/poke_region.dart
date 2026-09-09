@@ -1,6 +1,6 @@
 
 import 'package:statitikcard/models/poke_identifier.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 
 class PokeRegion extends PokeIdentifier {
 
@@ -8,7 +8,7 @@ class PokeRegion extends PokeIdentifier {
 
   PokeRegion.fromBytes(super.reader) : super.fromBytes();
 
-  String? applicableName(PokeLangage l) {
+  String? applicableName(PokeLanguage l) {
     return l.label(PokeIdentifier.region(super.number(), false));
   }
 }

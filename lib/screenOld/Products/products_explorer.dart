@@ -21,7 +21,7 @@ class _ProductsExplorerState extends State<ProductsExplorer> with TickerProvider
   @override
   void initState() {
     var collection = Environment.instance.collection;
-    for (Language language in collection.languages.values) {
+    for (LanguageOld language in collection.languages.values) {
       languageWidgets.add(Padding(
         padding: const EdgeInsets.all(8.0),
         child: language.barIcon(Environment.heightTabHeader - 16.0),

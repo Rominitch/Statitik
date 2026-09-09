@@ -53,7 +53,7 @@ class CardViewerBody extends StatefulWidget {
 }
 
 class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStateMixin {
-  Map<Language, List<CardViewerIdentifier>> allDesigns = {};
+  Map<LanguageOld, List<CardViewerIdentifier>> allDesigns = {};
   List<Widget> findCard = [];
   late TabController languageController;
   late TabController pageController;
@@ -272,7 +272,7 @@ class _CardViewerBodyState extends State<CardViewerBody> with TickerProviderStat
 }
 
 class EffectViewer extends StatelessWidget {
-  final Language   l;
+  final LanguageOld   l;
   final CardEffect effect;
   const EffectViewer(this.effect, this.l,  {super.key});
 

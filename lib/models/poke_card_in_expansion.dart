@@ -54,6 +54,7 @@ class PokeCardInExpansion {
   List<PokeSet> orderedSets() {
     return setInfo.isEmpty ? [] : setInfo.keys.toList(growable: false)..sort( (a, b) { return a.compareTo(b); } );
   }
+
   /*
   PokeCardInExpansion.creation(this.data, this.rarity, Map allSets, {jpDBId=0, this.specialID="", this.isSecret=false, bool isJapanese=false}) {
     var image = ImageDesign();
@@ -338,19 +339,21 @@ class PokeCardInExpansion {
     return isValid() && Environment.instance.collection.goodCard.contains(rarity);
   }
 */
-  PokeCardDesign tryGetImage(PokeCardImageIdentifier idImage) {
+  PokeCardDesign? tryGetImage(PokeCardImageIdentifier idImage) {
     assert(setInfo.isNotEmpty);
 
     if(setInfo.containsKey(idImage.set)) {
       final v = setInfo[idImage.set]!;
       final finalIdImage = idImage.idImage < v.length ? idImage.idImage : 0;
 
-      assert(v.isNotEmpty);
-      return v[finalIdImage];
+      if(v.isNotEmpty) {
+        return v[finalIdImage];
+      }
     } else {
       // By default return first item
       return setInfo.values.first.first;
     }
+    return null;
   }
 
   PokeCardDesign? image(PokeCardImageIdentifier idImage) {

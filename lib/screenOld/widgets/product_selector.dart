@@ -3,7 +3,6 @@ import 'package:flutter_spinbox/material.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/pokespace.dart';
 import 'package:statitikcard/services/models/product.dart';
@@ -23,7 +22,7 @@ class ProductSelection {
 }
 
 class ProductSelector extends StatefulWidget {
-  final Language language;
+  final LanguageOld language;
   const ProductSelector(this.language, {super.key});
 
   @override

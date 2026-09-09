@@ -11,17 +11,17 @@ class MultiLanguageString {
     return _names.join(separator);
   }
 
-  String name(Language l) {
+  String name(LanguageOld l) {
     assert(0 <= l.id-1 && l.id-1 < _names.length);
     return _names[l.id-1];
   }
 
-  void editName(String value, Language l) {
+  void editName(String value, LanguageOld l) {
     assert(0 <= l.id-1 && l.id-1 < _names.length);
     _names[l.id-1] = value;
   }
 
-  bool search(Language? l, String searchPart) {
+  bool search(LanguageOld? l, String searchPart) {
     if(l != null) {
       return name(l).toLowerCase().contains(searchPart.toLowerCase());
     } else {

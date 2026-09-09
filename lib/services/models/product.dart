@@ -180,7 +180,7 @@ class ProductCard {
 class Product extends ProductGeneric
 {
   List<ProductBooster>     boosters;
-  Language?                language;
+  LanguageOld?                language;
 
   // New
   Map<ProductSide, int>    sideProducts = {};
@@ -197,7 +197,7 @@ class Product extends ProductGeneric
 
   Product.fromBytes(super.parser, super.collection):
     boosters = parser.extractArray16<ProductBooster>((parser) => ProductBooster.fromBytes(parser, collection)),
-    language = parser.extractOptional((parser) => Language.fromBytes(parser)),
+    language = parser.extractOptional((parser) => LanguageOld.fromBytes(parser)),
     sideProducts = parser.extractMap<ProductSide, int>(
       (parser) => collection.productSides[parser.extractInt32()]!,
       (parser) => parser.extractInt8()),
@@ -351,7 +351,7 @@ class ProductRequested
   ProductRequested(this.product, this.color, this.count);
 }
 
-bool filter(Product product, Language l, SubExtension se, ProductCategory? category, Map userExtension, {bool onlyShowRandom=false}) {
+bool filter(Product product, LanguageOld l, SubExtension se, ProductCategory? category, Map userExtension, {bool onlyShowRandom=false}) {
   bool keep = product.language == l;
   // Filter language
   if( keep && category != null ) {
@@ -406,7 +406,7 @@ bool filter(Product product, Language l, SubExtension se, ProductCategory? categ
   return keep;
 }
 
-Future<Map> filterProducts(Language l, SubExtension se, ProductCategory? category, {bool showAll=true, bool withUserCount=false, bool onlyWithUser=false, bool onlyLocalUser=false}) async
+Future<Map> filterProducts(LanguageOld l, SubExtension se, ProductCategory? category, {bool showAll=true, bool withUserCount=false, bool onlyWithUser=false, bool onlyLocalUser=false}) async
 {
   printOutput("Filter: ${l.image} ${se.name} showRandom=$showAll computeUserCount=$withUserCount keepUserProduct=$onlyWithUser localUser=$onlyLocalUser");
 

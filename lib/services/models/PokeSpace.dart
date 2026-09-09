@@ -318,8 +318,8 @@ class PokeSpace
     }
   }
 
-  List<Language> myLanguagesCard() {
-    List<Language> languages = [];
+  List<LanguageOld> myLanguagesCard() {
+    List<LanguageOld> languages = [];
     for (var subExtension in myCards.keys) {
       if(!languages.contains(subExtension.extension.language)) {
         languages.add(subExtension.extension.language);
@@ -328,8 +328,8 @@ class PokeSpace
     return languages;
   }
 
-  List<Language> myLanguagesProduct() {
-    List<Language> languages = [];
+  List<LanguageOld> myLanguagesProduct() {
+    List<LanguageOld> languages = [];
     for (var product in myProducts.keys) {
       if(!languages.contains(product.language)) {
         languages.add(product.language!);
@@ -528,7 +528,7 @@ class PokeSpace
     outOfDate = false;
   }
 
-  Map<SubExtension, UserCardCounter> getBy(Language? currentValue) {
+  Map<SubExtension, UserCardCounter> getBy(LanguageOld? currentValue) {
     if(currentValue != null && myCards.isNotEmpty) {
       return Map.from(myCards)..removeWhere((subExt, v) => subExt.extension.language != currentValue );
     } else {
@@ -563,7 +563,7 @@ class PokeSpace
     return myNewCard;
   }
 
-  Map getProductsBy(Language? language) {
+  Map getProductsBy(LanguageOld? language) {
     if(language != null) {
       return Map.from(myProducts)..removeWhere((product, info) => product.language! != language);
     } else {

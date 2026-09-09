@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
+import 'package:statitikcard/models/poke_language.dart';
+import 'package:statitikcard/models/poke_rendering.dart';
 import 'package:statitikcard/models/products/poke_product_generic.dart';
 import 'package:statitikcard/services/tools.dart';
+import 'package:statitikcard/widgets/image/image_with_cache.dart';
 
 class PokeProductSide extends PokeProductGeneric
 {
@@ -14,6 +17,12 @@ class PokeProductSide extends PokeProductGeneric
   @override
   Widget image({alternativeRendering})
   {
-    return drawCachedImage('PKSideProducts', super.pid().id().toString(), height: 70, alternativeRendering: alternativeRendering);
+    return PokeRendering.sideProductImage(super.pid(), alternativeRendering: alternativeRendering);
   }
+
+  String name(PokeLanguage language) {
+    return language.label(_idName)!;
+  }
+
+  PokeIdentifier idName() { return _idName; }
 }

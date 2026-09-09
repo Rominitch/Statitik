@@ -97,7 +97,7 @@ class _PokeSpaceDrawResumeState extends State<PokeSpaceDrawResume> {
           setState(() {});
         }
       }
-      afterSelectExtension(BuildContext context, Language language, SubExtension subExt) async {
+      afterSelectExtension(BuildContext context, LanguageOld language, SubExtension subExt) async {
         // Quit page
         Navigator.of(context).pop();
 

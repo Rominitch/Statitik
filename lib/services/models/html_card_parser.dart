@@ -44,7 +44,7 @@ class HtmlCardParser {
     "none": TypeCard.incolore,
   };
 
-  final Language language;
+  final LanguageOld language;
   late String regions = "";
   late SplayTreeMap<int, PokemonInfo> pokemonOrdered;
 
@@ -278,7 +278,7 @@ class HtmlCardParser {
     return false;
   }
 
-  Future<int> getOrAddEffectName(MultiLanguageString effectNames, Language language) async {
+  Future<int> getOrAddEffectName(MultiLanguageString effectNames, LanguageOld language) async {
     int? id;
     // Search into Jp effect
     for (MapEntry e in Environment.instance.collection.effects.entries) {
@@ -296,7 +296,7 @@ class HtmlCardParser {
     return id!;
   }
 
-  Future<CardDescription?> getOrAddDescription(MultiLanguageString descriptionNames, Language language) async {
+  Future<CardDescription?> getOrAddDescription(MultiLanguageString descriptionNames, LanguageOld language) async {
     CardDescription? d;
     final descriptionName = descriptionNames.name(language);
     Map<int, int> codes = {};

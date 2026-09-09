@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/screenOld/loading.dart';
-import 'package:statitikcard/screenOld/home.dart';
 import 'package:statitikcard/screens/main_home.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';

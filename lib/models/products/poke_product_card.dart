@@ -12,9 +12,9 @@ class PokeProductCard {
   late final PokeExpansion         expansion;
   late PokeCardIdentifier    idCard;
   late final AlternativeDesign     design;       /// Think more about it but keep space !
-  late final bool                  jumbo;
-  late final bool                  isRandom;
-  late final PokeCardDraw          counter;   /// Counter inside BY PRODUCT ONLY: Not limited to 7 !!
+  late bool                  jumbo;
+  late bool                  isRandom;
+  late PokeCardDraw          counter;   /// Counter inside BY PRODUCT ONLY: Not limited to 7 !!
 
   static const int _jumboMask  = 1;
   static const int _randomMask = 2;
@@ -87,7 +87,10 @@ class PokeProductCard {
 
     for(int id=0; id < count; id +=1){
       if( id < sets.length) {
-        counter.setCount(reader.readUint8(), sets[id]);
+        var nbImages = reader.readUint8();
+        for(int idImage=0; idImage < nbImages; idImage+=1) {
+          counter.setCount(reader.readUint8(), sets[id], idImage);
+        }
       }
     }
     //counter = PokeCardDraw.fromOldDBBytes(reader, expansion.cards.cardFromId(idCard));

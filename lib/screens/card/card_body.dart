@@ -3,7 +3,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_level.dart';
 import 'package:statitikcard/screens/card/card_images_list.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -42,7 +42,7 @@ class CardBody extends StatefulWidget {
 }
 
 class _CardBodyState extends State<CardBody> with TickerProviderStateMixin {
-  Map<PokeLangage, List<PokeCardViewerIdentifier>> allDesigns = {};
+  Map<PokeLanguage, List<PokeCardViewerIdentifier>> allDesigns = {};
   List<Widget> findCard = [];
   late TabController languageController;
   late TabController pageController;

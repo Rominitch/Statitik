@@ -9,7 +9,7 @@ import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/product.dart';
 
 class ProductViewer extends StatefulWidget {
-  final Language language;
+  final LanguageOld language;
   final Product  product;
   const ProductViewer(this.language, this.product, {super.key});
 
@@ -55,7 +55,7 @@ class _ProductViewerState extends State<ProductViewer> with TickerProviderStateM
               children: [
                 booster.subExtension != null
                     ? booster.subExtension!.image(hSize: 35)
-                    : SizedBox(height: 35, child: Text(AppLocalizations.of(context)!.pv_b1)),
+                    : SizedBox(height: 35, child: Text(AppLocalizations.of(context)!.produit_boosters_random)),
                 const SizedBox(height: 5.0),
                 Text(booster.nbBoosters.toString()),
               ],

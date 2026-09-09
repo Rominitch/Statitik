@@ -14,6 +14,7 @@ import 'package:statitikcard/screenOld/stats/stats.dart';
 import 'package:statitikcard/screenOld/options.dart';
 import 'package:statitikcard/screenOld/PokeSpace/pokespace_connexion.dart';
 import 'package:statitikcard/screenOld/widgets/news_dialog.dart';
+import 'package:statitikcard/screens/products/page_products_explorer.dart';
 import 'package:statitikcard/services/news.dart';
 import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';

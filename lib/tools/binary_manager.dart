@@ -172,10 +172,10 @@ class BinaryWriter {
     writeInt32(iconData.codePoint);
   }
 
-  void writeOptional(dynamic value, void Function() encodeValue) {
+  void writeOptional(dynamic value, void Function(BinaryWriter w) encodeValue) {
     if( value != null) {
       writeBool(true);
-      encodeValue();
+      encodeValue(this);
     } else {
       writeBool(false);
     }
@@ -192,11 +192,15 @@ class BinaryReader {
     return _offset < _buffer.lengthInBytes;
   }
 
+  BinaryReader readGZip() {
+    return BinaryReader(Uint8List.fromList(gzip.decode(readBuffer())));
+  }
+
   BinaryReader readCompressBuffer() {
     // Choose best buffer
     final isZip = readBool();
     if( isZip  ) {
-      return BinaryReader(Uint8List.fromList(gzip.decode(readBuffer())));
+      return readGZip();
     } else {
       return this;
     }
@@ -346,7 +350,7 @@ class BinaryReader {
 
   Map<K, V> readMap<K, V>(
       K Function(BinaryReader reader) keyDecoder,
-      V Function(BinaryReader reader) valueDecoder,
+      V Function(BinaryReader reader, K key) valueDecoder,
       ) {
     final count = readInt32();
 
@@ -354,7 +358,7 @@ class BinaryReader {
 
     for (int i = 0; i < count; i++) {
       final key = keyDecoder(this);
-      final value = valueDecoder(this);
+      final value = valueDecoder(this, key);
       result[key] = value;
     }
 
@@ -394,8 +398,8 @@ class BinaryReader {
     return Collection.getIcon(readInt32());
   }
 
-  ValueType? readOptional<ValueType>( ValueType? Function() extractValue ) {
-    return readBool() ? extractValue() : null;
+  ValueType? readOptional<ValueType>( ValueType? Function(BinaryReader r) extractValue ) {
+    return readBool() ? extractValue(this) : null;
   }
 
   int tmpReadInt16BIG() {
@@ -428,5 +432,9 @@ class BinaryReader {
       charCodes.add(tmpReadInt16BIG());
     }
     return String.fromCharCodes(charCodes);
+  }
+
+  bool isFullyRead() {
+    return _offset == _buffer.length;
   }
 }

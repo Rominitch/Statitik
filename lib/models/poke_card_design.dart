@@ -13,8 +13,7 @@ class PokeCardDesign {
   // Computed
   String     finalImage; /// Cached to retrieve final image when found
 
-  PokeCardDesign.empty(this.design):
-    art = ArtFormat.normal,
+  PokeCardDesign(this.design, [this.art = ArtFormat.normal]):
     jpDBId = 0,
     cardImage = "",
     finalImage = "";

@@ -47,7 +47,7 @@ class _UserReportState extends State<UserReport> {
     bestCards.clear();
 
     if(finalData.stats != null) {
-      final Language l = finalData.subExt!.extension.language;
+      final LanguageOld l = finalData.subExt!.extension.language;
       // Just keep best card for report
       for (int idCardNumber = 0; idCardNumber < finalData.stats!.count.length; idCardNumber += 1) {
         for (int idCard = 0; idCard < finalData.stats!.count[idCardNumber].length; idCard += 1) {

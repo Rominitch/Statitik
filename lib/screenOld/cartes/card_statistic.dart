@@ -112,7 +112,7 @@ class _CardStatisticPageState extends State<CardStatisticPage> with TickerProvid
 }
 
 class CardFilteredReport extends StatefulWidget {
-  final Language language;
+  final LanguageOld language;
   final CardStatisticOptions options;
 
   const CardFilteredReport(this.language, this.options, {super.key});

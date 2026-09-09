@@ -7,7 +7,6 @@ import 'package:statitikcard/screenOld/widgets/card_image.dart';
 
 import 'package:statitikcard/services/models/card_set.dart';
 import 'package:statitikcard/services/draw/card_draw_data.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';

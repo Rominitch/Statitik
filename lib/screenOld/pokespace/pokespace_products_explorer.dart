@@ -6,7 +6,7 @@ import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/pokespace.dart';
 
 class PokeSpaceProductsExplorer extends StatefulWidget {
-  final Language? language;
+  final LanguageOld? language;
   final Function  onChangeMyProduct;
 
   const PokeSpaceProductsExplorer(this.language, this.onChangeMyProduct, {super.key});

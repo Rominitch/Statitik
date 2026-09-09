@@ -1,14 +1,14 @@
 import 'package:statitikcard/models/draw/poke_card_draw.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/products/poke_product_card.dart';
 import 'package:statitikcard/models/report/poke_new_card_report.dart';
 import 'package:statitikcard/services/environment.dart';
 
 class PokeUserCardCounter
 {
-  PokeLangage              language;
+  PokeLanguage              language;
   PokeExpansion            expansion;
   List<List<PokeCardDraw>> cards     = [];
   List<PokeCardDraw>       energies  = [];

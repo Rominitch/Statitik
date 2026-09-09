@@ -1,8 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
+import 'package:statitikcard/models/poke_language.dart';
+import 'package:statitikcard/models/products/poke_product_booster.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/tools.dart';
+import 'package:statitikcard/tools/binary_manager.dart';
 
 void main() {
   test('MigrationPokeExpansions', () async {
@@ -78,7 +81,57 @@ void main() {
     }
   });
 
+  test('DefaultBoosterCreation', () async {
+    PokeCollection collection = PokeCollection();
+    final dbPoke = Database.poke();
+    // Read DB
+    try {
+      await dbPoke.transactionR((connection) async {
+        await collection.readStaticData(connection);
+      });
+    } catch (onError) {
+      fail("Impossible to read database: $onError");
+    }
+    printOutput("Read done");
+
+    for(final exp in collection.expansions()) {
+      if( !exp.isPromo() ) {
+        final loc = exp.location();
+        collection.add(PokeProductBooster(
+          PokeIdentifier.boosterFrom(exp.pid()),
+          (loc == CardLocation.Monde) ? 11 : 5,
+          (loc == CardLocation.Monde) ? 1 : 0,
+          4,
+          exp
+        ));
+      }
+    }
+
+    try {
+      await dbPoke.transactionR((connection) async {
+
+        List<List<Object?>> queries = [];
+        for(final booster in collection.boosters()) {
+          final writer = BinaryWriter();
+          booster.toBytes(writer);
+          queries.add([booster.pid().id(), writer.toBytes()]);
+        }
+
+        var query = 'INSERT INTO `PK_produit_booster` (`id`, `contenu`)'
+            ' VALUES (?, ?);';
+        await connection.queryMulti(query, queries);
+
+      });
+
+      printOutput("Creation done");
+    } catch (onError) {
+      fail("Impossible to read database: $onError");
+    }
+
+  });
+
   test('MigrationProducts', () async {
+    printOutput("Start migration of all products");
     PokeCollection collection = PokeCollection();
 
     final dbPoke = Database.poke();
@@ -91,8 +144,10 @@ void main() {
     } catch (onError) {
       fail("Impossible to read database: $onError");
     }
+    printOutput("Read done");
     // Write new DB
     try {
+
       await dbPoke.transactionR((connection) async {
         // Migrate
         await collection.updateProducts(connection);
@@ -100,6 +155,8 @@ void main() {
         // Try to read before release transaction
         collection = PokeCollection();
         await collection.readStaticData(connection);
+
+        printOutput("Migration is achieved");
       });
     } catch (onError) {
       fail("Impossible to write database: $onError");

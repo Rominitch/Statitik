@@ -4,7 +4,7 @@ import 'package:kana_kit/kana_kit.dart';
 import 'package:statitikcard/models/poke_card_design.dart';
 import 'package:statitikcard/models/poke_card_in_expansion.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_set.dart';
 import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -39,7 +39,12 @@ class PokeCardIdentifier {
     cardId = [reader.readUint8(), reader.readUint16(), reader.readUint8()];
 
   PokeCardIdentifier.fromOldBytes(BinaryReader reader) :
-        cardId = [reader.readUint8(), reader.tmpReadInt16BIG(), reader.readUint8()];
+        cardId = [reader.readUint8(), reader.tmpReadInt16BIG(), 0]
+  {
+    if(cardId[0] == 0) {
+      cardId[2] = reader.readUint8();
+    }
+  }
 
   int get alternativeId {
     assert(cardId.length >= 3);
@@ -108,16 +113,16 @@ class PokeCardIdentifier {
 class PokeCardViewerIdentifier {
   final PokeExpansion            expansion;
   final PokeCardIdentifier       idCard;
-  final PokeLangage?             specificLanguage;
+  final PokeLanguage?            specificLanguage;
 
   PokeCardImageIdentifier?       idImage;
 
   PokeCardViewerIdentifier(this.expansion, this.idCard, {this.idImage, this.specificLanguage}) {
-    idImage ??= PokeCardImageIdentifier(cardInExp().orderedSets().first);
+    idImage = expansion.cards.tryCardFromId(idCard) != null ? PokeCardImageIdentifier(cardInExp().orderedSets().first) : null;
   }
 
-  List<PokeLangage> compatibleLanguage() {
-    List<PokeLangage> allLanguage = [];
+  List<PokeLanguage> compatibleLanguage() {
+    List<PokeLanguage> allLanguage = [];
     for(final language in Environment.instance.pkCollection().languages()) {
       if (language.location() == expansion.location()) {
         allLanguage.add(language);
@@ -135,7 +140,7 @@ class PokeCardViewerIdentifier {
   }
 
   PokeCardDesign cardDesign() {
-    return cardInExp().tryGetImage(idImage!);
+    return cardInExp().tryGetImage(idImage!)!;
   }
 
   List<Uri> computeImageURI(bool showTCGImages) {

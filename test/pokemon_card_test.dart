@@ -65,7 +65,7 @@ void main() {
   });
 
   test('ExtensionDrawCards', () {
-    var l  = Language(id: 1, image: "FR");
+    var l  = LanguageOld(id: 1, image: "FR");
     var ex = Extension(0, "Ex", l);
     var r  = Rarity.fromText(0, MultiLanguageString(["S0","S0","S0"]), Colors.green);
     var defaultCard = PokemonCardData.empty();

@@ -52,3 +52,5 @@ app.*.map.json
 /windows
 pubspec.lock
 lib/secrets/googleAPI.dart
+# Widget Preview related
+.widget_preview/

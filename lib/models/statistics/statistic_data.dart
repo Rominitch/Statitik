@@ -1,6 +1,6 @@
 
 import 'package:statitikcard/models/poke_expansion.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_serie.dart';
 import 'package:statitikcard/models/statistics/poke_stats_booster.dart';
 import 'package:statitikcard/screenOld/stats/stat_view.dart';
@@ -10,7 +10,7 @@ import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/models/product_category.dart';
 
 class ExpansionSelection {
-  PokeLangage?   language;
+  PokeLanguage?   language;
   CardLocation?  location;
   PokeSerie?     serie;
   PokeExpansion? expansion;

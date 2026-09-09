@@ -62,7 +62,7 @@ class _CardImageState extends State<CardImage> {
   @override
   Widget build(BuildContext context) {
     if(Environment.instance.isAdministrator()) {
-      var img = widget.cvId.cardInExp().tryGetImage(widget.cvId.idImage!);
+      var img = widget.cvId.cardInExp().tryGetImage(widget.cvId.idImage!)!;
       return Tooltip(
           message: img.finalImage.isNotEmpty ? img.finalImage : widget.cardImage.join("\n"),
           child: buildCachedImage(true)

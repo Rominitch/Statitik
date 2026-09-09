@@ -11,7 +11,7 @@ import 'package:statitikcard/services/models/serie_type.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 
 class ExtensionPage extends StatefulWidget {
-  final Language language;
+  final LanguageOld language;
   final Function afterSelected;
   final bool     addMode;
 

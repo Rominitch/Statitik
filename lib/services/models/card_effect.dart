@@ -37,11 +37,11 @@ class DescriptionData {
           (DescriptionEffect e) => ByteEncoder.encodeInt8(e.index));
   }
 
-  String name(Language l) {
+  String name(LanguageOld l) {
     return multiName.name(l);
   }
 
-  bool search(Language? l, String searchPart) {
+  bool search(LanguageOld? l, String searchPart) {
     return multiName.search(l, searchPart);
   }
 }
@@ -70,7 +70,7 @@ class CardDescription {
     }
   }
 
-  void computeDescriptionEffects(Map descriptionCollection, Language l) {
+  void computeDescriptionEffects(Map descriptionCollection, LanguageOld l) {
     // Combine and extract info
     RegExp exp = RegExp(r"(.*?)<(.?:[{\d+}|]+)>(.*)", unicode: true);
     int count=0;
@@ -128,7 +128,7 @@ class CardDescription {
     return result;
   }
 
-  Widget toWidget(Map descriptionCollection, Map pokemonCollection, Map effectCollection, Map regionCollection, Language l)
+  Widget toWidget(Map descriptionCollection, Map pokemonCollection, Map effectCollection, Map regionCollection, LanguageOld l)
   {
     var current = decrypted(descriptionCollection, l);
 
@@ -165,7 +165,7 @@ class CardDescription {
     return RichText(text: TextSpan(children: children) );
   }
 
-  DecryptedString decrypted(Map descriptionCollection, Language l) {
+  DecryptedString decrypted(Map descriptionCollection, LanguageOld l) {
     DecryptedString s = DecryptedString();
 
     // Combine and extract info

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/services/tools.dart';
-import 'package:statitikcard/services/internationalization.dart';
 
 class DrawTutorial extends StatefulWidget {
   const DrawTutorial({super.key});

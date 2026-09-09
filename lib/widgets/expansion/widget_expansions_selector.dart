@@ -7,7 +7,7 @@ import 'package:statitikcard/models/statistics/statistic_data.dart';
 import 'package:statitikcard/screenOld/widgets/button_check.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/widgets/widget_expansion_button.dart';
+import 'package:statitikcard/widgets/expansion/widget_expansion_button.dart';
 
 class WidgetExpansionsSelector extends StatefulWidget {
   final ExpansionSelection _selection;

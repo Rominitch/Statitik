@@ -86,7 +86,7 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
     List<Widget> productTab      = [];
     List<Widget> languageWidgets = [];
     for (var idLanguage in myProdLanguages) {
-      Language? language;
+      LanguageOld? language;
       if(idLanguage >= 0) {
         language = Environment.instance.collection.languages[idLanguage];
         languageWidgets.add(Padding(
@@ -112,7 +112,7 @@ class _PokeSpaceMyProductsState extends State<PokeSpaceMyProducts> with TickerPr
               backgroundColor: productMenuColor,
               onPressed: (){
                 Navigator.push(context, MaterialPageRoute(builder:
-                  (context) => LanguageSelector((BuildContext c, Language l)
+                  (context) => LanguageSelector((BuildContext c, LanguageOld l)
                     {
                       Navigator.push(context, MaterialPageRoute(builder: (context) => ProductSelector(l)));
                     })

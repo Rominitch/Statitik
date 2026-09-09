@@ -38,9 +38,9 @@ class CollectionSerializer {
 
     // Encode language
     Environment.instance.onProgression.add(0.01);
-    bodyBytes += ByteEncoder.encodeMap<int, Language>(collection.languages,
+    bodyBytes += ByteEncoder.encodeMap<int, LanguageOld>(collection.languages,
         (id) => ByteEncoder.encodeInt32(id),
-        (Language lang) => lang.toBytes()
+        (LanguageOld lang) => lang.toBytes()
     );
 
     // Encode sets
@@ -207,9 +207,9 @@ class CollectionSerializer {
     final version = parser.extractInt32();
 
     // Extract language
-    collection.languages = parser.extractMap<int, Language>(
+    collection.languages = parser.extractMap<int, LanguageOld>(
             (parser) => parser.extractInt32(),
-            (parser) => Language.fromBytes(parser)
+            (parser) => LanguageOld.fromBytes(parser)
     );
     // Extract sets
     collection.sets = parser.extractMap<int, CardSet>(

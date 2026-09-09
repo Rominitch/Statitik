@@ -62,7 +62,7 @@ void main() {
   }
 
   test('UserDrawFile', () async {
-    var l  = Language(id: 1, image: "FR");
+    var l  = LanguageOld(id: 1, image: "FR");
     var c  = ProductCategory(1, MultiLanguageString(["C","C", "C"]), true);
     var ex = Extension(0, "Ex", l);
     var r  = Rarity.fromText(0, MultiLanguageString(["S0","S0","S0"]), Colors.green);

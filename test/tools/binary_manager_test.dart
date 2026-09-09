@@ -55,7 +55,7 @@ void main() {
 
       expect(msi, reader.readMap(
         (r) => r.readString(),
-        (r) => r.readInt16(),
+        (r, k) => r.readInt16(),
       ));
 
       expect(date, reader.readDateTime());

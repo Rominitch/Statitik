@@ -20,7 +20,7 @@ class _PokeSpaceMyCardsState extends State<PokeSpaceMyDeck> {
   void goToDeckSelector(Deck deck) {
 
     if(deck.cards.isEmpty) {
-      afterSelectLanguage(BuildContext context, Language language) {
+      afterSelectLanguage(BuildContext context, LanguageOld language) {
         Navigator.pop(context);
         Navigator.push(context, MaterialPageRoute(builder: (context) => PokeSpaceMyDecksCreator(language, deck))).then(
           (value) {

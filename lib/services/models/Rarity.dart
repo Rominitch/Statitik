@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/services/models/bytes_coder.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
@@ -20,7 +20,7 @@ class Rarity {
   const Rarity.fromIcon(this.id,  this.iconId, this.value, this.color, {this.rotate=false}): image = "";
   const Rarity.fromImage(this.id, this.image, this.color) : iconId = null, value = null, rotate = false;
 
-  List<Widget> icon(Language l, {iconSize, fontSize=12.0, textureSize=20.0}) {
+  List<Widget> icon(LanguageOld l, {iconSize, fontSize=12.0, textureSize=20.0}) {
     var text = (value != null) ? value!.name(l) : "";
     return [
       if(image.isNotEmpty)
@@ -55,7 +55,7 @@ class Rarity {
   }
 }
 
-List<Widget> getImageRarity(Rarity rarity, Language l,{iconSize, textureSize=20.0, fontSize=12.0, generate=false}) {
+List<Widget> getImageRarity(Rarity rarity, LanguageOld l,{iconSize, textureSize=20.0, fontSize=12.0, generate=false}) {
   if(Environment.instance.collection.cachedImageRarity[l] == null) {
     Environment.instance.collection.cachedImageRarity[l] = {};
   }

@@ -13,7 +13,7 @@ import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 
-Widget genericCardWidget(SubExtension se, CardIdentifier idCard, CardImageIdentifier idImage, {FilterQuality? quality, double? width, double? height, Language? language, bool reloader=false, BoxFit? fit, photoView=false}) {
+Widget genericCardWidget(SubExtension se, CardIdentifier idCard, CardImageIdentifier idImage, {FilterQuality? quality, double? width, double? height, LanguageOld? language, bool reloader=false, BoxFit? fit, photoView=false}) {
   if( Environment.instance.storeImageLocally ) {
     Widget? alternative;
     if( language != null ) {
@@ -33,7 +33,7 @@ class CardImage extends StatefulWidget {
   final SubExtension se;
   final PokemonCardExtension card;
   final CardIdentifier idCard;
-  final Language? language;
+  final LanguageOld? language;
   final CardImageIdentifier idImage;
 
   CardImage(SubExtension currentSE, PokemonCardExtension currentCard, this.idCard, this.idImage, {this.height=400, this.language, super.key}) :

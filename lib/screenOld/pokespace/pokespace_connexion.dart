@@ -351,11 +351,11 @@ class _DrawHomePageState extends State<DrawHomePage> {
     }
   }
 
-  void goToProductPage(BuildContext context, Language language, SubExtension subExt) {
+  void goToProductPage(BuildContext context, LanguageOld language, SubExtension subExt) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => ProductPage(mode: ProductPageMode.allSelection, language: language, subExt: subExt, afterSelected: afterSelectProduct) ));
   }
 
-  void afterSelectProduct(BuildContext context, Language language, ProductRequested? product, ProductCategory? category) {
+  void afterSelectProduct(BuildContext context, LanguageOld language, ProductRequested? product, ProductCategory? category) {
     // Build new session of draw
     Environment.instance.currentDraw =
         SessionDraw(product!.product, language);

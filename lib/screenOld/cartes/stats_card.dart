@@ -29,7 +29,7 @@ enum StatsVisualization
 }
 
 class StatsCard extends StatefulWidget {
-  final Language             l;
+  final LanguageOld             l;
   final CardResults          stats;
   final CardStatisticOptions options;
 
@@ -226,7 +226,7 @@ class _CardSubExtensionReportState extends State<CardSubExtensionReport> with Ti
 }
 
 class CardStatisticReport extends StatefulWidget {
-  final Language    language;
+  final LanguageOld    language;
   final CardResults stats;
   final CardStatisticOptions options;
 

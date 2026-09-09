@@ -48,8 +48,7 @@ class PokeDbCardsBlob {
       final r = BinaryReader(Uint8List.fromList(data.toBytes()));
       final currentVersion = r.readInt8();
       if(currentVersion == version){
-        var reader = BinaryReader(Uint8List.fromList(
-            gzip.decode(r.readBuffer().toList(growable: false))));
+        var reader = r.readGZip();
         return readCards(currentVersion, reader, collection);
       }
       else if (8 <= currentVersion && currentVersion < version) {

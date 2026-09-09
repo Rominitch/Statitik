@@ -13,7 +13,7 @@ import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/product.dart';
 
 class ExtensionProductsCreator extends StatefulWidget {
-  final Language     language;
+  final LanguageOld     language;
   final SubExtension subExtension;
 
   const ExtensionProductsCreator(this.language, this.subExtension, {super.key});
@@ -93,7 +93,7 @@ class _ExtensionProductsCreatorState extends State<ExtensionProductsCreator> {
         onPressed: () {
           // Go to product selector
           Navigator.push(context, MaterialPageRoute(builder: (context) => ExtensionPage(language: widget.language,
-              afterSelected: (BuildContext context, Language language, SubExtension subExtension) {
+              afterSelected: (BuildContext context, LanguageOld language, SubExtension subExtension) {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => CardsSelection(widget.language, subExtension)));
               }, addMode: false))).then((value) {
             if(value != null) {

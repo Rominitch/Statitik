@@ -1,4 +1,5 @@
 
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
 enum PokeIdentifierType
@@ -8,16 +9,20 @@ enum PokeIdentifierType
   expansion_w(11),
   cards_jp(20),
   cards_w(21),
+  booster_jp(30),
+  booster_w(31),
   pokemon(3),
   object(4),
   info(5),
-  product(6),
+  product(62),
+  sideProduct(63),
+  booster(64),
   description(7),
   effect(8),
   region(9);
 
   const PokeIdentifierType(this.value);
-  final num value;
+  final int value;
 }
 
 class PokeIdentifier {
@@ -26,13 +31,33 @@ class PokeIdentifier {
   const PokeIdentifier(this._id);
 
   PokeIdentifier.fromBytes(BinaryReader reader):
-    _id = reader.readInt32();
+    _id = reader.readUint32();
 
   PokeIdentifier.region(int number, bool name) :
-    _id = PokeIdentifierType.region.index * 100000000 + (name ? 10000000 : 20000000) + number;
+    _id = PokeIdentifierType.region.value * 100000000 + (name ? 10000000 : 20000000) + number;
+
+  PokeIdentifier.create(PokeIdentifierType type, int number) :
+    _id = (type == PokeIdentifierType.product
+        || type == PokeIdentifierType.sideProduct) ? type.value *  10000000 + number
+        :                                            type.value * 100000000 + number;
+
+  PokeIdentifier.boosterFrom(PokeIdentifier expID) :
+        _id = expID._id + 2000000000;
+
+  PokeIdentifier.expensionFrom(PokeIdentifier boosterID) :
+        _id = boosterID._id - 2000000000;
+
+
+  CardLocation location() {
+    switch( _codeLocation()) {
+      case 0: { return CardLocation.Asie;}
+      case 1: { return CardLocation.Monde;}
+      default: throw "No location";
+    }
+  }
 
   void toBytesID(BinaryWriter writer) {
-    writer.writeInt32(_id);
+    writer.writeUint32(_id);
   }
 
   bool isEqual(PokeIdentifier pid) {
@@ -46,6 +71,10 @@ class PokeIdentifier {
 
   int id() {
     return _id;
+  }
+
+  int _codeLocation() {
+    return (_id ~/ 100000000) % 10;
   }
 
   int serie() {

@@ -14,7 +14,7 @@ class RarityEditor extends StatefulWidget {
 }
 
 class _RarityEditorState extends State<RarityEditor> {
-  Language language = Environment.instance.collection.languages.values.first;
+  LanguageOld language = Environment.instance.collection.languages.values.first;
 
   @override
   Widget build(BuildContext context) {

@@ -21,7 +21,7 @@ import 'package:statitikcard/services/models/pokemon_card_data.dart';
 import 'package:statitikcard/services/tools.dart';
 
 class NewCardExtensions extends StatefulWidget {
-  final Language     language;
+  final LanguageOld     language;
   final SubExtension se;
 
   const NewCardExtensions(this.language, this.se, {super.key});

@@ -16,9 +16,9 @@ enum ProductPageMode {
 }
 
 class ProductPage extends StatefulWidget {
-  final Language language;
+  final LanguageOld language;
   final SubExtension subExt;
-  final Function(BuildContext, Language, ProductRequested?, ProductCategory?) afterSelected;
+  final Function(BuildContext, LanguageOld, ProductRequested?, ProductCategory?) afterSelected;
   final ProductPageMode mode;
 
   const ProductPage({ required this.mode, required this.language, required this.subExt, required this.afterSelected, super.key});
@@ -211,7 +211,7 @@ class _ProductPageState extends State<ProductPage> {
       body:
         widgetProd == null
           ? drawLoading(context)
-          : (widgetProd!.isEmpty ? Center( child: Text(AppLocalizations.of(context)!.tp_b0, textAlign: TextAlign.center, style: Theme.of(context).textTheme.displayLarge))
+          : (widgetProd!.isEmpty ? Center( child: Text(AppLocalizations.of(context)!.produit_nothing, textAlign: TextAlign.center, style: Theme.of(context).textTheme.displayLarge))
             : SingleChildScrollView(
               padding: const EdgeInsets.all(8.0),
               child: Column(

@@ -1,7 +1,7 @@
 
 import 'package:statitikcard/models/poke_expansion.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
 class PokeSerie {
@@ -21,7 +21,7 @@ class PokeSerie {
     _id.toBytesID(writer);
   }
 
-  String? label(PokeLangage language) {
+  String? label(PokeLanguage language) {
     return language.label(_id);
   }
 

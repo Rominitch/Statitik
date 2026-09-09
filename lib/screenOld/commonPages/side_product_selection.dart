@@ -9,7 +9,7 @@ import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/models/product_category.dart';
 
 class SideProductSelection extends StatefulWidget {
-  final Language activeLanguage;
+  final LanguageOld activeLanguage;
   final bool     edition;
   final Product? productInfo;
   const SideProductSelection(this.activeLanguage, {this.edition=false, this.productInfo, super.key});

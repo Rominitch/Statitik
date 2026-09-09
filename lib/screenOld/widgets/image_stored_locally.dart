@@ -30,16 +30,17 @@ class ImageStoredLocally extends StatefulWidget {
 }
 
 class _ImageStoredLocallyState extends State<ImageStoredLocally> {
+  Widget? finalWidget;
 
   void reloadImage() async {
     await Environment.instance.storage.cleanImageFile(widget.path, widget.imageName);
   }
 
-  Widget _image(AsyncSnapshot<File?> snapshot) {
+  Widget _image(File snapshot) {
     Widget cardWidget;
     if(!widget.photoView) {
       cardWidget = Image.file(
-          snapshot.data!,
+          snapshot,
           width: widget.width,
           height: widget.height,
           filterQuality: widget.quality ?? FilterQuality.medium,
@@ -64,7 +65,7 @@ class _ImageStoredLocallyState extends State<ImageStoredLocally> {
       );
     } else {
       cardWidget = PhotoView(
-        imageProvider:FileImage(snapshot.data!),
+        imageProvider:FileImage(snapshot),
         filterQuality: widget.quality ?? FilterQuality.medium,
         backgroundDecoration: const BoxDecoration(color: Colors.transparent),
         errorBuilder: (context, error, stackTrace) {
@@ -100,6 +101,10 @@ class _ImageStoredLocallyState extends State<ImageStoredLocally> {
 
   @override
   Widget build(BuildContext context) {
+    // Avoid futur when image is properly define
+    if(finalWidget != null) {
+      return finalWidget!;
+    }
     return FutureBuilder<File?>(
       future: Environment.instance.storage.imageFromPath(StorageData(widget.path, widget.imageName, widget.webAddress)),
       builder: (BuildContext context, AsyncSnapshot<File?> snapshot) {
@@ -107,11 +112,12 @@ class _ImageStoredLocallyState extends State<ImageStoredLocally> {
           if(snapshot.connectionState == ConnectionState.done) {
             if(snapshot.hasData ) {
               if (snapshot.data == null) {
-                return widget.alternativeRendering != null ? widget
+                finalWidget = widget.alternativeRendering != null ? widget
                     .alternativeRendering! : const Icon(Icons.help_outline);
               } else {
-                return _image( snapshot );
+                finalWidget = _image( snapshot.data! );
               }
+              return finalWidget!;
             }
             else {
               return widget.alternativeRendering != null ? widget

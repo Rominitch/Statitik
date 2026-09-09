@@ -6,7 +6,7 @@ import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/product.dart';
 
 class ProductsListExplorer extends StatefulWidget {
-  final Language language;
+  final LanguageOld language;
 
   const ProductsListExplorer(this.language, {super.key});
 

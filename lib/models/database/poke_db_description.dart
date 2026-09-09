@@ -1,6 +1,6 @@
 
 import 'package:statitikcard/models/poke_identifier.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
 enum DescriptionEffect {
@@ -64,11 +64,15 @@ class PokeDbDescription {
     writer.writeInt32(DescriptionEffect.convert(_markers));
   }
 
-  String? name(PokeLangage l) {
+  PokeIdentifier pid() {
+    return _id;
+  }
+
+  String? name(PokeLanguage l) {
     return l.label(_id);
   }
 
-  bool search(PokeLangage l, String searchPart) {
+  bool search(PokeLanguage l, String searchPart) {
     return l.search(_id, searchPart);
   }
 }

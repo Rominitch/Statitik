@@ -110,7 +110,7 @@ class CardDesign {
             ByteEncoder.encodeInt8(art.index);
   }
 
-  String name(Language l) {
+  String name(LanguageOld l) {
     return designData().name(l);
   }
 
@@ -160,7 +160,7 @@ class CardDesignData {
     + ByteEncoder.encodeMultiLanguage(nameDesign);
   }
 
-  String name(Language l) {
+  String name(LanguageOld l) {
     return nameDesign.name(l);
   }
 

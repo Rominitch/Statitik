@@ -32,7 +32,7 @@ import 'package:statitikcard/services/tools.dart';
 
 class Collection
 {
-  Map<int, Language>            languages       = {};
+  Map<int, LanguageOld>            languages       = {};
   Map<int, CardSet>             sets            = {};
   Map<int, Extension>           extensions      = {};
   Map<int,SubExtension>         subExtensions   = {};
@@ -69,7 +69,7 @@ class Collection
   List<Rarity> japanRarity      = [];
   List<Rarity> goodCard         = [];
   List<Rarity> otherThanReverse = [];
-  Map<Language, Map<Rarity, List<Widget>?>> cachedImageRarity = {};
+  Map<LanguageOld, Map<Rarity, List<Widget>?>> cachedImageRarity = {};
 
   // Markers
   Map<CardMarker, Widget?> cachedMarkers = {};
@@ -138,7 +138,7 @@ class Collection
     cardIssues.clear();
   }
 
-  List<Extension> getExtensions(Language language) {
+  List<Extension> getExtensions(LanguageOld language) {
     List<Extension> l = [];
     for(Extension e in extensions.values) {
       if (e.language == language) {
@@ -189,7 +189,7 @@ class Collection
 
       var languagesReq = await connection.query("SELECT * FROM `Langue`");
       for (var row in languagesReq) {
-        languages[row[0]] = Language(id: row[0], image: row[1]);
+        languages[row[0]] = LanguageOld(id: row[0], image: row[1]);
       }
       time.tick("Langue");
       assert(languages.isNotEmpty);

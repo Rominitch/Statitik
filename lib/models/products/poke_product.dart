@@ -2,48 +2,116 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:mysql1/mysql1.dart';
+import 'package:statitikcard/models/poke_card_subject.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
+import 'package:statitikcard/models/poke_language.dart';
+import 'package:statitikcard/models/poke_rendering.dart';
 import 'package:statitikcard/models/products/poke_product_booster.dart';
+import 'package:statitikcard/models/products/poke_product_booster_count.dart';
 import 'package:statitikcard/models/products/poke_product_card.dart';
+import 'package:statitikcard/models/products/poke_product_category.dart';
 import 'package:statitikcard/models/products/poke_product_generic.dart';
 import 'package:statitikcard/models/products/poke_product_side.dart';
-import 'package:statitikcard/services/collection.dart';
-import 'package:statitikcard/services/models/card_identifier.dart';
-import 'package:statitikcard/services/draw/booster_draw.dart';
-import 'package:statitikcard/services/draw/card_draw_data.dart';
-import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/tools.dart';
 
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/bytes_coder.dart';
-import 'package:statitikcard/services/models/language.dart';
-import 'package:statitikcard/services/models/pokemon_card_extension.dart';
-import 'package:statitikcard/services/models/product_category.dart';
-import 'package:statitikcard/services/models/sub_extension.dart';
-import 'package:statitikcard/services/models/pokemon_card_data.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
 class PokeProduct extends PokeProductGeneric
 {
-  List<PokeProductBooster>     boosters = [];
+
+  @Deprecated("too remove")
   String                  _name;
 
   // New
-  Map<PokeProductSide, int>    sideProducts = {};
-  List<PokeProductCard>        otherCards   = [];
-  int                      nbRandomPerProduct = 0;
+  Map<PokeProductBooster?, int> _boosters = {};
+  Map<PokeProductSide, int>     sideProducts = {};
+  List<PokeProductCard>         otherCards   = [];
+  int                           nbRandomPerProduct = 0;
+  CardLocation                  _location;
+  List<PokeLanguage>            _excludeLanguage = [];
+
+  List<PokeFullCardPokemon>     _honoredPokemon = [];
+  List<PokeIdentifier>          _honoredOther   = []; // For trainer / stadium or what ever
+
   static const int version = 4;
 
   //PokeProduct.empty():
   //      boosters = [],
   //      super(-1, null, "", "", DateTime.now());
-  PokeProduct.fromDB(super._pid, super.category, super.outDate, this._name);
+  PokeProduct.fromDB(super._pid, super.category, super.outDate, this._name):
+    _location = CardLocation.Monde;
 
+  PokeProduct(super._pid, super.category, super.outDate, this._name, this._boosters, this.sideProducts, this.otherCards, this.nbRandomPerProduct,
+      this._location, this._excludeLanguage,
+      this._honoredPokemon, this._honoredOther);
+
+  Map<PokeProductBooster?, int> boosters()          { return _boosters; }
+  List<PokeFullCardPokemon>     honoredPokemon()    { return _honoredPokemon; }
+  List<PokeIdentifier>          honoredOther()      { return _honoredOther; }
+  CardLocation                  location()          { return _location; }
+  List<PokeLanguage>            excludeLanguage()   { return _excludeLanguage; }
+
+  @Deprecated("too remove")
+  String oldName() {return _name;}
+
+  String name(PokeLanguage l) {
+    List<String> name = [category.name(l)];
+    for(final poke in _honoredPokemon) {
+      name.add(poke.titleOfCard(l));
+    }
+    for(final other in _honoredOther) {
+      name.add(l.label(other)!);
+    }
+    return name.join(" ");
+  }
+
+  static PokeProduct readData(PokeCollection collection,
+              PokeIdentifier pid, PokeProductCategory category, DateTime out, String name,
+              BinaryReader reader )
+  {
+    // Read header
+    final currentVersion = reader.readUint8();
+    if( currentVersion != version) {
+      throw StatitikException(ErrorCode.unknown, "Unknown Product version: $currentVersion");
+    }
+
+    final internData = reader.readCompressBuffer();
+
+    Map<PokeProductBooster?, int> boosters = internData.readSmallMap(
+      (BinaryReader r) => r.readOptional( (BinaryReader r) => collection.booster(PokeIdentifier.fromBytes(r))! ),
+      (BinaryReader r) => r.readUint8()
+    );
+    Map<PokeProductSide, int> sideProducts = internData.readSmallMap(
+      (BinaryReader r) => collection.productSide(PokeIdentifier.fromBytes(r))!,
+      (BinaryReader r) => r.readUint8()
+    );
+
+    List<PokeProductCard> otherCards = internData.readSmallList(
+      (BinaryReader r) => PokeProductCard.fromBytes(r, collection)
+    );
+    int nbRandomPerProduct = internData.readUint8();
+
+    final location = CardLocation.values[internData.readUint8()];
+    final excludeLanguage = internData.readSmallList(
+      (BinaryReader r) => collection.language(Language.values[r.readUint8()])
+    );
+
+    final honoredPokemon = internData.readSmallList(
+      (BinaryReader r) => PokeFullCardPokemon.fromBytes(r,collection)
+    );
+    final honoredOther = internData.readSmallList(
+      (BinaryReader r) => PokeIdentifier.fromBytes(r)
+    );
+    return PokeProduct(pid, category, out, name, boosters, sideProducts, otherCards, nbRandomPerProduct,
+      location, excludeLanguage, honoredPokemon, honoredOther);
+  }
+
+  @Deprecated("To remove")
   void readOldData(BinaryReader reader, PokeCollection collection) {
     final currentVersion = reader.readInt8();
-    if(!(currentVersion <= version)) {
+    if(currentVersion >= version) {
       throw StatitikException(ErrorCode.unknown, "Unknown Product version: $currentVersion");
     }
 
@@ -60,13 +128,20 @@ class PokeProduct extends PokeProductGeneric
 
       // Ready to read data
       // Read boosters
+      List<PokeProductBoosterCount>     boosters = [];
       var nbBoosters = dataReader.readUint8();
       for(int id=0; id < nbBoosters; id +=1){
         final idSe = dataReader.tmpReadInt16BIG();
         final (l, e) = collection.expansionFromOldDB(idSe);
-        final pb = PokeProductBooster(idSe == 0 ? null : e!, dataReader.readUint8(), dataReader.readUint8());
+
+        _location = l != null ? l.location() : CardLocation.Monde;
+        final pb = PokeProductBoosterCount(idSe == 0 ? null : e!, dataReader.readUint8(), dataReader.readUint8());
         //printOutput("$name: ${pb.subExtension != null ? pb.subExtension!.name : "No se"}");
         boosters.add(pb);
+      }
+
+      for(final booster in boosters) {
+        _boosters[collection.tmpBoosterFromExp(booster.expansion)] = booster.nbBoosters;
       }
 
       // Read other products
@@ -78,19 +153,20 @@ class PokeProduct extends PokeProductGeneric
         sideProducts[sideProduct] = dataReader.readUint8();
       }
 
-      if( currentVersion >= 2 ) {
-        // Read other cards
-        var nbOtherCards = dataReader.readUint8();
-        for(int id=0; id < nbOtherCards; id +=1) {
-          if( currentVersion==2) {
-            otherCards.add(PokeProductCard.fromV2Bytes(dataReader, collection));
-          } else {
-            otherCards.add(PokeProductCard.fromV3Bytes(dataReader, collection));
-          }
+      // Read other cards
+      var nbOtherCards = dataReader.readUint8();
+      for(int id=0; id < nbOtherCards; id +=1) {
+        if( currentVersion<=2) {
+          otherCards.add(PokeProductCard.fromV2Bytes(dataReader, collection));
+        } else {
+          otherCards.add(PokeProductCard.fromV3Bytes(dataReader, collection));
         }
-
-        nbRandomPerProduct = dataReader.readUint8();
       }
+
+      if( currentVersion >= 2 ) {
+        nbRandomPerProduct= dataReader.readUint8();
+      }
+      assert(dataReader.isFullyRead());
     }
     catch (_, e) {
       printOutput("Error with product: ${super.pid().id()} -> $_name\n$e");
@@ -102,144 +178,38 @@ class PokeProduct extends PokeProductGeneric
     // Prepare internal data
     final internData = BinaryWriter();
 
-    internData.writeSmallList(boosters, (writer, item) => item.toBytes(writer));
+    internData.writeSmallMap(_boosters,
+      (BinaryWriter writer, key)   => writer.writeOptional(key, (w) => key!.toBytesID(w)),
+      (BinaryWriter writer, value) => writer.writeUint8(value));
     internData.writeSmallMap(sideProducts,
       (writer, key) => key.pid().toBytesID(writer),
       (writer, value) => writer.writeUint8(value));
 
     internData.writeSmallList(otherCards, (writer, item) => item.toBytes(writer));
 
+    internData.writeUint8(nbRandomPerProduct);
+
+    internData.writeUint8(_location.index);
+    internData.writeSmallList(_excludeLanguage,
+      (writer, lang) => lang.id.index
+    );
+
+    internData.writeSmallList(_honoredPokemon, (writer, item) => item.toBytes(writer));
+    internData.writeSmallList(_honoredOther,   (writer, item) => item.toBytesID(writer));
 
     // Return data
-    writer.writeUint16(version);
+    writer.writeUint8(version);
     writer.writeCompressBuffer(internData);
   }
-  /*
-  PokeProduct.fromBytes(super.parser, super.collection):
-        boosters = parser.extractArray16<PokeProductBooster>((parser) => PokeProductBooster.fromBytes(parser, collection)),
-        language = parser.extractOptional((parser) => Language.fromBytes(parser)),
-        sideProducts = parser.extractMap<PokeProductSide, int>(
-                (parser) => collection.productSides[parser.extractInt32()]!,
-                (parser) => parser.extractInt8()),
-        otherCards = parser.extractArray16<PokeProductCard>((parser) => PokeProductCard.fromBytes(parser, collection)),
-        nbRandomPerProduct = parser.extractInt8(),
-        super.fromBytes();
 
-  @override
-  List<int> toBytes() {
-    return super.toBytes()
-        + ByteEncoder.encodeArray16<PokeProductBooster>(boosters, (e) => e.toBytes())
-        + ByteEncoder.encodeOptional(language, () => language!.toBytes() )
-        + ByteEncoder.encodeMap<PokeProductSide, int>(sideProducts,
-                (PokeProductSide e) => ByteEncoder.encodeInt32(e.idDB),
-                (int e) => ByteEncoder.encodeInt8(e) )
-        + ByteEncoder.encodeArray16<PokeProductCard>(otherCards, (PokeProductCard e) => e.toBytes())
-        + ByteEncoder.encodeInt8(nbRandomPerProduct)
-    ;
-  }
-
-  PokeProduct.fromBytesDB(idDB, this.language, name, imageURL, outDate, category,
-      List<int> data, Map mapSubExtensions, Map productSides):
-        boosters = [],
-        super(idDB, category, name, imageURL, outDate)
-  {
-    int currentVersion = data[0];
-    if(!(currentVersion <= version)) {
-      throw StatitikException(ErrorCode.unknown, "Unknown Product version: ${data[0]}");
-    }
-
-    // Is Zip ?
-    List<int> bytes = (data[1] == 1) ? gzip.decode(data.sublist(2)) : data.sublist(2);
-    ByteParser parser = ByteParser(bytes);
-
-    // Read boosters
-    var nbBoosters = parser.extractInt8();
-    for(int id=0; id < nbBoosters; id +=1){
-      var idSe = parser.extractInt16();
-      var pb = ProductBooster(idSe == 0 ? null : mapSubExtensions[idSe]!, parser.extractInt8(), parser.extractInt8());
-      //printOutput("$name: ${pb.subExtension != null ? pb.subExtension!.name : "No se"}");
-      boosters.add(pb);
-    }
-    assert(boosters.isNotEmpty);
-
-    // Read other products
-    var nbSideProducts = parser.extractInt8();
-    for(int id=0; id < nbSideProducts; id +=1){
-      var idSP = parser.extractInt32();
-      sideProducts[productSides[idSP]] = parser.extractInt8();
-    }
-
-    // Read other cards
-    if(currentVersion == 2) {
-      var nbOtherCards = parser.extractInt8();
-      for(int id=0; id < nbOtherCards; id +=1){
-        otherCards.add(ProductCard.fromBytesV1(parser, mapSubExtensions));
-      }
-    } else if(currentVersion == 3) {
-      var nbOtherCards = parser.extractInt8();
-      for(int id=0; id < nbOtherCards; id +=1) {
-        otherCards.add(ProductCard.fromBytesDB(parser, mapSubExtensions));
-      }
-    }
-
-    if(currentVersion == 2 || currentVersion == 3) {
-      nbRandomPerProduct = parser.extractInt8();
-    }
-  }
-
-  List<int> toBytesDB() {
-    List<int> bytes = [];
-
-    // Save boosters
-    assert(boosters.length <= 255);
-    bytes += ByteEncoder.encodeInt8(boosters.length);
-    for (var booster in boosters) {
-      bytes += ByteEncoder.encodeInt16(booster.subExtension != null ? booster.subExtension!.id : 0);
-      assert(booster.nbBoosters <= 255);
-      bytes += ByteEncoder.encodeInt8(booster.nbBoosters);
-      assert(booster.nbCardsPerBooster <= 255);
-      bytes += ByteEncoder.encodeInt8(booster.nbCardsPerBooster);
-    }
-
-    // Save other products
-    assert(sideProducts.length <= 255);
-    bytes += ByteEncoder.encodeInt8(sideProducts.length);
-    sideProducts.forEach((pa, count) {
-      assert(count <= 255);
-      bytes += ByteEncoder.encodeInt32(pa.idDB);
-      bytes += ByteEncoder.encodeInt8(count);
-    });
-
-    // Save other cards
-    assert(otherCards.length <= 255);
-    bytes += ByteEncoder.encodeInt8(otherCards.length);
-    for (var card in otherCards) {
-      bytes += card.toBytesDB();
-    }
-
-    assert(nbRandomPerProduct <= 255);
-    bytes += ByteEncoder.encodeInt8(nbRandomPerProduct);
-
-    // Save final data
-    assert(version <= 255);
-    List<int> zipBytes = gzip.encode(bytes);
-    printOutput("Product: data: ${bytes.length} compressed: ${zipBytes.length}");
-
-    bool needZip = bytes.length < zipBytes.length;
-    return [version, needZip ? 1 : 0] + (needZip ? zipBytes : bytes);
-  }
-  bool hasImages() {
-    return imageURL.isNotEmpty;
-  }
-*/
   @override
   Widget image({double? height=70.0, alternativeRendering, photoView=false}) {
-    return drawCachedImage('PKProducts', super.pid().id().toString(), height: height, alternativeRendering: alternativeRendering, photoView: photoView);
+    return PokeRendering.productImage(super.pid(), height: height, alternativeRendering: alternativeRendering, photoView: photoView);
   }
 
   int countBoosters() {
     int count=0;
-    for (var value in boosters) { count += value.nbBoosters; }
+    for (var value in _boosters.values) { count += value; }
     return count;
   }
 /*
@@ -257,7 +227,12 @@ class PokeProduct extends PokeProductGeneric
 */
   /// Validate before send request
   bool validate() {
-    return boosters.isNotEmpty;
+    return _boosters.isNotEmpty;
+  }
+
+  bool isFiltered(PokeLanguage language) {
+    return language.location() != _location
+        || _excludeLanguage.contains(language);
   }
 }
 

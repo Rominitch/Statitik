@@ -1,6 +1,6 @@
 
 import 'package:statitikcard/models/poke_identifier.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
 // WARNING: Never changed order
@@ -54,7 +54,7 @@ class PokeDesign {
     writer.writeString(_image);
   }
 
-  String? name(PokeLangage l) {
+  String? name(PokeLanguage l) {
     return l.label(_id);
   }
 

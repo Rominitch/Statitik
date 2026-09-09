@@ -5,7 +5,7 @@ import 'package:statitikcard/models/poke_card_subject.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_illustrator.dart';
-import 'package:statitikcard/models/poke_langage.dart';
+import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_level.dart';
 import 'package:statitikcard/models/poke_marker.dart';
 import 'package:statitikcard/services/models/type_card.dart';
@@ -25,6 +25,14 @@ class PokeCard {
   PokeEnergyValue? weakness;
   PokeIllustrator? illustrator;
 
+  PokeCard.newCard(this.type):
+    _id   = PokeIdentifier(0),
+    title = PokeTitleCard.empty(),
+    level = PokeLevel.base,
+    markers = PokeMarkers([]),
+    life    = 0,
+    retreat = 0;
+
   PokeIdentifier pid() { return _id; }
 
   PokeCard.fromDB(this._id, this.title, this.level, this.type, this.typeExtended, this.markers, this.cardEffects,
@@ -34,21 +42,21 @@ class PokeCard {
     title = PokeTitleCard.fromBytes(reader, collection),
     level = PokeLevel.values[reader.readInt8()],
     type = TypeCard.values[reader.readInt8()],
-    typeExtended = reader.readOptional(() => TypeCard.values[reader.readInt8()]),
-    illustrator  = reader.readOptional(() => collection.illustrator(PokeIdentifier.fromBytes(reader))),
+    typeExtended = reader.readOptional((r) => TypeCard.values[r.readInt8()]),
+    illustrator  = reader.readOptional((r) => collection.illustrator(PokeIdentifier.fromBytes(r))),
     markers      = PokeMarkers.fromBytes(reader, collection),
     cardEffects  = PokeCardEffects.fromBytes(reader, collection),
     life         = reader.readInt16(),
     retreat      = reader.readInt16(),
-    resistance   = reader.readOptional(() => PokeEnergyValue.fromBytes(reader)),
-    weakness     = reader.readOptional(() => PokeEnergyValue.fromBytes(reader));
+    resistance   = reader.readOptional((r) => PokeEnergyValue.fromBytes(r)),
+    weakness     = reader.readOptional((r) => PokeEnergyValue.fromBytes(r));
 
 
   bool isEqual(PokeIdentifier pid) {
     return _id == pid;
   }
 
-  String titleOfCard(PokeLangage l) {
+  String titleOfCard(PokeLanguage l) {
     List<String> name = [];
     for (var pokemon in title.title) {
       name.add(pokemon.titleOfCard(l));
@@ -74,17 +82,16 @@ class PokeCard {
   }
 
   void toBytes(BinaryWriter writer) {
-
     title.toBytes(writer);
     writer.writeInt8(level.index);
     writer.writeInt8(type.index);
-    writer.writeOptional( typeExtended, () => writer.writeInt8(typeExtended!.index));
-    writer.writeOptional( illustrator, () => illustrator!.toBytesID(writer));
+    writer.writeOptional( typeExtended, (w) => w.writeInt8(typeExtended!.index));
+    writer.writeOptional( illustrator, (w) => illustrator!.toBytesID(w));
     markers.toBytes(writer);
     cardEffects.toBytes(writer);
     writer.writeInt16(life);
     writer.writeInt16(retreat);
-    writer.writeOptional(resistance, () => resistance!.toBytes(writer));
-    writer.writeOptional(weakness,   () => weakness!.toBytes(writer));
+    writer.writeOptional(resistance, (w) => resistance!.toBytes(w));
+    writer.writeOptional(weakness,   (w) => weakness!.toBytes(w));
   }
 }

@@ -1,7 +1,34 @@
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
+
+enum Language {
+  en,
+  fr,
+  jp;
+
+  static Language from(String s) {
+    switch(s) {
+      case "EN": return Language.en;
+      case "FR": return Language.fr;
+      case "JP": return Language.jp;
+    }
+    throw Exception("unknown");
+  }
+
+  static Language fromLocale(Locale l) {
+    final code = l.toLanguageTag().split("-")[0].toUpperCase();
+    switch(code) {
+      case "EN": return Language.en;
+      case "FR": return Language.fr;
+      case "JP": return Language.jp;
+    }
+    if(!kReleaseMode) { throw Exception("unknown");}
+    return Language.en;
+  }
+}
 
 enum CardLocation {
   Asie,
@@ -17,10 +44,13 @@ enum CardLocation {
 }
 
 
-class PokeLangage {
+class PokeLanguage {
   final String      _code;
   final Map<PokeIdentifier, String>  _labels;
   final CardLocation _location;
+
+  // Not to savedSaved
+  final Language id;
 
   AssetImage create()
   {
@@ -34,16 +64,16 @@ class PokeLangage {
     );
   }
 
-  const PokeLangage.fromDB(this._code, this._labels, this._location);
+  const PokeLanguage.fromDB(this._code, this._labels, this._location, this.id);
 
   String db() { return  "nom_$_code"; }
   static String dbName(String code) { return  "nom_$code"; }
 
-  PokeLangage.fromBytes(BinaryReader reader):
+  PokeLanguage.fromBytes(this.id, BinaryReader reader):
     _code  = reader.readString(),
     _labels = reader.readMap<PokeIdentifier, String>(
         (r) => PokeIdentifier.fromBytes(r),
-        (r) => r.readString()
+        (r, k) => r.readString()
     ),
     _location = CardLocation.values[reader.readInt16()];
 

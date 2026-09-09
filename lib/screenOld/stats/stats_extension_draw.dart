@@ -23,7 +23,7 @@ class StatsExtensionDraw extends StatefulWidget {
 
 class _StatsExtensionDrawState extends State<StatsExtensionDraw> {
 
-  void afterSelectProduct(BuildContext context, Language language, ProductRequested? product, ProductCategory? category) {
+  void afterSelectProduct(BuildContext context, LanguageOld language, ProductRequested? product, ProductCategory? category) {
     Navigator.pop(context);
     setState(() {
       widget.info.statsData.pr       = product;
