@@ -1,6 +1,7 @@
-import 'package:statitikcard/models/poke_card.dart';
-import 'package:statitikcard/models/poke_card_design.dart';
-import 'package:statitikcard/models/poke_card_in_expansion.dart';
+import 'package:statitikcard/models/card/poke_card.dart';
+import 'package:statitikcard/models/card/poke_card_design.dart';
+import 'package:statitikcard/models/card/poke_card_in_expansion.dart';
+import 'package:statitikcard/models/card/poke_card_type.dart';
 import 'package:statitikcard/models/poke_data_navigation.dart';
 import 'package:statitikcard/models/poke_design.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
@@ -8,17 +9,18 @@ import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_rarity.dart';
 import 'package:statitikcard/models/poke_set.dart';
-import 'package:statitikcard/services/models/type_card.dart';
 
 class AdminCardCreator {
   final PokeNavAdmin _nav;
   PokeExpansion expansion;
 
-  TypeCard   type = TypeCard.plante;
-  PokeRarity rarity;
+  PokeCardType type = PokeCardType.plante;
+  PokeRarity   rarity;
 
   AdminCardCreator(this._nav, this.expansion) :
     rarity = _nav.collection.unknownRarity();
+
+  PokeNavAdmin nav() { return _nav; }
 
   PokeCardInExpansion newCard() {
     // Create new card

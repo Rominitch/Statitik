@@ -1,13 +1,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
-import 'package:statitikcard/models/poke_card_design.dart';
+import 'package:statitikcard/models/card/poke_card_design.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_design.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_rarity.dart';
+import 'package:statitikcard/models/poke_region.dart';
+import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
 import 'package:statitikcard/screenOld/widgets/image_stored_locally.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/tools.dart';
@@ -24,7 +27,7 @@ class PokeRendering {
   static const bestProductRatio = 0.7;
   static const bestSideProductWidth = 250.0;
   static const bestSideProductRatio = 0.9;
-  static const bestMiniCardWidth = 135;
+  static const bestMiniCardWidth = 140;
   static const bestMiniCardRatio = 1.2;
   static const colorLightCard = Color(0xFF424242); // = Colors.grey.shade800
 
@@ -101,4 +104,43 @@ class PokeRendering {
   {
     return ImageWithCache.generator('PKSideProducts', [pid.id().toString()], alternativeRendering: alternativeRendering);
   }
+
+  List<Widget> createRegionsWidget(BuildContext context, CustomRadioController regionController, PokeLanguage language) {
+    List<Widget> regionsWidget = [];
+
+    // No region item
+    regionsWidget.add(CustomRadio(value: null, controller: regionController,
+        widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(child: Center(child: Text(
+                AppLocalizations.of(context)!.reg_0,
+                style: const TextStyle(fontSize: 9),)))
+            ])
+    )
+    );
+
+    // parse region
+    for (final region in collection.regions()) {
+      regionsWidget.add(CustomRadio(value: region, controller: regionController,
+          widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Flexible(child: Center(child: Text(
+                  region.applicableName(language)!,
+                  style: const TextStyle(fontSize: 9),)))
+              ])
+      )
+      );
+    }
+    return regionsWidget;
+  }
+
+  Widget createRegionWidget(PokeRegion? region, String name, CustomRadioController regionController) {
+    // parse region
+    return CustomRadio(value: region, controller: regionController,
+      widget: Text( name, style: const TextStyle(fontSize: 9) )
+    );
+  }
+
 }

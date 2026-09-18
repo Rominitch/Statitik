@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:statitikcard/models/poke_card_in_expansion.dart';
+import 'package:statitikcard/models/card/poke_card_in_expansion.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_set.dart';

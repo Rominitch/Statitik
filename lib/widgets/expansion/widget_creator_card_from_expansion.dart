@@ -3,8 +3,9 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/admin/admin_card_creator.dart';
 import 'package:statitikcard/models/admin/admin_html_card_parser.dart';
+import 'package:statitikcard/models/card/poke_card_type.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
-import 'package:statitikcard/models/poke_card_in_expansion.dart';
+import 'package:statitikcard/models/card/poke_card_in_expansion.dart';
 import 'package:statitikcard/models/poke_data_navigation.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_rarity.dart';
@@ -12,7 +13,6 @@ import 'package:statitikcard/models/poke_set.dart';
 import 'package:statitikcard/screenOld/admin/card_editor_options.dart';
 import 'package:statitikcard/screenOld/widgets/button_check.dart';
 import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
-import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/tools.dart';
 
 class WidgetCreatorCardFromExpansion extends StatefulWidget {
@@ -36,7 +36,7 @@ class WidgetCreatorCardFromExpansion extends StatefulWidget {
     editor=true, onAppendCard=null, onChangeList=null, onNeedRefresh=null,
     listRarity = (_cardView.expansion.location() == CardLocation.Monde ? _navAdmin.collection.worldRarity() : _navAdmin.collection.japanRarity()).toList()
       ..removeWhere((element) => element == _navAdmin.collection.unknownRarity()),
-    secondTypes = [TypeCard.unknown] + energies,
+    secondTypes = [PokeCardType.unknown] + energies,
     _creator = null;
 
   WidgetCreatorCardFromExpansion.quick(this._navAdmin, this._creator, this._cardView, this.onAppendCard, this.onNeedRefresh, {super.key, this.onChangeList}):
@@ -75,7 +75,7 @@ class _WidgetCreatorCardFromExpansionState extends State<WidgetCreatorCardFromEx
   PokeCardInExpansion? _newCard;
 
   late PokeRarity _selectRarity;
-  TypeCard   _selectType   = TypeCard.plante;
+  PokeCardType    _selectType = PokeCardType.plante;
 
   final specialIDController = TextEditingController();
 
@@ -117,8 +117,8 @@ class _WidgetCreatorCardFromExpansionState extends State<WidgetCreatorCardFromEx
     _newCard!.card.level = value;
   }
 
-  void onTypeExtChanged(TypeCard value) {
-    if (value == TypeCard.unknown) {
+  void onTypeExtChanged(PokeCardType value) {
+    if (value == PokeCardType.unknown) {
       _newCard!.card.typeExtended = null;
     } else {
       _newCard!.card.typeExtended = value;
@@ -615,9 +615,9 @@ class _WidgetCreatorCardFromExpansionState extends State<WidgetCreatorCardFromEx
                   crossAxisCount: 8, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.05),
               primary: false,
               shrinkWrap: true,
-              itemCount: TypeCard.values.length,
+              itemCount: PokeCardType.values.length,
               itemBuilder: (BuildContext context, int index) {
-                var element = TypeCard.values.elementAt(index);
+                var element = PokeCardType.values.elementAt(index);
                 return CustomRadio(value: element, controller: typeController, widget: getImageType(element));
               }
           ),

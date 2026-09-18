@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 import 'package:statitikcard/l10n/statitik_localizations.dart';
+import 'package:statitikcard/models/card/poke_card_type.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_level.dart';
 import 'package:statitikcard/screens/card/card_images_list.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/type_card.dart';
 
 import 'card_viewer.dart';
 class CardBody extends StatefulWidget {
@@ -188,7 +188,7 @@ class _CardBodyState extends State<CardBody> with TickerProviderStateMixin {
                                   progressColor: Colors.white,
                                 )),
                               ]),
-                            if( data.resistance != null && data.resistance!.energy != TypeCard.unknown )
+                            if( data.resistance != null && data.resistance!.energy != PokeCardType.unknown )
                               Row(children: [
                                 SizedBox(width: CardBody.labelSpace, child: Text(AppLocalizations.of(context)!.caview_b2)),
                                 SizedBox(width: CardBody.valueSpace, child: Text(data.resistance!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headlineSmall )),
@@ -196,7 +196,7 @@ class _CardBodyState extends State<CardBody> with TickerProviderStateMixin {
                                 energyImage(data.resistance!.energy),
                                 const Expanded(child: SizedBox()),
                               ]),
-                            if( data.weakness != null && data.weakness!.energy != TypeCard.unknown )
+                            if( data.weakness != null && data.weakness!.energy != PokeCardType.unknown )
                               Row(children: [
                                 SizedBox(width: CardBody.labelSpace, child: Text(AppLocalizations.of(context)!.caview_b3)),
                                 SizedBox(width: CardBody.valueSpace, child: Text(data.weakness!.value.toString(), textAlign: TextAlign.right, style: Theme.of(context).textTheme.headlineSmall )),

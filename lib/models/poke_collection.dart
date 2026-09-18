@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
 import 'package:statitikcard/models/database/poke_db_description.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
-import 'package:statitikcard/models/poke_card.dart';
-import 'package:statitikcard/models/poke_card_effect.dart';
-import 'package:statitikcard/models/poke_card_subject.dart';
+import 'package:statitikcard/models/card/poke_card.dart';
+import 'package:statitikcard/models/card/poke_card_effect.dart';
+import 'package:statitikcard/models/card/poke_card_subject.dart';
 import 'package:statitikcard/models/poke_design.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
 import 'package:statitikcard/models/poke_expansion_cards.dart';
@@ -151,14 +151,17 @@ class PokeCollection {
   /// TEMPORARY ACCESS----------------------------
 
   List<PokemonName>   pokemons()          { return _pokemons; }
+  List<OtherCardName> otherCards()        { return _otherCards; }
   List<PokeRegion>    regions()           { return _regions; }
+  List<PokeForm>      forms()             { return _forms; }
   List<PokeLanguage>  languages()         { return _languages.values.toList(growable: false); }
   PokeRarity          unknownRarity()     { return _unknownRarity!; }
   List<PokeRarity>    worldRarity()       { return _worldRarity; }
   List<PokeRarity>    japanRarity()       { return _japanRarity; }
   List<PokeRarity>    goodCard()          { return _goodCard; }
   List<PokeRarity>    otherThanReverse()  { return _otherThanReverse; }
-  List<PokeEffectName> effectNames()      { return _effectNames;}
+  List<PokeEffectName> effectNames()      { return _effectNames; }
+  List<PokeDesign>     designs()          { return _designs; }
   Map<PokeIdentifier, PokeDbDescription> descriptions() { return _descriptions;}
 
 
@@ -1092,6 +1095,23 @@ class PokeCollection {
       }
     }
     return result;
+  }
+
+  Future<PokeIdentifier> addNewDresseurObjectName(TransactionContext connection, String newText, PokeLanguage langue) async
+  {
+    // Generate new ID
+    PokeIdentifier idOther = newId(PokeIdentifierType.object, _otherCards);
+
+    for(final l in _languages.values ) {
+      final value = (l == langue)
+          ? newText
+          : "<$newText>";
+
+      var query = 'INSERT INTO `${l.db()}` (`id_nom`, `nom`)'
+          ' VALUES (?, ?);';
+      await connection.queryMulti(query, [[idOther.id(), value]]);
+    }
+    return idOther;
   }
 
   Future<PokeIdentifier> addNewEffectName(TransactionContext connection, String effectLabels, PokeLanguage language) async {

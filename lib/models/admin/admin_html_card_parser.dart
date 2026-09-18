@@ -3,15 +3,15 @@ import 'dart:collection';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
+import 'package:statitikcard/models/card/poke_card_effect.dart';
+import 'package:statitikcard/models/card/poke_card_in_expansion.dart';
+import 'package:statitikcard/models/card/poke_card_subject.dart';
+import 'package:statitikcard/models/card/poke_card_type.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
-import 'package:statitikcard/models/poke_card_effect.dart';
-import 'package:statitikcard/models/poke_card_in_expansion.dart';
-import 'package:statitikcard/models/poke_card_subject.dart';
 import 'package:statitikcard/models/poke_data_navigation.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_language.dart';
-
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/card_effect.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
@@ -20,7 +20,6 @@ import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/multi_language_string.dart';
 import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
-import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/tools.dart';
 
 class AdminHTMLEffects  {
@@ -38,18 +37,18 @@ class AdminHTMLEffectsReader  {
 }
 
 class AdminHtmlCardParser {
-  static const Map<String, TypeCard> _convertType = {
-    "grass": TypeCard.plante,
-    "fire": TypeCard.feu,
-    "water": TypeCard.eau,
-    "electric": TypeCard.electrique,
-    "psychic": TypeCard.psy,
-    "fighting": TypeCard.combat,
-    "dark": TypeCard.obscurite,
-    "dragon": TypeCard.dragon,
-    "steel": TypeCard.metal,
-    //"fairy": TypeCard.fee,
-    "none": TypeCard.incolore,
+  static const Map<String, PokeCardType> _convertType = {
+    "grass":    PokeCardType.plante,
+    "fire":     PokeCardType.feu,
+    "water":    PokeCardType.eau,
+    "electric": PokeCardType.electrique,
+    "psychic":  PokeCardType.psy,
+    "fighting": PokeCardType.combat,
+    "dark":     PokeCardType.obscurite,
+    "dragon":   PokeCardType.dragon,
+    "steel":    PokeCardType.metal,
+    //"fairy":  PokeCardType.fee,
+    "none":     PokeCardType.incolore,
   };
 
   final PokeNavAdmin _nav;
@@ -195,7 +194,7 @@ class AdminHtmlCardParser {
         PokeEffectName?        effectName;
         PokeEffectDescription? description;
         int             power  = 0;   /// Zero = no attack.
-        List<TypeCard>  attack = [];
+        List<PokeCardType>  attack = [];
 
         String effectNameStr = "";
         String effectDescriptionStr = "";

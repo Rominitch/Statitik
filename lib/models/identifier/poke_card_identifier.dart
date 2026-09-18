@@ -1,8 +1,8 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:kana_kit/kana_kit.dart';
-import 'package:statitikcard/models/poke_card_design.dart';
-import 'package:statitikcard/models/poke_card_in_expansion.dart';
+import 'package:statitikcard/models/card/poke_card_design.dart';
+import 'package:statitikcard/models/card/poke_card_in_expansion.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_set.dart';

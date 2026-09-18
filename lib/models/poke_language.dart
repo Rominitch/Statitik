@@ -99,5 +99,4 @@ class PokeLanguage {
   bool search(PokeIdentifier id, String searchPart) {
     return label(id)!.toLowerCase().contains(searchPart.toLowerCase());
   }
-
 }

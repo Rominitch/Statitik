@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/models/database/poke_db_cards_blob.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
-import 'package:statitikcard/models/poke_card_in_expansion.dart';
+import 'package:statitikcard/models/card/poke_card_in_expansion.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/services/tools.dart';
@@ -344,17 +344,17 @@ class PokeExpansionCards {
   }
   */
 
-  CardIdentifier? nextId(CardIdentifier id) {
+  PokeCardIdentifier? nextId(PokeCardIdentifier id) {
     int nextId = id.numberId+1;
     switch(id.listId){
       case 0: {
-        return nextId < cards.length ? CardIdentifier.from([id.listId, nextId, 0]): null;
+        return nextId < cards.length ? PokeCardIdentifier.from([id.listId, nextId, 0]): null;
       }
       case 1: {
-        return nextId < energyCard.length ? CardIdentifier.from([id.listId, nextId]): null;
+        return nextId < energyCard.length ? PokeCardIdentifier.from([id.listId, nextId]): null;
       }
       case 2: {
-        return nextId < noNumberedCard.length ? CardIdentifier.from([id.listId, nextId]): null;
+        return nextId < noNumberedCard.length ? PokeCardIdentifier.from([id.listId, nextId]): null;
       }
       default:
         throw StatitikException(ErrorCode.unknown, "Unknown list");

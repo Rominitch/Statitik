@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
-import 'package:statitikcard/models/poke_card_in_expansion.dart';
+import 'package:statitikcard/models/card/poke_card_in_expansion.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/services/environment.dart';

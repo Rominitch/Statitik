@@ -9,7 +9,7 @@ import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/card/selector/poke_card_selector_in_product.dart';
 import 'package:statitikcard/models/draw/poke_card_draw.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
-import 'package:statitikcard/models/poke_card_subject.dart';
+import 'package:statitikcard/models/card/poke_card_subject.dart';
 import 'package:statitikcard/models/poke_data_navigation.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
 import 'package:statitikcard/models/poke_identifier.dart';

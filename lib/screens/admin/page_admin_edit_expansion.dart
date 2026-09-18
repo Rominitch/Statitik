@@ -3,43 +3,35 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/admin/admin_card_creator.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
-import 'package:statitikcard/models/poke_card.dart';
-import 'package:statitikcard/models/poke_card_design.dart';
-import 'package:statitikcard/models/poke_card_in_expansion.dart';
-
+import 'package:statitikcard/models/card/poke_card_in_expansion.dart';
 import 'package:statitikcard/models/poke_data_navigation.dart';
 import 'package:statitikcard/models/poke_language.dart';
-import 'package:statitikcard/models/poke_rarity.dart';
 import 'package:statitikcard/models/poke_rendering.dart';
-import 'package:statitikcard/models/poke_set.dart';
 import 'package:statitikcard/models/statistics/statistic_data.dart';
-import 'package:statitikcard/screenOld/admin/card_creator.dart';
 import 'package:statitikcard/screenOld/admin/card_editor_options.dart';
-import 'package:statitikcard/services/models/type_card.dart';
+import 'package:statitikcard/screens/admin/page_admin_edit_card.dart';
 import 'package:statitikcard/services/tools.dart';
-import 'package:statitikcard/widgets/expansion/widget_creator_card_from_expansion.dart';
 import 'package:statitikcard/widgets/expansion/widget_creator_card_quick.dart';
 
 class PageAdminEditExpansion extends StatefulWidget {
   final PokeNavAdmin       _nav;
-  final ExpansionSelection _expension;
+  final ExpansionSelection _expansion;
   final Function           _onReturn;
 
-  const PageAdminEditExpansion(this._nav, this._expension, this._onReturn, {super.key});
+  const PageAdminEditExpansion(this._nav, this._expansion, this._onReturn, {super.key});
 
   @override
   State<PageAdminEditExpansion> createState() => _PageAdminEditExpansionState();
 }
 
 class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
-  List<Widget>  _cardInfo         = [];
-  List<Widget>  _cardEnergyInfo   = [];
-  List<Widget>  _cardNoNumberInfo = [];
   bool _modify = false;
   late AdminCardCreator _creator;
 
   int idList = 0;
   bool _showQuickCreator = true;
+
+  PokeCardIdentifier? activeCard;
   CardEditorOptions options = CardEditorOptions();
 
   void onRefreshList() {
@@ -53,18 +45,8 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
     });
   }
 
-  void updateCardList(int listId) {
-    if(listId == 1) {
-      _cardEnergyInfo   = _cardsEnergy();
-    } else if(listId == 2) {
-      _cardNoNumberInfo = _cardsNoNumber();
-    } else {
-      _cardInfo = _cards();
-    }
-  }
-
   bool isJapanese() {
-    return widget._expension.language!.location() == CardLocation.Asie;
+    return widget._expansion.language!.location() == CardLocation.Asie;
   }
 
   void onAddCard(int listId, int? pos) {
@@ -72,7 +54,7 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
       _modify = true;
 
       // Remove default state
-      final cards = widget._expension.expansion!.cards;
+      final cards = widget._expansion.expansion!.cards;
       if( !cards.isValid() ) {
         cards.cards.clear();
       }
@@ -99,14 +81,12 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
           cards.cards.insert(pos, [newItem]);
         }
       }
-
-      updateCardList(listId);
     });
   }
 
   void removeCard(int listId,int localId) {
     setState(() {
-      final cards = widget._expension.expansion!.cards;
+      final cards = widget._expansion.expansion!.cards;
       List cardList;
       if(listId == 1) {
         cardList = cards.energyCard;
@@ -118,24 +98,18 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
 
       _modify = true;
       cardList.removeAt(localId);
-
-      updateCardList(listId);
     });
   }
 
   @override
   void initState() {
-    _creator = AdminCardCreator(widget._nav, widget._expension.expansion!);
-
-    updateCardList(0);
-    updateCardList(1);
-    updateCardList(2);
+    _creator = AdminCardCreator(widget._nav, widget._expansion.expansion!);
 
     super.initState();
   }
 
   Widget cardBuilder(PokeCardInExpansion card, int id, int listId) {
-    final cards = widget._expension.expansion!.cards;
+    final cards = widget._expansion.expansion!.cards;
 
     // Search if Jap Card link exist
     var colorCard = const Color(0xFF5D9070);
@@ -163,7 +137,6 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
 
     int localId     = id;
     int localListId = listId;
-    var idCard = PokeCardIdentifier.from([localListId, localId, 0]);
     var numberCard = cards.numberOfCard(localId);
 
     bool hasJPImageLink = false;
@@ -171,11 +144,9 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
       final imageId = PokeCardImageIdentifier(card.setInfo.keys.first);
       final cardDesign = card.tryGetImage(imageId);
       if(cardDesign != null) {
-        hasJPImageLink = cardDesign!.jpDBId == 0;
+        hasJPImageLink = cardDesign.jpDBId == 0;
       }
     }
-
-
     return Card(
       color: colorCard,
       child: TextButton(
@@ -215,6 +186,9 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
           });
         },
         onPressed: () {
+          setState(() {
+            activeCard = PokeCardIdentifier.from([localListId, localId, 0]);
+          });
           //TODO
           /*
           Navigator.push(
@@ -233,69 +207,18 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Row( mainAxisAlignment: MainAxisAlignment.center,
-                children: [card.imageType()] + widget._nav.rendering.imageRarity(card.rarity)),
+              children: [card.imageType()] + widget._nav.rendering.imageRarity(card.rarity)),
             Row(mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(numberCard, style: TextStyle(fontSize: numberCard.length > 3 ? 10 : 12)),
-                  if(isJapanese() && !hasJPImageLink) const Icon(Icons.broken_image, color: Colors.deepOrange, size: 11),
-                  if(card.card.missingMainData())           const Icon(Icons.text_format, color: Colors.red, size: 10),
-                  if(card.card.cardEffects.effects.isEmpty) const Icon(Icons.filter_vintage_outlined, color: Colors.red, size: 10),
-                ])
+              children: [
+                Text(numberCard, style: TextStyle(fontSize: numberCard.length > 3 ? 10 : 12)),
+                if(isJapanese() && !hasJPImageLink) const Icon(Icons.broken_image, color: Colors.deepOrange, size: 11),
+                if(card.card.missingMainData())           const Icon(Icons.text_format, color: Colors.red, size: 10),
+                if(card.card.cardEffects.effects.isEmpty) const Icon(Icons.filter_vintage_outlined, color: Colors.red, size: 10),
+              ])
           ]
         ),
       ),
     );
-  }
-
-  List<Widget> _cards() {
-    List<Widget> myCards = [];
-    int id=0;
-    int listId=0;
-    final cards = widget._expension.expansion!.cards;
-
-    if( cards.isValid() ) {
-      for (var cardList in cards.cards) {
-        // Select only first
-        var card = cardList[0];
-        myCards.add( cardBuilder(card, id, listId) );
-
-        id += 1;
-      }
-    }
-    return myCards;
-  }
-
-  List<Widget> _cardsEnergy() {
-    List<Widget> myCards = [];
-    int id=0;
-    int listId=1;
-    final cards = widget._expension.expansion!.cards;
-
-    if( cards.isValid() ) {
-      for (var cardList in cards.energyCard) {
-        myCards.add( cardBuilder(cardList, id, listId) );
-
-        id += 1;
-      }
-    }
-    return myCards;
-  }
-
-  List<Widget> _cardsNoNumber() {
-    List<Widget> myCards = [];
-    int id=0;
-    int listId=2;
-    final cards = widget._expension.expansion!.cards;
-
-    if( cards.isValid() ) {
-      for (var cardList in cards.noNumberedCard) {
-        // Select only first
-        myCards.add( cardBuilder(cardList, id, listId) );
-
-        id += 1;
-      }
-    }
-    return myCards;
   }
 
   bool backAction(BuildContext context) {
@@ -324,7 +247,7 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
   }
 
   Widget headerExpansion() {
-    final expansion = widget._expension.expansion!;
+    final expansion = widget._expansion.expansion!;
     return Row(children: [
       const Expanded(child: Text("Etat")),
       Tooltip(
@@ -366,11 +289,13 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
   }
 
   Widget mobileView() {
-    final expansion = widget._expension.expansion!;
+    const delegate = SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 6, crossAxisSpacing: 0, mainAxisSpacing: 0,
+        childAspectRatio: PokeRendering.bestMiniCardRatio);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(2.0),
-      child:Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           headerExpansion(),
@@ -388,7 +313,8 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
                   },
                   isExpanded: _showQuickCreator,
                   //TODO : Migration
-                  body: Placeholder()//CardCreator.quick(widget.language, expansion, data, PokeCardIdentifier.from([0, 0, 0]), onAddCard, onRefreshList, widget.language.isWorld(), onChangeList: onChangeList),
+                  body: WidgetCreatorCardQuick(widget._nav, _creator, onAddCard, onRefreshList,
+                      onChangeList: onChangeList),//CardCreator.quick(widget.language, expansion, data, PokeCardIdentifier.from([0, 0, 0]), onAddCard, onRefreshList, widget.language.isWorld(), onChangeList: onChangeList),
               )
             ],
             expandedHeaderPadding: EdgeInsets.zero,
@@ -399,90 +325,66 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
             },
             elevation: 0,
           ),
-          if(expansion.cards.cards.isNotEmpty && idList == 0) GridView.count(
-            primary: false,
-            shrinkWrap: true,
-            childAspectRatio: 1.35,
-            crossAxisCount: 5,
-            children: _cardInfo,
-          ),
-          if(expansion.cards.energyCard.isNotEmpty && idList == 1) GridView.count(
-            primary: false,
-            shrinkWrap: true,
-            childAspectRatio: 1.35,
-            crossAxisCount: 5,
-            children: _cardEnergyInfo,
-          ),
-          if(expansion.cards.noNumberedCard.isNotEmpty && idList == 2) GridView.count(
-            primary: false,
-            shrinkWrap: true,
-            childAspectRatio: 1.35,
-            crossAxisCount: 5,
-            children: _cardNoNumberInfo,
-          ),
+          cardGrids(delegate)
         ],
       )
     );
   }
 
-  Widget desktopView() {
-    final expansion = widget._expension.expansion!;
-    final language  = widget._expension.language!;
+  Widget cardGrids(SliverGridDelegate delegate) {
+    switch(idList)
+    {
+      case 0:
+        {
+          return GridView.builder(
+            gridDelegate: delegate,
+            itemCount: widget._expansion.expansion!.cards.cards.length,
+            itemBuilder: (context, index) {
+              final cards = widget._expansion.expansion!.cards.cards;
+              final card = cards[index][0];
+              return cardBuilder(card, index, 0);
+            },
+          );
+        }
+      case 1:
+        {
+          return GridView.builder(
+            gridDelegate: delegate,
+            itemCount: widget._expansion.expansion!.cards.energyCard.length,
+            itemBuilder: (context, index) {
+              final cards = widget._expansion.expansion!.cards.energyCard;
+              final card = cards[index];
+              return cardBuilder(card, index, 0);
+            },
+          );
+        }
+      case 2:
+        {
+          return GridView.builder(
+            gridDelegate: delegate,
+            itemCount: widget._expansion.expansion!.cards.noNumberedCard.length,
+            itemBuilder: (context, index) {
+              final cards = widget._expansion.expansion!.cards.noNumberedCard;
+              final card = cards[index];
+              return cardBuilder(card, index, 0);
+            },
+          );
+        }
+    }
+    throw "No valid card id";
+  }
 
-
-    return LayoutBuilder(builder: (context, box) {
-      final count = (box.maxWidth / PokeRendering.bestMiniCardWidth).ceil();
-      final ratio = PokeRendering.bestMiniCardRatio;
-      Widget? cardsGrid;
-      switch(idList)
-      {
-        case 0:
-          {
-            cardsGrid = GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: count, crossAxisSpacing: 0, mainAxisSpacing: 0,
-                  childAspectRatio: ratio),
-              primary: false,
-              shrinkWrap: true,
-              itemCount: widget._expension.expansion!.cards.cards.length,
-              itemBuilder: (context, index) {
-                final cards = widget._expension.expansion!.cards.cards;
-                final card = cards[index][0];
-
-                return cardBuilder(card, index, 0);
-              },
-            );
-          }
-          break;
-        case 1:
-          {
-            cardsGrid = GridView.count(
-              primary: false,
-              shrinkWrap: true,
-              childAspectRatio: ratio,
-              crossAxisCount: count,
-              children: _cardEnergyInfo,
-            );
-          }
-          break;
-        case 2:
-          {
-            cardsGrid = GridView.count(
-              primary: false,
-              shrinkWrap: true,
-              childAspectRatio: ratio,
-              crossAxisCount: count,
-              children: _cardNoNumberInfo,
-            );
-          }
-          break;
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          headerExpansion(),
-          Row(
+  Widget desktopView(BoxConstraints box) {
+    final count = (box.maxWidth / PokeRendering.bestMiniCardWidth).ceil();
+    final delegate = SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: count, crossAxisSpacing: 0, mainAxisSpacing: 0,
+        childAspectRatio: PokeRendering.bestMiniCardRatio);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        headerExpansion(),
+        Expanded(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Expanded(
@@ -492,20 +394,21 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
               ),
               Expanded(
                 flex: 2,
-                child: cardsGrid!,
+                child: cardGrids(delegate),
               )
             ],
-          ),
-        ],
-      );
-    });
+          )
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final expansion = widget._expension.expansion!;
-    final language  = widget._expension.language!;
+    final expansion = widget._expansion.expansion!;
+    final language  = widget._expansion.language!;
     final expName   = expansion.label(language)!;
+
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -517,7 +420,7 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
             Flexible(
               child:Text(expName, softWrap: true,
                 style: Theme.of(context).textTheme.titleLarge?..copyWith(
-                    fontSize: expName.length > 9 ? 7 : 10
+                  fontSize: expName.length > 9 ? 7 : 10
                 )
               )
             ),
@@ -526,8 +429,14 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            //backAction(context);
-            widget._onReturn();
+            if( activeCard != null ) {
+              setState(() {
+                activeCard = null;
+              });
+            } else {
+              //backAction(context);
+              widget._onReturn();
+            }
           },
         ),
         actions: [if(_modify) Card(child: TextButton(
@@ -558,9 +467,11 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
         onPopInvokedWithResult: (bool didPop, Object? result) async {
           backAction(context);
         },
-        child: LayoutBuilder(builder: (context, box) {
+        child: activeCard != null
+            ? PageAdminEditCard(_creator.nav(), PokeCardViewerIdentifier(expansion, activeCard!, specificLanguage: language), options)
+            : LayoutBuilder(builder: (context, box) {
             if( box.maxWidth > 600 ) {
-              return desktopView();
+              return desktopView(box);
             } else {
               return mobileView();
             }

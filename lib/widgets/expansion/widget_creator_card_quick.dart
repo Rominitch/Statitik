@@ -3,12 +3,12 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/admin/admin_card_creator.dart';
 import 'package:statitikcard/models/admin/admin_html_card_parser.dart';
+import 'package:statitikcard/models/card/poke_card_type.dart';
 import 'package:statitikcard/models/poke_data_navigation.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_rarity.dart';
 import 'package:statitikcard/screenOld/admin/card_editor_options.dart';
 import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
-import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/services/tools.dart';
 
 class WidgetCreatorCardQuick extends StatefulWidget {
@@ -58,7 +58,7 @@ class _WidgetCreatorCardQuickState extends State<WidgetCreatorCardQuick> with Ti
     widget.onChangeList!(value);
   }
 
-  void onTypeChanged(TypeCard value) {
+  void onTypeChanged(PokeCardType value) {
     widget._creator.type = value;
   }
 
@@ -112,9 +112,9 @@ class _WidgetCreatorCardQuickState extends State<WidgetCreatorCardQuick> with Ti
                 crossAxisCount: 8, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.05),
             primary: false,
             shrinkWrap: true,
-            itemCount: TypeCard.values.length,
+            itemCount: PokeCardType.values.length,
             itemBuilder: (BuildContext context, int index) {
-              var element = TypeCard.values.elementAt(index);
+              var element = PokeCardType.values.elementAt(index);
               return CustomRadio(value: element, controller: typeController, widget: getImageType(element));
             }
         ),

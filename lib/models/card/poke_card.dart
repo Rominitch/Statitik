@@ -1,22 +1,40 @@
 
-import 'package:statitikcard/models/poke_card_effect.dart';
-import 'package:statitikcard/models/poke_card_energy_value.dart';
-import 'package:statitikcard/models/poke_card_subject.dart';
+import 'package:statitikcard/models/card/poke_card_effect.dart';
+import 'package:statitikcard/models/card/poke_card_energy_value.dart';
+import 'package:statitikcard/models/card/poke_card_subject.dart';
+import 'package:statitikcard/models/card/poke_card_type.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_illustrator.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_level.dart';
 import 'package:statitikcard/models/poke_marker.dart';
-import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
 class PokeCard {
+  static const int minLife = 0;
+  static const int maxLife = 400;
+
+  static const int minAttackPower = 0;
+  static const int maxAttackPower = 400;
+
+  static const int minAttackEnergy = 0;
+  static const int maxAttackEnergy = 5;
+
+  static const int minRetreat = 0;
+  static const int maxRetreat = 5;
+
+  static const int minResistance = 0;
+  static const int maxResistance = 60;
+
+  static const int minWeakness = 0;
+  static const int maxWeakness = 5;
+
   final PokeIdentifier _id;
   PokeTitleCard title;
   PokeLevel level;
-  TypeCard type;
-  TypeCard? typeExtended; //Double energy can exists but less than 20 card !
+  PokeCardType  type;
+  PokeCardType? typeExtended; //Double energy can exists but less than 20 card !
   PokeMarkers markers;
   PokeCardEffects cardEffects = PokeCardEffects();
   int life;
@@ -41,8 +59,8 @@ class PokeCard {
   PokeCard.fromBytes(this._id, BinaryReader reader, PokeCollection collection) :
     title = PokeTitleCard.fromBytes(reader, collection),
     level = PokeLevel.values[reader.readInt8()],
-    type = TypeCard.values[reader.readInt8()],
-    typeExtended = reader.readOptional((r) => TypeCard.values[r.readInt8()]),
+    type  = PokeCardType.values[reader.readInt8()],
+    typeExtended = reader.readOptional((r) => PokeCardType.values[r.readInt8()]),
     illustrator  = reader.readOptional((r) => collection.illustrator(PokeIdentifier.fromBytes(r))),
     markers      = PokeMarkers.fromBytes(reader, collection),
     cardEffects  = PokeCardEffects.fromBytes(reader, collection),
@@ -67,8 +85,8 @@ class PokeCard {
   PokeCard.empty()
       : _id=PokeIdentifier(0),
         title = PokeTitleCard.empty(),
-        level=PokeLevel.base,
-        type=TypeCard.unknown,
+        level = PokeLevel.base,
+        type  = PokeCardType.unknown,
         markers=PokeMarkers([]),
         life=0,
         retreat=0;

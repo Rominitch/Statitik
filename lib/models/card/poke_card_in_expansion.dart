@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
-import 'package:statitikcard/models/poke_card.dart';
-import 'package:statitikcard/models/poke_card_design.dart';
+import 'package:statitikcard/models/card/poke_card.dart';
+import 'package:statitikcard/models/card/poke_card_design.dart';
+import 'package:statitikcard/models/card/poke_card_type.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_rarity.dart';
 import 'package:statitikcard/models/poke_set.dart';
-import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
 class PokeCardInExpansion {
@@ -366,6 +366,17 @@ class PokeCardInExpansion {
       }
     }
     return null;
+  }
+
+  void setImage(PokeCardImageIdentifier idImage, PokeCardDesign newDesign) {
+    assert(setInfo.isNotEmpty);
+
+    if(setInfo.containsKey(idImage.set)) {
+      final v = setInfo[idImage.set]!;
+      if(idImage.idImage < v.length) {
+        v[idImage.idImage] = newDesign;
+      }
+    }
   }
 
   void removeImage(PokeCardImageIdentifier idImage) {

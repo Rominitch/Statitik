@@ -1,9 +1,9 @@
+import 'package:statitikcard/models/card/poke_card_type.dart';
 import 'package:statitikcard/models/database/poke_db_description.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/type_card.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
 class PokeEffectName extends PokeIdentifier {
@@ -43,8 +43,8 @@ class PokeCardEffect {
   PokeEffectName?         title;       /// Title of capacity if exist.
   PokeEffectDescription?  description; /// Description if exists.
 
-  int             power  = 0;   /// Zero = no attack.
-  List<TypeCard>  attack = [];  /// Energy to attach for attack.
+  int                 power  = 0;   /// Zero = no attack.
+  List<PokeCardType>  attack = [];  /// Energy to attach for attack.
 
   PokeCardEffect( this.title, this.description, this.power, this.attack );
 
@@ -52,7 +52,7 @@ class PokeCardEffect {
     title       = reader.readOptional((r) => collection.effectName(PokeIdentifier.fromBytes(r))),
     description = reader.readOptional((r) => PokeEffectDescription.fromBytes(r, collection)),
     power       = reader.readInt16(),
-    attack      = reader.readSmallList(((reader) => TypeCard.values[reader.readInt8()]));
+    attack      = reader.readSmallList(((reader) => PokeCardType.values[reader.readInt8()]));
   
   PokeCardEffect.fromBytesOld(BinaryReader reader, PokeCollection collection) {
     int idEffect = reader.tmpReadInt16BIG();
@@ -71,8 +71,8 @@ class PokeCardEffect {
 
     int nbAttack = reader.readInt8();
     for(int i = 0; i < nbAttack; i +=1) {
-      var t = TypeCard.values[reader.readInt8()];
-      if(t != TypeCard.unknown) {
+      var t = PokeCardType.values[reader.readInt8()];
+      if(t != PokeCardType.unknown) {
         attack.add(t);
       }
     }
