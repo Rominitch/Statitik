@@ -37,7 +37,6 @@ class _CardEffectsPanelState extends State<CardEffectsPanel> {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: effectsWidget + <Widget>[
       Card(
         color: Colors.greenAccent,

@@ -8,6 +8,7 @@ import 'package:http/retry.dart';
 import 'package:image/image.dart' as img;
 
 import 'package:path_provider/path_provider.dart';
+import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
@@ -21,11 +22,16 @@ class StorageData {
 }
 
 class ImageStorage {
-  static const List formats = ["webp", "png" , "jpg"];
+  static const List formats = ["webp", "png", "jpg"];
 
-  Future<String> imageLocalPath(List<String> folders, String file, String extension) async {
-    final directory = await getApplicationDocumentsDirectory();
-    return ([directory.path]+folders+["$file.$extension"]).join(Platform.pathSeparator);
+  String? _applicationDocumentsPath;
+
+  Future<void> loadFolders() async {
+    _applicationDocumentsPath = (await getApplicationDocumentsDirectory()).path;
+  }
+
+  String imageLocalPath(List<String> folders, String file, String extension) {
+    return ([_applicationDocumentsPath]+folders+["$file.$extension"]).join(Platform.pathSeparator);
   }
 
   Future<File?> storeImageToFile(String imageLocalPath, List<Uri> urls) async {
@@ -96,7 +102,7 @@ class ImageStorage {
 
   Future<File?> imageFromPath(StorageData data) async {
     try {
-      var imageLocale = await imageLocalPath(data.folders, data.imageLocalPath, "");
+      var imageLocale = imageLocalPath(data.folders, data.imageLocalPath, "");
       var ok = false;
       File? file;
       for(var format in formats) {
@@ -116,6 +122,10 @@ class ImageStorage {
     catch(error) {
       return null;
     }
+  }
+
+  Future<void> cleanSavedCardFile(PokeCardViewerIdentifier idCard) async {
+    await cleanImageFile(idCard.folderDiskImage(idCard.specificLanguage!), idCard.nameDiskImage());
   }
 
   Future<void> cleanCardFile(SubExtension se, CardIdentifier idCard) async {

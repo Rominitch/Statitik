@@ -9,6 +9,7 @@ import 'package:statitikcard/models/poke_set.dart';
 import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/models/type_card.dart';
+import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
 class PokeCardImageIdentifier {
@@ -117,8 +118,8 @@ class PokeCardViewerIdentifier {
 
   PokeCardImageIdentifier?       idImage;
 
-  PokeCardViewerIdentifier(this.expansion, this.idCard, {this.idImage, this.specificLanguage}) {
-    idImage = expansion.cards.tryCardFromId(idCard) != null ? PokeCardImageIdentifier(cardInExp().orderedSets().first) : null;
+  PokeCardViewerIdentifier(this.expansion, this.idCard, {PokeCardImageIdentifier? idImage, this.specificLanguage}) {
+    this.idImage = idImage ?? (expansion.cards.tryCardFromId(idCard) != null ? PokeCardImageIdentifier(cardInExp().orderedSets().first) : null);
   }
 
   List<PokeLanguage> compatibleLanguage() {
@@ -143,16 +144,25 @@ class PokeCardViewerIdentifier {
     return cardInExp().tryGetImage(idImage!)!;
   }
 
+  List<String> folderDiskImage(PokeLanguage language) {
+    return ["images", "card", language.code(), expansion.icon()];
+  }
+  String nameDiskImage() {
+    return "${idCard.toString()}_${idImage.toString()}";
+  }
+
   List<Uri> computeImageURI(bool showTCGImages) {
-    if(showTCGImages){
+    if(showTCGImages && idImage != null){
       final cardInExp = expansion.cards.cardFromId(idCard);
-      final defaultImage = cardInExp.image(idImage!)!;
+      final defaultImage = cardInExp.tryGetImage(idImage!);
+      if( defaultImage == null ){
+        return [];
+      }
       final codeLangue = specificLanguage!.code();
 
       if(defaultImage.finalImage.isNotEmpty) {
         return [Uri.parse(defaultImage.finalImage)];
       }
-
 
       List<Uri> images = [];
 
@@ -318,5 +328,58 @@ class PokeCardViewerIdentifier {
       }
     } catch(_) {}
     return val;
+  }
+
+  void computeJPCardID() {
+    try {
+      int idFind = 0;
+      // Search list of card
+      PokeCardInExpansion ancestorCard;
+      switch(idCard.listId) {
+        case 0:
+          ancestorCard = expansion.cards.cards.sublist(0, idCard.numberId).reversed.firstWhere((element) {
+            idFind+=1;
+            var img = element[idCard.alternativeId].image(idImage!);
+            return img != null && img.jpDBId != 0;
+          })[0];
+          break;
+        case 1:
+          ancestorCard = expansion.cards.energyCard.sublist(0, idCard.numberId).reversed.firstWhere((element) {
+            idFind+=1;
+            var img = element.image(idImage!);
+            return img != null && img.jpDBId != 0;
+          });
+          break;
+        case 2:
+          ancestorCard = expansion.cards.noNumberedCard.sublist(0, idCard.numberId).reversed.firstWhere((element) {
+            idFind+=1;
+            var img = element.image(idImage!);
+            return img != null && img.jpDBId != 0;
+          });
+          break;
+        default:
+          throw StatitikException(ErrorCode.unknown, "Unknown list !");
+      }
+
+      // Zero propagation or next number
+      var jpDB = ancestorCard
+          .image(idImage!)!
+          .jpDBId;
+      if (jpDB != 0) {
+        cardInExp().image(idImage!)!.jpDBId = jpDB + idFind;
+      }
+
+      // Copy name of parent
+      final design = cardInExp().tryGetImage(idImage!);
+      if(design != null) {
+        final name = design.cardImage;
+        if (name.isNotEmpty) {
+          cardInExp().image(idImage!)!.cardImage = name;
+        }
+      }
+    } catch(e) {
+      // Nothing found !
+      printOutput("ComputeJCard: impossible to find $e");
+    }
   }
 }

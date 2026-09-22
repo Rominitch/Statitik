@@ -1,36 +1,43 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_language.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
 class PokeMarker
 {
   final PokeIdentifier _id;
-  final String         _image;
   final Color          _color;
   final bool           _toTitle;
+  final bool           _isByLanguage; //Otherwise is unique
+  final String         _codeName;
 
-  // Computed
-  Widget? widget;
-
-  PokeMarker.fromDB(this._id, this._image, this._color, this._toTitle);
+  const PokeMarker.fromDB(this._id, this._color, this._toTitle, this._isByLanguage, this._codeName);
 
   PokeMarker.fromBytes(BinaryReader reader):
     _id = PokeIdentifier.fromBytes(reader),
-    _image = reader.readString(),
     _color = reader.readColor(),
-    _toTitle = reader.readBool();
+    _toTitle = reader.readBool(),
+    _isByLanguage = reader.readBool(),
+    _codeName = reader.readSmallString();
 
   void toBytes(BinaryWriter writer) {
     _id.toBytesID(writer);
-    writer.writeString(_image);
     writer.writeColor(_color);
     writer.writeBool(_toTitle);
+    writer.writeBool(_isByLanguage);
+    writer.writeSmallString(_codeName);
   }
 
   bool toTitle() { return _toTitle; }
+
+  bool isByLanguage() {
+    return _isByLanguage;
+  }
 
   void toBytesId(BinaryWriter writer) {
     _id.toBytesID(writer);
@@ -40,25 +47,30 @@ class PokeMarker
     return _id == pid;
   }
 
+  static List<String> mainFolderPath() {
+    return ["images", "markers"];
+  }
+
   String titleName() {
-    return _image.toUpperCase().replaceAll("_SV", "");
+    return _codeName;
+  }
+
+  String imagePath(PokeLanguage l) {
+    return _isByLanguage ? "${_id.id()}_${l.code()}" : _id.id().toString();
   }
 
   Widget icon(PokeLanguage l, {height}) {
-    var val = _image;
-    return drawCachedImage('logo', val, height: height,
-        alternativeRendering: Text(val, style: TextStyle(fontSize: val.length > 9 ? 7
-            : (val.length > 6 ? 9 : 12) )));
+    //var val = _image;
+    //return drawCachedImage('logo', val, height: height,
+    //    alternativeRendering: Text(val, style: TextStyle(fontSize: val.length > 9 ? 7
+    //        : (val.length > 6 ? 9 : 12) )));
+
+    final String path = Environment.instance.storage.imageLocalPath(mainFolderPath(), imagePath(l), "webp");
+    return Image.file(File(path), height: height);
   }
 
-  Widget? pokeMarker(PokeLanguage l, PokeMarker marker, {double? height=15.0, bool generate=false}) {
-    if( _toTitle ) {
-      if (generate || widget == null) {
-        widget = marker.icon(l, height: height);
-      }
-      return widget!;
-    }
-    return null;
+  Widget? pokeMarker(PokeLanguage l, {double? height=15.0}) {
+    return icon(l, height: height);
   }
 }
 

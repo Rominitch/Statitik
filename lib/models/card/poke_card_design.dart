@@ -7,7 +7,7 @@ class PokeCardDesign {
   final PokeDesign    design;
   final ArtFormat     art;
 
-  final String cardImage;
+  String cardImage;
   int    jpDBId;
 
   // Computed

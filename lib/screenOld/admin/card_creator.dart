@@ -822,7 +822,7 @@ class CardImageCreator extends StatefulWidget {
   final PokemonCardExtension card;
   final CardIdentifier       idCard;
   final CardImageIdentifier  idImage;
-  final LanguageOld             activeLanguage;
+  final LanguageOld          activeLanguage;
   final CardEditorOptions    options;
 
   const CardImageCreator(this.se, this.card, this.idCard, this.idImage, this.activeLanguage, this.options, {super.key});

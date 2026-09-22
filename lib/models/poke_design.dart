@@ -68,6 +68,10 @@ class PokeDesign {
 
   String image() { return _image; }
 
+  static List<String> mainFolderPath() {
+    return ["images", "design"];
+  }
+
   ShiningPattern shining() {
     return ShiningPattern.values[(_id.id() ~/10000) % 100];
   }

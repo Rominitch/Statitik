@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:statitikcard/models/card/poke_card_design.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
 import 'package:statitikcard/models/poke_language.dart';
+import 'package:statitikcard/models/poke_marker.dart';
 import 'package:statitikcard/models/poke_rarity.dart';
 import 'package:statitikcard/models/poke_rendering.dart';
 import 'package:statitikcard/models/poke_set.dart';
@@ -16,9 +18,9 @@ import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/models/rarity.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 
-class WidgetCustomButtonCheckController {
+class WidgetCustomButtonCheckController<ValueType> {
   final List<WidgetButtonCheck> _radios = [];
-  final Function    afterPress;
+  final void Function()    afterPress;
 
   WidgetCustomButtonCheckController(this.afterPress);
 
@@ -38,13 +40,14 @@ class WidgetCustomButtonCheckController {
 }
 
 abstract class WidgetButtonCheck<ValueType> extends StatefulWidget {
-  final WidgetCustomButtonCheckController? _controller;
+  final WidgetCustomButtonCheckController<ValueType>? _controller;
   final ValueType  value;
   final dynamic    editableList;
+  final dynamic    defaultValue; // Use for Map
 
   final StreamController<dynamic> afterChange = StreamController<dynamic>();
 
-  WidgetButtonCheck(this.editableList, this.value, this._controller, {super.key});
+  WidgetButtonCheck(this.editableList, this.value, this._controller, {this.defaultValue, super.key});
 
   Widget makeWidget(BuildContext context);
 
@@ -79,22 +82,50 @@ class _WidgetButtonCheckState extends State<WidgetButtonCheck> {
     super.dispose();
   }
 
+  bool contains()
+  {
+    if( widget.editableList is List ) {
+      return widget.editableList.contains(widget.value);
+    } else if( widget.editableList is Map ) {
+      return widget.editableList.containsKey(widget.value);
+    }
+    else {
+      throw "Unknown container";
+    }
+  }
+
+  void changeContainer()
+  {
+    if( widget.editableList is List ) {
+      if( widget.editableList.contains(widget.value) ) {
+        widget.editableList.remove(widget.value);
+      } else {
+        widget.editableList.add(widget.value);
+      }
+    } else if( widget.editableList is Map ) {
+      if( widget.editableList.containsKey(widget.value) ) {
+        widget.editableList.remove(widget.value);
+      } else {
+        widget.editableList[widget.value] = widget.defaultValue;
+      }
+    }
+    else {
+      throw "Unknown container";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.all(2.0),
-      color: widget.editableList.contains(widget.value) ? Colors.green : Colors.grey[800],
+      color: contains() ? Colors.green : Colors.grey[800],
       child: TextButton(
         style: TextButton.styleFrom(
             padding: const EdgeInsets.all(2.0),
             minimumSize: const Size(0.0, 40.0)),
         onPressed: (){
           setState(() {
-            if( widget.editableList.contains(widget.value) ) {
-              widget.editableList.remove(widget.value);
-            } else {
-              widget.editableList.add(widget.value);
-            }
+            changeContainer();
             if( widget._controller != null ) {
               widget._controller!.afterPress();
             }
@@ -106,17 +137,20 @@ class _WidgetButtonCheckState extends State<WidgetButtonCheck> {
   }
 }
 
-/*
-class WidgetMarkerButtonCheck extends WidgetButtonCheck<CardMarker> {
+class WidgetMarkerButtonCheck extends WidgetButtonCheck<PokeMarker> {
   final PokeLanguage l;
-  WidgetMarkerButtonCheck(this.l, cardMarkers, value, WidgetCustomButtonCheckController? controller, {Key? key}) : super(cardMarkers, value, controller, key: key);
+  final double? height;
+  WidgetMarkerButtonCheck(this.l, cardMarkers, value, WidgetCustomButtonCheckController<PokeMarker>? controller, {this.height, super.key}) :
+    super(cardMarkers, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {
-    return pokeMarker(l, value, height: 15);
+    return Padding(
+      padding: EdgeInsetsGeometry.all(8.0),
+      child: value.pokeMarker(l, height: height)!
+    );
   }
 }
-*/
 
 class WidgetTypeButtonCheck extends WidgetButtonCheck<TypeCard> {
   WidgetTypeButtonCheck(super.typesList, super.value, super.controller, {super.key});
@@ -129,7 +163,8 @@ class WidgetTypeButtonCheck extends WidgetButtonCheck<TypeCard> {
 
 class WidgetRarityButtonCheck extends WidgetButtonCheck<PokeRarity> {
   final PokeRendering rendering;
-  WidgetRarityButtonCheck(this.rendering, raritiesList, value, WidgetCustomButtonCheckController? controller, {Key? key}) : super(raritiesList, value, controller, key: key);
+  WidgetRarityButtonCheck(this.rendering, raritiesList, value, WidgetCustomButtonCheckController<PokeRarity>? controller, {super.key}) :
+    super(raritiesList, value, controller);
 
   @override
   Widget makeWidget(BuildContext context) {
@@ -168,7 +203,8 @@ class WidgetExpansionTypeButtonCheck extends WidgetButtonCheck<ExpansionType> {
 }
 
 class WidgetCardSetButtonCheck extends WidgetButtonCheck<PokeSet> {
-  WidgetCardSetButtonCheck(seList, value, {controller, Key? key}) : super(seList, value, controller, key: key);
+  WidgetCardSetButtonCheck(seList, value, {controller, required List<PokeCardDesign> defaultValue, super.key}) :
+    super(seList, value, controller, defaultValue: defaultValue);
 
   @override
   Widget makeWidget(BuildContext context) {

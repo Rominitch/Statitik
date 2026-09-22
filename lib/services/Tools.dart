@@ -50,7 +50,8 @@ Widget drawCachedImages(String folder, String image, List<String> webNames, {dou
       width: width,
       height: height,
       alternativeRendering : alternativeRendering,
-      photoView: photoView
+      photoView: photoView,
+      reloader: true,
     );
   } else {
     return FutureBuilder<Uri?>(

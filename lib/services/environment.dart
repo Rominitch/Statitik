@@ -178,6 +178,8 @@ class Environment
                 }).then( (result) async {
                     isDBReady = result;
 
+                    await storage.loadFolders();
+
                     // Need to update software ?
                     if( db.version != _config.currentVersion) {
                         throw StatitikException.fromCode(ErrorCode.db_1);

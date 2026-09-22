@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
@@ -13,6 +15,7 @@ import 'package:statitikcard/models/poke_region.dart';
 import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
 import 'package:statitikcard/screenOld/widgets/image_stored_locally.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/models/image_storage.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/widgets/image/image_with_cache.dart';
 
@@ -30,6 +33,11 @@ class PokeRendering {
   static const bestMiniCardWidth = 140;
   static const bestMiniCardRatio = 1.2;
   static const colorLightCard = Color(0xFF424242); // = Colors.grey.shade800
+  static const designIconSize = 50.0;
+  static const bestTypeWidth = 90;
+  static const bestTypeRatio = 1.05;
+  static const bestRarityWidth = 130;
+  static const bestRarityRatio = 1.3;
 
   PokeCollection collection;
 
@@ -58,9 +66,8 @@ class PokeRendering {
     if( Environment.instance.storeImageLocally ) {
       Widget alternative = Center(child: Text(cardId.expansion.cards.readTitleOfCard(language, cardId.idCard)));
 
-      var nameDiskImage = "${cardId.idCard.toString()}_${cardId.idImage.toString()}";
-      return ImageStoredLocally(["images", "card", language.code(), cardId.expansion.icon()],
-          nameDiskImage, cardId.computeImageURI(Environment.instance.pkConfig().showTCGImages), quality: quality, width: width, height: height, alternativeRendering: alternative, reloader: reloader, fit: fit, photoView: photoView);
+      return ImageStoredLocally( cardId.folderDiskImage(language),
+          cardId.nameDiskImage(), cardId.computeImageURI(Environment.instance.pkConfig().showTCGImages), quality: quality, width: width, height: height, alternativeRendering: alternative, reloader: reloader, fit: fit, photoView: photoView);
     } else {
       return CardImage(cardId, height: height ?? 400);
     }
@@ -80,10 +87,12 @@ class PokeRendering {
   }
 
   Widget icon(PokeDesign design, {double? width, double? height}) {
-    if(design.image().isNotEmpty) {
-      return drawCachedImage("design", design.image(), width: width, height: height);
-    }
-    return const Icon(Icons.help_outline);
+    final String path = Environment.instance.storage.imageLocalPath(PokeDesign.mainFolderPath(), design.image(), "webp");
+    return Image.file(
+        File(path),
+        width: width,
+        height: height,
+    );
   }
 
   Widget iconFullDesign(PokeCardDesign design, {double? width, double? height}) {

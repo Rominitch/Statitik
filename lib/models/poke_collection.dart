@@ -25,7 +25,9 @@ import 'package:statitikcard/models/products/poke_product.dart';
 import 'package:statitikcard/models/products/poke_product_booster.dart';
 import 'package:statitikcard/models/products/poke_product_category.dart';
 import 'package:statitikcard/models/products/poke_product_side.dart';
+import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';
+import 'package:statitikcard/services/models/image_storage.dart';
 import 'package:statitikcard/services/time_report.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
@@ -491,7 +493,7 @@ class PokeCollection {
 
     var markersReq = await connection.query("SELECT * FROM `PK_marker`");
     for (var row in markersReq) {
-      _markers.add(PokeMarker.fromDB(PokeIdentifier(row[0]), row[1], Color(row[2]), row[3] != 0));
+      _markers.add(PokeMarker.fromDB(PokeIdentifier(row[0]), Color(row[1]), mask(row[2], 1), mask(row[2], 2), row[3]));
     }
     time.tick("Markers");
 
@@ -611,6 +613,10 @@ class PokeCollection {
     _linkItems();
 
     time.tick("Links");
+
+    await _downloadImages();
+
+    time.tick("DownloadImages");
   }
 
   void updateLanguageData() {
@@ -651,6 +657,34 @@ class PokeCollection {
       // Other than reverse
       if(rarity.isOtherReversed()) {
         _otherThanReverse.add(rarity);
+      }
+    }
+  }
+
+  Future<void> _downloadImages() async
+  {
+    // Download all images from design
+    for(final design in _designs) {
+      await Environment.instance.storage.imageFromPath(StorageData(PokeDesign.mainFolderPath(), design.image(),
+        [Uri.parse("$adresseHTTPS/StatitikCard/design/${design.image()}.webp")]
+      ));
+    }
+
+    // Download all images from marker
+    for (final marker in _markers) {
+      for(final language in _languages.values) {
+        final imagePath = marker.imagePath(language);
+        await Environment.instance.storage.imageFromPath(
+          StorageData(PokeMarker.mainFolderPath(), imagePath,
+            [
+              Uri.parse("$adresseHTTPS/StatitikCard/PKMarkers/$imagePath.webp")
+            ]
+          )
+        );
+        // Don't continue ?
+        if(!marker.isByLanguage()) {
+          break;
+        }
       }
     }
   }

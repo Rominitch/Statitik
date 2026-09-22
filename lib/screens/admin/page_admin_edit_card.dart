@@ -3,6 +3,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/admin/admin_html_card_parser.dart';
 import 'package:statitikcard/models/card/poke_card.dart';
+import 'package:statitikcard/models/card/poke_card_design.dart';
 import 'package:statitikcard/models/card/poke_card_subject.dart';
 import 'package:statitikcard/models/card/poke_card_type.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
@@ -12,11 +13,14 @@ import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_level.dart';
 import 'package:statitikcard/models/poke_rarity.dart';
 import 'package:statitikcard/models/poke_rendering.dart';
+import 'package:statitikcard/models/poke_set.dart';
 import 'package:statitikcard/screenOld/admin/card_editor_options.dart';
-import 'package:statitikcard/screenOld/widgets/button_check.dart';
 import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
 import 'package:statitikcard/screens/wizard/wizard_select_title_name.dart';
+import 'package:statitikcard/widgets/widget/widget_button_check.dart';
+import 'package:statitikcard/widgets/widget/widget_button_pokedesign.dart';
 import 'package:statitikcard/widgets/widget/widget_card_naming.dart';
+import 'package:statitikcard/widgets/widget/widget_creator_card_effects.dart';
 import 'package:statitikcard/widgets/widget/widget_energy_slider.dart';
 import 'package:statitikcard/widgets/widget/widget_slider_info.dart';
 
@@ -35,62 +39,23 @@ class PageAdminEditCard extends StatefulWidget {
   State<PageAdminEditCard> createState() => _PageAdminEditCardState();
 }
 
-/*
-class CardCreator extends StatefulWidget {
-  final LanguageOld              activeLanguage;
-  final bool                  editor;
-  final SubExtension          se;
-  final PokemonCardExtension  card;
-  final CardIdentifier        idCard;
-  final Function(int listId, int?)?   onAppendCard;
-  final Function(int listId)?         onChangeList;
-  final Function()?                   onNeedRefresh;
-  final List                  listRarity;
-  final String                title;
-  final List?                 secondTypes;
-  final CardEditorOptions     options;
-
-  CardCreator.editor(this.activeLanguage, this.se, this.card, this.idCard, this.title, this.options, {super.key}):
-        editor=true, onAppendCard=null, onChangeList=null, onNeedRefresh=null,
-        listRarity = (se.extension.language.isWorld() ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity)
-          ..removeWhere((element) => element == Environment.instance.collection.unknownRarity),
-        secondTypes = [TypeCard.unknown] + energies;
-
-  CardCreator.quick(this.activeLanguage, this.se, this.card, this.idCard, this.onAppendCard, this.onNeedRefresh, bool isWorldCard, {super.key, this.onChangeList}):
-        editor=false, listRarity = (isWorldCard ? Environment.instance.collection.worldRarity : Environment.instance.collection.japanRarity), title="",
-        secondTypes=null, options = CardEditorOptions();
-
-  @override
-  State<CardCreator> createState() => _CardCreatorState();
-}
-*/
-
 class _PageAdminEditCardState extends State<PageAdminEditCard> with TickerProviderStateMixin {
 
   late CustomRadioController typeController      = CustomRadioController(onChange: (value) { onTypeChanged(value); });
   late CustomRadioController rarityController    = CustomRadioController(onChange: (value) { onRarityChanged(value); });
   late CustomRadioController typeExtController   = CustomRadioController(onChange: (value) { onTypeExtChanged(value); });
   late CustomRadioController levelController     = CustomRadioController(onChange: (value) { onLevel(value); });
-  late CustomButtonCheckController setController = CustomButtonCheckController(onChangeSets);
+  late WidgetCustomButtonCheckController setController = WidgetCustomButtonCheckController<PokeSet>(onChangeSets);
   late TabController         tabController;
 
   final secondTypes = [PokeCardType.unknown] + energies;
   final specialIDController = TextEditingController();
 
   void onChangeSets() {
-    setState(() {
-      final card = widget._activeCard.cardInExp();
-      /*
-      if( card.sets.isNotEmpty ) {
-        while(widget.card.images.length < widget.card.sets.length) {
-          widget.card.images.add([]);
-        }
-        while(widget.card.images.length > widget.card.sets.length) {
-          widget.card.images.removeLast();
-        }
-      }
-      */
-    });
+    setState(() {});
+  }
+  void refresh() {
+    setState(() {});
   }
 
   void onTypeChanged(PokeCardType value) {
@@ -123,10 +88,8 @@ class _PageAdminEditCardState extends State<PageAdminEditCard> with TickerProvid
         int idImage = 0;
         for(final image in set.value) {
           if(image.jpDBId == 0) {
-            final id = widget._activeCard;
-            id.idImage = PokeCardImageIdentifier(set.key, idImage);
-            //TODO
-            //CardImageCreator.computeJPCardID(id);
+            widget._activeCard.idImage = PokeCardImageIdentifier(set.key, idImage);
+            widget._activeCard.computeJPCardID();
           }
           idImage += 1;
         }
@@ -145,80 +108,61 @@ class _PageAdminEditCardState extends State<PageAdminEditCard> with TickerProvid
     rarityController.afterPress(card.rarity);
     specialIDController.text = card.specialID;
   }
-  //TODO
-/*
-  void addBestDesign(PokeCardIdentifier idCard, List images, int index) {
-    var imageDesign = PokeCardDesign();
-    // Search ancestor
-    var idImage = images.length;
-    for(int id=idCard.numberId-1; id >= 0; id-=1) {
-      var oldId = PokeCardIdentifier.copy(idCard);
-      oldId.cardId[1] = id;
-      var oldCard = widget._activeCard.expansion.cards.cardFromId(oldId);
-      if(index < oldCard.images.length) {
-        if( idImage < oldCard.images[index].length) {
-          imageDesign.cardDesign.copyFrom(oldCard.images[index][idImage].cardDesign);
-          break;
-        }
-      }
-    }
-    images.add(imageDesign);
-  }
-*/
+
   Widget createImageFieldWidget() {
-    const iconSize = 30.0;
     final cardInExp = widget._activeCard.cardInExp();
     return ListView.builder(
-        primary: false,
-        shrinkWrap: true,
-        itemCount: cardInExp.setInfo.length,
-        itemBuilder: (BuildContext context, int index){
-          final setAndImages = cardInExp.setInfo.entries.elementAt(index);
-          List<Widget> images = [setAndImages.key.imageWidget(height: 50)];
-          int idImg=0;
-          for (final image in setAndImages.value) {
-            final localIdImg = PokeCardImageIdentifier(setAndImages.key, idImg);
-            images.add(Card(
-                child: TextButton(
-                  child: widget._navAdmin.rendering.iconFullDesign(image, height: iconSize),
-                  onPressed: () {
-                    // TODO
-                    /*
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CardImageCreator(
-                          widget.se, widget.card, widget.idCard, localIdImg, widget.activeLanguage, widget.options)),
-                    ).then((value) {
-                      setState(() {});
-                    });
-                    */
-                  },
-                  onLongPress: () {
+      primary: false,
+      shrinkWrap: true,
+      itemCount: cardInExp.setInfo.length,
+      itemBuilder: (BuildContext context, int index){
+        final setAndImages = cardInExp.setInfo.entries.elementAt(index);
+        return Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Row(
+            spacing: PokeRendering.spacing,
+            children: [
+              setAndImages.key.imageWidget(height: 50),
+              Card(
+                child: IconButton(
+                  icon: const Icon(Icons.add_circle_outline),
+                  onPressed: setAndImages.value.length < 6  ? () {
                     setState(() {
-                      cardInExp.removeImage(localIdImg);
+                      addBestDesign(setAndImages);
                     });
-                  },
+                  } : null
                 )
-            ));
-            idImg +=1;
-          }
-
-          images.add(Card(
-            child: IconButton(icon: const Icon(Icons.add_circle_outline),
-                onPressed: () {
-                  setState(() {
-                    //TODO
-                    //addBestDesign(widget.idCard, widget.card.images[index], index);
-                  });
-                }
-            ),
-          ));
-
-          return Row(
-              children: images
-          );
-        }
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 80,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    separatorBuilder: (context, index) => const SizedBox(width: PokeRendering.spacing),
+                    itemCount: setAndImages.value.length,
+                    primary: false,
+                    itemBuilder: (context, index) {
+                      return WidgetButtonPokeDesign(widget._navAdmin,
+                        PokeCardViewerIdentifier( widget._activeCard.expansion, widget._activeCard.idCard,
+                          idImage: PokeCardImageIdentifier(setAndImages.key, index),
+                          specificLanguage: widget._activeCard.specificLanguage,
+                        ),
+                        refresh
+                      );
+                    }
+                  ),
+                ),
+              ),
+            ],
+          )
+        );
+      }
     );
+  }
+
+  //void addBestDesign(PokeCardIdentifier idCard, List images, int index) {
+  void addBestDesign(MapEntry entrySet) {
+    entrySet.value.add(PokeCardDesign(widget._navAdmin.collection.designs().first));
   }
 
   Future<void> fillEffects([bool forceRefill=false]) async {
@@ -285,15 +229,15 @@ class _PageAdminEditCardState extends State<PageAdminEditCard> with TickerProvid
           children:
           [
             GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.0),
-                itemCount: PokeLevel.values.length,
-                primary: false,
-                shrinkWrap: true,
-                itemBuilder: (BuildContext context, int index) {
-                  var element = PokeLevel.values[index];
-                  return CustomRadio(value: element, controller: levelController, widget: Text( PokeLevel.getLevelText(context, element) ));
-                }
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.0),
+              itemCount: PokeLevel.values.length,
+              primary: false,
+              shrinkWrap: true,
+              itemBuilder: (BuildContext context, int index) {
+                var element = PokeLevel.values[index];
+                return CustomRadio(value: element, controller: levelController, widget: Text( PokeLevel.getLevelText(context, element) ));
+              }
             ),
             Row(children: [
               SizedBox(width: 60, child: Text(AppLocalizations.of(context)!.ca_b25, style: const TextStyle(fontSize: 12))),
@@ -351,9 +295,11 @@ class _PageAdminEditCardState extends State<PageAdminEditCard> with TickerProvid
   Widget pageImageDesign() {
     final cardInExp = widget._activeCard.cardInExp();
 
-    return SingleChildScrollView(
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Column(
+          spacing: PokeRendering.spacing,
           children: [
             Row(
               children: [
@@ -363,41 +309,104 @@ class _PageAdminEditCardState extends State<PageAdminEditCard> with TickerProvid
                     cardInExp.isSecret = value!;
                   });
                 }
-                )
+                ),
+                Expanded(
+                  child: Row(
+                    children:[
+                      Text(AppLocalizations.of(context)!.ca_b38),
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: TextField(
+                          controller: specialIDController,
+                          decoration: InputDecoration(hintText: AppLocalizations.of(context)!.ca_b38 ),
+                          onChanged: (data) {
+                            cardInExp.specialID = data;
+                          }
+                        ),
+                      )
+                    ]
+                  ),
+                ),
               ],
             ),
-            GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 5.5),
-              primary: false,
-              shrinkWrap: true,
-              itemCount: widget._navAdmin.collection.allSets().length,
-              itemBuilder: (BuildContext context, int index) {
-                var element = widget._navAdmin.collection.allSets().elementAt(index);
-                //TODO
-                //return CardSetButtonCheck(widget._navAdmin.showLanguage, widget.card.sets, element, controller: setController);
-                return Placeholder();
-              },
-            ),
-            Row(
-                children:[
-                  Text(AppLocalizations.of(context)!.ca_b38),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: TextField(
-                        controller: specialIDController,
-                        decoration: InputDecoration(hintText: AppLocalizations.of(context)!.ca_b38 ),
-                        onChanged: (data) {
-                          cardInExp.specialID = data;
-                        }
-                    ),
-                  )
-                ]
-            ),
-            createImageFieldWidget()
-          ]
-      ),
+          ],
+        ),
+        Expanded(
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 6, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.0),
+            itemCount: widget._navAdmin.collection.allSets().length,
+            itemBuilder: (BuildContext context, int index) {
+              final element = widget._navAdmin.collection.allSets().elementAt(index);
+              return WidgetCardSetButtonCheck( widget._activeCard.cardInExp().setInfo, element,
+                defaultValue: [PokeCardDesign(widget._navAdmin.collection.designs().first)],
+                controller: setController);
+            },
+          ),
+        ),
+
+        createImageFieldWidget()
+      ]
     );
+  }
+
+  Widget pageMarkers() {
+    return GridView.builder(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 6, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.2),
+      itemCount: widget._navAdmin.collection.markers().length,
+      itemBuilder: (BuildContext context, int index) {
+        var element = widget._navAdmin.collection.markers().elementAt(index);
+        return WidgetMarkerButtonCheck(widget._navAdmin.showLanguage, widget._activeCard.cardInExp().card.markers.markers(), element, null);
+      }
+    );
+  }
+
+  Widget pageTypeRarity() {
+    final delegateType = SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: (MediaQuery.of(context).size.width / PokeRendering.bestTypeWidth).ceil(), crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: PokeRendering.bestTypeRatio);
+    final delegateRarity = SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: (MediaQuery.of(context).size.width / PokeRendering.bestRarityWidth).ceil(), crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: PokeRendering.bestRarityRatio);
+
+    return Column( children: [
+      Expanded(
+        flex: 3,
+        child: GridView.builder(
+            gridDelegate: delegateRarity,
+            itemCount: widget.listRarity.length,
+            itemBuilder: (BuildContext context, int index) {
+              var element = widget.listRarity.elementAt(index);
+              return CustomRadio(value: element, controller: rarityController,
+                  widget: Row(mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: widget._navAdmin.rendering.imageRarity(element, fontSize: 8.0, textureSize: null, generate: true))
+              );
+            }
+        ),
+      ),
+      Expanded(
+        flex: 2,
+        child: GridView.builder(
+            gridDelegate: delegateType,
+            itemCount: PokeCardType.values.length,
+            itemBuilder: (BuildContext context, int index) {
+              final element = PokeCardType.values.elementAt(index);
+              return CustomRadio(value: element, controller: typeController, widget: getImageType(element));
+            }
+        ),
+      ),
+      Expanded(
+        flex: 2,
+        child: GridView.builder(
+            gridDelegate: delegateType,
+            itemCount: secondTypes.length,
+            itemBuilder: (BuildContext context, int index){
+              final element = secondTypes.elementAt(index);
+              return CustomRadio(value: element, controller: typeExtController, widget: getImageType(element));
+            }
+        ),
+      ),
+    ]);
   }
 
   Widget cardTabs() {
@@ -409,95 +418,47 @@ class _PageAdminEditCardState extends State<PageAdminEditCard> with TickerProvid
       // Page 3
       pageImageDesign(),
       // Page 4
-      GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 2.5),
-        itemCount: widget._navAdmin.collection.markers().length,
-        itemBuilder: (BuildContext context, int index) {
-          var element = widget._navAdmin.collection.markers().elementAt(index);
-          return Placeholder();
-          //return MarkerButtonCheck(widget._navAdmin.showLanguage, cardData.markers, element, null);
-        }
-      ),
-      //TODO
-      /*
-      SingleChildScrollView(
-          child: CardEffectsPanel(widget.card, widget.activeLanguage)
-      ),
-      */
-      Column( children: [
-        GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 7, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.3),
-            itemCount: widget.listRarity.length,
-            primary: false,
-            shrinkWrap: true,
-            itemBuilder: (BuildContext context, int index) {
-              var element = widget.listRarity.elementAt(index);
-              return CustomRadio(value: element, controller: rarityController,
-                  widget: Row(mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: widget._navAdmin.rendering.imageRarity(element, fontSize: 8.0, textureSize: null, generate: true))
-              );
-            }
-        ),
-        GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 8, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.1),
-            primary: false,
-            shrinkWrap: true,
-            itemCount: PokeCardType.values.length,
-            itemBuilder: (BuildContext context, int index) {
-              final element = PokeCardType.values.elementAt(index);
-              return CustomRadio(value: element, controller: typeController, widget: getImageType(element));
-            }
-        ),
-        GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 8, crossAxisSpacing: 1, mainAxisSpacing: 1, childAspectRatio: 1.1),
-            primary: false,
-            shrinkWrap: true,
-            itemCount: secondTypes.length,
-            itemBuilder: (BuildContext context, int index){
-              final element = secondTypes.elementAt(index);
-              return CustomRadio(value: element, controller: typeExtController, widget: getImageType(element));
-            }
-        ),
-      ]),
+      pageMarkers(),
+      // Page 5
+      WidgetCreatorCardEffects(widget._navAdmin, widget._activeCard),
+      // Page 6
+      pageTypeRarity()
     ];
 
     return Column(
       children: [
         TabBar(
-            controller: tabController,
-            indicatorPadding: const EdgeInsets.all(1),
-            indicator: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.green,
-            ),
-            tabs: [
-              Text(AppLocalizations.of(context)!.ca_b22, style: const TextStyle(fontSize: 12)),
-              const Icon(Icons.info_outline, size: 28),                 //Text(AppLocalizations.of(context)!.ca_b18, style: TextStyle(fontSize: 10)),
-              const Icon(Icons.add_photo_alternate_outlined, size: 28), // Text(AppLocalizations.of(context)!.ca_b39, style: TextStyle(fontSize: 10)),
-              const Icon(Icons.bookmark_border_outlined, size: 28),     //Text(AppLocalizations.of(context)!.ca_b16, style: TextStyle(fontSize: 10)),
-              Text(AppLocalizations.of(context)!.ca_b17, style: const TextStyle(fontSize: 12)),
-              Text(AppLocalizations.of(context)!.ca_b15, style: const TextStyle(fontSize: 10)),
-            ]),
+          controller: tabController,
+          indicatorPadding: const EdgeInsets.all(1),
+          indicator: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.green,
+          ),
+          tabs: [
+            Text(AppLocalizations.of(context)!.ca_b22, style: const TextStyle(fontSize: 12)),
+            const Icon(Icons.info_outline, size: 28),                 //Text(AppLocalizations.of(context)!.ca_b18, style: TextStyle(fontSize: 10)),
+            const Icon(Icons.add_photo_alternate_outlined, size: 28), // Text(AppLocalizations.of(context)!.ca_b39, style: TextStyle(fontSize: 10)),
+            const Icon(Icons.bookmark_border_outlined, size: 28),     //Text(AppLocalizations.of(context)!.ca_b16, style: TextStyle(fontSize: 10)),
+            Text(AppLocalizations.of(context)!.ca_b17, style: const TextStyle(fontSize: 12)),
+            Text(AppLocalizations.of(context)!.ca_b15, style: const TextStyle(fontSize: 10)),
+          ]
+        ),
         Expanded(
-            child: Card(
-              color: Colors.teal.shade900,
-              child: TabBarView(
-                controller: tabController,
-                children: tabPages,
-              ),
-            )
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TabBarView(
+              controller: tabController,
+              children: tabPages,
+            ),
+          )
         )
       ],
     );
   }
 
   Widget cardMainInfo() {
-    const imageSize = 270.0;
+    final imageSizeH = (MediaQuery.of(context).size.width > 500) ? null : 270.0;
+    final imageSizeW = (MediaQuery.of(context).size.width > 500) ? 380.0 : null;
 
     final cardInExp = widget._activeCard.cardInExp();
     final cardData = cardInExp.card;
@@ -513,7 +474,7 @@ class _PageAdminEditCardState extends State<PageAdminEditCard> with TickerProvid
         mainAxisAlignment: MainAxisAlignment.center,
         spacing: PokeRendering.spacing,
           children: [
-          SizedBox(height: imageSize, child: widget._navAdmin.rendering.genericCardWidget(widget._activeCard, language: widget._navAdmin.showLanguage, height: imageSize, reloader: true)),
+          SizedBox(width: imageSizeW, height: imageSizeH, child: widget._navAdmin.rendering.genericCardWidget(widget._activeCard, language: widget._navAdmin.showLanguage, reloader: true)),
           Text("${AppLocalizations.of(context)!.ca_b30} $codeDB", style: Theme.of(context).textTheme.headlineSmall),
           Card(
             color: cardData.title.title.isNotEmpty ? Colors.grey.shade500 : Colors.grey.shade900,
@@ -553,8 +514,6 @@ class _PageAdminEditCardState extends State<PageAdminEditCard> with TickerProvid
   }
 
   Widget desktopView(BuildContext context, BoxConstraints box) {
-    List<Widget> others = [];
-
     final cardInExp = widget._activeCard.cardInExp();
     final cardData = cardInExp.card;
 
