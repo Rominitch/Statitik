@@ -80,7 +80,6 @@ void main() {
       fail("Impossible to read database: $onError");
     }
   });
-
   test('DefaultBoosterCreation', () async {
     PokeCollection collection = PokeCollection();
     final dbPoke = Database.poke();
@@ -129,7 +128,6 @@ void main() {
     }
 
   });
-
   test('MigrationProducts', () async {
     printOutput("Start migration of all products");
     PokeCollection collection = PokeCollection();
@@ -162,7 +160,6 @@ void main() {
       fail("Impossible to write database: $onError");
     }
   });
-  /*
   test('MigrationPokeCards', () async {
     PokeCollection collection = PokeCollection();
 
@@ -199,5 +196,4 @@ void main() {
       fail("Impossible to write database: $onError");
     }
   });
-  */
 }

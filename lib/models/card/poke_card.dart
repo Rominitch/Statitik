@@ -30,7 +30,7 @@ class PokeCard {
   static const int minWeakness = 0;
   static const int maxWeakness = 5;
 
-  final PokeIdentifier _id;
+  PokeIdentifier _id;
   PokeTitleCard title;
   PokeLevel level;
   PokeCardType  type;
@@ -69,6 +69,9 @@ class PokeCard {
     resistance   = reader.readOptional((r) => PokeEnergyValue.fromBytes(r)),
     weakness     = reader.readOptional((r) => PokeEnergyValue.fromBytes(r));
 
+  void updatePID(PokeIdentifier pid) {
+    _id = pid;
+  }
 
   bool isEqual(PokeIdentifier pid) {
     return _id == pid;

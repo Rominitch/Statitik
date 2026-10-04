@@ -68,7 +68,7 @@ class _CardImageCreatorState extends State<WidgetCreatorCardImage> {
     return Column(
       spacing: PokeRendering.spacing,
       children: [
-        widget._navAdmin.rendering.genericCardWidget(widget._cardId, language: widget._navAdmin.showLanguage, reloader: true),
+        Expanded(child: widget._navAdmin.rendering.genericCardWidget(widget._cardId, language: widget._navAdmin.showLanguage, reloader: true)),
         Text(AppLocalizations.of(context)!.ca_b34, style: const TextStyle(fontSize: 12)),
         TextField(
             controller: imageController,
@@ -79,7 +79,7 @@ class _CardImageCreatorState extends State<WidgetCreatorCardImage> {
               imageDesign.cardImage = data;
             }
         ),
-        if(widget._navAdmin.showLanguage.location() == CardLocation.Asie) Row(
+        if(widget._cardId.expansion.location() == CardLocation.Asie) Row(
           children: [
             Expanded(
               child: TextField(

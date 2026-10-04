@@ -4,6 +4,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:mysql1/mysql1.dart';
+import 'package:statitikcard/models/card/poke_card_energy_value.dart';
+import 'package:statitikcard/models/card/poke_card_type.dart';
 import 'package:statitikcard/models/database/poke_db_description.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
 import 'package:statitikcard/models/card/poke_card.dart';
@@ -16,6 +18,7 @@ import 'package:statitikcard/models/poke_form.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_illustrator.dart';
 import 'package:statitikcard/models/poke_language.dart';
+import 'package:statitikcard/models/poke_level.dart';
 import 'package:statitikcard/models/poke_marker.dart';
 import 'package:statitikcard/models/poke_rarity.dart';
 import 'package:statitikcard/models/poke_region.dart';
@@ -47,25 +50,26 @@ class PokeCollection {
   List<PokeDesign>    _designs    = [];
   List<PokeMarker>    _markers    = [];
   List<PokeForm>      _forms      = [];
-  List<PokeIllustrator> _illustrators      = [];
+  final List<PokeIllustrator> _illustrators      = [];
   List<PokeEffectName> _effectNames = [];
 
-  Map<PokeIdentifier, PokeDbDescription> _descriptions = {};
+  List<PokeDbDescription> _descriptions = [];
+  //Map<PokeIdentifier, PokeDbDescription> _descriptions = {};
   List<PokeRarity>    _rarities   = [];
   PokeRarity?         _unknownRarity;
-  List<PokeRarity>    _worldRarity      = [];
-  List<PokeRarity>    _japanRarity      = [];
-  List<PokeRarity>    _goodCard         = [];
-  List<PokeRarity>    _otherThanReverse = [];
+  final List<PokeRarity>    _worldRarity      = [];
+  final List<PokeRarity>    _japanRarity      = [];
+  final List<PokeRarity>    _goodCard         = [];
+  final List<PokeRarity>    _otherThanReverse = [];
 
   // Finally database (need others lists)
   List<PokeCard>      _cards      = [];
   List<PokeExpansion> _expansions = [];
 
-  List<PokeProductCategory> _product_categories = [];
-  List<PokeProductBooster>  _product_boosters   = [];
-  List<PokeProductSide>     _product_sides      = [];
-  List<PokeProduct>         _products           = [];
+  final List<PokeProductCategory> _productCategories = [];
+  final List<PokeProductBooster>  _productBoosters   = [];
+  final List<PokeProductSide>     _productSides      = [];
+  final List<PokeProduct>         _products           = [];
 
   // Tools
   Map<String, String> convertKanji   = {};
@@ -77,6 +81,7 @@ class PokeCollection {
   /// TEMPORARY ACCESS----------------------------
   List<PokeMarker> markers() { return _markers; }
 
+  @Deprecated("Migration Only")
   CardTitle? cardTitleOld(int oldId) {
     int newId = oldId;
     if( oldId >= 10000 ) {
@@ -90,25 +95,12 @@ class PokeCollection {
       }
       throw Exception("Bad id: $oldId");
     } else {
-      newId += 300000000;
-      //Add generation
-      if(oldId < 152)      { newId += 1000000;}
-      else if(oldId < 252) { newId += 2000000;}
-      else if(oldId < 387) { newId += 3000000;}
-      else if(oldId < 494) { newId += 4000000;}
-      else if(oldId < 650) { newId += 5000000;}
-      else if(oldId < 722) { newId += 6000000;}
-      else if(oldId < 810) { newId += 7000000;}
-      else if(oldId < 906) { newId += 8000000;}
-      else                 { newId += 9000000;}
+      newId = pokemonFromOldDB(oldId);
     }
-    try {
-      return cardTitle(PokeIdentifier(newId));
-    } catch(e) {
-      throw e;
-    }
+    return cardTitle(PokeIdentifier(newId));
   }
 
+  @Deprecated("Migration Only")
   PokeRegion? regionOld(int oldId){
     if(oldId > 0) {
       return region(PokeIdentifier(oldId + 910000000));
@@ -116,6 +108,7 @@ class PokeCollection {
     return null;
   }
 
+  @Deprecated("Migration Only")
   PokeForm? formOld(int oldId){
     if(oldId > 0) {
       try {
@@ -129,26 +122,32 @@ class PokeCollection {
     return null;
   }
 
+  @Deprecated("Migration Only")
   PokeDesign?  designOld(int idDesign, int pattern){
     return design(PokeIdentifier(idDesign + pattern * 10000 + 510000000));
   }
 
+  @Deprecated("Migration Only")
   PokeSet?  setsOld(int id){
     return sets(PokeIdentifier(id + 530000000));
   }
 
+  @Deprecated("Migration Only")
   PokeProductBooster? tmpBoosterFromExp(PokeExpansion? pokeExpansion) {
     if(pokeExpansion == null) {
       return null;
     }
-    for(final booster in _product_boosters) {
+    for(final booster in _productBoosters) {
       if(booster.expansion() == pokeExpansion) {
         return booster;
       }
     }
     return null;
   }
-  //List<PokeCard>      cardsOld()      { return _cardsOld; }
+
+  final List<PokeCard>      _cardsOld      = [];
+  @Deprecated("Migration Only")
+  List<PokeCard>      cardsOld()      { return _cardsOld; }
 
   /// TEMPORARY ACCESS----------------------------
 
@@ -164,17 +163,17 @@ class PokeCollection {
   List<PokeRarity>    otherThanReverse()  { return _otherThanReverse; }
   List<PokeEffectName> effectNames()      { return _effectNames; }
   List<PokeDesign>     designs()          { return _designs; }
-  Map<PokeIdentifier, PokeDbDescription> descriptions() { return _descriptions;}
+  List<PokeDbDescription> descriptions()  { return _descriptions;}
 
 
   List<PokeCard>      cards()      { return _cards; }
   List<PokeExpansion> expansions() { return _expansions;}
 
   List<PokeProduct>     products()     { return _products;}
-  List<PokeProductSide> sideProducts() { return _product_sides;}
-  List<PokeProductBooster> boosters()  { return _product_boosters; }
-  List<PokeProductCategory> productCategories() { return _product_categories; }
-  List<PokeProductSide>     productSides() { return _product_sides; }
+  List<PokeProductSide> sideProducts() { return _productSides;}
+  List<PokeProductBooster> boosters()  { return _productBoosters; }
+  List<PokeProductCategory> productCategories() { return _productCategories; }
+  List<PokeProductSide>     productSides() { return _productSides; }
 
   PokeLanguage language(Language id) { return _languages[id]!; }
   List<PokeSerie> series() { return _series; }
@@ -233,7 +232,7 @@ class PokeCollection {
   }
 
   PokeDbDescription? description(PokeIdentifier pid) {
-   return _descriptions[pid];
+    return _descriptions.firstWhere((element) => element.isEqual(pid));
   }
 
   PokeEffectName? effectName(PokeIdentifier pid) {
@@ -241,11 +240,11 @@ class PokeCollection {
   }
 
   PokeProductCategory? productCategory(PokeIdentifier id) {
-    return _product_categories.firstWhere((element) => element.isEqual(id));
+    return _productCategories.firstWhere((element) => element.isEqual(id));
   }
 
   PokeProductSide? productSide(PokeIdentifier id) {
-    return _product_sides.firstWhere((element) => element.isEqual(id));
+    return _productSides.firstWhere((element) => element.isEqual(id));
   }
 
   PokeExpansion? expansion(PokeIdentifier pid) {
@@ -254,15 +253,15 @@ class PokeCollection {
 
   PokeProductBooster? booster(PokeIdentifier pid) {
     try {
-      return _product_boosters.firstWhere((element) => element.isEqual(pid));
-    } catch(_,_){
+      return _productBoosters.firstWhere((element) => element.isEqual(pid));
+    } catch(_){
       printOutput("Unknown PID: ${pid.id()}");
       rethrow;
     }
   }
 
   void add(PokeProductBooster booster) {
-    _product_boosters.add(booster);
+    _productBoosters.add(booster);
   }
 
   PokeCollection();
@@ -300,9 +299,8 @@ class PokeCollection {
       _effectNames = reader.readList(
         (r) => PokeEffectName.fromBytes(r)
       );
-      _descriptions = reader.readMap(
-        (r) => PokeIdentifier.fromBytes(r),
-        (r, k) => PokeDbDescription.fromBytes(r)
+      _descriptions = reader.readList(
+        (r) => PokeDbDescription.fromBytes(r)
       );
       _rarities = reader.readList(
         (r) => PokeRarity.fromBytes(r)
@@ -366,8 +364,7 @@ class PokeCollection {
     );
     time.tick("Effects");
 
-    w.writeMap<PokeIdentifier, PokeDbDescription>(_descriptions,
-      (w, key)   => key.toBytesID(w),
+    w.writeList<PokeDbDescription>(_descriptions,
       (w, value) => value.toBytes(w)
     );
     time.tick("Description");
@@ -413,9 +410,9 @@ class PokeCollection {
     _cards.clear();
     _expansions.clear();
 
-    _product_categories .clear();
-    _product_boosters   .clear();
-    _product_sides      .clear();
+    _productCategories .clear();
+    _productBoosters   .clear();
+    _productSides      .clear();
     _products           .clear();
 
     // Tools
@@ -506,7 +503,7 @@ class PokeCollection {
     var descriptionReq = await connection.query("SELECT * FROM `PK_description`");
     for (var row in descriptionReq) {
       final id = PokeIdentifier(row[0]);
-      _descriptions[id] = PokeDbDescription.fromDB(id, DescriptionEffect.convertMarkers(row[1]));
+      _descriptions.add(PokeDbDescription.fromDB(id, PokeDescriptionEffect.convertMarkers(row[1])));
     }
     time.tick("Descriptions");
 
@@ -526,31 +523,30 @@ class PokeCollection {
     });
     time.tick("Kanji");
 
-    /*
     var cardsOldReq = await connection.query("SELECT * FROM `PK_cartesOld`");
      for (var row in cardsOldReq) {
       final title        = row[1] != null ? PokeTitleCard.fromBytesOld(readBlob(row[1]), this) : PokeTitleCard.empty();
       final level        = PokeLevel.values[row[2]];
       final typeReader   = readBlob(row[3]);
-      final type         = TypeCard.values[typeReader.readInt8()];
-      final typeExtended = typeReader.canParse() ? TypeCard.values[typeReader.readInt8()] : null;
+      final type         = PokeCardType.values[typeReader.readInt8()];
+      final typeExtended = typeReader.canParse() ? PokeCardType.values[typeReader.readInt8()] : null;
       final markers      = row[4] != null ? PokeMarkers.fromBytesOld((row[4] as Blob).toBytes(), this) : PokeMarkers([]);
       final effects      = row[5] != null ? PokeCardEffects.fromBytesOld(readBlob(row[5]), this) : PokeCardEffects();
       final life         = row[6] ?? 0;
       final retreat      = row[7] != null ? readBlob(row[7]).readInt8() : 0;
-      final weakness     = row[8] != null ? PokeEnergyValue.fromBytes(readBlob(row[8])) : null;
-      final resistance   = row[9] != null ? PokeEnergyValue.fromBytes(readBlob(row[9])) : null;
+      final weakness     = row[9] != null ? PokeEnergyValue.fromBytesOld(readBlob(row[9])) : null;
+      final resistance   = row[8] != null ? PokeEnergyValue.fromBytesOld(readBlob(row[8])) : null;
 
       _cardsOld.add(PokeCard.fromDB(PokeIdentifier(row[0]), title, level, type, typeExtended, markers, effects, life, retreat, weakness, resistance));
     }
     time.tick("Cards Old");
-    */
 
     var cardsReq = await connection.query("SELECT * FROM `PK_cartes`");
     for (var row in cardsReq) {
       _cards.add(PokeCard.fromBytes(PokeIdentifier(row[0]), readBlob(row[1]), this));
     }
     time.tick("Cards");
+    if( _cards.isEmpty ){ return;}
 
     var expansionsReq = await connection.query("SELECT * FROM `PK_expansion`");
     for (var row in expansionsReq) {
@@ -574,20 +570,20 @@ class PokeCollection {
 
     var productCategoryReq = await connection.query("SELECT * FROM `PK_produit_categorie`");
     for (var row in productCategoryReq) {
-      _product_categories.add(PokeProductCategory(PokeIdentifier(row[0]), row[1] != 0));
+      _productCategories.add(PokeProductCategory(PokeIdentifier(row[0]), row[1] != 0));
     }
     time.tick("Product Categories");
 
     var productBoosterReq = await connection.query("SELECT * FROM `PK_produit_booster`");
     for (var row in productBoosterReq) {
-      _product_boosters.add(PokeProductBooster.read(this, PokeIdentifier(row[0]), readBlob(row[1]) ));
+      _productBoosters.add(PokeProductBooster.read(this, PokeIdentifier(row[0]), readBlob(row[1]) ));
     }
     time.tick("Product boosters");
 
     var productSideReq = await connection.query("SELECT * FROM `PK_produit_annexe`");
     for (var row in productSideReq) {
       final category = productCategory(PokeIdentifier(row[1]))!;
-      _product_sides.add(PokeProductSide(PokeIdentifier(row[0]), category, row[2], PokeIdentifier(row[3]) ));
+      _productSides.add(PokeProductSide(PokeIdentifier(row[0]), category, row[2], PokeIdentifier(row[3]) ));
     }
     time.tick("Side Products");
 
@@ -601,7 +597,7 @@ class PokeCollection {
               PokeIdentifier(row[0]), category, row[2], row[3]);
           product.readOldData(readBlob(row[4]), this);
           _products.add(product);
-        } catch (_, _) {
+        } catch (_) {
           final p = PokeProduct.readData(this, PokeIdentifier(row[0]), category, row[2], row[3], readBlob(row[4]));
           _products.add(p);
         }
@@ -659,6 +655,88 @@ class PokeCollection {
         _otherThanReverse.add(rarity);
       }
     }
+  }
+
+  List<PokeDescriptionEffect> computeDescriptionEffects(PokeDbDescription d) {
+    List<PokeDescriptionEffect> effects = d.markers();
+
+    // Select first language -> No reason to have difference between translation
+    final PokeLanguage l = _languages.values.first;
+    // Combine and extract info
+    RegExp exp = RegExp(r"(.*?)<(.?:[{\d+}|]+)>(.*)", unicode: true);
+    int count=0;
+
+    String toAnalyze = d.name(l)!;
+    while (toAnalyze.isNotEmpty) {
+      var match = exp.firstMatch(toAnalyze);
+      if (match != null) {
+        toAnalyze = "";
+        var code = match.group(2)!.split(":");
+        assert(code.length == 2);
+        if (code[0] == "D") {
+          final data = description(PokeIdentifier(int.parse(code[1])))!;
+          for (var element in data.markers()) {
+            if (!effects.contains(element)) effects.add(element);
+          }
+          toAnalyze += data.name(l)!;
+        } else if (code[0] == "E" || code[0] == "P" || code[0] == "A" ||
+            code[0] == "R") {} else {
+          throw StatitikException(ErrorCode.unknown, "Error of code");
+        }
+        toAnalyze += match.group(3)!;
+      } else {
+        break;
+      }
+      count += 1;
+      if (count > 30) throw StatitikException(ErrorCode.unknown, "Loop detector");
+    }
+    return effects;
+  }
+
+  List<String> decrypted(PokeEffectDescription d, PokeLanguage l) {
+    List<String> s = [];
+
+    // Combine and extract info
+    RegExp exp = RegExp(r"(.*?)<(.?:[{\d+}|]+)>(.*)", unicode: true);
+
+    s.add("");
+    int count=0;
+
+    String toAnalyze = d.description.name(l)!;
+    while(toAnalyze.isNotEmpty) {
+      var match = exp.firstMatch(toAnalyze);
+      if( match != null ) {
+        toAnalyze = "";
+        s.last += match.group(1)!;
+        var code = match.group(2)!.split(":");
+        assert(code.length==2);
+        if( code[0] == "D" ) {
+          final data = description(PokeIdentifier(int.parse(code[1])))!;
+          toAnalyze += data.name(l)!;
+        } else if( code[0] == "E" ) {
+          s.add("E:${code[1]}");
+          s.add(""); // New string to cumulate
+        } else if( code[0] == "P" ) {
+          s.add("P:${code[1]}");
+          s.add(""); // New string to cumulate
+        } else if( code[0] == "A" ) {
+          s.add("A:${code[1]}");
+          s.add(""); // New string to cumulate
+        } else if( code[0] == "R" ) {
+          s.add("R:${code[1]}");
+          s.add(""); // New string to cumulate
+        } else {
+          throw StatitikException(ErrorCode.unknown, "Error of code");
+        }
+        toAnalyze += match.group(3)!;
+      } else {
+        s.last += toAnalyze;
+        break;
+      }
+      count += 1;
+      if(count > 30) throw StatitikException(ErrorCode.unknown, "Loop detector");
+    }
+    return s;
   }
 
   Future<void> _downloadImages() async
@@ -766,7 +844,7 @@ class PokeCollection {
   Future<void> updateSideProducts(TransactionContext connection, [List<PokeProductSide>? sideProducts]) async
   {
     List<List<Object?>> queries = [];
-    for(final sideProduct in sideProducts ?? _product_sides) {
+    for(final sideProduct in sideProducts ?? _productSides) {
 
       queries.add([sideProduct.pid().id(), sideProduct.category.pid().id(), sideProduct.releaseDate, sideProduct.idName().id()]);
     }
@@ -834,6 +912,23 @@ class PokeCollection {
     return _series.firstWhere((element) => expansion.isSameSerie(element.id()));
   }
 
+  @Deprecated("Migration Only")
+  int pokemonFromOldDB(int oldId) {
+    int newId = oldId + 300000000;
+    //Add generation
+    if(oldId < 152)      { newId += 1000000;}
+    else if(oldId < 252) { newId += 2000000;}
+    else if(oldId < 387) { newId += 3000000;}
+    else if(oldId < 494) { newId += 4000000;}
+    else if(oldId < 650) { newId += 5000000;}
+    else if(oldId < 722) { newId += 6000000;}
+    else if(oldId < 810) { newId += 7000000;}
+    else if(oldId < 906) { newId += 8000000;}
+    else                 { newId += 9000000;}
+    return newId;
+  }
+
+  @Deprecated("Migration Only")
   (PokeLanguage?, PokeExpansion?) expansionFromOldDB(int oldID) {
     final Map<int, (Language, int)> convert = {
       1	: (Language.fr,1108040000),
@@ -1075,7 +1170,7 @@ class PokeCollection {
     try {
       final (idL, idExp) = convert[oldID]!;
       return (_languages[idL], expansion(PokeIdentifier(idExp)));
-    } catch(_, _) {
+    } catch(_) {
       printOutput("Not found: $oldID");
       rethrow;
     }
@@ -1179,6 +1274,8 @@ class PokeCollection {
       for(var card in cardLists) {
         // Save and update + maintain admin DB
         if( await saveDatabase(card.card, nextId, connection) ) {
+          card.card.updatePID(PokeIdentifier(nextId));
+
           created += 1;
           nextId  += 1;
           printOutput("New card is add. Next id will be $nextId");
@@ -1191,6 +1288,8 @@ class PokeCollection {
       for(var card in cardLists) {
         // Save and update + maintain admin DB
         if( await saveDatabase(card.card, nextId, connection) ) {
+          card.card.updatePID(PokeIdentifier(nextId));
+
           created += 1;
           nextId  += 1;
           printOutput("New card is add. Next id will be $nextId");

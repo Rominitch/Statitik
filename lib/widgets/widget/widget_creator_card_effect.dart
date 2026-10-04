@@ -6,7 +6,9 @@ import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/card/poke_card_effect.dart';
 import 'package:statitikcard/models/card/poke_card_type.dart';
 import 'package:statitikcard/models/poke_data_navigation.dart';
-import 'package:statitikcard/widgets/widget/widget_creator_card_effects.dart';
+import 'package:statitikcard/models/poke_identifier.dart';
+import 'package:statitikcard/models/poke_rendering.dart';
+import 'package:statitikcard/screens/wizard/wizard_select_title_name.dart';
 import 'package:statitikcard/widgets/widget/widget_energy_button.dart';
 
 class WidgetCreatorCardEffect extends StatefulWidget {
@@ -24,10 +26,6 @@ class _WidgetCreatorCardEffectState extends State<WidgetCreatorCardEffect> {
 
   static const double maxParam = 1000.0;
 
-  void onTypeChanged(id, effect, value) {
-    effect.attack[id] = value;
-  }
-
   @override
   void initState() {
     // Fill with 5 elements
@@ -44,20 +42,20 @@ class _WidgetCreatorCardEffectState extends State<WidgetCreatorCardEffect> {
 
     String name        = AppLocalizations.of(context)!.ca_b23;
     String description = AppLocalizations.of(context)!.ca_b24;
+
     int nbParameters = 0;
     if(widget._effect.title != null) {
       name = language.label(widget._effect.title!.pid())!;
     }
 
     List<Widget> parameterWidgets = [];
-    /*
+
     if(widget._effect.description != null) {
-      description = widget._effect.description!.decrypted(Environment.instance.collection.descriptions, widget.parent.l).finalString.join();
+      description = widget._navAdmin.collection.decrypted(widget._effect.description!, language).join();
       RegExp re = RegExp(r"\{(\d*)\}", unicode: true);
       re.allMatches(description).forEach((element) {
         nbParameters = max(nbParameters, int.parse(element.group(1)!));
       });
-      //nbParameters = re.allMatches(description).length;
 
       int id = 0;
       while( id < nbParameters) {
@@ -67,57 +65,64 @@ class _WidgetCreatorCardEffectState extends State<WidgetCreatorCardEffect> {
         }
 
         int localId = id;
+
+        String translation = widget._navAdmin.showLanguage.label(PokeIdentifier(widget._effect.description!.parameters[localId]))
+                          ?? widget._effect.description!.parameters[localId].toString();
+
         parameterWidgets.add(
-            Row(
-                children: [
-                  Text(AppLocalizations.of(context)!.ca_b19),
-                  Expanded(
-                    child: SpinBox(value: widget._effect.description!.parameters[localId].toDouble(), max: maxParam,
-                        onChanged: (value){
-                          setState(() {
-                            if (widget._effect.description!.parameters.isEmpty) {
-                              widget._effect.description!.parameters.add(value.toInt());
-                            } else {
-                              widget._effect.description!.parameters[localId] = value.toInt();
-                            }
-                          });
-                        }),
-                  )
-                ]
-            )
+          Row(
+            spacing: PokeRendering.spacing,
+            children: [
+              Text(AppLocalizations.of(context)!.ca_b19),
+              Expanded(
+                child: Center(child: Text(translation))
+              ),
+              Expanded(
+                child: SpinBox(value: widget._effect.description!.parameters[localId].toDouble(), max: maxParam,
+                  onChanged: (value){
+                    setState(() {
+                      if (widget._effect.description!.parameters.isEmpty) {
+                        widget._effect.description!.parameters.add(value.toInt());
+                      } else {
+                        widget._effect.description!.parameters[localId] = value.toInt();
+                      }
+                    });
+                  }),
+              )
+            ]
+          )
         );
         id += 1;
       }
-    }*/
+    }
 
     return Card(
         color: Colors.grey[800],
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              //Effect
-              Card(
-                color: Colors.grey[600],
-                child: TextButton(
-                  onPressed: (){
-                  /*
-                  setState(() {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ListSelector(Text(AppLocalizations.of(context)!.ca_t3, style: Theme.of(context).textTheme.displaySmall), widget.parent.l, Environment.instance.collection.effects)),
-                    ).then((value) {
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                //Effect
+                Card(
+                  color: Colors.grey[600],
+                  child: TextButton(
+                    onPressed: () {
                       setState(() {
-                        if(value != null) {
-                          widget._effect.title = value;
-                        }
+                        WizardSelectTitleName.select(
+                          context, widget._navAdmin, ListInfo.Effect,
+                          (value) {
+                            setState(() {
+                              widget._effect.title = value;
+                            });
+                        });
                       });
-                    });
-                  });
-                  */
-                }, child: Text(name)),
-              ),
-              if(widget._effect.title != null)
-                Row(
+                    },
+                    child: Text(name)
+                  )
+                ),
+                if(widget._effect.title != null)
+                  Row(
                     children: [
                       Text(AppLocalizations.of(context)!.ca_b21),
                       Expanded(
@@ -129,53 +134,30 @@ class _WidgetCreatorCardEffectState extends State<WidgetCreatorCardEffect> {
                           }),
                       )
                     ]
-                ),
-              if(widget._effect.title != null)
-                Row( children: [
-                  WidgetEnergyButton(WidgetEnergyButtonEffectController(widget._effect, 0)),
-                  WidgetEnergyButton(WidgetEnergyButtonEffectController(widget._effect, 1)),
-                  WidgetEnergyButton(WidgetEnergyButtonEffectController(widget._effect, 2)),
-                  WidgetEnergyButton(WidgetEnergyButtonEffectController(widget._effect, 3)),
-                  WidgetEnergyButton(WidgetEnergyButtonEffectController(widget._effect, 4)),
-                ]),
-              //Description
-              Card(
-                color: Colors.grey[600],
-                child: TextButton(onPressed: (){
-                  /*
-                  setState(() {
-                    Map finalEffectList = {};
-                    for(var effect in Environment.instance.collection.descriptions.entries) {
-                      WidgetSelectorNameList
-                      var d = CardDescription(effect.key);
-                      finalEffectList[effect.key] = MultiLanguageString(
-                          [
-                            d.decrypted(Environment.instance.collection.descriptions, Environment.instance.collection.languages[1]!).finalString.join(),
-                            d.decrypted(Environment.instance.collection.descriptions, Environment.instance.collection.languages[2]!).finalString.join(),
-                            d.decrypted(Environment.instance.collection.descriptions, Environment.instance.collection.languages[3]!).finalString.join(),
-                          ]);
-                    }
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => ListSelector(Text(AppLocalizations.of(context)!.ca_t4, style: Theme.of(context).textTheme.displaySmall), widget.parent.l, finalEffectList)),
-                    ).then((value) {
-                      setState(() {
-                        if(value != null) {
-                          if(widget._effect.description == null) {
-                            widget._effect.description = PokeCardDescription(value);
-                          }
-                          else {
-                            widget._effect.description!.idDescription = value;
-                          }
-                        }
+                  ),
+                if(widget._effect.title != null)
+                  Row( children: [
+                    WidgetEnergyButton(WidgetEnergyButtonEffectController(widget._effect, 0)),
+                    WidgetEnergyButton(WidgetEnergyButtonEffectController(widget._effect, 1)),
+                    WidgetEnergyButton(WidgetEnergyButtonEffectController(widget._effect, 2)),
+                    WidgetEnergyButton(WidgetEnergyButtonEffectController(widget._effect, 3)),
+                    WidgetEnergyButton(WidgetEnergyButtonEffectController(widget._effect, 4)),
+                  ]),
+                //Description
+                Card(
+                  color: Colors.grey[600],
+                  child: TextButton(onPressed: () {
+                    WizardSelectTitleName.select(
+                      context, widget._navAdmin, ListInfo.EffectDescription,
+                        (value) {
+                          setState(() {
+                            widget._effect.description = PokeEffectDescription(value, [], widget._navAdmin.collection.computeDescriptionEffects(value));
+                          });
                       });
-                    });
-                  });
-                  */
-                }, child: Text(description, softWrap: true)),
-              ),
-            ] + parameterWidgets
+                  }, child: Text(description, softWrap: true)),
+                ),
+              ] + parameterWidgets
+          ),
         )
     );
   }

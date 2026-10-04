@@ -82,8 +82,8 @@ class _WidgetCardNamingState extends State<WidgetCardNaming> {
                   child: Text( name.name.name(widget._nav.showLanguage)!, style: const TextStyle(fontSize: 9.0)),
                   onPressed: () {
                     setState(() {
-                      WizardSelectTitleName.select(context, widget._nav, isPokemonCard(widget.card().type),
-                        (CardTitle selectedTitle) {
+                      WizardSelectTitleName.select(context, widget._nav, isPokemonCard(widget.card().type) ? ListInfo.Pokemon : ListInfo.Trainer,
+                        (selectedTitle) {
                           setState(() {
                             widget.card().title.title[widget.idName] = PokeFullCardPokemon(selectedTitle);
                           });

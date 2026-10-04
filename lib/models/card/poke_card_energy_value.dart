@@ -10,7 +10,17 @@ class PokeEnergyValue {
 
   PokeEnergyValue.fromBytes(BinaryReader reader) :
     energy = PokeCardType.values[reader.readInt8()],
-    value = reader.readInt16()
+    value = reader.readUint16()
+  {
+    if(value > 60) {
+      printOutput("Error inside DB HERE");
+      value = 0;
+    }
+  }
+
+  PokeEnergyValue.fromBytesOld(BinaryReader reader) :
+    energy = PokeCardType.values[reader.readInt8()],
+    value = (reader.readInt8() << 8) | reader.readInt8()
   {
     if(value > 60) {
       printOutput("Error inside DB HERE");
@@ -20,6 +30,6 @@ class PokeEnergyValue {
 
   void toBytes(BinaryWriter writer) {
     writer.writeInt8(energy.index);
-    writer.writeInt16(value);
+    writer.writeUint16(value);
   }
 }

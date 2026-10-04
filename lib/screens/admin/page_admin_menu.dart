@@ -181,6 +181,17 @@ class _PageAdminMenuState extends State<PageAdminMenu> {
     return Scaffold(
         appBar: AppBar(
           title: Center(child: Text( AppLocalizations.of(context)!.h_t4, style: Theme.of(context).textTheme.displaySmall )),
+          actions: [
+            IconButton(onPressed: () {
+              EasyLoading.show();
+              Environment.instance.restoreAdminData().then(
+                (value){
+                  EasyLoading.dismiss();
+                }
+              );
+            },
+            icon: Icon(Icons.refresh))
+          ],
         ),
         body: SafeArea(
             child: Padding(

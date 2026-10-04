@@ -5,7 +5,6 @@ import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/screenOld/widgets/card_image.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/card_title_data.dart';
 import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
@@ -81,28 +80,28 @@ class SearchExtensionsCardId extends StatelessWidget {
     List<Widget> cardImageWidget = [];
 
     List<Widget> expansionWidget = [];
-    for (var subExtension in Environment.instance.collection.subExtensions.values) {
+    for (final subExtension in Environment.instance.collection.subExtensions.values) {
       // Keep Japanese only
       if(subExtension.extension.language.id == 3 ) {
         List<Widget> cardsWidgets = [];
         // Search all basic cards ...
         int id=0;
-        subExtension.seCards.cards.forEach((List<PokemonCardExtension> allCards) {
+        for (final allCards in subExtension.seCards.cards) {
           createWidgetCard(context, allCards[0], subExtension, CardIdentifier.from([0, id, 0]), cards, cardImageWidget, cardsWidgets);
           id += 1;
-        });
+        }
         // ... and energy
         id=0;
-        subExtension.seCards.energyCard.forEach((PokemonCardExtension allCards) {
+        for (final allCards in subExtension.seCards.energyCard) {
           createWidgetCard(context, allCards, subExtension, CardIdentifier.from([1, id]), cards, cardImageWidget, cardsWidgets);
           id += 1;
-        });
+        }
         // ... and no number
         id=0;
-        subExtension.seCards.noNumberedCard.forEach((PokemonCardExtension allCards) {
+        for (final allCards in subExtension.seCards.noNumberedCard) {
           createWidgetCard(context, allCards, subExtension, CardIdentifier.from([2, id]), cards, cardImageWidget, cardsWidgets);
           id += 1;
-        });
+        }
 
         // Add card about expansion
         if(cardsWidgets.isNotEmpty) {

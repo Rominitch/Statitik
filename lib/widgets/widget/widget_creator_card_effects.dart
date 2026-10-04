@@ -33,12 +33,10 @@ class _WidgetCreatorCardEffectsState extends State<WidgetCreatorCardEffects> {
               child: TextButton(
                 child: Text( AppLocalizations.of(context)!.ca_b14 ),
                 onPressed: (){
-                  /*
                   setState(() {
                     final newEffect = PokeCardEffect(null, null, 0, []);
                     widget._cvId.cardInExp().card.cardEffects.effects.add(newEffect);
                   });
-                  */
                 }
               )
             );

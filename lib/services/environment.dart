@@ -290,10 +290,12 @@ class Environment
         if(!startDB) {
             printOutput("Clean Database");
             // Avoid reentrance
-            collection.clear();
+            _collectionPK.clear();
 
             printOutput("Read Database");
-            await db.transactionR( collection.readStaticData );
+            await _db_poke.transactionR((connection) async {
+                await _collectionPK.readStaticData(connection);
+            });
 
             startDB = true;
         }
@@ -303,12 +305,8 @@ class Environment
         // Reload full database to have all real data
         startDB=false;
 
-        _collectionPK.clear();
-
         // Read Database
-        await _db_poke.transactionR((connection) async {
-            await _collectionPK.readStaticData(connection);
-        });
+        await readStaticData();
 
         /*
         db = Database();

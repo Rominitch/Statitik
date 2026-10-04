@@ -2,7 +2,9 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
+import 'package:statitikcard/models/card/poke_card_effect.dart';
 import 'package:statitikcard/models/card/poke_card_subject.dart';
+import 'package:statitikcard/models/database/poke_db_description.dart';
 import 'package:statitikcard/models/poke_data_navigation.dart';
 import 'package:statitikcard/models/poke_language.dart';
 
@@ -10,25 +12,51 @@ import 'package:statitikcard/services/environment.dart';
 
 class WidgetSelectorNameList extends StatefulWidget {
   final PokeNavAdmin _navAdmin;
-  final SplayTreeMap<String, CardTitle> dataMap;
+  final SplayTreeMap<String, dynamic> dataMap;
   final Function(String, PokeLanguage)? addNewData;
 
   WidgetSelectorNameList(PokeNavAdmin navAdmin, List nonOrderedDataMap, {multiLangue = false, this.addNewData, super.key}):
     _navAdmin = navAdmin,
     dataMap = _createMap(nonOrderedDataMap, navAdmin, multiLangue);
 
-  static SplayTreeMap<String, CardTitle> _createMap(List nonOrderedDataMap, PokeNavAdmin navAdmin, bool multiLangue) {
-    final newMap = SplayTreeMap<String, CardTitle>();
-    for (final CardTitle title in nonOrderedDataMap) {
-      List<String> allNames = [ title.name(navAdmin.showLanguage)! ];
-      if( multiLangue ) {
-        for( final l in navAdmin.collection.languages() ) {
-          if( l != navAdmin.showLanguage) {
-            allNames.add(title.name(navAdmin.showLanguage)!);
+  static SplayTreeMap<String, dynamic> _createMap(List nonOrderedDataMap, PokeNavAdmin navAdmin, bool multiLangue) {
+    final newMap = SplayTreeMap<String, dynamic>();
+    if( nonOrderedDataMap is List<CardTitle>) {
+      for (final CardTitle title in nonOrderedDataMap) {
+        List<String> allNames = [ title.name(navAdmin.showLanguage)! ];
+        if( multiLangue ) {
+          for( final l in navAdmin.collection.languages() ) {
+            if( l != navAdmin.showLanguage) {
+              allNames.add(title.name(l)!);
+            }
           }
         }
+        newMap[allNames.join(' / ')] = title;
       }
-      newMap[allNames.join(' / ')] = title;
+    } else if (nonOrderedDataMap is List<PokeEffectName>) {
+      for (final PokeEffectName title in nonOrderedDataMap) {
+        List<String> allNames = [ navAdmin.showLanguage.label(title.pid())! ];
+        if( multiLangue ) {
+          for( final l in navAdmin.collection.languages() ) {
+            if( l != navAdmin.showLanguage) {
+              allNames.add(l.label(title.pid())!);
+            }
+          }
+        }
+        newMap[allNames.join(' / ')] = title;
+      }
+    } else if (nonOrderedDataMap is List<PokeDbDescription>) {
+      for (final PokeDbDescription title in nonOrderedDataMap) {
+        List<String> allNames = [ navAdmin.showLanguage.label(title.pid())! ];
+        if( multiLangue ) {
+          for( final l in navAdmin.collection.languages() ) {
+            if( l != navAdmin.showLanguage) {
+              allNames.add(l.label(title.pid())!);
+            }
+          }
+        }
+        newMap[allNames.join(' / ')] = title;
+      }
     }
     return newMap;
   }
@@ -40,7 +68,7 @@ class WidgetSelectorNameList extends StatefulWidget {
 class _WidgetSelectorNameListState extends State<WidgetSelectorNameList> {
   final TextEditingController _controller = TextEditingController();
 
-  Map<String, CardTitle> _filteredMap = {};
+  Map<String, dynamic> _filteredMap = {};
 
   void computeFilteredList() {
     if( _controller.text.isNotEmpty ) {

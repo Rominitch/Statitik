@@ -200,10 +200,12 @@ class _PageAdminEditCardState extends State<PageAdminEditCard> with TickerProvid
             child: Text(AppLocalizations.of(context)!.nce_b7),
             onPressed: () {
               setState(() {
-                WizardSelectTitleName.select(context, widget._navAdmin, isPokemonCard(widget._activeCard.cardInExp().card.type),
-                  (CardTitle selectedTitle) {
+                WizardSelectTitleName.select(context, widget._navAdmin, isPokemonCard(widget._activeCard.cardInExp().card.type) ? ListInfo.Pokemon : ListInfo.Trainer,
+                  (selectedTitle) {
                     setState(() {
-                      cardData.title.title.add(PokeFullCardPokemon(selectedTitle));
+                      if( selectedTitle != null ) {
+                        cardData.title.title.add(PokeFullCardPokemon(selectedTitle));
+                      }
                     });
                 });
               });

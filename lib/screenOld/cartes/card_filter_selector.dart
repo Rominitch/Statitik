@@ -5,7 +5,6 @@ import 'package:statitikcard/screenOld/widgets/button_check.dart';
 import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
 import 'package:statitikcard/screenOld/widgets/slider_with_text.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/card_design.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/type_card.dart';

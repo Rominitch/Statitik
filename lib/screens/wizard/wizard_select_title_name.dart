@@ -9,21 +9,28 @@ import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/widgets/widget/widget_selector_name_list.dart';
 
+enum ListInfo {
+  Pokemon,
+  Trainer,
+  Effect,
+  EffectDescription
+}
+
 class WizardSelectTitleName extends StatefulWidget {
   final PokeNavAdmin _navAdmin;
-  final bool isPokemon;
+  final ListInfo     _kindList;
 
-  const WizardSelectTitleName(this._navAdmin, this.isPokemon, {super.key});
+  const WizardSelectTitleName(this._navAdmin, this._kindList, {super.key});
 
   @override
   State<WizardSelectTitleName> createState() => _WizardSelectTitleNameState();
 
-  static void select(BuildContext context, PokeNavAdmin navAdmin, bool isPokemon, Function(CardTitle selectedTitle) afterSelectName) {
+  static void select(BuildContext context, PokeNavAdmin navAdmin, ListInfo kindList, Function(dynamic selectedTitle) afterSelectName) {
     if(isMobile) {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) =>
-          WizardSelectTitleName( navAdmin, isPokemon)),
+          WizardSelectTitleName( navAdmin, kindList)),
       ).then((idDB) {
         afterSelectName( idDB );
       });
@@ -38,7 +45,7 @@ class WizardSelectTitleName extends StatefulWidget {
               SizedBox(
                 width: min(MediaQuery.of(context).size.width-50, 500),
                 height: MediaQuery.of(context).size.height-50,
-                child: WizardSelectTitleName( navAdmin, isPokemon))
+                child: WizardSelectTitleName( navAdmin, kindList ))
             ]
           );
         }
@@ -52,21 +59,26 @@ class WizardSelectTitleName extends StatefulWidget {
 class _WizardSelectTitleNameState extends State<WizardSelectTitleName> {
   @override
   Widget build(BuildContext context) {
-    if( widget.isPokemon ) {
-      return WidgetSelectorNameList(widget._navAdmin, widget._navAdmin.collection.pokemons(), multiLangue: true);
-    } else {
-      return WidgetSelectorNameList(widget._navAdmin, widget._navAdmin.collection.otherCards(), multiLangue:true,
-        addNewData: (String newText, PokeLanguage langue) async {
-          PokeIdentifier? newId;
-          await widget._navAdmin.database.transactionR( (connection) async
-            {
-              newId = await widget._navAdmin.collection.addNewDresseurObjectName(connection, newText, langue);
-              return true;
-            }
-          );
-          return newId;
-        }
-      );
+    switch( widget._kindList ) {
+      case ListInfo.Pokemon :
+        return WidgetSelectorNameList(widget._navAdmin, widget._navAdmin.collection.pokemons(), multiLangue: true);
+      case ListInfo.Trainer :
+        return WidgetSelectorNameList(widget._navAdmin, widget._navAdmin.collection.otherCards(), multiLangue:true,
+          addNewData: (String newText, PokeLanguage langue) async {
+            PokeIdentifier? newId;
+            await widget._navAdmin.database.transactionR( (connection) async
+              {
+                newId = await widget._navAdmin.collection.addNewDresseurObjectName(connection, newText, langue);
+                return true;
+              }
+            );
+            return newId;
+          }
+        );
+      case ListInfo.Effect :
+        return WidgetSelectorNameList(widget._navAdmin, widget._navAdmin.collection.effectNames());
+      case ListInfo.EffectDescription :
+        return WidgetSelectorNameList(widget._navAdmin, widget._navAdmin.collection.descriptions());
     }
   }
 }

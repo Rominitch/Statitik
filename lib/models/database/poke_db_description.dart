@@ -3,7 +3,7 @@ import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 
-enum DescriptionEffect {
+enum PokeDescriptionEffect {
   unknown(0),          // 0
   attack(1),           // 1
   draw(2),             // 2
@@ -17,26 +17,26 @@ enum DescriptionEffect {
   mix(512),            // 512
   confusion(1024);     // 1024
 
-  const DescriptionEffect(this.value);
+  const PokeDescriptionEffect(this.value);
   final int value;
 
-  static List<DescriptionEffect> convertMarkers(int? marks) {
+  static List<PokeDescriptionEffect> convertMarkers(int? marks) {
     if(marks == null) {
       return const [];
     }
-    List<DescriptionEffect> markers = [];
+    List<PokeDescriptionEffect> markers = [];
     int id = 1;
     while(marks! > 0)
     {
       if((marks & 0x1) == 0x1) {
-        markers.add(DescriptionEffect.values[id]);
+        markers.add(PokeDescriptionEffect.values[id]);
       }
       id = id+1;
       marks = marks >> 1;
     }
     return markers;
   }
-  static int convert(List<DescriptionEffect> effects) {
+  static int convert(List<PokeDescriptionEffect> effects) {
     int code = 0;
     for( final e in effects ) {
       code += e.value;
@@ -47,13 +47,13 @@ enum DescriptionEffect {
 
 class PokeDbDescription {
   final PokeIdentifier          _id;
-  final List<DescriptionEffect> _markers;
+  final List<PokeDescriptionEffect> _markers;
 
   const PokeDbDescription.fromDB(this._id, this._markers);
 
   PokeDbDescription.fromBytes(BinaryReader reader):
     _id      = PokeIdentifier.fromBytes(reader),
-    _markers = DescriptionEffect.convertMarkers(reader.readInt32());
+    _markers = PokeDescriptionEffect.convertMarkers(reader.readInt32());
 
   void toBytesID(BinaryWriter writer) {
     _id.toBytesID(writer);
@@ -61,7 +61,11 @@ class PokeDbDescription {
 
   void toBytes(BinaryWriter writer) {
     _id.toBytesID(writer);
-    writer.writeInt32(DescriptionEffect.convert(_markers));
+    writer.writeInt32(PokeDescriptionEffect.convert(_markers));
+  }
+
+  bool isEqual(PokeIdentifier pid) {
+    return _id.isEqual(pid);
   }
 
   PokeIdentifier pid() {
@@ -75,4 +79,6 @@ class PokeDbDescription {
   bool search(PokeLanguage l, String searchPart) {
     return l.search(_id, searchPart);
   }
+
+  List<PokeDescriptionEffect> markers() { return _markers; }
 }

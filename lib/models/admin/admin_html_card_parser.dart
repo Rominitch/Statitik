@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
@@ -12,14 +10,6 @@ import 'package:statitikcard/models/poke_data_navigation.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
 import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_language.dart';
-import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/card_effect.dart';
-import 'package:statitikcard/services/models/card_identifier.dart';
-import 'package:statitikcard/services/models/card_title_data.dart';
-import 'package:statitikcard/services/models/language.dart';
-import 'package:statitikcard/services/models/multi_language_string.dart';
-import 'package:statitikcard/services/models/pokemon_card_extension.dart';
-import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/tools.dart';
 
 class AdminHTMLEffects  {

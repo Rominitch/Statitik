@@ -10,6 +10,7 @@ import 'package:statitikcard/models/poke_rendering.dart';
 import 'package:statitikcard/models/statistics/statistic_data.dart';
 import 'package:statitikcard/screenOld/admin/card_editor_options.dart';
 import 'package:statitikcard/screens/admin/page_admin_edit_card.dart';
+import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/widgets/expansion/widget_creator_card_quick.dart';
 
@@ -25,7 +26,6 @@ class PageAdminEditExpansion extends StatefulWidget {
 }
 
 class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
-  bool _modify = false;
   late AdminCardCreator _creator;
 
   int idList = 0;
@@ -36,7 +36,6 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
 
   void onRefreshList() {
     setState(() {
-      _modify = true;
     });
   }
   void onChangeList(int newIdList) {
@@ -51,8 +50,6 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
 
   void onAddCard(int listId, int? pos) {
     setState((){
-      _modify = true;
-
       // Remove default state
       final cards = widget._expansion.expansion!.cards;
       if( !cards.isValid() ) {
@@ -96,7 +93,6 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
         cardList = cards.cards;
       }
 
-      _modify = true;
       cardList.removeAt(localId);
     });
   }
@@ -189,18 +185,6 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
           setState(() {
             activeCard = PokeCardIdentifier.from([localListId, localId, 0]);
           });
-          //TODO
-          /*
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CardEditor(widget.se, idCard, options)),
-          ).then((value) {
-            setState(() {
-              updateCardList(localListId);
-              _modify   = true;
-            });
-          });
-          */
         },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -222,28 +206,24 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
   }
 
   bool backAction(BuildContext context) {
-    if( !_modify ) {
-      Navigator.of(context).pop(true);
-    } else {
-      // TODO: migration
-      //widget._expension.expansion!.computeStats();
-      showDialog(
-          context: context,
-          barrierDismissible: false, // user must tap button!
-          builder: (BuildContext context) {
-            return showExit(context);
-          }).then((exit) {
-        if (exit) {
-          if(context.mounted) {
-            Navigator.of(context).pop(true);
-          }
-        } else {
-          return false;
+    // TODO: migration
+    //widget._expension.expansion!.computeStats();
+    showDialog(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return showExit(context);
+        }).then((exit) {
+      if (exit) {
+        if(context.mounted) {
+          Navigator.of(context).pop(true);
         }
+      } else {
+        return false;
       }
-      );
     }
-    return true;
+    );
+    return false;
   }
 
   Widget headerExpansion() {
@@ -312,9 +292,8 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
                     );
                   },
                   isExpanded: _showQuickCreator,
-                  //TODO : Migration
                   body: WidgetCreatorCardQuick(widget._nav, _creator, onAddCard, onRefreshList,
-                      onChangeList: onChangeList),//CardCreator.quick(widget.language, expansion, data, PokeCardIdentifier.from([0, 0, 0]), onAddCard, onRefreshList, widget.language.isWorld(), onChangeList: onChangeList),
+                      onChangeList: onChangeList),
               )
             ],
             expandedHeaderPadding: EdgeInsets.zero,
@@ -439,7 +418,7 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
             }
           },
         ),
-        actions: [if(_modify) Card(child: TextButton(
+        actions: [Card(child: TextButton(
           child: Text(AppLocalizations.of(context)!.nce_b1),
           onPressed: () {
             EasyLoading.show();
@@ -451,9 +430,10 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
             }).onError((error, stackTrace) {
               EasyLoading.showError('Error');
               return false;
-            }).then( (isValid) {
-              EasyLoading.dismiss();
+            }).then( (isValid) async {
               if(isValid) {
+                await Environment.instance.readStaticData();
+                EasyLoading.dismiss();
                 widget._onReturn();
               } else {
                 EasyLoading.showError('Invalid');

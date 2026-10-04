@@ -31,41 +31,44 @@ class AdminCardCreator {
 
   Map<PokeSet, List<PokeCardDesign>> computeBestSetInfo(PokeRarity r) {
     Map<PokeSet, List<PokeCardDesign>> setInfo = {};
-    for(final set in _nav.collection.allSets())
-    {
-      setInfo[set] = [];
-    }
+
+    final normal   = _nav.collection.sets(PokeIdentifier(530000000))!;
+
     if (expansion.location() == CardLocation.Monde) {
-      final normal   = _nav.collection.sets(PokeIdentifier(530000000))!;
       final holo     = _nav.collection.sets(PokeIdentifier(530000001))!;
       final parallel = _nav.collection.sets(PokeIdentifier(530000002))!;
 
       final designNormal = _nav.collection.design(PokeIdentifier(510000000))!;
 
       if (rarity.id() == 0 || rarity.id() == 2) {
-        setInfo[normal]!.add(PokeCardDesign(designNormal, ArtFormat.normal));
-        setInfo[parallel]!.add(PokeCardDesign(designNormal, ArtFormat.normal));
+        setInfo[normal]   = [PokeCardDesign(designNormal, ArtFormat.normal)];
+        setInfo[parallel] = [PokeCardDesign(designNormal, ArtFormat.normal)];
       } else if (rarity.id() == 4) {
-        setInfo[holo]!.add(PokeCardDesign(designNormal, ArtFormat.normal));
+        setInfo[holo]  = [PokeCardDesign(designNormal, ArtFormat.normal)];
       } else if (rarity.id() == 13) {
-        setInfo[normal]!.add(PokeCardDesign(designNormal, ArtFormat.halfArt));
+        setInfo[normal] = [PokeCardDesign(designNormal, ArtFormat.halfArt)];
       } else if (rarity.id() == 37) {
         final designArcEnCiel = _nav.collection.design(PokeIdentifier(510000003))!;
-        setInfo[normal]!.add(PokeCardDesign(designArcEnCiel, ArtFormat.fullArt));
+        setInfo[normal]= [PokeCardDesign(designArcEnCiel, ArtFormat.fullArt)];
       } else if (rarity.id() == 36) {
         final designGold = _nav.collection.design(PokeIdentifier(510000004))!;
-        setInfo[normal]!.add(PokeCardDesign(designGold, ArtFormat.fullArt));
+        setInfo[normal]= [PokeCardDesign(designGold, ArtFormat.fullArt)];
       } else if (rarity.id() == 13) {
         final designFull = _nav.collection.design(PokeIdentifier(510000007))!;
-        setInfo[normal]!.add(PokeCardDesign(designFull, ArtFormat.halfArt));
+        setInfo[normal]= [PokeCardDesign(designFull, ArtFormat.halfArt)];
       } else if (rarity.id() == 18) {
         final designFull = _nav.collection.design(PokeIdentifier(510000007))!;
-        setInfo[normal]!.add(PokeCardDesign(designFull, ArtFormat.fullArt));
+        setInfo[normal]= [PokeCardDesign(designFull, ArtFormat.fullArt)];
       } else if (rarity.id() == 6) {
         final designHolo = _nav.collection.design(PokeIdentifier(510000001))!;
-        setInfo[normal]!.add(PokeCardDesign(designHolo, ArtFormat.normal));
+        setInfo[normal]= [PokeCardDesign(designHolo, ArtFormat.normal)];
       }
     }
+
+    if(setInfo.isEmpty) {
+      setInfo[normal] = [];
+    }
+
     return setInfo;
   }
 

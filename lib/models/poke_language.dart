@@ -88,7 +88,7 @@ class PokeLanguage {
   }
 
   String? label(PokeIdentifier id) {
-    assert(_labels.containsKey(id), "$_code: Impossible to find Label: ${id.id()}");
+    //assert(_labels.containsKey(id), "$_code: Impossible to find Label: ${id.id()}");
     return _labels[id];
   }
 
