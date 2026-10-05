@@ -10,7 +10,6 @@ import 'package:statitikcard/screenOld/cartes/card_statistic.dart';
 import 'package:statitikcard/screenOld/cartes/card_viewer.dart';
 import 'package:statitikcard/screenOld/widgets/card_image.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/marker.dart';

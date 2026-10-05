@@ -3,7 +3,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/admin/admin_card_creator.dart';
 import 'package:statitikcard/models/identifier/poke_card_identifier.dart';
-import 'package:statitikcard/models/card/poke_card_in_expansion.dart';
 import 'package:statitikcard/models/poke_data_navigation.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_rendering.dart';
@@ -13,6 +12,7 @@ import 'package:statitikcard/screens/admin/page_admin_edit_card.dart';
 import 'package:statitikcard/services/environment.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/widgets/expansion/widget_creator_card_quick.dart';
+import 'package:statitikcard/widgets/widget/widget_admin_card_button.dart';
 
 class PageAdminEditExpansion extends StatefulWidget {
   final PokeNavAdmin       _nav;
@@ -48,7 +48,7 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
     return widget._expansion.language!.location() == CardLocation.Asie;
   }
 
-  void onAddCard(int listId, int? pos) {
+  void addCard(int listId, int? pos) {
     setState((){
       // Remove default state
       final cards = widget._expansion.expansion!.cards;
@@ -104,106 +104,7 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
     super.initState();
   }
 
-  Widget cardBuilder(PokeCardInExpansion card, int id, int listId) {
-    final cards = widget._expansion.expansion!.cards;
 
-    // Search if Jap Card link exist
-    var colorCard = const Color(0xFF5D9070);
-
-    if( widget._nav.collection.containsCard(card.card) ) {
-      var subEx = widget._nav.collection
-          .searchCardIntoAllSubExtension(card.card);
-      int count = 0;
-      for (final element in subEx) {
-        if (element.expansion.location() == CardLocation.Asie) {
-          count += 1;
-        }
-      }
-
-      if(isJapanese()) {
-        // Show multi link
-        colorCard = count > 1 ? Colors.cyan : Colors.green[900]!;
-      } else {
-        // Show link with japan
-        colorCard = count > 0 ? Colors.green[800]! : Colors.grey[900]!;
-      }
-    } else  {
-      colorCard = Colors.grey[800]!;
-    }
-
-    int localId     = id;
-    int localListId = listId;
-    var numberCard = cards.numberOfCard(localId);
-
-    bool hasJPImageLink = false;
-    if( isJapanese() ) {
-      final imageId = PokeCardImageIdentifier(card.setInfo.keys.first);
-      final cardDesign = card.tryGetImage(imageId);
-      if(cardDesign != null) {
-        hasJPImageLink = cardDesign.jpDBId == 0;
-      }
-    }
-    return Card(
-      color: colorCard,
-      child: TextButton(
-        onLongPress: () {
-          setState(() {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return SimpleDialog(
-                  title: Center(child: Text(AppLocalizations.of(context)!.nce_b3, style: Theme.of(context).textTheme.displaySmall)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  children: [
-                    Card(
-                      color: Colors.grey[700],
-                      child: TextButton(
-                        child: Text(AppLocalizations.of(context)!.nce_b4),
-                        onPressed: () {
-                          onAddCard(localListId, localId);
-                          Navigator.of(context).pop();
-                        },
-                      )
-                    ),
-                    Card(
-                      color: Colors.red,
-                      child: TextButton(
-                        child: Text(AppLocalizations.of(context)!.nce_b5),
-                        onPressed: () {
-                          removeCard(localListId, localId);
-                          Navigator.of(context).pop();
-                        },
-                      )
-                    ),
-                  ]
-                );
-              }
-            );
-          });
-        },
-        onPressed: () {
-          setState(() {
-            activeCard = PokeCardIdentifier.from([localListId, localId, 0]);
-          });
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row( mainAxisAlignment: MainAxisAlignment.center,
-              children: [card.imageType()] + widget._nav.rendering.imageRarity(card.rarity)),
-            Row(mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(numberCard, style: TextStyle(fontSize: numberCard.length > 3 ? 10 : 12)),
-                if(isJapanese() && !hasJPImageLink) const Icon(Icons.broken_image, color: Colors.deepOrange, size: 11),
-                if(card.card.missingMainData())           const Icon(Icons.text_format, color: Colors.red, size: 10),
-                if(card.card.cardEffects.effects.isEmpty) const Icon(Icons.filter_vintage_outlined, color: Colors.red, size: 10),
-              ])
-          ]
-        ),
-      ),
-    );
-  }
 
   bool backAction(BuildContext context) {
     // TODO: migration
@@ -292,7 +193,7 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
                     );
                   },
                   isExpanded: _showQuickCreator,
-                  body: WidgetCreatorCardQuick(widget._nav, _creator, onAddCard, onRefreshList,
+                  body: WidgetCreatorCardQuick(widget._nav, _creator, addCard, onRefreshList,
                       onChangeList: onChangeList),
               )
             ],
@@ -310,6 +211,20 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
     );
   }
 
+  void onAddCard(PokeCardIdentifier cid) {
+    addCard(cid.listId, cid.numberId);
+  }
+
+  void onSelectCard(PokeCardIdentifier cid) {
+    setState(() {
+      activeCard = cid;
+    });
+  }
+
+  void onRemoveCard(PokeCardIdentifier cid) {
+    removeCard(cid.listId, cid.numberId);
+  }
+
   Widget cardGrids(SliverGridDelegate delegate) {
     switch(idList)
     {
@@ -319,9 +234,8 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
             gridDelegate: delegate,
             itemCount: widget._expansion.expansion!.cards.cards.length,
             itemBuilder: (context, index) {
-              final cards = widget._expansion.expansion!.cards.cards;
-              final card = cards[index][0];
-              return cardBuilder(card, index, 0);
+              final cvid = PokeCardViewerIdentifier(widget._expansion.expansion!, PokeCardIdentifier.from([0, index, 0]));
+              return WidgetAdminCardButton(widget._nav, cvid, onAddCard, onSelectCard, onRemoveCard);
             },
           );
         }
@@ -331,9 +245,8 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
             gridDelegate: delegate,
             itemCount: widget._expansion.expansion!.cards.energyCard.length,
             itemBuilder: (context, index) {
-              final cards = widget._expansion.expansion!.cards.energyCard;
-              final card = cards[index];
-              return cardBuilder(card, index, 0);
+              final cvid = PokeCardViewerIdentifier(widget._expansion.expansion!, PokeCardIdentifier.from([1, index, 0]));
+              return WidgetAdminCardButton(widget._nav, cvid, onAddCard, onSelectCard, onRemoveCard);
             },
           );
         }
@@ -343,9 +256,8 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
             gridDelegate: delegate,
             itemCount: widget._expansion.expansion!.cards.noNumberedCard.length,
             itemBuilder: (context, index) {
-              final cards = widget._expansion.expansion!.cards.noNumberedCard;
-              final card = cards[index];
-              return cardBuilder(card, index, 0);
+              final cvid = PokeCardViewerIdentifier(widget._expansion.expansion!, PokeCardIdentifier.from([2, index, 0]));
+              return WidgetAdminCardButton(widget._nav, cvid, onAddCard, onSelectCard, onRemoveCard);
             },
           );
         }
@@ -368,7 +280,7 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
             children: [
               Expanded(
                 flex: 1,
-                child: WidgetCreatorCardQuick(widget._nav, _creator, onAddCard, onRefreshList,
+                child: WidgetCreatorCardQuick(widget._nav, _creator, addCard, onRefreshList,
                   onChangeList: onChangeList),
               ),
               Expanded(

@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:sprintf/sprintf.dart';
@@ -9,9 +8,6 @@ import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/bytes_coder.dart';
-import 'package:statitikcard/services/models/card_identifier.dart';
-import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/tools/binary_manager.dart';
 

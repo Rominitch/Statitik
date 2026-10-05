@@ -13,7 +13,6 @@ import 'package:statitikcard/screenOld/commonPages/product_page.dart';
 import 'package:statitikcard/screenOld/PokeSpace/draw_history.dart';
 import 'package:statitikcard/services/connection.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/product_category.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';

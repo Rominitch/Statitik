@@ -1,5 +1,3 @@
-import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/type_card.dart';
 /*
 class CardEffect {
   int?              title;       /// Title of capacity if exist.

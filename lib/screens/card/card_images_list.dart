@@ -33,7 +33,6 @@ class _CardImagesListState extends State<CardImagesList> with TickerProviderStat
     List<Widget> imageTabHeaders = [];
     List<Widget> imageTabPages   = [];
     for (var cvId in widget.ids) {
-      var card = cvId.cardInExp();
       imageTabHeaders.add(
           Row(
               children: [

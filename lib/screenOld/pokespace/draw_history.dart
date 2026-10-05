@@ -4,7 +4,6 @@ import 'package:statitikcard/screenOld/PokeSpace/pokespace_draw_resume.dart';
 import 'package:statitikcard/services/draw/session_draw.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 
 class DrawHistory extends StatefulWidget {
   final bool isAdmin;

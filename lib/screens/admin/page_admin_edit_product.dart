@@ -20,30 +20,14 @@ import 'package:statitikcard/models/products/poke_product_booster.dart';
 import 'package:statitikcard/models/products/poke_product_card.dart';
 import 'package:statitikcard/models/products/poke_product_category.dart';
 import 'package:statitikcard/models/products/poke_product_side.dart';
-import 'package:statitikcard/models/statistics/statistic_data.dart';
-
-import 'package:statitikcard/screenOld/commonPages/extension_page.dart';
-import 'package:statitikcard/screenOld/commonPages/side_product_selection.dart';
-import 'package:statitikcard/screenOld/widgets/CardSelector/card_selector_product_card.dart';
-import 'package:statitikcard/screenOld/widgets/cards_selection.dart';
 import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
-import 'package:statitikcard/screenOld/widgets/pokemon_card.dart';
 import 'package:statitikcard/screens/wizard/wizard_select_until_card.dart';
-import 'package:statitikcard/services/draw/card_draw_data.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
-import 'package:statitikcard/services/models/language.dart';
-import 'package:statitikcard/services/models/product_category.dart';
-import 'package:statitikcard/services/models/sub_extension.dart';
-import 'package:statitikcard/services/models/type_card.dart';
-import 'package:statitikcard/services/models/product.dart';
 import 'package:statitikcard/services/models/pokemon_card_data.dart';
-import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/widgets/widget/widget_button_check.dart';
 import 'package:statitikcard/widgets/widget/widget_selector_booster.dart';
 import 'package:statitikcard/widgets/widget/widget_selector_card_viewer.dart';
 import 'package:statitikcard/widgets/widget/widget_selector_side_product.dart';
-import 'package:statitikcard/widgets/expansion/widget_expansions_selector.dart';
 
 class PageAdminEditProduct extends StatefulWidget {
   final PokeNavAdmin _nav;

@@ -15,7 +15,6 @@ import 'package:statitikcard/models/poke_region.dart';
 import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
 import 'package:statitikcard/screenOld/widgets/image_stored_locally.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/image_storage.dart';
 import 'package:statitikcard/services/tools.dart';
 import 'package:statitikcard/widgets/image/image_with_cache.dart';
 

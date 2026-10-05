@@ -11,7 +11,6 @@ import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/marker.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/pokemon_card_extension.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';
 import 'package:statitikcard/services/models/sub_extension_cards.dart';

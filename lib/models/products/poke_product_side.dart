@@ -3,8 +3,6 @@ import 'package:statitikcard/models/poke_identifier.dart';
 import 'package:statitikcard/models/poke_language.dart';
 import 'package:statitikcard/models/poke_rendering.dart';
 import 'package:statitikcard/models/products/poke_product_generic.dart';
-import 'package:statitikcard/services/tools.dart';
-import 'package:statitikcard/widgets/image/image_with_cache.dart';
 
 class PokeProductSide extends PokeProductGeneric
 {

@@ -16,6 +16,7 @@ import 'package:statitikcard/models/poke_rendering.dart';
 import 'package:statitikcard/models/poke_set.dart';
 import 'package:statitikcard/screenOld/admin/card_editor_options.dart';
 import 'package:statitikcard/screenOld/widgets/custom_radio.dart';
+import 'package:statitikcard/screens/wizard/wizard_select_similar_card.dart';
 import 'package:statitikcard/screens/wizard/wizard_select_title_name.dart';
 import 'package:statitikcard/widgets/widget/widget_button_check.dart';
 import 'package:statitikcard/widgets/widget/widget_button_pokedesign.dart';
@@ -483,25 +484,21 @@ class _PageAdminEditCardState extends State<PageAdminEditCard> with TickerProvid
             child: TextButton(
               child: Text(AppLocalizations.of(context)!.ca_b32),
               onPressed: () {
-                //TODO
-                /*
-                  if(widget.card.data.title.isNotEmpty) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SearchExtensionsCardId(widget.card.data.type,
-                          widget.card.data.title.isNotEmpty ? widget.card.data.title[0].name : null, widget.title, databaseCardId ?? 0)),
-                    ).then((idCard) {
-                      if(idCard != null) {
-                        setState(() {
-                          // Change object
-                          widget.card.data = Environment.instance.collection.pokemonCards[idCard]!;
-                          // Recompute default value
-                          selectCard();
-                        });
-                      }
-                    });
-                  }
-                  */
+                if(cardData.title.title.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => WizardSelectSimilarCard(widget._navAdmin, cardInExp))
+                  ).then((cardData) {
+                    if(cardData != null) {
+                      setState(() {
+                        // Change object
+                        widget._activeCard.cardInExp().card = cardData;
+                        // Recompute default value
+                        selectCard();
+                      });
+                    }
+                  });
+                }
               }
             )
           )

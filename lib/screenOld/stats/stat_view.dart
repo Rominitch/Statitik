@@ -100,30 +100,30 @@ class StatsView extends StatelessWidget {
             children: [
               Row(children: [Text(translator!.s_b4, style: Theme.of(context).textTheme.headlineSmall ),
                 const Spacer(),
-                data.stats!.anomaly > 0 ? Text(sprintf(translator!.s_b5, [data.stats!.nbBoosters, data.stats!.anomaly]))
-                    : Text(sprintf(translator!.s_b13, [data.stats!.nbBoosters]))
+                data.stats!.anomaly > 0 ? Text(sprintf(translator.s_b5, [data.stats!.nbBoosters, data.stats!.anomaly]))
+                    : Text(sprintf(translator.s_b13, [data.stats!.nbBoosters]))
               ]),
-              if(!options.print && options.showOption == OptionShowState.boosterLuck) Text(sprintf(translator!.s_b6, [divider.toInt()])),
+              if(!options.print && options.showOption == OptionShowState.boosterLuck) Text(sprintf(translator.s_b6, [divider.toInt()])),
               if(!options.print && options.showOption == OptionShowState.boosterLuck) const SizedBox(height: 8.0,),
-              Text(translator!.s_b21, style: Theme.of(context).textTheme.titleLarge ),
+              Text(translator.s_b21, style: Theme.of(context).textTheme.titleLarge ),
               ListView(
                 shrinkWrap: true,
                 primary: false,
                 children: rarity,
               ),
-              Text(translator!.s_b20, style: Theme.of(context).textTheme.titleLarge ),
+              Text(translator.s_b20, style: Theme.of(context).textTheme.titleLarge ),
               ListView(
                 shrinkWrap: true,
                 primary: false,
                 children: sets,
               ),
-              Text(translator!.s_b22, style: Theme.of(context).textTheme.titleLarge ),
+              Text(translator.s_b22, style: Theme.of(context).textTheme.titleLarge ),
               ListView(
                 shrinkWrap: true,
                 primary: false,
                 children: types,
               ),
-              if(!options.print && energyData) Text(translator!.s_b12, style: Theme.of(context).textTheme.headlineSmall ),
+              if(!options.print && energyData) Text(translator.s_b12, style: Theme.of(context).textTheme.headlineSmall ),
               if(!options.print && energyData) PieChartEnergies(allStats: data.stats!),
             ]
         ),

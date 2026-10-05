@@ -6,7 +6,6 @@ import 'package:statitikcard/screenOld/commonPages/extension_page.dart';
 import 'package:statitikcard/screenOld/widgets/cards_selection.dart';
 import 'package:statitikcard/services/draw/card_draw_data.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/pokemon_card_data.dart';
 import 'package:statitikcard/services/models/language.dart';
 import 'package:statitikcard/services/models/sub_extension.dart';

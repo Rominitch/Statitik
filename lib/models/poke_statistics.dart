@@ -1,9 +1,6 @@
-import 'package:mysql1/mysql1.dart';
-import 'package:statitikcard/models/draw/poke_expansion_draw.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
 import 'package:statitikcard/models/statistics/poke_stats_booster.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/models/models.dart';
 import 'package:statitikcard/services/tools.dart';
 
 class PokeStatistics {

@@ -9,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
 
 import 'package:statitikcard/l10n/statitik_localizations.dart';
-import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_language.dart';
 
 import 'package:statitikcard/screenOld/view.dart';
