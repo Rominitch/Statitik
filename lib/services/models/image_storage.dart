@@ -27,11 +27,11 @@ class ImageStorage {
   String? _applicationDocumentsPath;
 
   Future<void> loadFolders() async {
-    _applicationDocumentsPath = (await getApplicationDocumentsDirectory()).path;
+    _applicationDocumentsPath = (await getApplicationCacheDirectory()).path;
   }
 
   String imageLocalPath(List<String> folders, String file, String extension) {
-    return ([_applicationDocumentsPath]+folders+["$file.$extension"]).join(Platform.pathSeparator);
+    return ([_applicationDocumentsPath, "Collection"]+folders+["$file.$extension"]).join(Platform.pathSeparator);
   }
 
   Future<File?> storeImageToFile(String imageLocalPath, List<Uri> urls) async {

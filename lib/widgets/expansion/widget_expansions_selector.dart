@@ -2,11 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
 import 'package:statitikcard/models/poke_expansion.dart';
-import 'package:statitikcard/models/poke_serie.dart';
 import 'package:statitikcard/models/statistics/statistic_data.dart';
 import 'package:statitikcard/screenOld/widgets/button_check.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/widgets/expansion/widget_expansion_button.dart';
 
 class WidgetExpansionsSelector extends StatefulWidget {

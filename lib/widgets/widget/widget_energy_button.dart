@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:statitikcard/models/card/poke_card_effect.dart';
 import 'package:statitikcard/models/card/poke_card_energy_value.dart';
 import 'package:statitikcard/models/card/poke_card_type.dart';
-import 'package:statitikcard/models/card/poke_card_energy_value.dart';
 
 abstract class WidgetEnergyButtonController {
   void setValue(PokeCardType type);

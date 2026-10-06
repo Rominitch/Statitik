@@ -143,13 +143,14 @@ class _PageAdminEditProductState extends State<PageAdminEditProduct> {
 
       widget._nav.database.transactionR( (connection) {
         return widget._nav.collection.sendProducts(connection,[newProduct], widget.editProduct == null);
-      }).then((value) {
+      }).then((value) async {
         if(value) {
           // Reload all products and admin stuff
-          Environment.instance.restoreAdminData().then((value) {
-            EasyLoading.dismiss();
+          await Environment.instance.restoreAdminData();
+          EasyLoading.dismiss();
+          if( context.mounted ) {
             Navigator.popUntil(context, ModalRoute.withName('/'));
-          });
+          }
         } else {
           EasyLoading.showError("Erreur produit");
         }

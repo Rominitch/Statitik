@@ -100,6 +100,7 @@ class PokeFullCardPokemon {
 
   PokeFullCardPokemon(this.name, {this.region, this.form});
 
+  @Deprecated("Migration Only")
   PokeFullCardPokemon.fromBytesOld(BinaryReader reader, PokeCollection collection):
     name   = collection.cardTitleOld( reader.tmpReadInt16BIG() )!,
     region = collection.regionOld(reader.readInt8()),
@@ -122,7 +123,7 @@ class PokeFullCardPokemon {
       title = sprintf(l.label(form!)!, [title]);
     }
     if(region != null) {
-      title = sprintf(l.label(region!)!, [title]);
+      title = sprintf(region!.applicableName(l)!, [title]);
     }
     return title;
   }
@@ -133,6 +134,7 @@ class PokeTitleCard {
 
   PokeTitleCard.empty() : title = [];
 
+  @Deprecated("Migration Only")
   PokeTitleCard.fromBytesOld(BinaryReader reader, PokeCollection collection) : title = []
   {
     while (reader.canParse()) {

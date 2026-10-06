@@ -20,7 +20,7 @@ class PokeEffectName extends PokeIdentifier {
 class PokeEffectDescription {
   PokeDbDescription  description;
   List<int>          parameters = []; ///< List of parameter to substitute
-  List<PokeDescriptionEffect> _effects = [];
+  List<PokeDescriptionEffect> _effects;
 
   PokeEffectDescription(this.description, this.parameters, this._effects);
 
@@ -29,8 +29,10 @@ class PokeEffectDescription {
 
   PokeEffectDescription.fromBytes(BinaryReader reader, PokeCollection collection):
     description = collection.description(PokeIdentifier.fromBytes(reader))!,
-    parameters  = reader.readSmallList((reader) => reader.readUint32() ) {
-    _effects    = collection.computeDescriptionEffects(description);
+    parameters  = reader.readSmallList((reader) => reader.readUint32() ),
+    _effects    = []
+  {
+    _effects = collection.computeDescriptionEffects(description);
   }
 
   void toBytes(BinaryWriter writer) {

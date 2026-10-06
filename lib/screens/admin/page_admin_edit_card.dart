@@ -463,8 +463,7 @@ class _PageAdminEditCardState extends State<PageAdminEditCard> with TickerProvid
     final imageSizeH = (MediaQuery.of(context).size.width > 500) ? null : 270.0;
     final imageSizeW = (MediaQuery.of(context).size.width > 500) ? 380.0 : null;
 
-    final cardInExp = widget._activeCard.cardInExp();
-    final cardData = cardInExp.card;
+    final cardData = widget._activeCard.cardInExp().card;
 
     final int databaseCardId = cardData.pid().id();
     final codeDB = databaseCardId != 0
@@ -487,7 +486,7 @@ class _PageAdminEditCardState extends State<PageAdminEditCard> with TickerProvid
                 if(cardData.title.title.isNotEmpty) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => WizardSelectSimilarCard(widget._navAdmin, cardInExp))
+                    MaterialPageRoute(builder: (context) => WizardSelectSimilarCard(widget._navAdmin, widget._activeCard))
                   ).then((cardData) {
                     if(cardData != null) {
                       setState(() {

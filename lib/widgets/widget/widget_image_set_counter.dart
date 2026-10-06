@@ -48,12 +48,7 @@ class _WidgetImageSetCounterState extends State<WidgetImageSetCounter> {
 
   @override
   void initState() {
-    var card = widget.cardSelector.card();
     designId = widget.imageId;
-    /*card.images[widget.imageId.idSet].isEmpty
-        ? PokeCardImageIdentifier(0, 0) // Show always first valid image
-        : PokeCardImageIdentifier(widget.imageId.set, widget.imageId.idImage);
-     */
     var count = widget.cardSelector.codeDraw().getCountFrom(widget.imageId.set, widget.imageId.idImage);
     textController = TextEditingController(text: count.toString());
     super.initState();

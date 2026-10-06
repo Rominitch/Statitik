@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -168,7 +167,6 @@ class Environment
             try {
                 bool isDBReady       = false;
                 int  currentDataDB   = 0;
-                String currentVersion = db.version;
 
                 // Load user
                 onInfoLoading.add(LoadingCode.load_0);
@@ -807,17 +805,13 @@ class Environment
             // Cards
             for(var card in product.otherCards) {
                 // Search subextension with same extension cards in new language
-                SubExtension? subExtension = collection.subExtensions.values.firstWhere((element) {
+                SubExtension subExtension = collection.subExtensions.values.firstWhere((element) {
                     return element.extension.language == newLanguage && card.subExtension.seCards == element.seCards;
                 });
-                if(subExtension == null) {
-                    printOutput("Impossible to find card SubExtension: ${card.subExtension.name}");
-                } else {
-                    ProductCard newCard = ProductCard(
-                        subExtension, card.idCard, card.design, card.jumbo,
-                        card.isRandom, card.counter);
-                    newProduct.otherCards.add(newCard);
-                }
+                ProductCard newCard = ProductCard(
+                    subExtension, card.idCard, card.design, card.jumbo,
+                    card.isRandom, card.counter);
+                newProduct.otherCards.add(newCard);
             }
 
             // Other products

@@ -71,7 +71,6 @@ class _CardBodyState extends State<CardBody> with TickerProviderStateMixin {
       ));
     });
     collection.searchCardIntoSubExtension(data, true).forEach((PokeCardViewerIdentifier result) {
-      final card = result.cardInExp();
       for(final language in result.compatibleLanguage()) {
         // Add language
         if(!allDesigns.containsKey(language)) {

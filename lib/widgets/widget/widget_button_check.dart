@@ -8,14 +8,9 @@ import 'package:statitikcard/models/poke_marker.dart';
 import 'package:statitikcard/models/poke_rarity.dart';
 import 'package:statitikcard/models/poke_rendering.dart';
 import 'package:statitikcard/models/poke_set.dart';
-
-import 'package:statitikcard/services/models/card_set.dart';
 import 'package:statitikcard/services/models/card_design.dart';
-import 'package:statitikcard/services/models/language.dart';
-import 'package:statitikcard/services/models/marker.dart';
 import 'package:statitikcard/services/models/serie_type.dart';
 import 'package:statitikcard/services/models/models.dart';
-import 'package:statitikcard/services/models/rarity.dart';
 import 'package:statitikcard/services/models/type_card.dart';
 
 class WidgetCustomButtonCheckController<ValueType> {

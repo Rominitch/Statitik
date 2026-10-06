@@ -102,8 +102,13 @@ class PokeCollection {
 
   @Deprecated("Migration Only")
   PokeRegion? regionOld(int oldId){
-    if(oldId > 0) {
-      return region(PokeIdentifier(oldId + 910000000));
+    try {
+      if(oldId > 0) {
+        return region(PokeIdentifier.region(oldId, true));
+      }
+    } catch(_) {
+      printOutput("Mission region: $oldId");
+      rethrow;
     }
     return null;
   }
@@ -115,7 +120,8 @@ class PokeCollection {
         if( oldId == 23) { return null; }
         if( oldId > 23) { oldId = oldId - 1;}
         return form(PokeIdentifier(oldId + 520000000));
-      } catch(e) {
+      } catch(_) {
+        printOutput("Mission Form: $oldId");
         rethrow;
       }
     }

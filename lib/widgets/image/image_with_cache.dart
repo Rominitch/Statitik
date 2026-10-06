@@ -20,7 +20,7 @@ class ImageWithCache extends StatefulWidget {
     for( final webName in webNames) {
       webAddress += [
         Uri.parse("$adresseHTTPS/StatitikCard/$folder/$webName.webp"),
-        Uri.parse("$adresseHTTPS/StatitikCard/$folder/$webName.png")
+        //Uri.parse("$adresseHTTPS/StatitikCard/$folder/$webName.png")
       ];
     }
     return ImageWithCache(folder, webAddress,

@@ -4,7 +4,6 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import 'package:sprintf/sprintf.dart';
 import 'package:statitikcard/l10n/statitik_localizations.dart';
-import 'package:statitikcard/models/admin/poke_admin.dart';
 import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_data_navigation.dart';
 import 'package:statitikcard/models/poke_language.dart';
@@ -44,8 +43,6 @@ enum AdminPage {
 
 class _PageAdminMenuState extends State<PageAdminMenu> {
   bool demanded = false;
-  final PokeAdmin  _admin = PokeAdmin();
-
   AdminPage _page = AdminPage.menu;
   String _pageTitle = "";
 

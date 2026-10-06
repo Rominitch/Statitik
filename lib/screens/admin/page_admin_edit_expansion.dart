@@ -104,27 +104,22 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
     super.initState();
   }
 
-
-
-  bool backAction(BuildContext context) {
-    // TODO: migration
-    //widget._expension.expansion!.computeStats();
+  void backAction(BuildContext context) {
     showDialog(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return showExit(context);
-        }).then((exit) {
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return showExit(context);
+      }
+    ).then( (exit) async {
       if (exit) {
-        if(context.mounted) {
-          Navigator.of(context).pop(true);
-        }
-      } else {
-        return false;
+        EasyLoading.show();
+        await Environment.instance.restoreAdminData();
+        EasyLoading.dismiss();
+        widget._onReturn();
       }
     }
     );
-    return false;
   }
 
   Widget headerExpansion() {
@@ -234,7 +229,7 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
             gridDelegate: delegate,
             itemCount: widget._expansion.expansion!.cards.cards.length,
             itemBuilder: (context, index) {
-              final cvid = PokeCardViewerIdentifier(widget._expansion.expansion!, PokeCardIdentifier.from([0, index, 0]));
+              final cvid = PokeCardViewerIdentifier(widget._expansion.expansion!, PokeCardIdentifier.from([0, index, 0]), specificLanguage: widget._expansion.language!);
               return WidgetAdminCardButton(widget._nav, cvid, onAddCard, onSelectCard, onRemoveCard);
             },
           );
@@ -245,7 +240,7 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
             gridDelegate: delegate,
             itemCount: widget._expansion.expansion!.cards.energyCard.length,
             itemBuilder: (context, index) {
-              final cvid = PokeCardViewerIdentifier(widget._expansion.expansion!, PokeCardIdentifier.from([1, index, 0]));
+              final cvid = PokeCardViewerIdentifier(widget._expansion.expansion!, PokeCardIdentifier.from([1, index, 0]), specificLanguage: widget._expansion.language!);
               return WidgetAdminCardButton(widget._nav, cvid, onAddCard, onSelectCard, onRemoveCard);
             },
           );
@@ -256,7 +251,7 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
             gridDelegate: delegate,
             itemCount: widget._expansion.expansion!.cards.noNumberedCard.length,
             itemBuilder: (context, index) {
-              final cvid = PokeCardViewerIdentifier(widget._expansion.expansion!, PokeCardIdentifier.from([2, index, 0]));
+              final cvid = PokeCardViewerIdentifier(widget._expansion.expansion!, PokeCardIdentifier.from([2, index, 0]), specificLanguage: widget._expansion.language!);
               return WidgetAdminCardButton(widget._nav, cvid, onAddCard, onSelectCard, onRemoveCard);
             },
           );
@@ -325,8 +320,7 @@ class _PageAdminEditExpansionState extends State<PageAdminEditExpansion> {
                 activeCard = null;
               });
             } else {
-              //backAction(context);
-              widget._onReturn();
+              backAction(context);
             }
           },
         ),

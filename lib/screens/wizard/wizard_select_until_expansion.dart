@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:statitikcard/models/poke_collection.dart';
 import 'package:statitikcard/models/poke_language.dart';
 
 import 'package:statitikcard/models/statistics/statistic_data.dart';

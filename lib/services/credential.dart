@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:google_sign_in_all_platforms/google_sign_in_all_platforms.dart';
-import 'package:googleapis/people/v1.dart' as people;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:statitikcard/l10n/statitik_localizations.dart';
@@ -72,7 +71,7 @@ class Credential
     return await _googleSignIn.signInOnline();
   }
 
-  void signInWithGoogle(onSuccess) {
+  void signInWithGoogle(Function(String?, bool?) onSuccess) {
     void afterConnexion(GoogleSignInCredentials? cred)
     {
       _googleSignIn.authenticatedClient.then( (authClient) async
@@ -97,7 +96,7 @@ class Credential
 
         final newId = "google-$userId";
         // Finish connection
-        onSuccess(newId, newId, email.contains("cloudtestlabaccounts"));
+        onSuccess(newId, email.contains("cloudtestlabaccounts"));
       });
     }
     seamlessAuthentication().then( (GoogleSignInCredentials? authClient)

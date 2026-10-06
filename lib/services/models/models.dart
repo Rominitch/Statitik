@@ -6,7 +6,6 @@ import 'package:statitikcard/services/models/bytes_coder.dart';
 import 'package:statitikcard/services/models/card_set.dart';
 import 'package:statitikcard/services/draw/card_draw_data.dart';
 import 'package:statitikcard/services/environment.dart';
-import 'package:statitikcard/services/internationalization.dart';
 import 'package:statitikcard/services/models/card_design.dart';
 import 'package:statitikcard/services/models/card_identifier.dart';
 import 'package:statitikcard/services/models/card_title_data.dart';
